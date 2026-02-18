@@ -1,0 +1,89 @@
+---
+#
+# Content-Type: application/ld+yaml; profile="http://www.w3.org/ns/json-ld#frame"
+#
+# Only show fields listed in @context.
+"@explicit": true
+
+# Never embed external references.
+"@embed": "@never"
+"@omitDefault": true
+
+# Use context.
+"@context": &jsonld_context
+  # "@base": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/"
+  "@vocab": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/"
+
+  dct: http://purl.org/dc/terms/
+  skos: http://www.w3.org/2004/02/skos/core#
+  xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+  clvapit: https://w3id.org/italia/onto/CLV/
+  xsd: "http://www.w3.org/2001/XMLSchema#"
+  INAILService: https://w3id.org/italia/work-accident/onto/adm_serv/
+
+  # Fields.
+  url: "@id"
+  id:
+    "@id": skos:notation
+    # "@type": "@value"
+
+  #Localize labels. Order is relevant.
+  label:
+    "@id": skos:prefLabel
+    "@language": it
+  label_it:
+    "@id": skos:prefLabel
+    "@language": it
+  label_en:
+    "@id": skos:prefLabel
+    "@language": en
+  label_de:
+    "@id": skos:prefLabel
+    "@language": de
+
+  # When mapping to a list, use @container: @set
+  #   to ensure that JSON-LD framing handles it as an array.
+  parent:
+    "@id": skos:broader
+    "@container": "@set"
+    "@context":
+        url: "@id"
+        id: skos:notation
+
+  vocab:
+    "@id": skos:inScheme
+    "@container": "@set"
+    "@context":
+      url: "@id"
+
+  level:
+    # Use type coercion to ensure that level is a JSON Number.
+    "@id": xkos:depth
+    "@type": xsd:integer
+
+"@requireAll": true
+# Matching on type works.
+"@type":
+  - &jsonld_type "INAILService:AgenteCausaleINAIL"
+url: {}
+id: {}
+label_de: {}
+label_en: {}
+label_it: {}
+label:
+  "@language": ["it", "en", "de"]
+  "@value": {}
+level: {}
+
+vocab:
+- url: "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale"
+  "@explicit": true
+  "@embed": "@never"
+parent:
+- url: {}
+  "@type": INAILService:AgenteCausaleINAIL
+  id: {}
+  "@default": "@null"
+  "@embed": "@always"
+  "@explicit": true
+  "@requireAll": false

@@ -12,6 +12,7 @@ of the National Data Catalog for Semantic Interoperability.
 - 📝 [Contributing](#contributing)
 - ⚖️ [License](#license)
 
+
 ## Usage
 
 The core documentation for this project
@@ -21,12 +22,22 @@ You can find it in the [docs](docs) folder.
 - [CSV Serialization](docs/README.csv.md)
 - [REST API for Controlled Vocabularies](docs/README.api.md)
 
+
 ## Contributing
 
 Please, see [CONTRIBUTING.md](CONTRIBUTING.md) for more details on:
 
 - using [pre-commit](CONTRIBUTING.md#pre-commit);
 - following the git flow and making good [pull requests](CONTRIBUTING.md#making-a-pr).
+
+Repository layout is the following:
+
+```text
+├── assets/controlled-vocabularies  # Controlled vocabularies.
+│       └── agente_causale/latest   #
+```
+
+
 
 ## Using this repository
 
