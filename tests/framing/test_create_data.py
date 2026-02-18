@@ -33,7 +33,7 @@ def test_can_frame_data(data, frame, expected_payload):
     - I expect the framed API to only include fields from the framing context, or "@type"
     """
     framed: JsonLD = framer(frame, data)
-    context, graph = framed["@context"], framed["@graph"]
+    _, graph = framed["@context"], framed["@graph"]
     frame_fields = frame_context_fields(frame) + ["@type"]
     for item in graph:
         # Check that only fields in frame context are present
@@ -71,7 +71,7 @@ def test_generate_api_data(vocabulary_ttl):
     data_ttl = vocabulary_ttl.read_text()
 
     framed = framer(frame, data_ttl)
-    context, graph = framed["@context"], framed["@graph"]
+    _, graph = framed["@context"], framed["@graph"]
 
     filtered_items = framed["statistics"]["filtered"]
     for id_ in [x["url"] for x in graph]:
