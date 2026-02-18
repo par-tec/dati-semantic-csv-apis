@@ -64,7 +64,11 @@ def framer(frame: JsonLDFrame, rdf_data: str, batch_size: int = 0) -> JsonLD:
 
     # Always use batch processing for consistent code path
     all_framed_items: list = []
-    statistics = {"source_items": 0, "framed_items": 0, "filtered": []}
+    statistics: dict[str, int | list] = {
+        "source_items": 0,
+        "framed_items": 0,
+        "filtered": [],
+    }
 
     #
     # To reduce issues with large datasets (e.g., RAM usage, ...)
@@ -73,7 +77,7 @@ def framer(frame: JsonLDFrame, rdf_data: str, batch_size: int = 0) -> JsonLD:
     #   be fully captured if they span across batches.
     #
     for batch in batched(items, batch_size) if batch_size > 0 else [items]:
-        batch_len = len(batch)
+        batch_len: int = len(batch)
         log.info(f"Processing batch ({batch_len} items)")
         statistics["source_items"] += batch_len
 
