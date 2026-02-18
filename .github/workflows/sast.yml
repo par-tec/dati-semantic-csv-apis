@@ -1,0 +1,35 @@
+---
+name: "SAST"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+permissions: read-all
+
+jobs:
+  super-sast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v3
+    - name: Test
+      run: |
+        echo "UID=$(id -u)" >> .env
+        docker run --rm --user="$(id -u)" \
+          -v "${PWD}:/code" \
+          -w /code \
+          -e MAVEN_OPTS=" -ntp " \
+          -e RUN_OWASP_DEPENDENCY_CHECK=false \
+          -e RUN_SPOTBUGS_CHECK=false \
+          -e RUN_SPOTLESS_CHECK=false \
+          -e RUN_SPOTLESS_APPLY=false \
+          -e HOME=/tmp \
+          -e USER=nobody \
+          -e BANDIT_CONFIG_FILE=/code/.bandit.yaml \
+          ghcr.io/par-tec/super-sast:latest

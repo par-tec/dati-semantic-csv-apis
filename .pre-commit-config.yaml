@@ -1,0 +1,75 @@
+#
+# Run pre-commit hooks. You can run them without installing
+#  the hook with
+#
+# $ pre-commit run --all-files
+#
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+default_stages:
+  - pre-commit
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  # Manage spaces.
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-added-large-files
+  - id: check-symlinks
+  - id: mixed-line-ending
+    args: [--fix=lf]
+  # Check file syntax/format
+  - id: check-xml
+  - id: check-json
+  - id: check-yaml
+    args: [--allow-multiple-documents]
+  # Security checks.
+  - id: detect-private-key
+  - id: detect-aws-credentials
+    args:
+    # See https://github.com/pre-commit/pre-commit-hooks/issues/174
+    - --allow-missing-credentials
+- repo: https://github.com/google/yamlfmt
+  rev: v0.21.0
+  hooks:
+  - id: yamlfmt
+    files: \.(yaml|yml)$
+    exclude: 'config\.yaml'
+#
+# Python linters.
+#
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  # Ruff version.
+  rev: v0.15.1
+  hooks:
+  # Run the linter.
+  - id: ruff
+    args: [--fix]
+  - # Run the formatter.
+    id: ruff-format
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.19.1
+  hooks:
+  - id: mypy
+    additional_dependencies: [types-PyYAML]
+    exclude: ^tests/
+#
+# Security linters.
+#
+- repo: https://github.com/bridgecrewio/checkov.git
+  rev: 3.2.504  # change to tag or sha
+  hooks:
+  - id: checkov
+  - id: checkov_secrets
+    stages: ["pre-push"]
+- repo: local
+  hooks:
+  - id: trufflehog
+    name: TruffleHog
+    description: Detect secrets in your data.
+    entry: bash -c 'docker run --rm -v "$(pwd):/workdir" -i --rm
+      trufflesecurity/trufflehog:latest git file:///workdir --since-commit
+      HEAD --results=verified,unknown --fail'
+    language: system
+    stages: ["pre-push"]
