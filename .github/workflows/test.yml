@@ -5,7 +5,8 @@
 
 name: Test
 
-permissions: read-all
+# Github token permissions.
+permissions: {}
 
 # Controls when the action will run.
 on:

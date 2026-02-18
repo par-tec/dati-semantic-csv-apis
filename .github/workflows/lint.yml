@@ -10,7 +10,8 @@ on:
     branches:
     - main
 
-permissions: read-all
+# Github token permissions.
+permissions: {}
 
 jobs:
   lint:
