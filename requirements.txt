@@ -3,6 +3,10 @@ genson
 jsonschema
 oxrdflib
 pandas
-pyld
+#
+# The pyld version is pinned to a specific commit containing
+#   a fix for JSON-LD framing issues.
+#
+git+https://github.com/digitalbazaar/pyld.git@598dd0a7b1614d86926aec5f3e61210caeaf17e0#egg=pyld
 pyyaml
 rdflib

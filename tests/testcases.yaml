@@ -1,0 +1,659 @@
+---
+components:
+  schemas:
+    URL: &URL
+      type: string
+      format: uri
+    Label: &Label
+      type: string
+      minLength: 1
+      maxLength: 500
+description: |-
+  Collection of test cases for the agente_causale controlled vocabulary
+  framed into JSON structures using JSON-LD framing.
+
+  This file contains test cases for different framing contexts and
+  configurations, ensuring that the framing process produces the expected
+  JSON payloads and adheres to the defined JSON schemas.
+
+  Frames are commented to provide guidance in creating
+  JSON-LD frames to accommodate various use cases.
+testcases:
+- name: agente_causale_skos
+  data: &agente_causale_ttl |-
+    @prefix adms: <http://www.w3.org/ns/adms#> .
+    @prefix agentcaus: <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/> .
+    @prefix clvapit: <https://w3id.org/italia/onto/CLV/> .
+    @prefix dcat: <http://www.w3.org/ns/dcat#> .
+    @prefix dcatapit: <http://dati.gov.it/onto/dcatapit#> .
+    @prefix dct: <http://purl.org/dc/terms/> .
+    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+    @prefix ggroupagentcaus: <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/grande_gruppo/> .
+    @prefix grupagentecaus: <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/> .
+    @prefix INAILService: <https://w3id.org/italia/work-accident/onto/adm_serv/> .
+    @prefix ndc: <https://w3id.org/italia/onto/NDC/> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+    @prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+    @prefix xkos: <http://rdf-vocabulary.ddialliance.org/xkos#> .
+    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+    <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale> a adms:Asset,
+            dcatapit:Dataset,
+            skos:ConceptScheme ;
+        rdfs:label "This is the controlled vocabulary of causal agents adopted by INAIL classification"@en,
+            "Vocabolario Controllato sulla classificazione degli agenti causali adottata dall'INAIL"@it ;
+        skos:prefLabel "Vocabolario Controllato sulla classificazione degli agenti causali adottata dall'INAIL"@it ;
+        rdfs:comment "Decodifica dell'agente, lavorazione, o esposizione che puo' essere causa o concausa di malattia"@it,
+            "Decoding of the agent, processing, or aspect that can cause or contribute to disease"@en ;
+        owl:versionInfo "0.5" ;
+        rdfs:isDefinedBy <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale> ;
+        adms:representationTechnique <http://purl.org/adms/representationtechnique/SKOS> ;
+        dcat:contactPoint <https://w3id.org/italia/work-accident/data/organization/ufficioV> ;
+        dcat:distribution <https://w3id.org/italia/work-accident/data/adm_serv/distribution/AC_CSV>,
+            <https://w3id.org/italia/work-accident/data/adm_serv/distribution/AC_JSON>,
+            <https://w3id.org/italia/work-accident/data/adm_serv/distribution/AC_RDF_TURTLE> ;
+        dcat:keyword "agente causale"@it,
+            "chemical product"@en,
+            "inail"@it,
+            "infortunio"@it,
+            "malattia professionale"@it,
+            "occupational accident"@en,
+            "occupational disease"@en,
+            "prodotto chimico"@it ;
+        dcat:theme <http://publications.europa.eu/resource/authority/data-theme/ECON>,
+            <http://publications.europa.eu/resource/authority/data-theme/HEAL>,
+            <http://publications.europa.eu/resource/authority/data-theme/SOCI> ;
+        dct:accrualPeriodicity <http://publications.europa.eu/resource/authority/frequency/IRREG> ;
+        dct:conformsTo <https://w3id.org/italia/data/standard/SKOS> ;
+        dct:creator <https://w3id.org/italia/work-accident/data/organization/inail> ;
+        dct:description "Decodifica dell'agente, lavorazione, o esposizione che puo' essere causa o concausa di malattia"@it,
+            "Decoding of the agent, processing, or aspect that can cause or contribute to disease"@en ;
+        dct:identifier "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale" ;
+        dct:issued "2022-09-06"^^xsd:date ;
+        dct:language <http://publications.europa.eu/resource/authority/language/ITA> ;
+        dct:modified "2023-07-31"^^xsd:date ;
+        dct:publisher <https://w3id.org/italia/work-accident/data/organization/inail> ;
+        dct:relation <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_materiale>,
+            <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/deviazione>,
+            <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/tipo_contatto> ;
+        dct:rightsHolder <https://w3id.org/italia/work-accident/data/organization/inail> ;
+        dct:subject <http://eurovoc.europa.eu/1754>,
+            <http://eurovoc.europa.eu/1761>,
+            <http://eurovoc.europa.eu/1993>,
+            <http://eurovoc.europa.eu/2739>,
+            <http://eurovoc.europa.eu/100215> ;
+        dct:title "Classification of causal agents adopted by INAIL Controlled Vocabulary"@en,
+            "Vocabolario Controllato sulla classificazione degli agenti causali adottata dall'INAIL"@it ;
+        dct:type <http://purl.org/adms/assettype/CodeList> ;
+        ndc:keyConcept "agente_causale" ;
+        skos:hasTopConcept ggroupagentcaus:1,
+            ggroupagentcaus:2,
+            ggroupagentcaus:3,
+            ggroupagentcaus:4,
+            ggroupagentcaus:5,
+            ggroupagentcaus:6,
+            ggroupagentcaus:7 ;
+        xkos:numberOfLevels "3" .
+
+    ### Annotations
+
+    agentcaus:11110101 a INAILService:AgenteCausaleINAIL,
+            skos:Concept ;
+        rdfs:label "Idrogeno"@it ;
+        skos:prefLabel "Idrogeno"@it ;
+        clvapit:hasRankOrder "3" ;
+        dct:identifier "11110101" ;
+        skos:broader grupagentecaus:1.1 ;
+        skos:inScheme <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale> ;
+        skos:notation "11110101" ;
+        xkos:depth 3 .
+
+    agentcaus:11110102 a INAILService:AgenteCausaleINAIL,
+            skos:Concept ;
+        rdfs:label "Tritio"@it ;
+        skos:prefLabel "Tritio"@it ;
+        clvapit:hasRankOrder "3" ;
+        dct:identifier "11110102" ;
+        skos:broader grupagentecaus:1.1 ;
+        skos:inScheme <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale> ;
+        skos:notation "11110102" ;
+        xkos:depth 3 .
+
+    ggroupagentcaus:1 a INAILService:AgenteCausaleINAIL,
+          skos:Concept ;
+      rdfs:label "Agenti chimici inorganici"@it ;
+      skos:prefLabel "Agenti chimici inorganici"@it ;
+      clvapit:hasRankOrder "1" ;
+      dct:identifier "1" ;
+      skos:inScheme <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale> ;
+      skos:narrower grupagentecaus:1.1,
+          grupagentecaus:1.2,
+          grupagentecaus:1.3,
+          grupagentecaus:1.4,
+          grupagentecaus:1.5,
+          grupagentecaus:1.6,
+          grupagentecaus:1.9 ;
+      skos:notation "1" ;
+      xkos:depth 1 .
+  frame: &agente_causale_skos_frame
+    #
+    # This frame project a vocabulary compliant with the SKOS model
+    #   to a JSON structure. It relies only on skos and xkos vocabularies
+    #   and not on the rdfs model.
+    #
+    # Only show fields and identifiers listed in @context.
+    "@explicit": true
+
+    # Always embed external references.
+    "@embed": "@never"
+    "@omitDefault": true
+
+    # Use context.
+    "@context": &agente_causale_skos_context
+      "@base": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/"
+      "@vocab": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/"
+
+      dct: http://purl.org/dc/terms/
+      skos: http://www.w3.org/2004/02/skos/core#
+      xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+      clvapit: https://w3id.org/italia/onto/CLV/
+      xsd: "http://www.w3.org/2001/XMLSchema#"
+
+      # Fields.
+      url: "@id"
+      id:
+        "@id": "skos:notation"
+
+      #Localize labels. Order is relevant.
+      label:
+        "@id": skos:prefLabel
+      label_it:
+        "@id": skos:prefLabel
+        "@language": it
+      label_en:
+        "@id": skos:prefLabel
+        "@language": en
+      label_de:
+        "@id": skos:prefLabel
+        "@language": de
+      # When mapping to a list, use @container: @set
+      #   to ensure that JSON-LD framing handles it as an array.
+      parent:
+        # A list of broader links.
+        "@id": "skos:broader"
+        "@container": "@set"
+        "@context":
+          url: "@id"
+
+      vocab:
+        "@id": skos:inScheme
+        "@container": "@set"
+        "@context":
+          url: "@id"
+
+      level:
+        # Use type coercion to ensure that level is a JSON Number.
+        "@id": xkos:depth
+        "@type": xsd:integer
+
+    "@requireAll": true
+    #
+    # Filter entries.
+    #
+    "@type":
+    - "https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL"
+    url: {}
+    id: {}
+    label_de: {}
+    label_en: {}
+    label_it: {}
+    label:
+      "@language": ["it", "en", "de"]
+      "@value": {}
+    level: {}
+
+    # Only pick entries in the specified vocabulary.
+    vocab:
+    - url: "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale"
+      "@explicit": true
+      # If the referenced vocabulary has further properties,
+      #   (e.g., @type), do not embed them.
+      "@embed": "@never"
+    # If no parent, return an empty list (e.g., when level=1).
+    parent:
+    - url: {}
+      "@default": "@null"
+      "@explicit": true
+      "@requireAll": false
+      "@embed": "@never"
+  expected_payload:
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '11110101'
+    level: 3
+    label_it: Idrogeno
+    parent:
+    - url: gruppo/1.1
+    url: agente/11110101
+    vocab:
+    - url: ../agente_causale
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '11110102'
+    label_it: Tritio
+    level: 3
+    parent:
+    - url: gruppo/1.1
+    url: agente/11110102
+    vocab:
+    - url: ../agente_causale
+  - '@type':
+    - 'https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL'
+    - 'skos:Concept'
+    id: '1'
+    label_it: 'Agenti chimici inorganici'
+    level: 1
+    parent: []
+    url: 'grande_gruppo/1'
+    vocab:
+    - url: '../agente_causale'
+  expected_jsonschema: &agente_causale_skos_jsonschema
+    type: object
+    properties:
+      url: *URL
+      id:
+        type: string
+        minLength: 1
+        pattern: '^[A-Za-z0-9._-]+$'
+      label_it: *Label
+      vocab:
+        type: array
+
+        items:
+          type: object
+          required:
+          - url
+          properties:
+            url: *URL
+      parent:
+        type: array
+
+        items:
+          type: object
+          required:
+          - url
+          properties:
+            url: *URL
+      level:
+        type: integer
+        minimum: 0
+        maximum: 10
+    required:
+    - id
+    - label_it
+    - level
+    - parent
+    - url
+    - vocab
+  expected_csv: |
+    id,label_it,level,parent,url,vocab
+    11110101,Idrogeno,3,gruppo/1.1,agente/11110101,../agente_causale
+    11110102,Tritio,3,gruppo/1.1,agente/11110102,../agente_causale
+    1,Agenti chimici inorganici,1,[],grande_gruppo/1,../agente_causale
+  expected_datapackage:
+    name: datapackage
+    resources:
+    - name: agente_causale
+      type: table
+      path: agente_causale.csv
+      dialect:
+        inline:
+          keyed: true
+      format: inline
+      schema:
+        fields:
+        - name: id
+          type: string
+        - name: label
+          type: string
+        - name: label_de
+          type: string
+        - name: label_en
+          type: string
+        - name: level
+          type: integer
+        - name: url
+          type: string
+- name: agente_causale_skos_uri
+  data: *agente_causale_ttl
+  frame:
+    <<: *agente_causale_skos_frame
+    "@context":
+      <<: *agente_causale_skos_context
+      # When a frame context does not have a @base,
+      #   all @id fields are serialized as full URIs.
+      "@base": null
+  expected_payload:
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '11110101'
+    label_it: Idrogeno
+    level: 3
+    parent:
+    - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
+    url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110101
+    vocab:
+    - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '11110102'
+    label_it: Tritio
+    level: 3
+    parent:
+    - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
+    url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110102
+    vocab:
+    - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '1'
+    label_it: Agenti chimici inorganici
+    level: 1
+    parent: []
+    url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/grande_gruppo/1
+    vocab:
+    - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+
+  expected_jsonschema: *agente_causale_skos_jsonschema
+- name: agente_causale_rdfs
+  data: *agente_causale_ttl
+  frame:
+    # Content-Type: application/ld+yaml; profile="http://www.w3.org/ns/json-ld#frame"
+    #
+    # This frame project a vocabulary compliant with the SKOS model
+    #   to a JSON structure. It relies only on skos and xkos vocabularies
+    #   and not on the rdfs model.
+    #
+    # Only show fields and identifiers listed in @context.
+    "@explicit": true
+
+    # Always embed external references.
+    "@embed": "@never"
+    "@omitDefault": true
+
+    # Use context.
+    "@context":
+      "@base": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/"
+      "@vocab": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/"
+      #
+      # Prefixes
+      #
+      rdfs: http://www.w3.org/2000/01/rdf-schema#
+      dct: http://purl.org/dc/terms/
+      skos: http://www.w3.org/2004/02/skos/core#
+      xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+      clvapit: https://w3id.org/italia/onto/CLV/
+      xsd: "http://www.w3.org/2001/XMLSchema#"
+      #
+      # Mappings
+      #
+      url: "@id"
+      id:
+        "@id": "dct:identifier"
+      label_it:
+        "@id": rdfs:label
+        "@language": it
+      level:
+        # Use type coercion to ensure that level is a JSON Number.
+        "@id": clvapit:hasRankOrder
+        # "@type": xsd:integer
+
+    #
+    # Filter entries.
+    #
+    "@type":
+    - "https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL"
+    level: {}
+    id: {}
+    label_it:
+      "@language": ["it", "en"]
+      "@value": {}
+  expected_payload:
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '11110101'
+    # JSON-LD 1.1 only converts xsd:integer to JSON Number:
+    #   other derived datatypes (xsd:int, xsd:long) are left as strings
+    #   and need to be post-processed if needed.
+    level: "3"
+    label_it: Idrogeno
+    url: agente/11110101
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '11110102'
+    label_it: Tritio
+    level: "3"
+    url: agente/11110102
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '1'
+    label_it: Agenti chimici inorganici
+    level: '1'
+    url: grande_gruppo/1
+  expected_jsonschema:
+    type: object
+    properties:
+      url: *URL
+      id:
+        type: string
+        minLength: 1
+        pattern: '^[A-Za-z0-9._-]+$'
+      label_it: *Label
+      level:
+        type: string
+    required:
+    - id
+    - label_it
+    - level
+    - url
+
+- name: language-eu
+  data: |-
+    @prefix : <http://publications.europa.eu/resource/authority/language/> .
+    @prefix at: <http://publications.europa.eu/ontology/authority/> .
+    @prefix atold: <http://publications.europa.eu/resource/authority/> .
+    @prefix dc: <http://purl.org/dc/elements/1.1/> .
+    @prefix euvoc: <http://publications.europa.eu/ontology/euvoc#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+    :SPN a skos:Concept ;
+      skos:prefLabel "Sanapaná"@en ;
+      at:authority-code "SPN" ;
+      at:deprecated "false" ;
+      at:op-code "SPN" ;
+      at:op-mapped-code [ a at:MappedCode ;
+              at:legacy-code "spn" ;
+              dc:source "iso-639-3" ] ;
+      at:start.use "1950-05-09" ;
+      atold:op-code "SPN" ;
+      dc:identifier "SPN" ;
+      skos:inScheme :0003,
+          atold:language ;
+      skos:notation "spn"^^euvoc:ISO_639_3,
+          "spn"^^euvoc:XML_LNG ;
+      skos:topConceptOf :0003,
+          atold:language .
+
+      :ENG a skos:Concept ;
+          skos:prefLabel "angielski"@pl,
+              "anglais"@fr,
+              "angleščina"@sl,
+              "angličtina"@cs,
+              "angličtina"@sk,
+              "anglų kalba"@lt,
+              "angol"@hu,
+              "Englisch"@de,
+              "English"@en,
+              "inglese"@it,
+              "inglés"@es,
+              "inglês"@pt,
+              "jendźelšćina"@hsb,
+              "αγγλικά"@el ;
+          skos:definition "English is a member of the West Germanic group of the Germanic languages. It is an official language of almost 60 sovereign states and is now a global lingua franca.It is the third-most-common native language in the world and it is widely learned as a second language."@en,
+              "L’anglais est une langue appartenant au groupe occidental des langues germaniques. C’est la langue officielle de près de 60 États souverains. De nos jours, l’anglais est une lingua franca mondiale (langue véhiculaire).L’anglais est la troisième langue maternelle la plus parlée dans le monde et la langue la plus étudiée comme deuxième langue."@fr ;
+          at:authority-code "ENG" ;
+          at:deprecated "false" ;
+          at:op-code "ENG" ;
+          at:op-mapped-code [ a at:MappedCode ;
+                  at:affected-table "FD_060" ;
+                  at:legacy-code "EN" ;
+                  dc:source "EurLex" ],
+              [ a at:MappedCode ;
+                  at:legacy-code "en" ;
+                  dc:source "iso-639-1" ],
+              [ a at:MappedCode ;
+                  at:legacy-code "eng" ;
+                  dc:source "iso-639-3" ] ;
+          atold:op-code "ENG" ;
+          dc:identifier "ENG" ;
+          skos:exactMatch <http://id.loc.gov/vocabulary/iso639-1/en> ;
+          skos:inScheme :0001,
+              :0002,
+              atold:language ;
+          skos:notation "EN"^^euvoc:EUDOR_LNG,
+              "en"^^euvoc:ISO_639_1,
+              "eng"^^euvoc:ISO_639_3 ;
+          skos:topConceptOf :0001,
+              :0002,
+              atold:language .
+  frame:
+    # Only show fields and identifiers listed in @context.
+    "@explicit": true
+
+    # Always embed external references.
+    "@embed": "@never"
+    "@omitDefault": true
+
+    # The context is used to compact the resulting frame.
+    "@context":
+      # "@base": "http://publications.europa.eu/resource/authority/language/"
+      "@vocab": "http://publications.europa.eu/ontology/authority/"
+      at: http://publications.europa.eu/ontology/authority/
+      dct: http://purl.org/dc/terms/
+      skos: http://www.w3.org/2004/02/skos/core#
+      xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+      xsd: "http://www.w3.org/2001/XMLSchema#"
+      euvoc: "http://publications.europa.eu/ontology/euvoc#"
+      url: "@id"
+      id:
+        # Use type coercion to select a specific identifier.
+        "@id": "skos:notation"
+        "@type": euvoc:ISO_639_3
+      label_it:
+        "@id": skos:prefLabel
+        "@language": it
+      label_de:
+        "@id": skos:prefLabel
+        "@language": de
+      label_sl:
+        "@id": skos:prefLabel
+        "@language": sl
+      label:
+        "@id": skos:prefLabel
+        "@language": en
+      vocab: skos:inScheme
+      deprecated:
+        "@id": at:deprecated
+    #
+    # Filter entries.
+    #
+    "@requireAll": true
+    "@type": skos:Concept
+    url: {}
+    deprecated: "false"
+    # The vocabularies containing the Concept.
+    vocab:
+    - url: {}
+      "@embed": "@never"
+    # :warning: FIXME: in this vocabulary,
+    #   the euvoc:ISO_639_1 is not always present, so we cannot require it.
+    #   it is not clear whether we can "filter out"
+    #   entries without id, since at least one `id` is present.
+    #   For now, we just use the euvoc:ISO_639_3.
+    id:
+      "@type": euvoc:ISO_639_3
+    label:
+      "@language": ["sl", "en", "de", "it"]
+      "@value": {}
+    label_it: {}
+    label_de: {}
+    label_sl: {}
+    # While it is possible to add default values,
+    #   we do not need them.
+    # level:
+    #   "@default": 1
+  expected_payload:
+  - '@type': skos:Concept
+    id: 'eng'
+    label: English
+    label_it: inglese
+    label_de: Englisch
+    label_sl: angleščina
+    deprecated: 'false'
+    url: http://publications.europa.eu/resource/authority/language/ENG
+    vocab:
+    - url: "http://publications.europa.eu/resource/authority/language/0001"
+    - url: "http://publications.europa.eu/resource/authority/language/0002"
+    - url: 'http://publications.europa.eu/resource/authority/language'
+  - '@type': skos:Concept
+    id: 'spn'
+    label: Sanapaná
+    deprecated: 'false'
+    url: http://publications.europa.eu/resource/authority/language/SPN
+    vocab:
+    - url: "http://publications.europa.eu/resource/authority/language/0003"
+    - url: 'http://publications.europa.eu/resource/authority/language'
+  expected_jsonschema:
+    type: object
+    properties:
+      id:
+        type: string
+        minLength: 1
+        pattern: '^[A-Za-z0-9._-]+$'
+      url: *URL
+      label: *Label
+      label_it: *Label
+      label_de: *Label
+      label_sl: *Label
+      vocab:
+        type: array
+
+        items:
+          type: object
+          required:
+          - url
+          properties:
+            url: *URL
+      deprecated:
+        type: string
+    required:
+    - deprecated
+    - label
+    - url
+    # - label_de
+    # - label_it
+    # - label_sl
+    - vocab
