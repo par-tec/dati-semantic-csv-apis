@@ -33,11 +33,12 @@ Please, see [CONTRIBUTING.md](CONTRIBUTING.md) for more details on:
 Repository layout is the following:
 
 ```text
-├── assets/controlled-vocabularies  # Controlled vocabularies.
-│       └── agente_causale/latest   #
+assets/controlled-vocabularies/
+├── agente_causale
+│   └── latest
+├── ateco-2007-2022
+└── ateco-2025
 ```
-
-
 
 ## Using this repository
 

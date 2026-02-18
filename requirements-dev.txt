@@ -1,0 +1,9 @@
+# Further requirements file for testing safety.
+pyjsonpatch==0.1.3
+pytest-cov
+pytest-env
+pytest-memray
+pytest-mock
+pytest-profiling
+pytest-xdist
+pytest>=8.4
