@@ -559,6 +559,12 @@ Il codice sorgente:
 - restituisce 0 come exit code in caso di successo e un
     codice di errore non-zero in caso di fallimento.
 
+### Test
+
+La PoC viene sviluppata seguendo un approccio di test-driven development (TDD),
+basandosi su un set di vocabolari controllati di riferimento
+presenti in [assets/controlled-vocabularies](assets/controlled-vocabularies).
+
 ## Conclusioni
 
 Il sistema di generazione e metadatazione dei CSV uniforma

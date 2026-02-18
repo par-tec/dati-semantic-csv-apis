@@ -4,6 +4,11 @@ This repository provides documents, tools and PoC
 for the management of semantic assets in the context
 of the National Data Catalog for Semantic Interoperability.
 
+This project is related to:
+
+- <https://schema.gov.it>
+- <https://github.com/teamdigitale/dati-semantic-schema-editor>
+
 ## Table of contents
 
 - 💻 [Usage](#usage)
@@ -28,17 +33,35 @@ Please, see [CONTRIBUTING.md](CONTRIBUTING.md) for more details on:
 - using [pre-commit](CONTRIBUTING.md#pre-commit);
 - following the git flow and making good [pull requests](CONTRIBUTING.md#making-a-pr).
 
+Repository layout is the following:
+
+```text
+#
+# Documentation.
+#
+docs/
+└── adr
+#
+# Shared test assets.
+#
+assets/controlled-vocabularies/
+├── agente_causale
+│   └── latest
+├── ateco-2007-2022
+└── ateco-2025
+#
+# PoC Python code and tests.
+#
+tools/
+tests/
+```
+
 ## Using this repository
 
 You can create new projects starting from this repository,
 so you can use a consistent CI and checks for different projects.
 
-Besides all the explanations in the [CONTRIBUTING.md](CONTRIBUTING.md) file, you can use the docker-compose file
-(e.g. if you prefer to use docker instead of installing the tools locally)
-
-```bash
-docker-compose run pre-commit
-```
+See the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 ## Testing github actions
 

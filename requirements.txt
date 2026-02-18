@@ -1,0 +1,8 @@
+frictionless
+genson
+jsonschema
+oxrdflib
+pandas
+pyld
+pyyaml
+rdflib
