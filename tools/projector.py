@@ -33,8 +33,9 @@ def to_jsonld(rdf_data: str) -> JsonLD:
 
 def framer(frame: JsonLDFrame, rdf_data: str, batch_size: int = 0) -> JsonLD:
     """
-    Frame JSON-LD serialized RDF data using JSON-LD framing to produce JSON output.
-    Processes in batches to improve performance and maintain consistent behavior.
+    Apply a JSON-LD frame to a JSON-LD serialized RDF data to produce a JSON output.
+    When requested, it processes in batches to improve performance:
+    this can be useful for large datasets, but may cause issues with nested entries that span across batches because properties that are not included in the batch may not be embedded properly.
 
     Args:
         frame: JSON-LD frame specification
@@ -79,7 +80,7 @@ def framer(frame: JsonLDFrame, rdf_data: str, batch_size: int = 0) -> JsonLD:
     for batch in batched(items, batch_size) if batch_size > 0 else [items]:
         batch_len: int = len(batch)
         log.info(f"Processing batch ({batch_len} items)")
-        statistics["source_items"] += batch_len
+        statistics["source_items"] += batch_len  # type: ignore
 
         # Create batch document with original context
         batch_doc: JsonLD = {"@context": original_context, "@graph": list(batch)}
@@ -108,11 +109,11 @@ def framer(frame: JsonLDFrame, rdf_data: str, batch_size: int = 0) -> JsonLD:
         #   the framing process.
         #
         framed_items_len = len(framed_batch["@graph"])
-        batch_ids = set([i["@id"].split("/")[-1] for i in batch])
-        framed_ids = set([Path(i["url"]).name for i in framed_batch["@graph"]])
+        batch_ids = {i["@id"].split("/")[-1] for i in batch}
+        framed_ids = {Path(i["url"]).name for i in framed_batch["@graph"]}
 
         if framed_items_len != batch_len:
-            statistics["filtered"].extend(list(batch_ids - framed_ids))
+            statistics["filtered"].extend(list(batch_ids - framed_ids))  # type: ignore
             # breakpoint()
 
         # Extract framed items from batch
@@ -122,7 +123,7 @@ def framer(frame: JsonLDFrame, rdf_data: str, batch_size: int = 0) -> JsonLD:
 
     # Assemble final result
     framed: JsonLD = {"@context": frame.get("@context", {}), "@graph": all_framed_items}
-    framed["statistics"] = statistics
+    framed["statistics"] = statistics  # type: ignore
 
     log.info(f"Batched framing completed, total items: {len(all_framed_items)}")
 
