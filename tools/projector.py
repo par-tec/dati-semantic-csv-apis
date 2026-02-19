@@ -137,20 +137,24 @@ def framer(frame: JsonLDFrame, rdf_data: str, batch_size: int = 0) -> JsonLD:
 
 def update_frame_with_key_field(framed: dict, base_uri: str) -> None:
     """
-    If the "url" field of every entry has the same base URI
-    as the one provided in input,
-    add a "key" field to every entry containing the relative part of the URL.
+    If the "url" field of every entry starts with base_uri,
+    we can safely assume that the relative part of the URI
+    can be used as a "key" field.
+    So, add the "key" field to every entry containing the relative part of the URI.
 
     Since a JSON-LD context can only define one "@id" mapping,
+    and this is "uri",
     disassociate the "key" field in the "@context".
     """
+    URI = "url"
+    base_uri_len = len(base_uri)
     context, graph = framed["@context"], framed["@graph"]
     # Disassociate "key" field in context.
     context["key"] = None
 
     for entry in graph:
-        if not entry["url"].startswith(base_uri):
+        if not entry[URI].startswith(base_uri):
             raise ValueError(
-                f"Entry URL {entry['url']} does not start with base URI {base_uri}"
+                f"Entry URI {entry[URI]} does not start with base URI {base_uri}"
             )
-        entry["key"] = entry["url"][len(base_uri) :]
+        entry["key"] = entry[URI][base_uri_len:]

@@ -80,8 +80,9 @@ def test_can_validate_data(data, frame, expected_payload):
         data=framed_ld, format="application/ld+json"
     )
 
-    assert not framed_graph - original_graph, (
-        "Framed graph is not a subset of the original RDF graph"
+    extra_triples = framed_graph - original_graph
+    assert len(extra_triples) == 0, (
+        f"Framed graph has more triples {len(extra_triples)} than the original RDF graph"
     )
 
 
