@@ -1,3 +1,4 @@
+import json
 from operator import itemgetter
 from pathlib import Path
 
@@ -5,8 +6,7 @@ import pytest
 import yaml
 from rdflib.compare import IsomorphicGraph
 
-from tests.from_samples import frame_context_fields
-from tools.projector import JsonLD, framer
+from tools.projector import frame_context_fields, project, select_fields
 from tools.utils import IGraph
 
 TESTDIR = Path(__file__).parent.parent
@@ -22,7 +22,7 @@ vocabularies = list(ASSET.glob("**/*.ttl"))
     [itemgetter("data", "frame", "expected_payload")(x) for x in TESTCASES],
     ids=[x["name"] for x in TESTCASES],
 )
-def test_can_frame_data(data, frame, expected_payload):
+def test_can_project_data(data, frame, expected_payload):
     """
     Given:
     - A framing context
@@ -30,22 +30,24 @@ def test_can_frame_data(data, frame, expected_payload):
 
     When:
     - I create a framed API from the RDF graph and the framing context
+    - I project the framed API to only include fields from the framing context
 
     Then:
-    - I expect the framed API to only include fields from the framing context, or "@type"
+    - I expect the projected API to only include fields from the framing context, or "@type"
     """
-    framed: JsonLD = framer(frame, data)
-    _, graph = framed["@context"], framed["@graph"]
-    frame_fields = frame_context_fields(frame) + ["@type"]
+    selected_fields = {"@type", *frame_context_fields(frame)}
+    framed = project(
+        frame, data, callbacks=[lambda framed: select_fields(framed, selected_fields)]
+    )
+    graph = framed["@graph"]
+
     for item in graph:
-        # Check that only fields in frame context are present
-        item_fields = list(item.keys())
-        for f in item_fields:
-            if f not in frame_fields:
-                item_fields.remove(f)
-        for f in item_fields:
-            assert f in frame_fields, f"Field {f} not in frame context fields"
-    assert graph == expected_payload, "Framed data does not match expected payload"
+        item_fields = set(item.keys())
+        assert item_fields <= selected_fields, (
+            f"Item fields {item_fields} are not a subset of selected fields {selected_fields}"
+        )
+
+    assert graph == expected_payload, "Projected data does not match expected payload"
 
 
 @pytest.mark.parametrize(
@@ -63,23 +65,23 @@ def test_can_validate_data(data, frame, expected_payload):
       applying this module process.
 
     When:
-    - I apply the frame's `@context` to the JSON payload
+    - I interpret the framed API as a JSON-LD document and convert it back to RDF
 
     Then:
     - I expect the JSON-LD is a subgraph of the original RDF graph.
     """
-    framed: JsonLD = framer(frame, data)
-    context, graph = framed["@context"], framed["@graph"]
+    selected_fields = {"@type", *frame_context_fields(frame)}
+    framed = project(
+        frame, data, callbacks=[lambda framed: select_fields(framed, selected_fields)]
+    )
+    statistics = framed.pop("statistics", {})
+    assert statistics, "Statistics should be present in the framed data"
 
-    import json
-
-    original_graph: IsomorphicGraph = IGraph.parse(data=data, format="text/turtle")
-
-    framed_ld: str = json.dumps({"@context": context, "@graph": graph})
     framed_graph: IsomorphicGraph = IGraph.parse(
-        data=framed_ld, format="application/ld+json"
+        data=json.dumps(framed), format="application/ld+json"
     )
 
+    original_graph: IsomorphicGraph = IGraph.parse(data=data, format="text/turtle")
     extra_triples = framed_graph - original_graph
     assert len(extra_triples) == 0, (
         f"Framed graph has more triples {len(extra_triples)} than the original RDF graph"
@@ -111,23 +113,25 @@ def test_can_frame_assets(vocabulary_ttl):
     frame = yaml.safe_load(frame_path.read_text())
     data_ttl = vocabulary_ttl.read_text()
 
-    framed = framer(frame, data_ttl)
-    _, graph = framed["@context"], framed["@graph"]
+    selected_fields = {"@type", *frame_context_fields(frame)}
+    framed = project(
+        frame,
+        data_ttl,
+        callbacks=[lambda framed: select_fields(framed, selected_fields)],
+    )
+    graph = framed["@graph"]
 
+    # If an URI is in the graph, it shouldn't be in the filtered items :)
     filtered_items = framed["statistics"]["filtered"]
-    for id_ in [x["url"] for x in graph]:
+    for id_ in (x["url"] for x in graph):
         if id_ in filtered_items:
             filtered_items.remove(id_)
 
-    frame_fields = frame_context_fields(frame) + ["@type"]
     for item in graph:
-        # Check that only fields in frame context are present
-        item_fields = list(item.keys())
-        for f in item_fields:
-            if f not in frame_fields:
-                item_fields.remove(f)
-        for f in item_fields:
-            assert f in frame_fields, f"Field {f} not in frame context fields"
+        item_fields = set(item.keys())
+        assert item_fields <= selected_fields, (
+            f"Item fields {item_fields} are not a subset of selected fields {selected_fields}"
+        )
 
     data = vocabulary_ttl.with_suffix(".data.yaml")
     data.write_text(yaml.safe_dump(framed))

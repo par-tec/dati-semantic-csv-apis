@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+from collections.abc import Callable, Iterable
 from itertools import batched
 from pathlib import Path
 from typing import TypedDict
@@ -158,3 +159,76 @@ def update_frame_with_key_field(framed: dict, base_uri: str) -> None:
                 f"Entry URI {entry[URI]} does not start with base URI {base_uri}"
             )
         entry["key"] = entry[URI][base_uri_len:]
+
+
+def select_fields(framed: JsonLD, selected_fields: list[str]) -> None:
+    """
+    Slice the give data retaining only the
+    fields explicitly mentioned in the frame,
+    and discarding the others, (e.g., the remnants
+    of an rdf:Property that have an unmentioned
+    `@language` or `@type` field).
+    """
+    _, graph = framed["@context"], framed["@graph"]
+    for item in graph:
+        item_fields = list(item.keys())
+        for f in item_fields:
+            if f not in selected_fields:
+                del item[f]
+
+
+def project(
+    frame: JsonLDFrame,
+    rdf_data: str,
+    batch_size: int = 0,
+    callbacks: Iterable[Callable] = (),
+) -> JsonLD:
+    """
+    Apply the frame to the RDF data and then project the result to only include fields in the frame context.
+
+    Args:
+        frame: JSON-LD frame specification
+        rdf_data: RDF data in Turtle format
+        batch_size: Number of records to process per batch. If 0, process all at once.
+        callbacks: Optional list of callback functions to call after processing each batch.
+    Returns:
+        JsonLD: Projected JSON-LD document containing only fields in the frame context.
+    """
+    framed = framer(frame, rdf_data, batch_size)
+
+    for callback in callbacks or []:
+        callback(framed)
+
+    return framed
+
+
+def frame_context_fields(frame) -> list:
+    """
+    Extract field names from a JSON-LD frame,
+
+    Including:
+    - '@context' fields
+    - '@default' fields
+    - detached fields (i.e., fields with value `null` in the frame).
+
+    Excluding:
+    - Namespace declarations (i.e., fields whose value is a URI string)
+    - `@-`prefixed JSON-LD keywords (e.g., `@id`, `@type`, etc.)
+    """
+
+    def is_field(k, v):
+        if k.startswith("@"):
+            return False
+        if isinstance(v, str) and v.startswith("http"):
+            return False
+        return True
+
+    context_fields = [k for k, v in frame.get("@context", {}).items() if is_field(k, v)]
+
+    default_fields = [
+        k for k, v in frame.items() if isinstance(v, dict) and "@default" in v
+    ]
+
+    detached_fields = [k for k, v in frame.items() if isinstance(v, dict) and v is None]
+
+    return list(set(context_fields + default_fields + detached_fields))

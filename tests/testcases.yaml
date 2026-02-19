@@ -467,8 +467,8 @@ testcases:
     - level
     - url
 
-- name: language-eu
-  data: |-
+- name: language-eu-skos
+  data: &language_eu_ttl |-
     @prefix : <http://publications.europa.eu/resource/authority/language/> .
     @prefix at: <http://publications.europa.eu/ontology/authority/> .
     @prefix atold: <http://publications.europa.eu/resource/authority/> .
@@ -548,7 +548,7 @@ testcases:
     "@omitDefault": true
 
     # The context is used to compact the resulting frame.
-    "@context":
+    "@context": &language_eu_skos_context
       # "@base": "http://publications.europa.eu/resource/authority/language/"
       "@vocab": "http://publications.europa.eu/ontology/authority/"
       at: http://publications.europa.eu/ontology/authority/
@@ -657,3 +657,49 @@ testcases:
     # - label_it
     # - label_sl
     - vocab
+- name: language-eu-skos-strip
+  description: |-
+    Given:
+    - a skos vocabulary with with multiple identifiers
+      with different datatypes (e.g., xsd:string, xsd:token)
+    - a frame that selects a specific identifier with type coercion (e.g., euvoc:ISO_639_1)
+
+    When:
+    - the projection process encounters entries where the selected identifier is missing
+      but other identifiers are present
+
+    Then:
+    - the projection process should remove entries that
+      are not mentioned in the `@context` (e.g., entries without the selected identifier).
+  data: *language_eu_ttl
+  frame:
+    "@context":
+      <<: *language_eu_skos_context
+      # Only pick entries with the specified identifier.
+      id:
+        "@id": "skos:notation"
+        "@type": euvoc:ISO_639_3
+    "@explicit": true
+    "@embed": "@never"
+    "@omitDefault": true
+    "@requireAll": true
+    url: {}
+    id: {}
+    label:
+      "@language": ["sl", "en", "de", "it"]
+      "@value": {}
+    label_it: {}
+    label_de: {}
+    label_sl: {}
+  expected_payload:
+  - '@type': skos:Concept
+    id: 'eng'
+    label: English
+    label_it: inglese
+    label_de: Englisch
+    label_sl: angleščina
+    url: http://publications.europa.eu/resource/authority/language/ENG
+  - '@type': skos:Concept
+    id: 'spn'
+    label: Sanapaná
+    url: http://publications.europa.eu/resource/authority/language/SPN
