@@ -18,10 +18,10 @@ vocabularies = list(ASSET.glob("**/*.ttl"))
 @pytest.mark.parametrize(
     "data,frame,expected_payload",
     [itemgetter("data", "frame", "expected_payload")(x) for x in TESTCASES],
-    ids=[x["name"] for x in TESTCASES],
 )
 def test_can_frame_data(data, frame, expected_payload):
     """
+    ids=[x["name"] for x in TESTCASES],
     Given:
     - A framing context
     - An RDF graph
@@ -46,12 +46,13 @@ def test_can_frame_data(data, frame, expected_payload):
     assert graph == expected_payload, "Framed data does not match expected payload"
 
 
+@pytest.mark.asset
 @pytest.mark.parametrize(
     "vocabulary_ttl",
     vocabularies,
     ids=[x.name for x in vocabularies],
 )
-def test_generate_api_data(vocabulary_ttl):
+def test_can_frame_assets(vocabulary_ttl):
     """
     Given:
     - A controlled vocabulary RDF graph
