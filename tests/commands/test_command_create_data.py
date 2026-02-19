@@ -2,26 +2,23 @@ from pathlib import Path
 
 import pytest
 import yaml
-from click.testing import CliRunner
 
 from tools.commands.create import cli as cli_create
+from tools.commands.validate import cli as cli_validate
 
-ASSET = (
-    Path(__file__).parent.parent.parent / "assets" / "controlled-vocabularies"
-)
-ATECO_2025 = ASSET / "ateco-2025"
-ATECO_2025_TTL = ATECO_2025 / "ateco-2025.ttl"
-ATECO_2025_URI = (
-    "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025"
-)
+TESTDIR = Path(__file__).parent.parent
+TESTDATA: Path = TESTDIR / "data"
+CURRENCY_TTL = TESTDATA / "currency.ttl"
+CURRENCY_FRAME = CURRENCY_TTL.with_suffix(".frame.yamlld")
+CURRENCY_URI = "http://publications.europa.eu/resource/authority/currency"
 
 
 @pytest.mark.slow
 @pytest.mark.asset
-def test_frame_command_ateco_2025(tmp_path):
+def test_frame_command_currency(tmp_path, runner, snapshot):
     """
     Given:
-    - The ateco-2025 RDF vocabulary file
+    - The currency RDF vocabulary file
     - A JSON-LD frame file
 
     When:
@@ -31,37 +28,65 @@ def test_frame_command_ateco_2025(tmp_path):
     - The command exits successfully
     - The output JSON-LD framed file is created
     """
-    output = tmp_path / "ateco-2025.jsonld"
-    frame = ATECO_2025 / "ateco-2025.frame.yamlld"
+    output = tmp_path / "currency.data.yamlld"
 
-    runner = CliRunner()
     result = runner.invoke(
         cli_create,
         [
             "framed",
             "--ttl",
-            str(ATECO_2025_TTL),
+            str(CURRENCY_TTL),
             "--frame",
-            str(frame),
+            str(CURRENCY_FRAME),
             "--vocabulary-uri",
-            ATECO_2025_URI,
+            CURRENCY_URI,
             "--output",
             str(output),
-            "--batch-size",
-            "1000",
             "--frame-only",
+            "--batch-size",
+            "0",
         ],
     )
 
     assert result.exit_code == 0, result.output
     assert output.exists()
-    expected_items = 3257
+    expected_items = 179
     with output.open(encoding="utf-8") as f:
         framed = yaml.safe_load(
             f
         )  # Validate that the output is valid YAML/JSON
         assert "@graph" in framed, "Output JSON-LD must contain '@graph'"
-        assert len(framed["@graph"]) == expected_items, (
-            f"Expected {expected_items} items in the framed output, found {len(framed['@graph'])}"
+        actual_items = len(framed["@graph"])
+        assert actual_items == expected_items, (
+            f"Expected {expected_items} items in the framed output, found {actual_items}"
         )
-    return
+    assert (
+        snapshot.joinpath("currency.data.yamlld").read_bytes()
+        == output.read_bytes()
+    )
+
+
+def test_validate_command_currency(tmp_path, runner, snapshot):
+    """Given:
+    - The currency RDF vocabulary file
+    - A JSON-LD framed file created from the currency RDF vocabulary
+    When:
+    - I run the `validate jsonld` command to validate the framed JSON-LD against the original RDF vocabulary
+    Then:
+    - Success
+    """
+    output = snapshot / "currency.data.yamlld"
+    result = runner.invoke(
+        cli_validate,
+        [
+            "jsonld",
+            "--ttl",
+            str(CURRENCY_TTL),
+            "--vocabulary-uri",
+            CURRENCY_URI,
+            "--jsonld",
+            str(output),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output

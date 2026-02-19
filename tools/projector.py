@@ -119,15 +119,29 @@ def framer(
         #
         # Control block for debugging framing issues.
         #
-        assert "@graph" in framed_batch
+        assert "@graph" in framed_batch, (
+            "Empty batch framing result, '@graph' key missing"
+        )
 
-        typed_urls = [
-            i
-            for i in framed_batch["@graph"]
-            for v in i.get("vocab", [])
-            if v and v.get("@type")
-        ]
-        assert not typed_urls
+        for i in framed_batch["@graph"]:
+            if "vocab" not in i:
+                continue
+            vocabularies = i["vocab"]
+            if vocabularies is None:
+                continue
+            if not isinstance(vocabularies, list):
+                raise ValueError(
+                    f"Unexpected 'vocab' field type: {type(vocabularies)} in item {i}"
+                )
+            for v in vocabularies:
+                if not isinstance(v, dict):
+                    raise ValueError(
+                        f"Unexpected 'vocab' entry type: {type(v)} in item {i}"
+                    )
+                if "@type" in v:
+                    raise ValueError(
+                        f"Unexpected '@type' in 'vocab' entry: {v} in item {i}"
+                    )
         #
         # Log differences to troubleshoot
         #   the framing process.
@@ -144,7 +158,7 @@ def framer(
         all_framed_items.extend(framed_batch["@graph"])
 
     statistics["framed_items"] = len(all_framed_items)
-
+    statistics["filtered"].sort()  # type: ignore
     # Assemble final result
     framed: JsonLD = {
         "@context": frame.get("@context", {}),

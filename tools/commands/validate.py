@@ -20,9 +20,19 @@ A CLI wrapping multiple commands to validate vocabulary artifacts:
 
 """
 
+import json
+import logging
 from pathlib import Path
 
 import click
+import yaml
+from rdflib.compare import IsomorphicGraph
+
+from tools.utils import IGraph
+
+log = logging.getLogger(__name__)
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 @click.group()
@@ -160,7 +170,45 @@ def validate_jsonld_subset(
     Raises:
         ValueError: If JSON-LD contains data not in original RDF
     """
-    raise NotImplementedError("validate_jsonld_subset not yet implemented")
+    if not ttl.exists():
+        raise ValueError(f"Original RDF vocabulary file not found: {ttl}")
+    original_graph: IsomorphicGraph = IGraph.parse(
+        source=ttl, format="text/turtle"
+    )
+    log.debug(f"Original RDF graph has {len(original_graph)} triples")
+
+    if vocabulary_uri not in (str(s) for s in original_graph.subjects()):
+        raise ValueError(
+            f"Vocabulary URI {vocabulary_uri} not found in original RDF graph"
+        )
+    log.debug(f"Vocabulary URI {vocabulary_uri} found in original RDF graph")
+
+    if not jsonld.exists():
+        raise ValueError(f"JSON-LD framed file not found: {jsonld}")
+
+    #
+    # These extra steps are needed to strip out
+    #   any extra fields beyond `@context` and `@graph`.
+    #
+    with jsonld.open(encoding="utf-8") as f:
+        framed_yamlld = yaml.safe_load(f)
+
+    framed_graph: IsomorphicGraph = IGraph.parse(
+        data=json.dumps(
+            {
+                "@context": framed_yamlld.get("@context", {}),
+                "@graph": framed_yamlld.get("@graph", []),
+            }
+        ),
+        format="application/ld+json",
+    )
+    log.debug(f"Framed JSON-LD graph has {len(framed_graph)} triples")
+
+    extra_triples = framed_graph - original_graph
+    if len(extra_triples) > 0:
+        raise ValueError(
+            f"Framed JSON-LD contains {len(extra_triples)} triples not present in original RDF vocabulary"
+        )
 
 
 def validate_datapackage_metadata(datapackage: Path, check_csv: bool) -> None:

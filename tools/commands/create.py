@@ -17,10 +17,16 @@ A CLI wrapping multiple commands to create vocabulary artifacts:
   specified in the datapackage metadata.
 """
 
+import logging
 from pathlib import Path
 
 import click
 import yaml
+
+from tools.projector import frame_context_fields, project, select_fields
+
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 
 @click.group()
@@ -192,13 +198,16 @@ def create_jsonld_framed(
     batch_size: int,
 ) -> None:
     """Create JSON-LD framed representation from TTL and frame."""
-    frame_data = yaml.safe_load(frame.read_text(encoding="utf-8"))
     if not output.parent.exists():
         raise FileNotFoundError(
             f"Output directory {output.parent} does not exist"
         )
+    if not ttl.exists():
+        raise FileNotFoundError(f"TTL file not found: {ttl}")
 
-    from tools.projector import frame_context_fields, project, select_fields
+    if not frame.exists():
+        raise FileNotFoundError(f"Frame file not found: {frame}")
+    frame_data = yaml.safe_load(frame.read_text(encoding="utf-8"))
 
     callbacks = []
     if frame_only:
@@ -214,11 +223,17 @@ def create_jsonld_framed(
             )
 
         callbacks.append(filter_fields_cb)
+    log.debug(
+        f"Creating framed JSON-LD with batch size {batch_size} and callbacks: {[cb.__name__ for cb in callbacks]}"
+    )
     framed = project(
         frame_data,
         ttl,
         callbacks=callbacks,
         batch_size=batch_size,
+    )
+    log.debug(
+        f"Framed JSON-LD created successfully with {len(framed.get('@graph', []))} items"
     )
     with output.open("w", encoding="utf-8") as f:
         yaml.safe_dump(framed, f, allow_unicode=True, indent=2)
