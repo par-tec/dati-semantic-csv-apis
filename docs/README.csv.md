@@ -476,8 +476,8 @@ che dà luogo al grafo RDF:
 ### Funzioni di base
 
 - Processare un vocabolario controllato RDF in formato
-    Turtle (.ttl) modellato secondo l'ontologia SKOS per
-    generare un sottoinsieme dei dati in formato JSON-LD
+    Turtle (.ttl) modellato secondo l'ontologia SKOS
+    per generare un sottoinsieme dei dati in formato JSON-LD
     secondo le regole definite in un file di framing
     JSON-LD.
 
@@ -529,7 +529,11 @@ comando che come modulo importabile.
 L'eseguibile permette di:
 
 - generare una proiezione JSON-LD a partire da un file RDF
-    Turtle e un file di framing JSON-LD;
+    Turtle e un file di framing JSON-LD.
+    La proiezione può essere ulteriormente filtrata
+    dei campi non presenti all'interno del `context`
+    (si veda sezione [Filtro dei Campi non Mappati](#f-filtro-campi-non-mappati) per maggiori dettagli);
+
 - generare un file CSV annotato (con datapackage) a
     partire dalla proiezione JSON-LD generata nel passo
     precedente;
@@ -559,11 +563,170 @@ Il codice sorgente:
 - restituisce 0 come exit code in caso di successo e un
     codice di errore non-zero in caso di fallimento.
 
+### Supporto visuale al framing
+
+Lo Schema Editor fornisce un supporto visuale alla creazione
+del frame JSON-LD, mostrando un'anteprima del JSON generato.
+Questa UI è basata sul JSON-LD Playground,
+un tool open source pubblicato dal W3C per testare e sperimentare con JSON-LD.
+
+Tramite l'RDF Helper dello Schema Editor, è possibile
+trovare un link all'interfaccia di verifica del framing.
+
+![Lo Schema Editor ha un puntamento alla UI di framing](schema-editor-rdf-helper-agente-causale.png)
+Si veda la PR: <https://teamdigitale.github.io/dati-semantic-schema-editor/stefanone91-26-feat-tool-for-payload-conversion/>
+
+Quando si esplora un vocabolario controllato,
+la UI mostra un estratto dei dati in JSON-LD
+dove è possibile modificare il frame per vedere
+come cambia la proiezione JSON-LD in tempo reale,
+in modo da iterare rapidamente sulla modifica del frame
+fino ad ottenere la proiezione desiderata.
+
+![Il JSON-LD Playground mostra l'anteprima del framing](jsonld-playground-framing-yaml.png)
+
+Il repository associato è:
+
+- <https://github.com/par-tec/json-ld.org>
+
+### Filtro dei campi non mappati
+
+La specifica di framing JSON-LD permette che alcuni campi non
+presenti nel `@context` vengano comunque inclusi nella
+proiezione JSON-LD se fanno riferimento alla stessa proprietà RDF
+presente nel grafo RDF originale.
+
+Esempio: dato questo dataset.
+
+```turtle
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix euvoc: <http://publications.europa.eu/ontology/euvoc#> .
+@prefix : <http://publications.europa.eu/resource/authority/language/> .
+
+:SPN skos:prefLabel "Sanapaná"@en ;
+    skos:notation "spn"^^euvoc:ISO_639_3,
+.
+
+:ENG skos:prefLabel "English"@en ;
+    skos:notation
+        "eng"^^euvoc:ISO_639_3,
+        "en"^^euvoc:ISO_639_1
+.
+```
+
+la sua rappresentazione JSON-LD con il seguente `@context`:
+
+```yaml
+"@context":
+  "skos": "http://www.w3.org/2004/02/skos/core#"
+  euvoc: "http://publications.europa.eu/ontology/euvoc#"
+  "@base": "http://publications.europa.eu/resource/authority/language/"
+"@graph":
+  - "@id": "SPN"
+    skos:prefLabel: "Sanapaná"
+    skos:notation:
+    - "@value": "spn"
+      "@type": "euvoc:ISO_639_3"
+  - "@id": "ENG"
+    skos:prefLabel: "English"
+    skos:notation:
+      - "@value": "eng"
+        "@type": "euvoc:ISO_639_3"
+      - "@value": "en"
+        "@type": "euvoc:ISO_639_1"
+```
+
+Applicando il frame seguente
+
+```yaml
+"@context":
+  "skos": "http://www.w3.org/2004/02/skos/core#"
+  euvoc: "http://publications.europa.eu/ontology/euvoc#"
+  "@base": "http://publications.europa.eu/resource/authority/language/"
+  url: "@id"
+  label:
+    "@id": skos:prefLabel
+  id:
+    # Use type coercion to select a specific identifier.
+    "@id": "skos:notation"
+    "@type": euvoc:ISO_639_1
+"@explicit": true
+label: {}
+id: {}
+```
+
+Ottengo
+
+```yaml
+"@context":
+  skos: http://www.w3.org/2004/02/skos/core#
+  euvoc: http://publications.europa.eu/ontology/euvoc#
+  "@base": http://publications.europa.eu/resource/authority/language/
+  url: "@id"
+  label:
+    "@id": skos:prefLabel
+  id:
+    "@id": skos:notation
+    "@type": euvoc:ISO_639_1
+"@graph":
+  - url: ENG
+    label: English
+    id: en
+    # La property skos:notation con @type euvoc:ISO_639_3
+    #  non è presente nel context, ma poiché fa
+    #  riferimento alla stessa proprietà RDF presente nel grafo RDF originale,
+    #  viene comunque inclusa nella proiezione JSON-LD.
+    skos:notation:
+      "@type": euvoc:ISO_639_3
+      "@value": eng
+  - url: SPN
+    label: Sanapaná
+    skos:notation:
+      "@type": euvoc:ISO_639_3
+      "@value": spn
+```
+
+Il tool permette di escludere forzosamente i campi non mappati,
+anche quando fanno riferimento alla stessa proprietà RDF presente nel grafo RDF originale, tramite l'opzione `--frame-only`.
+
 ### Test
 
 La PoC viene sviluppata seguendo un approccio di test-driven development (TDD),
 basandosi su un set di vocabolari controllati di riferimento
 presenti in [assets/controlled-vocabularies](assets/controlled-vocabularies).
+
+## Processo di proiezione
+
+1. L'Erogatore apre il vocabolario in Schema Editor
+   e accede alla UI di framing tramite l'RDF Helper,
+   modificando il frame fino ad ottenere la proiezione JSON-LD
+   desiderata.
+
+   La UI inserisce automaticamente sia un `@context`
+   che un frame di default che l'erogatore può modificare.
+
+1. L'Erogatore salva il frame JSON-LD all'interno della
+    cartella del vocabolario chiamando il file
+    `${vocabulary_name}.frame.yamlld`.
+    E' importante inserire nel frame tutta la documentazione
+    necessaria a descrivere le regole di proiezione e i campi
+    generati, in modo da facilitarene la manutenzione e l'uso.
+    Genera quindi la proiezione usando il comando:
+
+    ```bash
+    python -m tools.projector \
+       --ttl path/to/vocabulary.ttl \
+       --frame path/to/vocabulary.frame.yamlld \
+       --output path/to/vocabulary.data.yamlld
+    ```
+
+    Il file di output `vocabulary.data.yamlld` conterrà la proiezione
+    utile a generare il CSV annotato.
+
+    Una proiezione potrebbe contenere dei campi non desiderti,
+    ad esempio perché non presenti in tutte le chiavi del grafo RDF
+    originale, o perché non rilevanti per la proiezione desiderata.
+
 
 ## Conclusioni
 

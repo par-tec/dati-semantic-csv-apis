@@ -1,0 +1,254 @@
+---
+$schema: https://datapackage.org/profiles/1.0/datapackage.json
+# Derived from: ndc:keyConcept
+name: agente_causale
+# Derived from: dct:identifier, @id of skos:ConceptScheme
+id: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+# Derived from: dct:title, skos:prefLabel, rdfs:label
+title: Vocabolario Controllato sulla classificazione degli agenti
+  causali adottata dall'INAIL
+# Derived from: owl:versionInfo
+version: "0.5"
+# Derived from: dct:description, rdfs:comment
+description: >
+  # Controlled Vocabulary of Causal Agents - INAIL Classification
+
+  Decodifica dell'agente, lavorazione, o esposizione che puo'
+  essere causa o
+  concausa di malattia.
+
+  Decoding of the agent, processing, or aspect that can cause
+  or contribute to
+  disease.
+
+  This is a tabular representation of the SKOS-based controlled
+  vocabulary
+  adopted by INAIL
+
+  (Istituto Nazionale per l'Assicurazione contro gli Infortuni
+  sul Lavoro) for
+  classifying
+
+  causal agents in occupational accidents and diseases.
+# Derived from: dcat:accessURL
+homepage: https://github.com/InailUfficio5/inail-ndc/tree/main/assets/controlled-vocabularies/agente_causale/latest
+# Derived from: dct:issued
+created: "2022-09-06T00:00:00Z"
+# Derived from: dct:creator, dct:publisher, dcat:contactPoint
+contributors:
+# Derived from: vcard:fn, foaf:name
+- title: INAIL Ufficio V - D.C.O.D
+  # Derived from: vcard:hasEmail
+  email: dcod@inail.it
+  # Derived from: foaf:name (organization)
+  organization: Istituto Nazionale per l'Assicurazione contro
+    gli Infortuni sul Lavoro
+  roles:
+  - author
+  - publisher
+# Derived from: dcat:keyword
+keywords:
+- agente causale
+- chemical product
+- prodotto chimico
+- inail
+- infortunio
+- occupational accident
+- malattia professionale
+- occupational disease
+- controlled vocabulary
+- SKOS
+- work safety
+# Derived from: dct:license
+licenses:
+- name: CC-BY-4.0
+  path: https://w3id.org/italia/controlled-vocabulary/licences/A21_CCBY40
+  title: Creative Commons Attribution 4.0 International
+# Derived from: dct:relation
+sources:
+- title: INAIL National Data Catalog - Agente Causale
+  path: https://github.com/InailUfficio5/inail-ndc/tree/main/assets/controlled-vocabularies/agente_causale
+- title: SKOS Simple Knowledge Organization System
+  path: https://w3id.org/italia/data/standard/SKOS
+- title: Related Vocabulary - Agente Materiale
+  path: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_materiale
+- title: Related Vocabulary - Deviazione
+  path: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/deviazione
+- title: Related Vocabulary - Tipo Contatto
+  path: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/tipo_contatto
+# Derived from: dcat:distribution
+resources:
+- name: agente_causale_csv
+  # Derived from: dcat:downloadURL
+  path: agente_causale.csv
+  # Derived from: dct:title
+  title: Agente Causale - CSV Distribution
+  # Derived from: dct:description
+  description: >
+    CSV distribution of the controlled vocabulary of causal agents.
+
+    Contains all concepts with their identifiers, labels, hierarchical
+    relationships,
+
+    and depth levels within the classification scheme.
+  # Derived from: dct:format
+  format: csv
+  # Derived from: dcat:mediaType
+  mediatype: text/csv
+  encoding: utf-8
+  schema:
+    fields:
+    # Derived from: @id (RDF subject URI)
+    - name: url
+      title: Concept URI
+      description: Full URI identifier of the SKOS concept
+      type: string
+      format: uri
+      constraints:
+        required: true
+    # Derived from: skos:broader
+    - name: parent
+      title: Parent Concepts
+      description: List of parent concept URIs (skos:broader relationships)
+      type: array
+      format: default
+    # Derived from: skos:prefLabel @it
+    - name: label_it
+      title: Label (Italian)
+      description: Preferred label in Italian (skos:prefLabel)
+      type: string
+      constraints:
+        required: true
+        minLength: 1
+        maxLength: 500
+    # Derived from: skos:prefLabel @en
+    - name: label_en
+      title: Label (English)
+      description: Preferred label in English (skos:prefLabel)
+      type: string
+      constraints:
+        minLength: 1
+        maxLength: 500
+    # Derived from: skos:prefLabel @de
+    - name: label_de
+      title: Label (German)
+      description: Preferred label in German (skos:prefLabel)
+      type: string
+      constraints:
+        minLength: 1
+        maxLength: 500
+    # Derived from: skos:notation, dct:identifier
+    - name: id
+      title: Notation/Code
+      description: Alphanumeric notation code for the concept
+        (skos:notation, dct:identifier)
+      type: string
+    # Derived from: xkos:depth
+    - name: level
+      title: Hierarchical Depth
+      description: Depth level in the hierarchy (xkos:depth),
+        where 1 is top level
+      type: integer
+      constraints:
+        required: true
+        minimum: 1
+        maximum: 3
+    primaryKey:
+    - id
+    foreignKeys:
+    - fields:
+      - parent
+      reference:
+        resource: agente_causale_csv
+        fields:
+        - url
+  dialect:
+    lineTerminator: "\n"
+    quoteChar: '"'
+    doubleQuote: true
+    skipInitialSpace: false
+    header: true
+- name: agente_causale_rdf_turtle
+  # Derived from: dcat:downloadURL
+  path: agente_causale.ttl
+  # Derived from: dct:title
+  title: Agente Causale - RDF/Turtle Distribution
+  # Derived from: dct:description
+  description: |
+    RDF/Turtle semantic representation of the controlled vocabulary.
+    Complete SKOS concept scheme with all properties, relationships,
+    and DCAT metadata.
+  # Derived from: dct:format
+  format: ttl
+  # Derived from: dcat:mediaType
+  mediatype: text/turtle
+  encoding: utf-8
+  # Derived from: dcat:downloadURL
+  homepage: https://raw.githubusercontent.com/InailUfficio5/inail-ndc/main/assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl
+- name: agente_causale_json
+  # Derived from: dcat:downloadURL
+  path: agente_causale.json
+  # Derived from: dct:title
+  title: Agente Causale - JSON Distribution
+  # Derived from: dct:description
+  description: |
+    JSON-LD representation of the controlled vocabulary with framed structure.
+    Each concept includes identifier, labels in multiple languages, hierarchical
+    relationships, and vocabulary scheme reference.
+  # Derived from: dct:format
+  format: json
+  # Derived from: dcat:mediaType
+  mediatype: application/json
+  encoding: utf-8
+  schema:
+    fields:
+    # Derived from: rdf:type
+    - name: "@type"
+      title: RDF Type
+      description: Array of concept types (RDF @type)
+      type: array
+    # Derived from: skos:notation, dct:identifier
+    - name: id
+      title: Notation
+      description: SKOS notation identifier
+      type: string
+      constraints:
+        required: true
+    # Derived from: skos:prefLabel @it
+    - name: label_it
+      title: Italian Label
+      description: Preferred label in Italian
+      constraints:
+        required: true
+    # Derived from: skos:prefLabel @en
+    - name: label_en
+      title: English Label
+      description: Preferred label in English
+      type: string
+    # Derived from: skos:prefLabel @de
+    - name: label_de
+      title: German Label
+      description: Preferred label in German
+      type: string
+    # Derived from: xkos:depth
+    - name: level
+      title: Hierarchy Level
+      type: integer
+      constraints:
+        required: true
+    - name: url
+      title: Concept URI
+      description: Full or relative URI of the concept
+      type: string
+      constraints:
+        required: true
+    # Derived from: skos:broader
+    - name: parent
+      title: Parent Concepts
+      description: Array of parent concept references
+      type: array
+    # Derived from: skos:inScheme
+    - name: vocab
+      title: Vocabulary Scheme
+      description: Reference to the concept scheme
+      type: array

@@ -2,7 +2,7 @@
 
 <!-- In vim, use !!date -I to get current date. -->
 
-Date: 2025-12-03
+Date: 2026-02-18
 
 ## Status
 
@@ -20,6 +20,7 @@ Provide a consistent development environment.
 - [x] Use pre-commit hooks to run static tests before committing code.
 - [x] Define PR and Issue templates to ensure that contributors provide necessary information and follow the contribution guidelines.
 - [x] Use GitHub Actions to run static tests on every push and pull request.
+- [x] Reference Github Actions using sha256 hashes to ensure reproducibility and security.
 
 ## Consequences
 

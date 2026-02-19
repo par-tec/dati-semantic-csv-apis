@@ -55,23 +55,21 @@ packages = ["tools"]
 log_format = "%(asctime)s %(levelname)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 norecursedirs = "docs *.egg-info .git .tox var/large_ml_model/"
-addopts = "-v --cov --color=yes"
+addopts = "-v --cov --color=yes --cov-report term-missing --cov-report xml:coverage.xml --junitxml=report.xml"
 console_output_style = "count"
 testpaths = ["tests"]
 empty_parameter_set_mark = "fail_at_collect"
 collect_imported_tests = false
 markers = [
-  "gitops: marks tests as interacting with gitops repository",
-  "local: marks tests as interacting only with local gitops repository",
+  "asset: marks tests as processing entire assets",
   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-  "dockeronly: marks tests that needs docker",
 ]
 
 #
 # Linting configuration.
 #
 [tool.ruff]
-# line-length = 100
+line-length = 80
 # target-version = "py312"
 
 [tool.ruff.lint]
