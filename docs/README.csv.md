@@ -687,7 +687,7 @@ Ottengo
 ```
 
 Il tool permette di escludere forzosamente i campi non mappati,
-anche quando fanno riferimento alla stessa proprietà RDF presente nel grafo RDF originale, tramite l'opzione `--context-only`.
+anche quando fanno riferimento alla stessa proprietà RDF presente nel grafo RDF originale, tramite l'opzione `--frame-only`.
 
 ### Test
 

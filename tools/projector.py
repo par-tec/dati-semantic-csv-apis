@@ -16,7 +16,7 @@ JsonLD = TypedDict("JsonLD", {"@context": dict, "@graph": list}, total=False)
 JsonLDFrame = TypedDict("JsonLDFrame", {"@context": dict}, total=False)
 
 
-def to_jsonld(rdf_data: str) -> JsonLD:
+def to_jsonld(rdf_data: str | Path) -> JsonLD:
     """
     Convert RDF data in Turtle format to JSON-LD.
 
@@ -26,13 +26,16 @@ def to_jsonld(rdf_data: str) -> JsonLD:
         JsonLD: JSON-LD representation of the RDF data
     """
     g = Graph()
-    g.parse(data=rdf_data, format="text/turtle")
+    if isinstance(rdf_data, Path):
+        g.parse(rdf_data, format="text/turtle")
+    else:
+        g.parse(data=rdf_data, format="text/turtle")
     ld = g.serialize(format="application/ld+json")
     ld_doc: JsonLD = json.loads(ld)
     return ld_doc
 
 
-def framer(frame: JsonLDFrame, rdf_data: str, batch_size: int = 0) -> JsonLD:
+def framer(frame: JsonLDFrame, rdf_data: str | Path, batch_size: int = 0) -> JsonLD:
     """
     Apply a JSON-LD frame to a JSON-LD serialized RDF data to produce a JSON output.
     When requested, it processes in batches to improve performance:
@@ -179,7 +182,7 @@ def select_fields(framed: JsonLD, selected_fields: list[str]) -> None:
 
 def project(
     frame: JsonLDFrame,
-    rdf_data: str,
+    rdf_data: str | Path,
     batch_size: int = 0,
     callbacks: Iterable[Callable] = (),
 ) -> JsonLD:

@@ -106,17 +106,15 @@ def test_can_frame_assets(vocabulary_ttl):
     Then:
     - I expect the framed API to only include preferred terms
     """
-    data = vocabulary_ttl.read_text()
     frame_path = vocabulary_ttl.with_suffix(".frame.yamlld")
     if not frame_path.exists():
         pytest.skip(f"No framing context found for {vocabulary_ttl}")
     frame = yaml.safe_load(frame_path.read_text())
-    data_ttl = vocabulary_ttl.read_text()
 
     selected_fields = {"@type", *frame_context_fields(frame)}
     framed = project(
         frame,
-        data_ttl,
+        vocabulary_ttl,
         callbacks=[lambda framed: select_fields(framed, selected_fields)],
     )
     graph = framed["@graph"]

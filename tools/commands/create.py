@@ -20,6 +20,7 @@ A CLI wrapping multiple commands to create vocabulary artifacts:
 from pathlib import Path
 
 import click
+import yaml
 
 
 @click.group()
@@ -53,10 +54,18 @@ def cli():
     required=True,
     help="Output path for JSON-LD framed file",
 )
-def frame_command(ttl: Path, frame: Path, vocabulary_uri: str, output: Path):
+@click.option(
+    "--frame-only",
+    is_flag=True,
+    help="If set, the framed JSON-LD will only include fields defined in the frame context, even if they are present in the original RDF graph.",
+    default=False,
+)
+def frame_command(
+    ttl: Path, frame: Path, vocabulary_uri: str, output: Path, frame_only: bool
+):
     """Create JSON-LD framed representation from RDF vocabulary."""
     click.echo(f"Framing vocabulary {vocabulary_uri} from {ttl}")
-    create_jsonld_framed(ttl, frame, vocabulary_uri, output)
+    create_jsonld_framed(ttl, frame, vocabulary_uri, output, frame_only)
     click.echo(f"✓ Created: {output}")
 
 
@@ -159,9 +168,33 @@ def csv_command(jsonld: Path, datapackage: Path, output: Path):
 
 
 def create_jsonld_framed(
-    ttl: Path, frame: Path, vocabulary_uri: str, output: Path
+    ttl: Path, frame: Path, vocabulary_uri: str, output: Path, frame_only: bool
 ) -> None:
     """Create JSON-LD framed representation from TTL and frame."""
+    frame_data = yaml.safe_load(frame.read_text(encoding="utf-8"))
+    if not output.parent.exists():
+        raise FileNotFoundError(f"Output directory {output.parent} does not exist")
+
+    from tools.projector import frame_context_fields, project, select_fields
+
+    callbacks = []
+    if frame_only:
+        click.echo(
+            "⚠️  --frame-only is set: the framed JSON-LD will only include fields defined in the frame context, even if they are present in the original RDF graph."
+        )
+
+        def filter_fields_cb(framed):
+            return select_fields(framed, {"@type", *frame_context_fields(frame_data)})
+
+        callbacks.append(filter_fields_cb)
+    framed = project(
+        frame_data,
+        ttl,
+        callbacks=callbacks,
+    )
+    with output.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(framed, f, allow_unicode=True, indent=2)
+
     raise NotImplementedError("create_jsonld_framed not yet implemented")
 
 
