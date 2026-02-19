@@ -65,7 +65,7 @@ def validate_jsonld_command(ttl: Path, jsonld: Path, vocabulary_uri: str):
         click.secho("✓ JSON-LD validation passed", fg="green")
     except Exception as e:
         click.secho(f"✗ JSON-LD validation failed: {e}", fg="red", err=True)
-        raise click.Abort()
+        raise click.Abort() from e
 
 
 @cli.command(name="datapackage")
@@ -98,7 +98,7 @@ def validate_datapackage_command(datapackage: Path, check_csv: bool):
         click.secho("✓ Datapackage validation passed", fg="green")
     except Exception as e:
         click.secho(f"✗ Datapackage validation failed: {e}", fg="red", err=True)
-        raise click.Abort()
+        raise click.Abort() from e
 
 
 @cli.command(name="csv-roundtrip")
@@ -139,7 +139,7 @@ def validate_csv_roundtrip_command(ttl: Path, datapackage: Path, vocabulary_uri:
         click.secho("✓ CSV roundtrip validation passed", fg="green")
     except Exception as e:
         click.secho(f"✗ CSV roundtrip validation failed: {e}", fg="red", err=True)
-        raise click.Abort()
+        raise click.Abort() from e
 
 
 def validate_jsonld_subset(ttl: Path, jsonld: Path, vocabulary_uri: str) -> None:

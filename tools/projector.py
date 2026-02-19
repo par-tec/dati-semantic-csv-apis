@@ -35,12 +35,17 @@ def framer(frame: JsonLDFrame, rdf_data: str, batch_size: int = 0) -> JsonLD:
     """
     Apply a JSON-LD frame to a JSON-LD serialized RDF data to produce a JSON output.
     When requested, it processes in batches to improve performance:
-    this can be useful for large datasets, but may cause issues with nested entries that span across batches because properties that are not included in the batch may not be embedded properly.
+    this can be useful for large datasets,
+    but may cause issues with nested entries
+    that span across batches because properties
+    that are not included in the batch may not be embedded properly.
 
     Args:
         frame: JSON-LD frame specification
         rdf_data: RDF data in Turtle format
-        batch_size: Number of records to process per batch. If 0 (default), process all at once to ensure proper embedding of referenced properties.
+        batch_size: Number of records to process per batch.
+            If 0 (default), process all at once to ensure
+            proper embedding of referenced properties.
 
     Returns:
         JsonLD: Framed JSON-LD document containing @context and @graph fields.
