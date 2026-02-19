@@ -4,6 +4,16 @@ Test expanding JSON-LD context entries to absolute URIs.
 
 import yaml
 from pyld import jsonld
+from rdflib import Graph
+from rdflib.compare import IsomorphicGraph, to_isomorphic
+
+
+class IGraph:
+    @staticmethod
+    def parse(*args, **kwargs) -> IsomorphicGraph:
+        g = Graph()
+        g.parse(*args, **kwargs)
+        return to_isomorphic(g)
 
 
 class QuotedStringDumper(yaml.SafeDumper):

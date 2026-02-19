@@ -3,9 +3,11 @@ from pathlib import Path
 
 import pytest
 import yaml
+from rdflib.compare import IsomorphicGraph
 
 from tests.from_samples import frame_context_fields
 from tools.projector import JsonLD, framer
+from tools.utils import IGraph
 
 TESTDIR = Path(__file__).parent.parent
 testcases_yaml = TESTDIR / "testcases.yaml"
@@ -18,10 +20,10 @@ vocabularies = list(ASSET.glob("**/*.ttl"))
 @pytest.mark.parametrize(
     "data,frame,expected_payload",
     [itemgetter("data", "frame", "expected_payload")(x) for x in TESTCASES],
+    ids=[x["name"] for x in TESTCASES],
 )
 def test_can_frame_data(data, frame, expected_payload):
     """
-    ids=[x["name"] for x in TESTCASES],
     Given:
     - A framing context
     - An RDF graph
@@ -44,6 +46,43 @@ def test_can_frame_data(data, frame, expected_payload):
         for f in item_fields:
             assert f in frame_fields, f"Field {f} not in frame context fields"
     assert graph == expected_payload, "Framed data does not match expected payload"
+
+
+@pytest.mark.parametrize(
+    "data,frame,expected_payload",
+    [itemgetter("data", "frame", "expected_payload")(x) for x in TESTCASES],
+    ids=[x["name"] for x in TESTCASES],
+)
+def test_can_validate_data(data, frame, expected_payload):
+    """
+    Given:
+
+    - An RDF graph
+    - A framing context
+    - The framed API created from the RDF graph and the framing context
+      applying this module process.
+
+    When:
+    - I apply the frame's `@context` to the JSON payload
+
+    Then:
+    - I expect the JSON-LD is a subgraph of the original RDF graph.
+    """
+    framed: JsonLD = framer(frame, data)
+    context, graph = framed["@context"], framed["@graph"]
+
+    import json
+
+    original_graph: IsomorphicGraph = IGraph.parse(data=data, format="text/turtle")
+
+    framed_ld: str = json.dumps({"@context": context, "@graph": graph})
+    framed_graph: IsomorphicGraph = IGraph.parse(
+        data=framed_ld, format="application/ld+json"
+    )
+
+    assert not framed_graph - original_graph, (
+        "Framed graph is not a subset of the original RDF graph"
+    )
 
 
 @pytest.mark.asset
