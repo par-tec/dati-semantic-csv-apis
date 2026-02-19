@@ -559,6 +559,33 @@ Il codice sorgente:
 - restituisce 0 come exit code in caso di successo e un
     codice di errore non-zero in caso di fallimento.
 
+### Supporto visuale al framing
+
+Lo Schema Editor fornisce un supporto visuale alla creazione
+del frame JSON-LD, mostrando un'anteprima del JSON generato.
+Questa UI è basata sul JSON-LD Playground,
+un tool open source pubblicato dal W3C per testare e sperimentare con JSON-LD.
+
+Tramite l'RDF Helper dello Schema Editor, è possibile
+trovare un link all'interfaccia di verifica del framing.
+
+![Lo Schema Editor ha un puntamento alla UI di framing](schema-editor-rdf-helper-agente-causale.png)
+Si veda la PR: <https://teamdigitale.github.io/dati-semantic-schema-editor/stefanone91-26-feat-tool-for-payload-conversion/>
+
+Quando si esplora un vocabolario controllato,
+la UI mostra un estratto dei dati in JSON-LD
+dove è possibile modificare il frame per vedere
+come cambia la proiezione JSON-LD in tempo reale,
+in modo da iterare rapidamente sulla modifica del frame
+fino ad ottenere la proiezione desiderata.
+
+![Il JSON-LD Playground mostra l'anteprima del framing](jsonld-playground-framing-yaml.png)
+
+Il repository associato è:
+
+- <https://github.com/par-tec/json-ld.org>
+
+
 ### Test
 
 La PoC viene sviluppata seguendo un approccio di test-driven development (TDD),
