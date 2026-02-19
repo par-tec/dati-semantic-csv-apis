@@ -37,7 +37,9 @@ def test_can_project_data(data, frame, expected_payload):
     """
     selected_fields = {"@type", *frame_context_fields(frame)}
     framed = project(
-        frame, data, callbacks=[lambda framed: select_fields(framed, selected_fields)]
+        frame,
+        data,
+        callbacks=[lambda framed: select_fields(framed, selected_fields)],
     )
     graph = framed["@graph"]
 
@@ -47,7 +49,9 @@ def test_can_project_data(data, frame, expected_payload):
             f"Item fields {item_fields} are not a subset of selected fields {selected_fields}"
         )
 
-    assert graph == expected_payload, "Projected data does not match expected payload"
+    assert graph == expected_payload, (
+        "Projected data does not match expected payload"
+    )
 
 
 @pytest.mark.parametrize(
@@ -72,7 +76,9 @@ def test_can_validate_data(data, frame, expected_payload):
     """
     selected_fields = {"@type", *frame_context_fields(frame)}
     framed = project(
-        frame, data, callbacks=[lambda framed: select_fields(framed, selected_fields)]
+        frame,
+        data,
+        callbacks=[lambda framed: select_fields(framed, selected_fields)],
     )
     statistics = framed.pop("statistics", {})
     assert statistics, "Statistics should be present in the framed data"
@@ -81,7 +87,9 @@ def test_can_validate_data(data, frame, expected_payload):
         data=json.dumps(framed), format="application/ld+json"
     )
 
-    original_graph: IsomorphicGraph = IGraph.parse(data=data, format="text/turtle")
+    original_graph: IsomorphicGraph = IGraph.parse(
+        data=data, format="text/turtle"
+    )
     extra_triples = framed_graph - original_graph
     assert len(extra_triples) == 0, (
         f"Framed graph has more triples {len(extra_triples)} than the original RDF graph"

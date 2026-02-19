@@ -84,7 +84,11 @@ def expand_context_to_absolute_uris(context: dict) -> dict:
         expanded_doc = jsonld.expand(doc)
 
         # Extract the expanded property IRI
-        if expanded_doc and isinstance(expanded_doc, list) and len(expanded_doc) > 0:
+        if (
+            expanded_doc
+            and isinstance(expanded_doc, list)
+            and len(expanded_doc) > 0
+        ):
             expanded_props = expanded_doc[0]
             # Get the first (and should be only) expanded property key
             for prop_iri in expanded_props.keys():

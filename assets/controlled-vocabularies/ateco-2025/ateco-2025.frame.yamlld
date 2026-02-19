@@ -1,0 +1,85 @@
+---
+#
+# Content-Type: application/ld+yaml; profile="http://www.w3.org/ns/json-ld#frame"
+#
+# Only show fields listed in @context.
+"@explicit": true
+
+# Always embed external references.
+"@embed": "@never"
+"@omitDefault": true
+
+# Use context.
+"@context": &jsonld_context
+  "@base": "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025/"
+  "@vocab": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/"
+
+  dct: http://purl.org/dc/terms/
+  skos: http://www.w3.org/2004/02/skos/core#
+  xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+  clvapit: https://w3id.org/italia/onto/CLV/
+  xsd: "http://www.w3.org/2001/XMLSchema#"
+  covapit: https://w3id.org/italia/onto/COV/
+  # Fields.
+  url: "@id"
+  id:
+    "@id": skos:notation
+    # "@type": "@value"
+
+  #Localize labels. Order is relevant.
+  label:
+    "@id": skos:prefLabel
+    "@language": it
+  label_it:
+    "@id": skos:prefLabel
+    "@language": it
+  label_en:
+    "@id": skos:prefLabel
+    "@language": en
+  label_de:
+    "@id": skos:prefLabel
+    "@language": de
+
+  # When mapping to a list, use @container: @set
+  #   to ensure that JSON-LD framing handles it as an array.
+  parent:
+    "@id": skos:broader
+    "@container": "@set"
+    "@context":
+        url: "@id"
+
+  vocab:
+    "@id": skos:inScheme
+    "@container": "@set"
+    "@context":
+      url: "@id"
+
+  level:
+    # Use type coercion to ensure that level is a JSON Number.
+    "@id": clvapit:hasRankOrder
+    "@type": xsd:int
+
+"@requireAll": true
+# Matching on type works.
+"@type":
+  - &jsonld_type "covapit:PrivateOrgActivityType"
+url: {}
+id: {}
+label_de: {}
+label_en: {}
+label_it: {}
+label:
+  "@language": ["it", "en", "de"]
+  "@value": {}
+level: {}
+
+vocab:
+- url: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+  "@explicit": true
+  "@embed": "@never"
+parent:
+- url: {}
+  "@default": "@null"
+  "@embed": "@never"
+  "@explicit": true
+  "@requireAll": false

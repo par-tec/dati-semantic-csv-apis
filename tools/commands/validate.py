@@ -120,7 +120,9 @@ def validate_datapackage_command(datapackage: Path, check_csv: bool):
     required=True,
     help="URI of the vocabulary (ConceptScheme) to validate",
 )
-def validate_csv_roundtrip_command(ttl: Path, datapackage: Path, vocabulary_uri: str):
+def validate_csv_roundtrip_command(
+    ttl: Path, datapackage: Path, vocabulary_uri: str
+):
     """
     Validate CSV roundtrip: CSV → JSON-LD → RDF → subset check.
 
@@ -138,11 +140,15 @@ def validate_csv_roundtrip_command(ttl: Path, datapackage: Path, vocabulary_uri:
         validate_csv_to_rdf_roundtrip(ttl, datapackage, vocabulary_uri)
         click.secho("✓ CSV roundtrip validation passed", fg="green")
     except Exception as e:
-        click.secho(f"✗ CSV roundtrip validation failed: {e}", fg="red", err=True)
+        click.secho(
+            f"✗ CSV roundtrip validation failed: {e}", fg="red", err=True
+        )
         raise click.Abort() from e
 
 
-def validate_jsonld_subset(ttl: Path, jsonld: Path, vocabulary_uri: str) -> None:
+def validate_jsonld_subset(
+    ttl: Path, jsonld: Path, vocabulary_uri: str
+) -> None:
     """
     Validate that JSON-LD framed representation is a subset of original RDF.
 
@@ -168,7 +174,9 @@ def validate_datapackage_metadata(datapackage: Path, check_csv: bool) -> None:
     Raises:
         ValueError: If datapackage is invalid or CSV validation fails
     """
-    raise NotImplementedError("validate_datapackage_metadata not yet implemented")
+    raise NotImplementedError(
+        "validate_datapackage_metadata not yet implemented"
+    )
 
 
 def validate_csv_to_rdf_roundtrip(
@@ -185,7 +193,9 @@ def validate_csv_to_rdf_roundtrip(
     Raises:
         ValueError: If roundtrip fails or result is not a subset
     """
-    raise NotImplementedError("validate_csv_to_rdf_roundtrip not yet implemented")
+    raise NotImplementedError(
+        "validate_csv_to_rdf_roundtrip not yet implemented"
+    )
 
 
 if __name__ == "__main__":

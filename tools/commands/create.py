@@ -57,15 +57,31 @@ def cli():
 @click.option(
     "--frame-only",
     is_flag=True,
-    help="If set, the framed JSON-LD will only include fields defined in the frame context, even if they are present in the original RDF graph.",
+    help="If set, the framed JSON-LD will only include"
+    " fields defined in the frame context,"
+    " even if they are present in the original RDF graph.",
     default=False,
 )
+@click.option(
+    "--batch-size",
+    type=int,
+    default=0,
+    help="Number of RDF triples to process in each batch when framing. "
+    "Set to 0 to process all triples at once (default: 0).",
+)
 def frame_command(
-    ttl: Path, frame: Path, vocabulary_uri: str, output: Path, frame_only: bool
+    ttl: Path,
+    frame: Path,
+    vocabulary_uri: str,
+    output: Path,
+    frame_only: bool,
+    batch_size: int,
 ):
     """Create JSON-LD framed representation from RDF vocabulary."""
     click.echo(f"Framing vocabulary {vocabulary_uri} from {ttl}")
-    create_jsonld_framed(ttl, frame, vocabulary_uri, output, frame_only)
+    create_jsonld_framed(
+        ttl, frame, vocabulary_uri, output, frame_only, batch_size
+    )
     click.echo(f"✓ Created: {output}")
 
 
@@ -168,34 +184,44 @@ def csv_command(jsonld: Path, datapackage: Path, output: Path):
 
 
 def create_jsonld_framed(
-    ttl: Path, frame: Path, vocabulary_uri: str, output: Path, frame_only: bool
+    ttl: Path,
+    frame: Path,
+    vocabulary_uri: str,
+    output: Path,
+    frame_only: bool,
+    batch_size: int,
 ) -> None:
     """Create JSON-LD framed representation from TTL and frame."""
     frame_data = yaml.safe_load(frame.read_text(encoding="utf-8"))
     if not output.parent.exists():
-        raise FileNotFoundError(f"Output directory {output.parent} does not exist")
+        raise FileNotFoundError(
+            f"Output directory {output.parent} does not exist"
+        )
 
     from tools.projector import frame_context_fields, project, select_fields
 
     callbacks = []
     if frame_only:
         click.echo(
-            "⚠️  --frame-only is set: the framed JSON-LD will only include fields defined in the frame context, even if they are present in the original RDF graph."
+            "⚠️  --frame-only is set: "
+            "the framed JSON-LD will only include fields "
+            "defined in the frame context, even if they are present in the original RDF graph."
         )
 
         def filter_fields_cb(framed):
-            return select_fields(framed, {"@type", *frame_context_fields(frame_data)})
+            return select_fields(
+                framed, {"@type", *frame_context_fields(frame_data)}
+            )
 
         callbacks.append(filter_fields_cb)
     framed = project(
         frame_data,
         ttl,
         callbacks=callbacks,
+        batch_size=batch_size,
     )
     with output.open("w", encoding="utf-8") as f:
         yaml.safe_dump(framed, f, allow_unicode=True, indent=2)
-
-    raise NotImplementedError("create_jsonld_framed not yet implemented")
 
 
 def create_datapackage_metadata(
@@ -210,7 +236,9 @@ def create_oas_spec(jsonld: Path, datapackage: Path, output: Path) -> None:
     raise NotImplementedError("create_oas_spec not yet implemented")
 
 
-def create_csv_from_jsonld(jsonld: Path, datapackage: Path, output: Path) -> None:
+def create_csv_from_jsonld(
+    jsonld: Path, datapackage: Path, output: Path
+) -> None:
     """Create CSV file from framed JSON-LD using datapackage metadata."""
     raise NotImplementedError("create_csv_from_jsonld not yet implemented")
 

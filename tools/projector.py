@@ -10,7 +10,7 @@ from pyld import jsonld
 from rdflib import Graph
 
 log = logging.getLogger(__name__)
-
+logging.basicConfig(level=logging.DEBUG)
 
 JsonLD = TypedDict("JsonLD", {"@context": dict, "@graph": list}, total=False)
 JsonLDFrame = TypedDict("JsonLDFrame", {"@context": dict}, total=False)
@@ -26,16 +26,24 @@ def to_jsonld(rdf_data: str | Path) -> JsonLD:
         JsonLD: JSON-LD representation of the RDF data
     """
     g = Graph()
+    ts = time.time()
     if isinstance(rdf_data, Path):
         g.parse(rdf_data, format="text/turtle")
     else:
         g.parse(data=rdf_data, format="text/turtle")
+    log.debug(
+        f"Parsed RDF data in {time.time() - ts:.3f}s, graph has {len(g)} triples"
+    )
+    ts = time.time()
     ld = g.serialize(format="application/ld+json")
+    log.debug(f"Serialized RDF to JSON-LD in {time.time() - ts:.3f}s")
     ld_doc: JsonLD = json.loads(ld)
     return ld_doc
 
 
-def framer(frame: JsonLDFrame, rdf_data: str | Path, batch_size: int = 0) -> JsonLD:
+def framer(
+    frame: JsonLDFrame, rdf_data: str | Path, batch_size: int = 0
+) -> JsonLD:
     """
     Apply a JSON-LD frame to a JSON-LD serialized RDF data to produce a JSON output.
     When requested, it processes in batches to improve performance:
@@ -69,7 +77,11 @@ def framer(frame: JsonLDFrame, rdf_data: str | Path, batch_size: int = 0) -> Jso
     num_items = len(items)
     log.info(
         f"Dataset contains {num_items} items, processing "
-        + (f"in batches of {batch_size}" if batch_size > 0 else "without batching")
+        + (
+            f"in batches of {batch_size}"
+            if batch_size > 0
+            else "without batching"
+        )
     )
 
     # Always use batch processing for consistent code path
@@ -92,7 +104,10 @@ def framer(frame: JsonLDFrame, rdf_data: str | Path, batch_size: int = 0) -> Jso
         statistics["source_items"] += batch_len  # type: ignore
 
         # Create batch document with original context
-        batch_doc: JsonLD = {"@context": original_context, "@graph": list(batch)}
+        batch_doc: JsonLD = {
+            "@context": original_context,
+            "@graph": list(batch),
+        }
 
         batch_frame_start = time.time()
         framed_batch = jsonld.frame(
@@ -131,7 +146,10 @@ def framer(frame: JsonLDFrame, rdf_data: str | Path, batch_size: int = 0) -> Jso
     statistics["framed_items"] = len(all_framed_items)
 
     # Assemble final result
-    framed: JsonLD = {"@context": frame.get("@context", {}), "@graph": all_framed_items}
+    framed: JsonLD = {
+        "@context": frame.get("@context", {}),
+        "@graph": all_framed_items,
+    }
     framed["statistics"] = statistics  # type: ignore
 
     log.info(f"Batched framing completed, total items: {len(all_framed_items)}")
@@ -200,8 +218,9 @@ def project(
     framed = framer(frame, rdf_data, batch_size)
 
     for callback in callbacks or []:
+        log.debug(f"Applying callbacks to framed data: {callback.__name__}")
         callback(framed)
-
+        log.info(f"Callback applied successfully: {callback.__name__}")
     return framed
 
 
@@ -226,12 +245,16 @@ def frame_context_fields(frame) -> list:
             return False
         return True
 
-    context_fields = [k for k, v in frame.get("@context", {}).items() if is_field(k, v)]
+    context_fields = [
+        k for k, v in frame.get("@context", {}).items() if is_field(k, v)
+    ]
 
     default_fields = [
         k for k, v in frame.items() if isinstance(v, dict) and "@default" in v
     ]
 
-    detached_fields = [k for k, v in frame.items() if isinstance(v, dict) and v is None]
+    detached_fields = [
+        k for k, v in frame.items() if isinstance(v, dict) and v is None
+    ]
 
     return list(set(context_fields + default_fields + detached_fields))
