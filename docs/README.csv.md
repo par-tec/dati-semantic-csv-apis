@@ -358,9 +358,15 @@ basato sulle seguenti specifiche:
 - Frictionless Data Package: per la metadatazione e la
     proiezione in formato CSV.
 
+### Processo di validazione
+
+#### Validazione JSON-LD
+
 Un file JSON-LD è conforme a questa specifica se, applicando
 il `@context` definito nel file di framing, si ottiene un
 sottoinsieme del grafo RDF originale.
+
+#### Validazione CSV
 
 Un CSV è conforme a questa specifica se applicando il
 seguente processo si ottiene un sottoinsieme del grafo RDF
@@ -727,6 +733,46 @@ presenti in [assets/controlled-vocabularies](assets/controlled-vocabularies).
     ad esempio perché non presenti in tutte le chiavi del grafo RDF
     originale, o perché non rilevanti per la proiezione desiderata.
 
+
+## CLI
+
+La PoC fornisce una CLI per eseguire le operazioni descritte,
+implementate con la seguente griglia.
+
+jsonld       Commands for JSON-LD artifacts.
+datapackage  Commands for Data Package artifacts.
+csv          Commands for CSV artifacts.
+openapi      Commands for OpenAPI artifacts.
+
+Tutti i comandi della CLI mostrano una documentazione
+dettagliata se eseguiti con  `--help`.
+
+Per ridurre la possibilità di sovrascrittura dei file generati,
+la CLI utilizza comandi diversi, e non opzioni per la creazione
+e la validazione dei file.
+
+Esempio:
+
+```bash
+# Creare un file.
+python -m tools.cli jsonld create  ...
+
+# Validare un file.
+python -m tools.cli jsonld validate ...
+```
+
+### CLI jsonld
+
+La CLI jsonld fornisce i seguenti comandi:
+
+- create: che genera una rappresentazione JSON-LD
+   a partire da un vocabolario RDF e un JSON-LD frame.
+   Create supporta anche un'opzione `--frame-only` per escludere
+   i campi non mappati, anche quando fanno riferimento alla stessa
+    proprietà RDF presente nel grafo RDF originale
+    (vedi [filtro campi non mappati](#filtro-campi-non-mappati)).
+- validate: che verifica le condizioni descritte
+    in [Validazione JSON-LD](#validazione-json-ld).
 
 ## Conclusioni
 
