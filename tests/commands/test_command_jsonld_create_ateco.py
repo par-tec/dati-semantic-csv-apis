@@ -4,7 +4,7 @@ import pytest
 import yaml
 from click.testing import CliRunner
 
-from tools.commands.create import cli as cli_create
+from tools.commands import cli
 
 ASSET = (
     Path(__file__).parent.parent.parent / "assets" / "controlled-vocabularies"
@@ -24,7 +24,7 @@ def test_frame_command_ateco_2025(tmp_path):
     - A JSON-LD frame file
 
     When:
-    - I run the `framed` command
+    - I run the `jsonld create` command
 
     Then:
     - The command exits successfully
@@ -35,9 +35,10 @@ def test_frame_command_ateco_2025(tmp_path):
 
     runner = CliRunner(catch_exceptions=False)
     result = runner.invoke(
-        cli_create,
+        cli,
         [
-            "framed",
+            "jsonld",
+            "create",
             "--ttl",
             str(ATECO_2025_TTL),
             "--frame",

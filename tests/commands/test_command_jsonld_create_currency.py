@@ -1,10 +1,8 @@
 from pathlib import Path
 
-import pytest
 import yaml
 
-from tools.commands.create import cli as cli_create
-from tools.commands.validate import cli as cli_validate
+from tools.commands import cli
 
 TESTDIR = Path(__file__).parent.parent
 TESTDATA: Path = TESTDIR / "data"
@@ -13,8 +11,6 @@ CURRENCY_FRAME = CURRENCY_TTL.with_suffix(".frame.yamlld")
 CURRENCY_URI = "http://publications.europa.eu/resource/authority/currency"
 
 
-@pytest.mark.slow
-@pytest.mark.asset
 def test_frame_command_currency(tmp_path, runner, snapshot):
     """
     Given:
@@ -22,7 +18,7 @@ def test_frame_command_currency(tmp_path, runner, snapshot):
     - A JSON-LD frame file
 
     When:
-    - I run the `framed` command
+    - I run the `jsonld create` command
 
     Then:
     - The command exits successfully
@@ -31,9 +27,10 @@ def test_frame_command_currency(tmp_path, runner, snapshot):
     output = tmp_path / "currency.data.yamlld"
 
     result = runner.invoke(
-        cli_create,
+        cli,
         [
-            "framed",
+            "jsonld",
+            "create",
             "--ttl",
             str(CURRENCY_TTL),
             "--frame",
@@ -71,15 +68,16 @@ def test_validate_command_currency(tmp_path, runner, snapshot):
     - The currency RDF vocabulary file
     - A JSON-LD framed file created from the currency RDF vocabulary
     When:
-    - I run the `validate jsonld` command to validate the framed JSON-LD against the original RDF vocabulary
+    - I run the `jsonld validate` command to validate the framed JSON-LD against the original RDF vocabulary
     Then:
     - Success
     """
     output = snapshot / "currency.data.yamlld"
     result = runner.invoke(
-        cli_validate,
+        cli,
         [
             "jsonld",
+            "validate",
             "--ttl",
             str(CURRENCY_TTL),
             "--vocabulary-uri",
