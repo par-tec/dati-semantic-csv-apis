@@ -1,0 +1,1570 @@
+'@context':
+  '@vocab': http://publications.europa.eu/ontology/authority/
+  at: http://publications.europa.eu/ontology/authority/
+  dc: http://purl.org/dc/elements/1.1/
+  dct: http://purl.org/dc/terms/
+  deprecated:
+    '@id': at:deprecated
+  euvoc: http://publications.europa.eu/ontology/euvoc#
+  id:
+    '@id': dc:identifier
+  label:
+    '@id': skos:prefLabel
+    '@language': en
+  label_de:
+    '@id': skos:prefLabel
+    '@language': de
+  label_it:
+    '@id': skos:prefLabel
+    '@language': it
+  skos: http://www.w3.org/2004/02/skos/core#
+  url: '@id'
+  vocab:
+    '@container': '@set'
+    '@id': skos:inScheme
+  xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+  xsd: http://www.w3.org/2001/XMLSchema#
+'@graph':
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: AED
+  label: UAE dirham
+  label_de: VAE-Dirham
+  url: http://publications.europa.eu/resource/authority/currency/AED
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: AFN
+  label: Afghani
+  label_de: Afghani
+  url: http://publications.europa.eu/resource/authority/currency/AFN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: ALL
+  label: Lek
+  label_de: Lek
+  url: http://publications.europa.eu/resource/authority/currency/ALL
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: AMD
+  label: Dram
+  label_de: Dram
+  url: http://publications.europa.eu/resource/authority/currency/AMD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: ANG
+  label: Netherlands Antillean guilder
+  label_de: Niederländische-Antillen-Gulden
+  url: http://publications.europa.eu/resource/authority/currency/ANG
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: AOA
+  label: Kwanza
+  label_de: Kwanza
+  url: http://publications.europa.eu/resource/authority/currency/AOA
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: ARS
+  label: Argentine peso
+  label_de: Argentinischer Peso
+  url: http://publications.europa.eu/resource/authority/currency/ARS
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: AUD
+  label: Australian dollar
+  label_de: Australischer Dollar
+  url: http://publications.europa.eu/resource/authority/currency/AUD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: AWG
+  label: Aruban guilder
+  label_de: Aruba-Gulden
+  url: http://publications.europa.eu/resource/authority/currency/AWG
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: AZN
+  label: Azerbaijan manat
+  label_de: Aserbaidschan-Manat
+  url: http://publications.europa.eu/resource/authority/currency/AZN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BAM
+  label: Convertible mark
+  label_de: Konvertierbare Mark
+  url: http://publications.europa.eu/resource/authority/currency/BAM
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BBD
+  label: Barbados dollar
+  label_de: Barbados-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/BBD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BDT
+  label: Taka
+  label_de: Taka
+  url: http://publications.europa.eu/resource/authority/currency/BDT
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BGN
+  label: Lev
+  label_de: Lew
+  url: http://publications.europa.eu/resource/authority/currency/BGN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BHD
+  label: Bahraini dinar
+  label_de: Bahrain-Dinar
+  url: http://publications.europa.eu/resource/authority/currency/BHD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BIF
+  label: Burundi franc
+  label_de: Burundi-Franc
+  url: http://publications.europa.eu/resource/authority/currency/BIF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BMD
+  label: Bermuda dollar
+  label_de: Bermuda-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/BMD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BND
+  label: Brunei dollar
+  label_de: Brunei-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/BND
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BOB
+  label: Boliviano
+  label_de: Boliviano
+  url: http://publications.europa.eu/resource/authority/currency/BOB
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BOV
+  label: Mvdol
+  label_de: Mvdol
+  url: http://publications.europa.eu/resource/authority/currency/BOV
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BRL
+  label: Real
+  label_de: Real
+  url: http://publications.europa.eu/resource/authority/currency/BRL
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BSD
+  label: Bahamian dollar
+  label_de: Bahama-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/BSD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BTN
+  label: Ngultrum
+  label_de: Ngultrum
+  url: http://publications.europa.eu/resource/authority/currency/BTN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BWP
+  label: Pula
+  label_de: Pula
+  url: http://publications.europa.eu/resource/authority/currency/BWP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BYN
+  label: Belarusian rouble
+  label_de: Belarussischer Rubel
+  url: http://publications.europa.eu/resource/authority/currency/BYN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: BZD
+  label: Belize dollar
+  label_de: Belize-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/BZD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CAD
+  label: Canadian dollar
+  label_de: Kanadischer Dollar
+  url: http://publications.europa.eu/resource/authority/currency/CAD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CDF
+  label: Congolese franc
+  label_de: Kongo-Franc
+  url: http://publications.europa.eu/resource/authority/currency/CDF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CHE
+  label: WIR Euro
+  label_de: WIR-Euro
+  url: http://publications.europa.eu/resource/authority/currency/CHE
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CHF
+  label: Swiss franc
+  label_de: Schweizer Franc
+  url: http://publications.europa.eu/resource/authority/currency/CHF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CHW
+  label: WIR Franc
+  label_de: WIR-Franc
+  url: http://publications.europa.eu/resource/authority/currency/CHW
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CLF
+  label: Unidad de Fomento
+  label_de: Unidad de Fomento
+  url: http://publications.europa.eu/resource/authority/currency/CLF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CLP
+  label: Chilean peso
+  label_de: Chilenischer Peso
+  url: http://publications.europa.eu/resource/authority/currency/CLP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CNY
+  label: Renminbi-yuan
+  label_de: Renminbi Yuan
+  url: http://publications.europa.eu/resource/authority/currency/CNY
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: COP
+  label: Colombian peso
+  label_de: Kolumbianischer Peso
+  url: http://publications.europa.eu/resource/authority/currency/COP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: COU
+  label: Unidad de Valor Real
+  label_de: Unidad de Valor Real
+  url: http://publications.europa.eu/resource/authority/currency/COU
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CRC
+  label: Costa Rican colon
+  label_de: Costa-Rica-Colón
+  url: http://publications.europa.eu/resource/authority/currency/CRC
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CUC
+  label: Convertible peso
+  label_de: Konvertibler Peso
+  url: http://publications.europa.eu/resource/authority/currency/CUC
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CUP
+  label: Cuban peso
+  label_de: Kubanischer Peso
+  url: http://publications.europa.eu/resource/authority/currency/CUP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CVE
+  label: Cabo Verde escudo
+  label_de: Cabo-Verde-Escudo
+  url: http://publications.europa.eu/resource/authority/currency/CVE
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: CZK
+  label: Czech koruna
+  label_de: Tschechische Krone
+  url: http://publications.europa.eu/resource/authority/currency/CZK
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: DJF
+  label: Djibouti franc
+  label_de: Dschibuti-Franc
+  url: http://publications.europa.eu/resource/authority/currency/DJF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: DKK
+  label: Danish krone
+  label_de: Dänische Krone
+  url: http://publications.europa.eu/resource/authority/currency/DKK
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: DOP
+  label: Dominican peso
+  label_de: Dominikanischer Peso
+  url: http://publications.europa.eu/resource/authority/currency/DOP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: DZD
+  label: Algerian dinar
+  label_de: Algerischer Dinar
+  url: http://publications.europa.eu/resource/authority/currency/DZD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: EGP
+  label: Egyptian pound
+  label_de: Ägyptisches Pfund
+  url: http://publications.europa.eu/resource/authority/currency/EGP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: ERN
+  label: Nakfa
+  label_de: Nakfa
+  url: http://publications.europa.eu/resource/authority/currency/ERN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: ETB
+  label: Birr
+  label_de: Birr
+  url: http://publications.europa.eu/resource/authority/currency/ETB
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: EUR
+  label: Euro
+  label_de: Euro
+  url: http://publications.europa.eu/resource/authority/currency/EUR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: FJD
+  label: Fiji dollar
+  label_de: Fidschi-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/FJD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: FKP
+  label: Falkland Islands pound
+  label_de: Falkland-Pfund
+  url: http://publications.europa.eu/resource/authority/currency/FKP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: GBP
+  label: Pound sterling
+  label_de: Pfund Sterling
+  url: http://publications.europa.eu/resource/authority/currency/GBP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: GEL
+  label: Lari
+  label_de: Lari
+  url: http://publications.europa.eu/resource/authority/currency/GEL
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: GHS
+  label: Ghana cedi
+  label_de: Ghana Cedi
+  url: http://publications.europa.eu/resource/authority/currency/GHS
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: GIP
+  label: Gibraltar pound
+  label_de: Gibraltar-Pfund
+  url: http://publications.europa.eu/resource/authority/currency/GIP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: GMD
+  label: Dalasi
+  label_de: Dalasi
+  url: http://publications.europa.eu/resource/authority/currency/GMD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: GNF
+  label: Guinean franc
+  label_de: Guinea-Franc
+  url: http://publications.europa.eu/resource/authority/currency/GNF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: GTQ
+  label: Quetzal
+  label_de: Quetzal
+  url: http://publications.europa.eu/resource/authority/currency/GTQ
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: GYD
+  label: Guyana dollar
+  label_de: Guyana-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/GYD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: HKD
+  label: Hong Kong dollar
+  label_de: Hongkong-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/HKD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: HNL
+  label: Lempira
+  label_de: Lempira
+  url: http://publications.europa.eu/resource/authority/currency/HNL
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: HRK
+  label: Kuna
+  label_de: Kuna
+  url: http://publications.europa.eu/resource/authority/currency/HRK
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: HTG
+  label: Gourde
+  label_de: Gourde
+  url: http://publications.europa.eu/resource/authority/currency/HTG
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: HUF
+  label: Forint
+  label_de: Forint
+  url: http://publications.europa.eu/resource/authority/currency/HUF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: IDR
+  label: Rupiah
+  label_de: Rupiah
+  url: http://publications.europa.eu/resource/authority/currency/IDR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: ILS
+  label: Shekel
+  label_de: Shekel
+  url: http://publications.europa.eu/resource/authority/currency/ILS
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: INR
+  label: Indian rupee
+  label_de: Indische Rupie
+  url: http://publications.europa.eu/resource/authority/currency/INR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: IQD
+  label: Iraqi dinar
+  label_de: Irak-Dinar
+  url: http://publications.europa.eu/resource/authority/currency/IQD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: IRR
+  label: Iranian rial
+  label_de: Iranischer Rial
+  url: http://publications.europa.eu/resource/authority/currency/IRR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: ISK
+  label: Iceland króna
+  label_de: Isländische Krone
+  url: http://publications.europa.eu/resource/authority/currency/ISK
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: JMD
+  label: Jamaica dollar
+  label_de: Jamaika-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/JMD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: JOD
+  label: Jordanian dinar
+  label_de: Jordan-Dinar
+  url: http://publications.europa.eu/resource/authority/currency/JOD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: JPY
+  label: Yen
+  label_de: Yen
+  url: http://publications.europa.eu/resource/authority/currency/JPY
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: KES
+  label: Kenyan shilling
+  label_de: Kenia-Schilling
+  url: http://publications.europa.eu/resource/authority/currency/KES
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: KGS
+  label: Som
+  label_de: Som
+  url: http://publications.europa.eu/resource/authority/currency/KGS
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: KHR
+  label: Riel
+  label_de: Riel
+  url: http://publications.europa.eu/resource/authority/currency/KHR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: KMF
+  label: Comorian franc
+  label_de: Komoren-Franc
+  url: http://publications.europa.eu/resource/authority/currency/KMF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: KPW
+  label: North Korean won
+  label_de: Nordkoreanischer Won
+  url: http://publications.europa.eu/resource/authority/currency/KPW
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: KRW
+  label: South Korean won
+  label_de: Südkoreanischer Won
+  url: http://publications.europa.eu/resource/authority/currency/KRW
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: KWD
+  label: Kuwaiti dinar
+  label_de: Kuwait-Dinar
+  url: http://publications.europa.eu/resource/authority/currency/KWD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: KYD
+  label: Cayman Islands dollar
+  label_de: Kaiman-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/KYD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: KZT
+  label: Tenge
+  label_de: Tenge
+  url: http://publications.europa.eu/resource/authority/currency/KZT
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: LAK
+  label: Kip
+  label_de: Kip
+  url: http://publications.europa.eu/resource/authority/currency/LAK
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: LBP
+  label: Lebanese pound
+  label_de: Libanesisches Pfund
+  url: http://publications.europa.eu/resource/authority/currency/LBP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: LKR
+  label: Sri Lankan rupee
+  label_de: Sri-Lanka-Rupie
+  url: http://publications.europa.eu/resource/authority/currency/LKR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: LRD
+  label: Liberian dollar
+  label_de: Liberianischer Dollar
+  url: http://publications.europa.eu/resource/authority/currency/LRD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: LSL
+  label: Loti
+  label_de: Loti
+  url: http://publications.europa.eu/resource/authority/currency/LSL
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: LYD
+  label: Libyan dinar
+  label_de: Libyscher Dinar
+  url: http://publications.europa.eu/resource/authority/currency/LYD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MAD
+  label: Moroccan dirham
+  label_de: Marokkanischer Dirham
+  url: http://publications.europa.eu/resource/authority/currency/MAD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MDL
+  label: Moldovan leu
+  label_de: Moldau-Leu
+  url: http://publications.europa.eu/resource/authority/currency/MDL
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MGA
+  label: Ariary
+  label_de: Ariary
+  url: http://publications.europa.eu/resource/authority/currency/MGA
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MKD
+  label: Denar
+  label_de: Denar
+  url: http://publications.europa.eu/resource/authority/currency/MKD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MMK
+  label: Kyat
+  label_de: Kyat
+  url: http://publications.europa.eu/resource/authority/currency/MMK
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MNT
+  label: Tugrik
+  label_de: Tugrik
+  url: http://publications.europa.eu/resource/authority/currency/MNT
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MOP
+  label: Pataca
+  label_de: Pataca
+  url: http://publications.europa.eu/resource/authority/currency/MOP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MRU
+  label: Ouguiya
+  label_de: Ouguiya
+  url: http://publications.europa.eu/resource/authority/currency/MRU
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MUR
+  label: Mauritian rupee
+  label_de: Mauritius-Rupie
+  url: http://publications.europa.eu/resource/authority/currency/MUR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MVR
+  label: Rufiyaa
+  label_de: Rufiyaa
+  url: http://publications.europa.eu/resource/authority/currency/MVR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MWK
+  label: Malawian kwacha
+  label_de: Malawi-Kwacha
+  url: http://publications.europa.eu/resource/authority/currency/MWK
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MXN
+  label: Mexican peso
+  label_de: Mexikanischer Peso
+  url: http://publications.europa.eu/resource/authority/currency/MXN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MXV
+  label: Mexican Unidad de Inversion
+  label_de: Mexiko Unidad de Inversion
+  url: http://publications.europa.eu/resource/authority/currency/MXV
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MYR
+  label: Ringgit
+  label_de: Ringgit
+  url: http://publications.europa.eu/resource/authority/currency/MYR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: MZN
+  label: Metical
+  label_de: Metical
+  url: http://publications.europa.eu/resource/authority/currency/MZN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: NAD
+  label: Namibian dollar
+  label_de: Namibia-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/NAD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: NGN
+  label: Naira
+  label_de: Naira
+  url: http://publications.europa.eu/resource/authority/currency/NGN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: NIO
+  label: Córdoba oro
+  label_de: Córdoba Oro
+  url: http://publications.europa.eu/resource/authority/currency/NIO
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: NOK
+  label: Norwegian krone
+  label_de: Norwegische Krone
+  url: http://publications.europa.eu/resource/authority/currency/NOK
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: NPR
+  label: Nepalese rupee
+  label_de: Nepalesische Rupie
+  url: http://publications.europa.eu/resource/authority/currency/NPR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: NZD
+  label: New Zealand dollar
+  label_de: Neuseeland-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/NZD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: OMR
+  label: Omani rial
+  label_de: Omani-Rial
+  url: http://publications.europa.eu/resource/authority/currency/OMR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: PAB
+  label: Balboa
+  label_de: Balboa
+  url: http://publications.europa.eu/resource/authority/currency/PAB
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: PEN
+  label: Sol
+  label_de: Sol
+  url: http://publications.europa.eu/resource/authority/currency/PEN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: PGK
+  label: Kina
+  label_de: Kina
+  url: http://publications.europa.eu/resource/authority/currency/PGK
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: PHP
+  label: Philippine peso
+  label_de: Philippinischer Peso
+  url: http://publications.europa.eu/resource/authority/currency/PHP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: PKR
+  label: Pakistani rupee
+  label_de: Pakistanische Rupie
+  url: http://publications.europa.eu/resource/authority/currency/PKR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: PLN
+  label: Zloty
+  label_de: Zloty
+  url: http://publications.europa.eu/resource/authority/currency/PLN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: PYG
+  label: Guaraní
+  label_de: Guarani
+  url: http://publications.europa.eu/resource/authority/currency/PYG
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: QAR
+  label: Qatari rial
+  label_de: Katar-Riyal
+  url: http://publications.europa.eu/resource/authority/currency/QAR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: RON
+  label: Romanian leu
+  label_de: Rumänischer Leu
+  url: http://publications.europa.eu/resource/authority/currency/RON
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: RSD
+  label: Serbian dinar
+  label_de: Serbischer Dinar
+  url: http://publications.europa.eu/resource/authority/currency/RSD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: RUB
+  label: Russian rouble
+  label_de: Russischer Rubel
+  url: http://publications.europa.eu/resource/authority/currency/RUB
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: RWF
+  label: Rwandese franc
+  label_de: Ruanda-Franc
+  url: http://publications.europa.eu/resource/authority/currency/RWF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SAR
+  label: Saudi riyal
+  label_de: Saudi-Riyal
+  url: http://publications.europa.eu/resource/authority/currency/SAR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SBD
+  label: Solomon Islands dollar
+  label_de: Salomonen-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/SBD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SCR
+  label: Seychelles rupee
+  label_de: Seychellen-Rupie
+  url: http://publications.europa.eu/resource/authority/currency/SCR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SDG
+  label: Sudanese pound
+  label_de: Sudanesisches Pfund
+  url: http://publications.europa.eu/resource/authority/currency/SDG
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SEK
+  label: Swedish krona
+  label_de: Schwedische Krone
+  url: http://publications.europa.eu/resource/authority/currency/SEK
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SGD
+  label: Singapore dollar
+  label_de: Singapur-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/SGD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SHP
+  label: Saint Helena pound
+  label_de: St. Helena-Pfund
+  url: http://publications.europa.eu/resource/authority/currency/SHP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SLL
+  label: Leone
+  label_de: Leone
+  url: http://publications.europa.eu/resource/authority/currency/SLL
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SOS
+  label: Somali shilling
+  label_de: Somalia-Schilling
+  url: http://publications.europa.eu/resource/authority/currency/SOS
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SRD
+  label: Surinamese dollar
+  label_de: Suriname-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/SRD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SSP
+  label: South Sudanese pound
+  label_de: Südsudanesisches Pfund
+  url: http://publications.europa.eu/resource/authority/currency/SSP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: STN
+  label: Dobra
+  label_de: Dobra
+  url: http://publications.europa.eu/resource/authority/currency/STN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SVC
+  label: Salvadorian colón
+  label_de: El-Salvador-Colón
+  url: http://publications.europa.eu/resource/authority/currency/SVC
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SYP
+  label: Syrian pound
+  label_de: Syrisches Pfund
+  url: http://publications.europa.eu/resource/authority/currency/SYP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: SZL
+  label: Lilangeni
+  label_de: Lilangeni
+  url: http://publications.europa.eu/resource/authority/currency/SZL
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: THB
+  label: Baht
+  label_de: Baht
+  url: http://publications.europa.eu/resource/authority/currency/THB
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: TJS
+  label: Somoni
+  label_de: Somoni
+  url: http://publications.europa.eu/resource/authority/currency/TJS
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: TMT
+  label: Turkmen manat
+  label_de: Turkmenistan-Manat
+  url: http://publications.europa.eu/resource/authority/currency/TMT
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: TND
+  label: Tunisian dinar
+  label_de: Tunesischer Dinar
+  url: http://publications.europa.eu/resource/authority/currency/TND
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: TOP
+  label: Pa’anga
+  label_de: Pa'anga
+  url: http://publications.europa.eu/resource/authority/currency/TOP
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: TRY
+  label: Turkish lira
+  label_de: Türkische Lira
+  url: http://publications.europa.eu/resource/authority/currency/TRY
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: TTD
+  label: Trinidad and Tobago dollar
+  label_de: Trinidad-und-Tobago-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/TTD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: TWD
+  label: New Taiwan dollar
+  label_de: Neuer Taiwan-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/TWD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: TZS
+  label: Tanzanian shilling
+  label_de: Tansania-Schilling
+  url: http://publications.europa.eu/resource/authority/currency/TZS
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: UAH
+  label: Hryvnia
+  label_de: Griwna
+  url: http://publications.europa.eu/resource/authority/currency/UAH
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: UGX
+  label: Uganda shilling
+  label_de: Uganda-Schilling
+  url: http://publications.europa.eu/resource/authority/currency/UGX
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: USD
+  label: US dollar
+  label_de: US-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/USD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: USN
+  label: US dollar
+  label_de: US-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/USN
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: UYI
+  label: Uruguay Peso en Unidades Indexadas
+  label_de: Uruguay Peso en Unidades Indexadas
+  url: http://publications.europa.eu/resource/authority/currency/UYI
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: UYU
+  label: Uruguayan peso
+  label_de: Uruguayischer Peso
+  url: http://publications.europa.eu/resource/authority/currency/UYU
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: UYW
+  label: Unidad Previsional
+  label_de: Unidad Previsional
+  url: http://publications.europa.eu/resource/authority/currency/UYW
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: UZS
+  label: Sum
+  label_de: Sum
+  url: http://publications.europa.eu/resource/authority/currency/UZS
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: VES
+  label: Bolívar soberano
+  label_de: Bolívar Soberano
+  url: http://publications.europa.eu/resource/authority/currency/VES
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: VND
+  label: Dong
+  label_de: Dong
+  url: http://publications.europa.eu/resource/authority/currency/VND
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: VUV
+  label: Vatu
+  label_de: Vatu
+  url: http://publications.europa.eu/resource/authority/currency/VUV
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: WST
+  label: Tala
+  label_de: Tala
+  url: http://publications.europa.eu/resource/authority/currency/WST
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XAF
+  label: CFA franc (BEAC)
+  label_de: CFA-Franc (BEAC)
+  url: http://publications.europa.eu/resource/authority/currency/XAF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XAG
+  label: Silver
+  label_de: Silber
+  url: http://publications.europa.eu/resource/authority/currency/XAG
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XAU
+  label: Gold
+  label_de: Gold
+  url: http://publications.europa.eu/resource/authority/currency/XAU
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XBA
+  label: Bond Markets Unit European Composite Unit (EURCO)
+  label_de: Bond Markets Unit European Composite Unit (EURCO)
+  url: http://publications.europa.eu/resource/authority/currency/XBA
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XBB
+  label: Bond Markets Unit European Monetary Unit (E.M.U.-6)
+  label_de: Bond Markets Unit European Monetary Unit (E.M.U.-6)
+  url: http://publications.europa.eu/resource/authority/currency/XBB
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XBC
+  label: Bond Markets Unit European Unit of Account 9 (E.U.A.-9)
+  label_de: Bond Markets Unit European Unit of Account 9 (E.U.A.-9)
+  url: http://publications.europa.eu/resource/authority/currency/XBC
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XBD
+  label: Bond Markets Unit European Unit of Account 17 (E.U.A.-17)
+  label_de: Bond Markets Unit European Unit of Account 17 (E.U.A.-17)
+  url: http://publications.europa.eu/resource/authority/currency/XBD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XCD
+  label: East Caribbean dollar
+  label_de: Ostkaribischer Dollar
+  url: http://publications.europa.eu/resource/authority/currency/XCD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XDR
+  label: SDR (Special Drawing Right)
+  label_de: SZR (Sonderziehungsrecht)
+  url: http://publications.europa.eu/resource/authority/currency/XDR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XOF
+  label: CFA Franc (BCEAO)
+  label_de: CFA-Franc (BCEAO)
+  url: http://publications.europa.eu/resource/authority/currency/XOF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XPD
+  label: Palladium
+  label_de: Palladium
+  url: http://publications.europa.eu/resource/authority/currency/XPD
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XPF
+  label: CFP franc
+  label_de: CFP-Franc
+  url: http://publications.europa.eu/resource/authority/currency/XPF
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XPT
+  label: Platinum
+  label_de: Platin
+  url: http://publications.europa.eu/resource/authority/currency/XPT
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XSU
+  label: Sucre
+  label_de: Sucre
+  url: http://publications.europa.eu/resource/authority/currency/XSU
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XTS
+  label: Code reserved for testing purposes
+  label_de: Code nur für Testzwecke
+  url: http://publications.europa.eu/resource/authority/currency/XTS
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XUA
+  label: ADB Unit of Account
+  label_de: Recheneinheit der Afrikanischen Entwicklungsbank
+  url: http://publications.europa.eu/resource/authority/currency/XUA
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: XXX
+  label: No currency
+  label_de: Keine Währung
+  url: http://publications.europa.eu/resource/authority/currency/XXX
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: YER
+  label: Yemeni rial
+  label_de: Jemen-Rial
+  url: http://publications.europa.eu/resource/authority/currency/YER
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: ZAR
+  label: Rand
+  label_de: Rand
+  url: http://publications.europa.eu/resource/authority/currency/ZAR
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: ZMW
+  label: Zambian kwacha
+  label_de: Sambischer Kwacha
+  url: http://publications.europa.eu/resource/authority/currency/ZMW
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+- '@type': skos:Concept
+  deprecated: 'false'
+  id: ZWL
+  label: Zimbabwe dollar
+  label_de: Simbabwe-Dollar
+  url: http://publications.europa.eu/resource/authority/currency/ZWL
+  vocab:
+  - url: http://publications.europa.eu/resource/authority/currency
+statistics:
+  filtered:
+  - ADF
+  - ADP
+  - AFA
+  - ALK
+  - AON
+  - AOR
+  - ARA
+  - ARL
+  - ARM
+  - ARP
+  - ATS
+  - AZM
+  - BEF
+  - BGJ
+  - BGK
+  - BGL
+  - BOP
+  - BRB
+  - BRC
+  - BRE
+  - BRN
+  - BRR
+  - BRZ
+  - BYR
+  - CLE
+  - CSJ
+  - CSK
+  - CYP
+  - DDM
+  - DEM
+  - ECS
+  - EEK
+  - ESP
+  - FIM
+  - FRF
+  - GHC
+  - GNE
+  - GQE
+  - GRD
+  - GWP
+  - IEP
+  - ILP
+  - ILR
+  - ISJ
+  - ITL
+  - LAJ
+  - LTL
+  - LUF
+  - LVL
+  - MCF
+  - MGF
+  - MKN
+  - MLF
+  - MRO
+  - MTL
+  - MTP
+  - MVQ
+  - MXP
+  - MZM
+  - NFD
+  - NLG
+  - OP_DATPRO
+  - PEH
+  - PEI
+  - PLZ
+  - PTE
+  - ROL
+  - RUR
+  - SDD
+  - SIT
+  - SKK
+  - SML
+  - SQS
+  - SRG
+  - STD
+  - SUR
+  - TJR
+  - TMM
+  - TPE
+  - TRL
+  - TVD
+  - UAK
+  - UGS
+  - USS
+  - UYN
+  - VAL
+  - VEB
+  - VEF
+  - VNC
+  - XEU
+  - YDD
+  - YUD
+  - YUF
+  - YUG
+  - YUM
+  - YUN
+  - YUO
+  - YUR
+  - YUS
+  - ZMK
+  - ZRN
+  - ZRZ
+  - ZWC
+  - ZWD
+  - ZWN
+  - ZWR
+  - currency
+  framed_items: 179
+  source_items: 286

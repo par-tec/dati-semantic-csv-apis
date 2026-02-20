@@ -2,18 +2,27 @@
 Test expanding JSON-LD context entries to absolute URIs.
 """
 
+import logging
+
 import yaml
 from pyld import jsonld
 from rdflib import Graph
 from rdflib.compare import IsomorphicGraph, to_isomorphic
 
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+
 
 class IGraph:
     @staticmethod
     def parse(*args, **kwargs) -> IsomorphicGraph:
-        g = Graph()
-        g.parse(*args, **kwargs)
-        return to_isomorphic(g)
+        try:
+            g = Graph()
+            g.parse(*args, **kwargs)
+            return to_isomorphic(g)
+        except Exception as e:
+            log.exception(f"Failed to parse RDF data: {args}, {kwargs}")
+            raise e
 
 
 class QuotedStringDumper(yaml.SafeDumper):
