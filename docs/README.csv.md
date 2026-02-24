@@ -793,7 +793,6 @@ L'Erogatore può integrare ulteriori campi di metadatazione.
 > L'ideale sarebbe avere un x-jsonld-context comune per tutti i datapackage,
 > ma questo potrebbe essere limitativo.
 
-
 ### Test
 
 La PoC viene sviluppata seguendo un approccio di test-driven development (TDD),

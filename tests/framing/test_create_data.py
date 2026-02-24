@@ -5,13 +5,9 @@ import pytest
 import yaml
 from rdflib.compare import IsomorphicGraph
 
-from tests.constants import ASSETS, TESTDIR
+from tests.constants import ASSETS, TESTCASES
 from tools.projector import frame_context_fields, project, select_fields
 from tools.utils import IGraph
-
-testcases_yaml = TESTDIR / "testcases.yaml"
-
-TESTCASES = yaml.safe_load(testcases_yaml.read_text())["testcases"]
 
 vocabularies = list(ASSETS.glob("**/*.ttl"))
 

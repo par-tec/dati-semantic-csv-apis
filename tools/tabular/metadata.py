@@ -6,6 +6,8 @@ from rdflib import DCAT, DCTERMS, OWL, SKOS, Graph, Namespace, URIRef
 
 from tools.projector import JsonLDFrame
 
+# Define namespaces
+NDC = Namespace("https://w3id.org/italia/onto/NDC/")
 DATADIR = Path(__file__).parent.parent / "data"
 
 DATAPACKAGE_SCHEMA_YAML = DATADIR / "datapackage.schema.json"
@@ -100,12 +102,16 @@ def create_dataresource(
     }
 
 
-def create_datapackage(rdf: str, vocabulary_uri: str, resources: list) -> dict:
+def create_datapackage(
+    vocabulary: Graph,
+    vocabulary_uri: URIRef,
+    resources: list,
+) -> dict:
     """
     Create a frictionless datapackage from JSON-LD RDF data.
 
     Args:
-        rdf: RDF data in JSON-LD format
+        vocabulary: RDF graph containing the data
         vocabulary_uri: URI of the vocabulary (concept scheme) to extract metadata for
         resources: List of data resources to include in the datapackage
             (e.g., from a CSV file)
@@ -114,24 +120,11 @@ def create_datapackage(rdf: str, vocabulary_uri: str, resources: list) -> dict:
         dict: Frictionless datapackage dictionary
     """
 
-    # Define namespaces
-    NDC = Namespace("https://w3id.org/italia/onto/NDC/")
-
-    # Create RDF graph from JSON-LD
-    g = Graph()
-    g.parse(data=rdf, format="text/turtle")
-
-    # Convert vocabulary_uri to URIRef and get all triples about it
-    vocabulary = URIRef(vocabulary_uri)
-    n = Graph()
-    for t in g.triples((vocabulary, None, None)):
-        n.add(t)
-
-    if not n:
+    if not vocabulary:
         raise ValueError(f"No triples found for {vocabulary_uri} in RDF data")
 
-    conformsTo = n.value(vocabulary, DCTERMS.conformsTo)
-    language = n.value(vocabulary, DCTERMS.language)
+    conformsTo = vocabulary.value(vocabulary_uri, DCTERMS.conformsTo)
+    language = vocabulary.value(vocabulary_uri, DCTERMS.language)
     if str(language).lower() in ("it", "ita"):
         lang = "it"
     elif str(language).lower() in ("en", "eng"):
@@ -141,9 +134,32 @@ def create_datapackage(rdf: str, vocabulary_uri: str, resources: list) -> dict:
 
     # Check if vocabulary conforms to any ofdswith
 
+    def get_identifier(predicate, unique=True, required=True):
+        values = set(
+            str(obj) for obj in vocabulary.objects(vocabulary_uri, predicate)
+        )
+        if unique and len(values) > 1:
+            raise ValueError(
+                f"Expected exactly one value for {predicate}, found {len(values)}: {values}"
+            )
+        # If the identifier has a language-tagged literal,
+        #  raise an error.
+        if any(
+            hasattr(obj, "language") and obj.language
+            for obj in vocabulary.objects(vocabulary_uri, predicate)
+        ):
+            raise ValueError(
+                f"Expected a non-language-tagged literal for {predicate}, but found language-tagged literals: {values}"
+            )
+        if required and not values:
+            raise ValueError(
+                f"Expected a value for {predicate}, but found none"
+            )
+        return next(iter(values)) if values else None
+
     # Helper function to get literal value
     def get_value(predicate, lang=None):
-        for obj in n.objects(vocabulary, predicate):
+        for obj in vocabulary.objects(vocabulary_uri, predicate):
             if lang and hasattr(obj, "language") and obj.language != lang:
                 continue
             return str(obj)
@@ -152,7 +168,7 @@ def create_datapackage(rdf: str, vocabulary_uri: str, resources: list) -> dict:
     # Helper function to get all values as list
     def get_values(predicate, lang=None):
         values = []
-        for obj in n.objects(vocabulary, predicate):
+        for obj in vocabulary.objects(vocabulary_uri, predicate):
             if lang and hasattr(obj, "language") and obj.language != lang:
                 continue
             values.append(str(obj))
@@ -169,7 +185,8 @@ def create_datapackage(rdf: str, vocabulary_uri: str, resources: list) -> dict:
     datapackage = {
         "$schema": "https://datapackage.org/profiles/2.0/datapackage.json",
         "name": get_value(NDC.keyConcept) or "",
-        "id": get_value(DCTERMS.identifier) or str(vocabulary),
+        "id": get_identifier(DCTERMS.identifier, unique=True, required=False)
+        or str(vocabulary_uri),
         "title": get_first_value([DCTERMS.title, SKOS.prefLabel], lang=lang)
         or "",
         "resources": resources or [],
@@ -202,6 +219,7 @@ def create_datapackage(rdf: str, vocabulary_uri: str, resources: list) -> dict:
     if licenses:
         datapackage["licenses"] = licenses
 
+    validate_datapackage(datapackage)
     return datapackage
 
 

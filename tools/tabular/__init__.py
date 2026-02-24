@@ -11,11 +11,14 @@ this data package is generated from the framed JSON-LD data.
 """
 
 from collections.abc import Collection
+from pathlib import Path
 
 import pandas as pd
+from rdflib import Graph
 
 import tools.utils
 from tools.projector import JsonLD, JsonLDFrame
+from tools.tabular.metadata import create_datapackage
 
 IGNORE_RDF_PROPERTIES: Collection[str] = (
     "http://www.w3.org/2004/02/skos/core#inScheme",
@@ -50,17 +53,66 @@ class Tabular:
 
     def __init__(
         self,
-        data,
-        frame,
+        data: JsonLD,
+        frame: JsonLDFrame,
         ignore_rdf_properties: Collection[str] = IGNORE_RDF_PROPERTIES,
         sort_by: tuple = ("id", "label"),
     ):
-        self.data = data
-        self.frame = frame
+        self.data: JsonLD = data
+        self.frame: JsonLDFrame = frame
         self.ignore_rdf_properties = ignore_rdf_properties
         self.sort_by = sort_by
 
         self.df: pd.DataFrame | None = None
+
+    def metadata(
+        self, rdf_data: str | Path, vocabulary_uri: str, format="text/turtle"
+    ) -> dict:
+        """
+        Extract metadata from RDF data and create a frictionless datapackage descriptor.
+
+        Args:
+            rdf_data: RDF data or pathlikes
+            vocabulary_uri: URI of the vocabulary (concept scheme) to extract metadata for
+        Returns:
+            dict: Frictionless datapackage descriptor
+        """
+        if isinstance(rdf_data, Path):
+            kwargs = {"source": rdf_data, "format": format}
+        elif isinstance(rdf_data, str):
+            kwargs = {"data": rdf_data, "format": format}
+        else:
+            raise ValueError("rdf_data must be a string or a Path")
+
+        self.g: tools.utils.IsomorphicGraph = tools.utils.IGraph.parse(**kwargs)
+
+        res = self.g.query("""
+                     PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
+
+                     CONSTRUCT {
+                        ?vocab ?p ?o .
+                     ?vocab NDC:keyConcept ?keyConcept .
+                     }
+                     WHERE {
+                        ?vocab
+                            NDC:keyConcept ?keyConcept ;
+                            ?p ?o .
+                    }
+                     """)
+        vocab: Graph = res.graph
+        self.vocab = vocab
+        vocabularies = set(vocab.subjects())
+        do_i_have_just_one_vocab = len(vocabularies)
+        if do_i_have_just_one_vocab != 1:
+            raise ValueError(
+                "Expected exactly one vocabulary in the RDF data",
+                do_i_have_just_one_vocab,
+            )
+
+        datapackage = create_datapackage(
+            vocab, next(iter(vocabularies)), resources=[]
+        )
+        return datapackage
 
     def set_dialect(self, dialect: dict):
         """

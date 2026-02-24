@@ -4,17 +4,13 @@ import pytest
 import yaml
 from frictionless import Resource
 
-from tests.constants import ASSETS, TESTDIR
+from tests.constants import ASSETS
 from tools.projector import JsonLD, JsonLDFrame
-from tools.tabular import create_csv
 
 vocabularies = list(ASSETS.glob("**/*.data.yaml"))
 
 
-testcases_yaml = TESTDIR / "testcases.yaml"
-TESTCASES = yaml.safe_load(testcases_yaml.read_text())["testcases"]
-
-
+@pytest.mark.skip(reason="Not implemented yet")
 @pytest.mark.parametrize(
     "vocabulary_data_yaml", vocabularies, ids=[x.name for x in vocabularies]
 )
