@@ -17,6 +17,7 @@ import pandas as pd
 from rdflib import Graph
 
 import tools.utils
+from tools.base import TEXT_TURTLE
 from tools.projector import JsonLD, JsonLDFrame
 from tools.tabular.metadata import create_datapackage
 
@@ -41,11 +42,13 @@ CSV_DIALECT = {
     }
 }
 
+from tools.vocabulary import APPLICATION_LD_JSON, Vocabulary
 
-class Tabular:
+
+class Tabular(Vocabulary):
     """
     This class provides utilities to create a tabular representation of RDF datasets
-    expressed in JSON-LD format, following specific framing rules.
+    following specific framing rules.
 
     This class loads some settings from
     a datapackage descriptor.
@@ -53,20 +56,22 @@ class Tabular:
 
     def __init__(
         self,
-        graph: Graph | None,
+        rdf_data: str | Path,
         frame: JsonLDFrame,
         ignore_rdf_properties: Collection[str] = IGNORE_RDF_PROPERTIES,
         sort_by: tuple = ("id", "label"),
+        format=TEXT_TURTLE,
     ):
-        self.graph: Graph | None = graph
+        super().__init__(rdf_data, format=format)
         self.frame: JsonLDFrame = frame
         self.ignore_rdf_properties = ignore_rdf_properties
         self.sort_by = sort_by
 
+        self.data: JsonLD = {}
         self.df: pd.DataFrame | None = None
 
-    def metadata(
-        self, rdf_data: str | Path, vocabulary_uri: str, format="text/turtle"
+    def datapackage(
+        self,
     ) -> dict:
         """
         Extract metadata from RDF data and create a frictionless datapackage descriptor.
@@ -77,42 +82,11 @@ class Tabular:
         Returns:
             dict: Frictionless datapackage descriptor
         """
-        if isinstance(rdf_data, Path):
-            kwargs = {"source": rdf_data, "format": format}
-        elif isinstance(rdf_data, str):
-            kwargs = {"data": rdf_data, "format": format}
-        else:
-            raise ValueError("rdf_data must be a string or a Path")
-
-        self.g: tools.utils.IsomorphicGraph = tools.utils.IGraph.parse(**kwargs)
-
-        res = self.g.query("""
-                     PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
-
-                     CONSTRUCT {
-                        ?vocab ?p ?o .
-                     ?vocab NDC:keyConcept ?keyConcept .
-                     }
-                     WHERE {
-                        ?vocab
-                            NDC:keyConcept ?keyConcept ;
-                            ?p ?o .
-                    }
-                     """)
-        vocab: Graph = res.graph
-        self.vocab = vocab
-        vocabularies = set(vocab.subjects())
-        do_i_have_just_one_vocab = len(vocabularies)
-        if do_i_have_just_one_vocab != 1:
-            raise ValueError(
-                "Expected exactly one vocabulary in the RDF data",
-                do_i_have_just_one_vocab,
-            )
-
-        datapackage = create_datapackage(
-            vocab, next(iter(vocabularies)), resources=[]
+        metadata: Graph = self.metadata()
+        _datapackage = create_datapackage(
+            metadata, next(iter(metadata.subjects())), resources=[]
         )
-        return datapackage
+        return _datapackage
 
     def set_dialect(self, dialect: dict):
         """
@@ -133,7 +107,7 @@ class Tabular:
         encoding="utf-8",
         """
 
-    def load(self):
+    def load(self, data: JsonLD | None = None) -> pd.DataFrame:
         """
         Create a CSV from a JSON-LD document framed according
         to the provided JSON-LD frame.
@@ -162,6 +136,13 @@ class Tabular:
         # Convert framed data to tabular format
         # tabular_data = tabularize(data)
 
+        self.data = self.data if self.data else data
+        if not self.data:
+            self.data = self.project(self.frame)
+        if not self.data:
+            raise ValueError("No data to load.")
+        if not self.data.get("@graph"):
+            raise ValueError("Framed data must contain a @graph.")
         # The generated CSV has the following requirements:
         # - columns must not reference JSON-LD keywords (e.g., @id, @type)
         # - string columns must always be quoted, and the content

@@ -20,9 +20,9 @@ description: "Classificazione statistica delle attività economiche
   222 gruppi, 60 divisioni, 17 sezioni, 16 sottosezioni."
 id: ISTAT:D.7
 keywords:
-- "Attività Economica"
 - Ateco
 - Ateco2025
+- "Attività Economica"
 - classificazione
 name: ateco-2025
 resources: []

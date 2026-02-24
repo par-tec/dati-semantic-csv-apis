@@ -6,6 +6,7 @@ from pandas import DataFrame
 
 from tests.constants import ASSETS, TESTCASES
 from tools.tabular import Tabular
+from tools.vocabulary import JsonLD, JsonLDFrame
 
 
 @pytest.mark.parametrize(
@@ -19,13 +20,20 @@ from tools.tabular import Tabular
     ],
     ids=[x["name"] for x in TESTCASES if "expected_datapackage" in x],
 )
-def test_tabular(data, frame, expected_payload, expected_datapackage):
+def test_tabular_minimal(
+    data: str,
+    frame: JsonLDFrame,
+    expected_payload: JsonLD,
+    expected_datapackage: dict,
+):
     """
     Test the Tabular class for creating a tabular representation of RDF datasets.
 
     Given:
     - RDF vocabulary data in JSON-LD format
     - A JSON-LD frame with @context definitions
+    - An expected payload in JSON-LD format that is used instead
+      of the computed projection
 
     When:
     - I create an instance of the Tabular class with the RDF data and frame
@@ -37,9 +45,9 @@ def test_tabular(data, frame, expected_payload, expected_datapackage):
     """
     # Sample RDF data in JSON-LD format
     # Create an instance of the Tabular class
-    tabular = Tabular(data=data, frame=frame)
+    tabular = Tabular(rdf_data=data, frame=frame)
     assert tabular
-    df: DataFrame = tabular.load()
+    df: DataFrame = tabular.load(data=expected_payload)
     assert df is not None
     raise NotImplementedError
 
@@ -65,9 +73,9 @@ def test_tabular_metadata(vocabulary_ttl, snapshot):
     - The metadata method should return a valid datapackage descriptor dictionary
     """
     tabular = Tabular(
-        data=None, frame={"@context": {}}
+        rdf_data=vocabulary_ttl, frame={"@context": {}}
     )  # Placeholder frame, replace with actual frame if needed
-    vocab = tabular.metadata(rdf_data=vocabulary_ttl, vocabulary_uri="")
+    vocab = tabular.datapackage()
 
     datapackage_yaml = snapshot / f"{vocab['name']}.datapackage.yaml"
     assert datapackage_yaml.exists()

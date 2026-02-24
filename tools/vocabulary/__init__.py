@@ -1,17 +1,15 @@
 import json
 import logging
 import time
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import TypedDict
 
 from rdflib import Graph
 
-TEXT_TURTLE = "text/turtle"
-OX_TURTLE = "ox-turtle"
-APPLICATION_LD_JSON = "application/ld+json"
+from tools.base import APPLICATION_LD_JSON, TEXT_TURTLE, JsonLD, JsonLDFrame
+from tools.projector import framer
+
 log = logging.getLogger(__name__)
-JsonLD = TypedDict("JsonLD", {"@context": dict, "@graph": list}, total=False)
-JsonLDFrame = TypedDict("JsonLDFrame", {"@context": dict}, total=False)
 
 
 class Vocabulary:
@@ -31,9 +29,9 @@ class Vocabulary:
         self.graph = Graph()
         ts: float = time.time()
         if isinstance(rdf_data, Path):
-            self.graph.parse(rdf_data, format=TEXT_TURTLE)
+            self.graph.parse(rdf_data, format=format)
         else:
-            self.graph.parse(data=rdf_data, format=TEXT_TURTLE)
+            self.graph.parse(data=rdf_data, format=format)
         log.debug(
             f"Parsed RDF data in {time.time() - ts:.3f}s, graph has {len(self.graph)} triples"
         )
@@ -54,3 +52,64 @@ class Vocabulary:
             JsonLD: JSON-LD representation of the RDF data
         """
         return json.loads(self.serialize(format=APPLICATION_LD_JSON))
+
+    def metadata(self) -> Graph:
+        """
+        Extract a subgraph representing a vocabulary (concept scheme) from the RDF graph.
+
+        Args:
+            uri: URI of the vocabulary (concept scheme) to extract
+            key_concept: Optional URI of the key concept to filter by
+        Returns:
+            Graph: RDF graph representing the extracted vocabulary
+        """
+        query = """
+            PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
+
+            CONSTRUCT {
+                ?vocab ?p ?o .
+                ?vocab NDC:keyConcept ?keyConcept .
+            }
+            WHERE {
+                ?vocab
+                    NDC:keyConcept ?keyConcept ;
+                    ?p ?o .
+            }
+        """
+        res = self.graph.query(query)
+        _metadata: Graph = res.graph
+
+        _metadata_uri = set(_metadata.subjects())
+        do_i_have_just_one_vocab = len(_metadata_uri)
+        if do_i_have_just_one_vocab != 1:
+            raise ValueError(
+                "Expected exactly one vocabulary in the RDF data",
+                do_i_have_just_one_vocab,
+            )
+
+        return _metadata
+
+    def project(
+        self,
+        frame: JsonLDFrame,
+        batch_size: int = 0,
+        callbacks: Iterable[Callable] = (),
+    ) -> JsonLD:
+        """
+        Apply the frame to the RDF data and then project the result to only include fields in the frame context.
+
+        Args:
+            frame: JSON-LD frame specification
+            batch_size: Number of records to process per batch. If 0, process all at once.
+            callbacks: Optional list of callback functions to call after processing each batch.
+        Returns:
+            JsonLD: Projected JSON-LD document containing only fields in the frame context.
+        """
+        ld_doc: JsonLD = self.json_ld()
+        framed = framer(ld_doc, frame, batch_size)
+
+        for callback in callbacks or []:
+            log.debug(f"Applying callbacks to framed data: {callback.__name__}")
+            callback(framed)
+            log.info(f"Callback applied successfully: {callback.__name__}")
+        return framed

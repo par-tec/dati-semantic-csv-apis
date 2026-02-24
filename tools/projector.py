@@ -1,18 +1,17 @@
 import logging
 import time
-from collections.abc import Callable, Iterable
 from itertools import batched
 from pathlib import Path
 
 from pyld import jsonld
 
-from tools.vocabulary import JsonLD, JsonLDFrame, Vocabulary
+from tools.base import JsonLD, JsonLDFrame
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
-def framer(frame: JsonLDFrame, v: Vocabulary, batch_size: int = 0) -> JsonLD:
+def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
     """
     Apply a JSON-LD frame to a JSON-LD serialized RDF data to produce a JSON output.
     When requested, it processes in batches to improve performance:
@@ -22,8 +21,8 @@ def framer(frame: JsonLDFrame, v: Vocabulary, batch_size: int = 0) -> JsonLD:
     that are not included in the batch may not be embedded properly.
 
     Args:
+        ld_doc: JSON-LD document to be framed
         frame: JSON-LD frame specification
-        v: Vocabulary instance
         batch_size: Number of records to process per batch.
             If 0 (default), process all at once to ensure
             proper embedding of referenced properties.
@@ -32,7 +31,6 @@ def framer(frame: JsonLDFrame, v: Vocabulary, batch_size: int = 0) -> JsonLD:
         JsonLD: Framed JSON-LD document containing @context and @graph fields.
     """
 
-    ld_doc: JsonLD = v.json_ld()
     original_context = frame.get("@context", {})
 
     # Determine items to process
@@ -140,7 +138,7 @@ def framer(frame: JsonLDFrame, v: Vocabulary, batch_size: int = 0) -> JsonLD:
     return framed
 
 
-def update_frame_with_key_field(framed: dict, base_uri: str) -> None:
+def update_frame_with_key_field(framed: JsonLD, base_uri: str) -> None:
     """
     If the "url" field of every entry starts with base_uri,
     we can safely assume that the relative part of the URI
@@ -179,33 +177,6 @@ def select_fields(framed: JsonLD, selected_fields: list[str]) -> None:
         for f in item_fields:
             if f not in selected_fields:
                 del item[f]
-
-
-def project(
-    frame: JsonLDFrame,
-    rdf_data: str | Path,
-    batch_size: int = 0,
-    callbacks: Iterable[Callable] = (),
-) -> JsonLD:
-    """
-    Apply the frame to the RDF data and then project the result to only include fields in the frame context.
-
-    Args:
-        frame: JSON-LD frame specification
-        rdf_data: RDF data in Turtle format
-        batch_size: Number of records to process per batch. If 0, process all at once.
-        callbacks: Optional list of callback functions to call after processing each batch.
-    Returns:
-        JsonLD: Projected JSON-LD document containing only fields in the frame context.
-    """
-    v = Vocabulary(rdf_data)
-    framed = framer(frame, v, batch_size)
-
-    for callback in callbacks or []:
-        log.debug(f"Applying callbacks to framed data: {callback.__name__}")
-        callback(framed)
-        log.info(f"Callback applied successfully: {callback.__name__}")
-    return framed
 
 
 def frame_context_fields(frame) -> list:

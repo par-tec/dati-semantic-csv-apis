@@ -125,11 +125,14 @@ def create_datapackage(
 
     conformsTo = vocabulary.value(vocabulary_uri, DCTERMS.conformsTo)
     language = vocabulary.value(vocabulary_uri, DCTERMS.language)
-    if str(language).lower() in ("it", "ita"):
+    if str(language).lower().endswith(("/it", "/ita")):
         lang = "it"
-    elif str(language).lower() in ("en", "eng"):
+    elif str(language).lower().endswith(("/en", "/eng")):
         lang = "en"
     else:
+        raise NotImplementedError(
+            f"Unsupported language '{language}' for vocabulary {vocabulary_uri}"
+        )
         lang = None
 
     # Check if vocabulary conforms to any ofdswith
@@ -213,6 +216,7 @@ def create_datapackage(
 
     keywords = get_values(DCAT.keyword)
     if keywords:
+        keywords.sort()
         datapackage["keywords"] = keywords
 
     licenses = get_values(DCTERMS.license)

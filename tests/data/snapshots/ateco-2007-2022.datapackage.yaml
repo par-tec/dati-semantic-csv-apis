@@ -13,9 +13,9 @@ description: "Classificazione delle attività economiche, adottata
   le sottosezioni precedentemente individuate dalle due lettere."
 id: ISTAT:D.8
 keywords:
-- "Attività Economica"
 - ATECO
 - Ateco2007
+- "Attività Economica"
 - Classificazione
 name: ateco-2007-2022
 resources: []
