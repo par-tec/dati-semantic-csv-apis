@@ -1,70 +1,18 @@
-import json
 import logging
 import time
 from collections.abc import Callable, Iterable
 from itertools import batched
 from pathlib import Path
-from typing import TypedDict
 
 from pyld import jsonld
-from rdflib import Graph
+
+from tools.vocabulary import JsonLD, JsonLDFrame, Vocabulary
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-JsonLD = TypedDict("JsonLD", {"@context": dict, "@graph": list}, total=False)
-JsonLDFrame = TypedDict("JsonLDFrame", {"@context": dict}, total=False)
 
-TEXT_TURTLE = "text/turtle"
-OX_TURTLE = "ox-turtle"
-APPLICATION_LD_JSON = "application/ld+json"
-
-
-class Vocabulary:
-    """
-    This class represents a vocabulary,
-    that can be loaded, serialized, and projected
-    in different formats.
-
-    A vocabulary is defined by a graph.
-
-    Functions supports both loading from a stream or a file.
-
-    By default, uses Oxigraph.
-    """
-
-    def __init__(self, rdf_data: str | Path, format=TEXT_TURTLE):
-        self.graph = Graph()
-        ts: float = time.time()
-        if isinstance(rdf_data, Path):
-            self.graph.parse(rdf_data, format=TEXT_TURTLE)
-        else:
-            self.graph.parse(data=rdf_data, format=TEXT_TURTLE)
-        log.debug(
-            f"Parsed RDF data in {time.time() - ts:.3f}s, graph has {len(self.graph)} triples"
-        )
-
-    def serialize(self, format=APPLICATION_LD_JSON) -> str:
-        ts: float = time.time()
-        serialized = self.graph.serialize(format=format)
-        log.debug(f"Serialized RDF to {format} in {time.time() - ts:.3f}s")
-        return serialized
-
-    def json_ld(self) -> JsonLD:
-        """
-        Convert RDF data in Turtle format to JSON-LD.
-
-        Args:
-            rdf_data: RDF data in Turtle format
-        Returns:
-            JsonLD: JSON-LD representation of the RDF data
-        """
-        return json.loads(self.serialize(format=APPLICATION_LD_JSON))
-
-
-def framer(
-    frame: JsonLDFrame, rdf_data: str | Path, batch_size: int = 0
-) -> JsonLD:
+def framer(frame: JsonLDFrame, v: Vocabulary, batch_size: int = 0) -> JsonLD:
     """
     Apply a JSON-LD frame to a JSON-LD serialized RDF data to produce a JSON output.
     When requested, it processes in batches to improve performance:
@@ -75,7 +23,7 @@ def framer(
 
     Args:
         frame: JSON-LD frame specification
-        rdf_data: RDF data in Turtle format
+        v: Vocabulary instance
         batch_size: Number of records to process per batch.
             If 0 (default), process all at once to ensure
             proper embedding of referenced properties.
@@ -83,8 +31,6 @@ def framer(
     Returns:
         JsonLD: Framed JSON-LD document containing @context and @graph fields.
     """
-
-    v = Vocabulary(rdf_data)
 
     ld_doc: JsonLD = v.json_ld()
     original_context = frame.get("@context", {})
@@ -252,7 +198,8 @@ def project(
     Returns:
         JsonLD: Projected JSON-LD document containing only fields in the frame context.
     """
-    framed = framer(frame, rdf_data, batch_size)
+    v = Vocabulary(rdf_data)
+    framed = framer(frame, v, batch_size)
 
     for callback in callbacks or []:
         log.debug(f"Applying callbacks to framed data: {callback.__name__}")

@@ -1,22 +1,24 @@
+---
 $schema: https://datapackage.org/profiles/2.0/datapackage.json
 created: '2025-01-01'
-description: "Classificazione delle attivit\xE0 economiche, adottata dall'Istat a\
-  \ partire dal 1\xB0 gennaio 2008. L'Ateco 2007 \xE8 la versione nazionale della\
-  \ classificazione Nace Rev. 2 definita in ambito europeo che, a sua volta, deriva\
-  \ da quella definita a livello Onu (Isic Rev. 4). La classificazione Ateco 2007\
-  \ presenta le varie attivit\xE0 economiche raggruppate, dal generale al particolare,\
-  \ in sezioni (21), divisioni (88), gruppi (272), classi (615), categorie (996) e\
-  \ sottocategorie (1.224). Diversamente dalle precedenti versioni della classificazione,\
-  \ non sono pi\xF9 presenti le sottosezioni precedentemente individuate dalle due\
-  \ lettere."
+description: "Classificazione delle attività economiche, adottata
+  dall'Istat a partire dal 1° gennaio 2008. L'Ateco 2007 è la
+  versione nazionale della classificazione Nace Rev. 2 definita
+  in ambito europeo che, a sua volta, deriva da quella definita
+  a livello Onu (Isic Rev. 4). La classificazione Ateco 2007 presenta
+  le varie attività economiche raggruppate, dal generale al particolare,
+  in sezioni (21), divisioni (88), gruppi (272), classi (615),
+  categorie (996) e sottocategorie (1.224). Diversamente dalle
+  precedenti versioni della classificazione, non sono più presenti
+  le sottosezioni precedentemente individuate dalle due lettere."
 id: ISTAT:D.8
 keywords:
-- "Attivit\xE0 Economica"
+- "Attività Economica"
 - ATECO
 - Ateco2007
 - Classificazione
 name: ateco-2007-2022
 resources: []
-title: "Ateco 2007 - Classificazione delle attivit\xE0 economiche - Aggiornamento\
-  \ 2022"
+title: "Ateco 2007 - Classificazione delle attività economiche
+  - Aggiornamento 2022"
 version: versione 2007 - Aggiornamento 2022

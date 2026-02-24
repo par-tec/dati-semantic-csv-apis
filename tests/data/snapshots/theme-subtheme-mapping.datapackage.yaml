@@ -1,7 +1,8 @@
+---
 $schema: https://datapackage.org/profiles/2.0/datapackage.json
 created: '2017-10-20'
-description: Mapping between the Data Theme and Eurovoc controlled vocabularies for
-  the Italian Metadata profile DCAT-AP_IT
+description: Mapping between the Data Theme and Eurovoc controlled
+  vocabularies for the Italian Metadata profile DCAT-AP_IT
 id: agid:D.10
 keywords:
 - data themes
