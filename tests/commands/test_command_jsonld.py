@@ -4,17 +4,11 @@ Parameterized tests for jsonld create and validate commands.
 Tests are organized by vocabulary and command type with shared test parameters.
 """
 
-from pathlib import Path
-
 import pytest
 import yaml
 
+from tests.constants import ASSETS, DATADIR
 from tools.commands import cli
-
-TESTDIR = Path(__file__).parent.parent
-TESTDATA = TESTDIR / "data"
-ASSETS = TESTDIR.parent / "assets" / "controlled-vocabularies"
-
 
 # Test fixtures shared across parameterized tests
 JSONLD_CREATE_FIXTURES = [
@@ -25,9 +19,9 @@ JSONLD_CREATE_FIXTURES = [
                 "jsonld",
                 "create",
                 "--ttl",
-                TESTDATA / "currency.ttl",
+                DATADIR / "currency.ttl",
                 "--frame",
-                TESTDATA / "currency.frame.yamlld",
+                DATADIR / "currency.frame.yamlld",
                 "--vocabulary-uri",
                 "http://publications.europa.eu/resource/authority/currency",
                 "--batch-size",
@@ -74,7 +68,7 @@ JSONLD_VALIDATE_FIXTURES = [
                 "jsonld",
                 "validate",
                 "--ttl",
-                TESTDATA / "currency.ttl",
+                DATADIR / "currency.ttl",
                 "--vocabulary-uri",
                 "http://publications.europa.eu/resource/authority/currency",
             ],

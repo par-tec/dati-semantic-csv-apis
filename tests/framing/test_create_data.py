@@ -1,20 +1,19 @@
 import json
 from operator import itemgetter
-from pathlib import Path
 
 import pytest
 import yaml
 from rdflib.compare import IsomorphicGraph
 
+from tests.constants import ASSETS, TESTDIR
 from tools.projector import frame_context_fields, project, select_fields
 from tools.utils import IGraph
 
-TESTDIR = Path(__file__).parent.parent
 testcases_yaml = TESTDIR / "testcases.yaml"
+
 TESTCASES = yaml.safe_load(testcases_yaml.read_text())["testcases"]
 
-ASSET = TESTDIR.parent / "assets" / "controlled-vocabularies"
-vocabularies = list(ASSET.glob("**/*.ttl"))
+vocabularies = list(ASSETS.glob("**/*.ttl"))
 
 
 @pytest.mark.parametrize(

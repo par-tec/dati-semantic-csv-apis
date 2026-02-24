@@ -3,8 +3,7 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-TESTDIR = Path(__file__).parent.parent
-DATADIR = TESTDIR / "data"
+from tests.constants import DATADIR
 
 
 @pytest.fixture

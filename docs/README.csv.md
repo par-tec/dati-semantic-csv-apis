@@ -695,6 +695,105 @@ Ottengo
 Il tool permette di escludere forzosamente i campi non mappati,
 anche quando fanno riferimento alla stessa proprietà RDF presente nel grafo RDF originale, tramite l'opzione `--frame-only`.
 
+### Datapackage
+
+Il file di metadatazione Frictionless Data Package
+descrive il contenuto del CSV, i tipi dei campi,
+il dialect usato per la serializzazione,
+e include un `x-jsonld-context` per mappare i campi del CSV alle proprietà RDF.
+
+La specifica di datapackage è:
+
+- <https://datapackage.org/profiles/2.0/datapackage.json>
+
+La PoC fornisce un comando per generare uno stub del datapackage
+a partire dal file di framing JSON-LD, in modo da semplificare
+la creazione del datapackage da parte degli Erogatori.
+La PoC è basata tra l'altro sui package:
+
+- pandas: per la manipolazione dei dati tabulari e la serializzazione in CSV;
+- frictionless: per la creazione e validazione dei datapackage.
+
+Per generare la proiezione CSV annotata, gli Erogatori
+devono modificare il datapackage stub generato,
+verificando le informazioni desunte dal file RDF e dal file di framing JSON-LD.
+
+Possono quindi utilizzare il comando `csv create` che:
+
+1. valida il file di datapackage;
+1. valida il file di framing JSON-LD;
+1. interpreta le direttive del dialetto di CSV definito nel datapackage,
+   verificandone la compatibilità con le funzionalità offerte da pandas;
+1. genera la proiezione CSV dei dati contenuti nel JSON-LD.
+
+L'Erogatore quindi valida il complesso del datapackage (CSV + datapackage) usando il comando `csv validate` che:
+
+1. deserializza il CSV usando il dialect definito nel datapackage;
+2. immerge il contenuto del CSV in un oggetto JSON-LD usando il `x-jsonld-context` definito nel datapackage;
+3. applica il `@context` definito nel file di framing JSON-LD al JSON-LD generato al punto precedente;
+4. verifica che il JSON-LD risultante sia un sottoinsieme del grafo RDF originale.
+
+La mappatura dei metadati tra le rdf:Property e le property del datapackage
+è definita nel modulo [tools.tabular.metatada](tools/tabular/metatada.py).
+I campi principali sono:
+
+|Datapackage| RDF Property | Note |
+|---|---|---|
+|`name`| `NDC:keyConcept` | Questo valore identifica univocamenteo il vocabolario all'interno di tutto il catalogo schema.gov.it. Se questo campo non è definito, il processo di generazione del CSV non può procedere.|
+|`title`| `dcterms:title` o `skos:prefLabel` | In aggiunta ai vocabolari skos, la PoC supporta anche l'utilizzo di `dcterms:title`.|
+|`id` | `dcterms:identifier` o il nome del file del vocabolario | Questo identificativo deve essere un semplice testo.|
+|`description`| `dcterms:description` o `skos:definition` | In aggiunta ai vocabolari skos, la PoC supporta anche l'utilizzo di `dcterms:description`.|
+
+Esempio: Un datapackage stub generato a partire da agente-causale.
+
+```yaml
+---
+# Lo schema indica la versione del formato datapackage
+#   e permette di validare il file usando un validatore JSON Schema.
+$schema: https://datapackage.org/profiles/2.0/datapackage.json
+id: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+# Il nome del vocabolario, che deve essere univoco all'interno del catalogo schema.gov.it,
+#   preso da NDC:keyConcept.
+name: agente_causale
+# Il titolo del vocabolario, preso da dcterms:title o skos:prefLabel.
+title: Classification of causal agents adopted by INAIL Controlled
+  Vocabulary
+# La versione del vocabolario, presa da owl:versionInfo.
+#   Se questo campo non è definito, la versione non viene riportata nel datapackage.
+version: '0.5'
+# La data di creazione del vocabolario, presa da dcterms:issued.
+#   Se questo campo non è definito, la data di creazione non viene riportata nel datapackage.
+created: '2022-09-06'
+# La descrizione del vocabolario, presa da dcterms:description o skos:definition.
+#   Se questo campo non è definito, la descrizione non viene riportata nel datapackage.
+description: Decodifica dell'agente, lavorazione, o esposizione
+  che puo' essere causa o concausa di malattia
+# Una serie di keyword associate al vocabolario, prese da DCAT.keyword.
+keywords:
+- agente causale
+- chemical product
+- inail
+- infortunio
+- malattia professionale
+- occupational accident
+- occupational disease
+- prodotto chimico
+resources:
+- mediatype: text/csv
+  name: agente_causale_data
+  path: agente_causale.dataresource.csv
+```
+
+L'Erogatore può integrare ulteriori campi di metadatazione.
+
+> :?: vogliamo dare la possibilità di aggiungere un x-jsonld-context
+> anche a livello di datapackage per trasformare i metadati in RDF?
+> In una fase successiva potrebbe essere utile.
+> Il meccanismo di validazione può sempre basarsi sull'embedding.
+> L'ideale sarebbe avere un x-jsonld-context comune per tutti i datapackage,
+> ma questo potrebbe essere limitativo.
+
+
 ### Test
 
 La PoC viene sviluppata seguendo un approccio di test-driven development (TDD),
@@ -773,6 +872,11 @@ La CLI jsonld fornisce i seguenti comandi:
     (vedi [filtro campi non mappati](#filtro-campi-non-mappati)).
 - validate: che verifica le condizioni descritte
     in [Validazione JSON-LD](#validazione-json-ld).
+
+### CLI datapackage
+
+La CLI datapackage crea un file di metadatazione Frictionless Data Package
+a partire da un file di framing JSON-LD e da un file di proiezione JSON-LD.
 
 ## Conclusioni
 
