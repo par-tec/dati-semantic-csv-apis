@@ -53,12 +53,12 @@ class Tabular:
 
     def __init__(
         self,
-        data: JsonLD,
+        graph: Graph | None,
         frame: JsonLDFrame,
         ignore_rdf_properties: Collection[str] = IGNORE_RDF_PROPERTIES,
         sort_by: tuple = ("id", "label"),
     ):
-        self.data: JsonLD = data
+        self.graph: Graph | None = graph
         self.frame: JsonLDFrame = frame
         self.ignore_rdf_properties = ignore_rdf_properties
         self.sort_by = sort_by

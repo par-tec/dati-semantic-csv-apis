@@ -2,12 +2,12 @@ from pathlib import Path
 
 import pytest
 
-
-@pytest.fixture
-def TESTDIR():
-    return Path(__file__).parent
+from tests.constants import DATADIR
 
 
 @pytest.fixture
-def DATADIR(TESTDIR):
-    return TESTDIR / "data"
+def snapshot() -> Path:
+    """
+    Returns a snapshot fixture for snapshot testing.
+    """
+    return DATADIR / "snapshots"

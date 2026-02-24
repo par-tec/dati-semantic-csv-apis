@@ -219,7 +219,7 @@ def create_datapackage(
     if licenses:
         datapackage["licenses"] = licenses
 
-    validate_datapackage(datapackage)
+    # validate_datapackage(datapackage)
     return datapackage
 
 

@@ -1,9 +1,5 @@
-from pathlib import Path
-
 import pytest
 from click.testing import CliRunner
-
-from tests.constants import DATADIR
 
 
 @pytest.fixture
@@ -15,11 +11,3 @@ def runner():
     return CliRunner(
         catch_exceptions=False,
     )
-
-
-@pytest.fixture
-def snapshot() -> Path:
-    """
-    Returns a snapshot fixture for snapshot testing.
-    """
-    return DATADIR / "snapshots"

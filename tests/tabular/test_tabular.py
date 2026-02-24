@@ -1,6 +1,7 @@
 from operator import itemgetter
 
 import pytest
+import yaml
 from pandas import DataFrame
 
 from tests.constants import ASSETS, TESTCASES
@@ -48,7 +49,7 @@ def test_tabular(data, frame, expected_payload, expected_datapackage):
     argvalues=ASSETS.glob("**/*.ttl"),
     ids=[x.name for x in ASSETS.glob("**/*.ttl")],
 )
-def test_tabular_metadata(vocabulary_ttl):
+def test_tabular_metadata(vocabulary_ttl, snapshot):
     """
     Test the metadata extraction from RDF data and creation of a datapackage descriptor.
 
@@ -67,4 +68,10 @@ def test_tabular_metadata(vocabulary_ttl):
         data=None, frame={"@context": {}}
     )  # Placeholder frame, replace with actual frame if needed
     vocab = tabular.metadata(rdf_data=vocabulary_ttl, vocabulary_uri="")
-    raise NotImplementedError("Missing frame")
+
+    datapackage_yaml = snapshot / f"{vocab['name']}.datapackage.yaml"
+    assert datapackage_yaml.exists()
+
+    assert vocab == yaml.safe_load(datapackage_yaml.read_text()), (
+        "Metadata extraction does not match expected snapshot"
+    )

@@ -15,30 +15,51 @@ logging.basicConfig(level=logging.DEBUG)
 JsonLD = TypedDict("JsonLD", {"@context": dict, "@graph": list}, total=False)
 JsonLDFrame = TypedDict("JsonLDFrame", {"@context": dict}, total=False)
 
+TEXT_TURTLE = "text/turtle"
+OX_TURTLE = "ox-turtle"
+APPLICATION_LD_JSON = "application/ld+json"
 
-def to_jsonld(rdf_data: str | Path) -> JsonLD:
-    """
-    Convert RDF data in Turtle format to JSON-LD.
 
-    Args:
-        rdf_data: RDF data in Turtle format
-    Returns:
-        JsonLD: JSON-LD representation of the RDF data
+class Vocabulary:
     """
-    g = Graph()
-    ts = time.time()
-    if isinstance(rdf_data, Path):
-        g.parse(rdf_data, format="text/turtle")
-    else:
-        g.parse(data=rdf_data, format="text/turtle")
-    log.debug(
-        f"Parsed RDF data in {time.time() - ts:.3f}s, graph has {len(g)} triples"
-    )
-    ts = time.time()
-    ld = g.serialize(format="application/ld+json")
-    log.debug(f"Serialized RDF to JSON-LD in {time.time() - ts:.3f}s")
-    ld_doc: JsonLD = json.loads(ld)
-    return ld_doc
+    This class represents a vocabulary,
+    that can be loaded, serialized, and projected
+    in different formats.
+
+    A vocabulary is defined by a graph.
+
+    Functions supports both loading from a stream or a file.
+
+    By default, uses Oxigraph.
+    """
+
+    def __init__(self, rdf_data: str | Path, format=TEXT_TURTLE):
+        self.graph = Graph()
+        ts: float = time.time()
+        if isinstance(rdf_data, Path):
+            self.graph.parse(rdf_data, format=TEXT_TURTLE)
+        else:
+            self.graph.parse(data=rdf_data, format=TEXT_TURTLE)
+        log.debug(
+            f"Parsed RDF data in {time.time() - ts:.3f}s, graph has {len(self.graph)} triples"
+        )
+
+    def serialize(self, format=APPLICATION_LD_JSON) -> str:
+        ts: float = time.time()
+        serialized = self.graph.serialize(format=format)
+        log.debug(f"Serialized RDF to {format} in {time.time() - ts:.3f}s")
+        return serialized
+
+    def json_ld(self) -> JsonLD:
+        """
+        Convert RDF data in Turtle format to JSON-LD.
+
+        Args:
+            rdf_data: RDF data in Turtle format
+        Returns:
+            JsonLD: JSON-LD representation of the RDF data
+        """
+        return json.loads(self.serialize(format=APPLICATION_LD_JSON))
 
 
 def framer(
@@ -63,7 +84,9 @@ def framer(
         JsonLD: Framed JSON-LD document containing @context and @graph fields.
     """
 
-    ld_doc: JsonLD = to_jsonld(rdf_data)
+    v = Vocabulary(rdf_data)
+
+    ld_doc: JsonLD = v.json_ld()
     original_context = frame.get("@context", {})
 
     # Determine items to process
