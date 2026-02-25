@@ -33,7 +33,8 @@ def create_datapackage(
     if not vocabulary:
         raise ValueError(f"No triples found for {vocabulary_uri} in RDF data")
 
-    conformsTo = vocabulary.value(vocabulary_uri, DCTERMS.conformsTo)
+    # XXX: Should we use conformsTo?
+    # conformsTo = vocabulary.value(vocabulary_uri, DCTERMS.conformsTo)
     language = vocabulary.value(vocabulary_uri, DCTERMS.language)
     if str(language).lower().endswith(("/it", "/ita")):
         lang = "it"

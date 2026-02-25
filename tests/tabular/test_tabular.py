@@ -4,7 +4,6 @@ from pathlib import Path
 import pytest
 import yaml
 from deepdiff import DeepDiff
-from pandas import DataFrame
 
 from tests.constants import TESTCASES
 from tools.tabular import Tabular
@@ -82,9 +81,7 @@ def test_tabular_minimal(
 
     # Given the RDF data and frame...
     tabular = Tabular(rdf_data=data, frame=frame)
-    assert tabular
-    df: DataFrame = tabular.load(data={"@graph": expected_payload})
-    assert df is not None
+    tabular.load(data={"@graph": expected_payload})
     tabular.set_dialect(**frictionless_dialect)
 
     # When I generate the complete datapackage stub...
@@ -93,7 +90,7 @@ def test_tabular_minimal(
     ddiff = DeepDiff(
         expected_datapackage, tabular.datapackage_stub(), ignore_order=True
     )
-    assert ddiff["iterable_item_removed"]
+    assert not ddiff["iterable_item_removed"], ddiff
 
     # When I set the datapackage ...
     tabular.datapackage = datapackage
