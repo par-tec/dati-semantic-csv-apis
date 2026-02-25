@@ -55,12 +55,16 @@ class Vocabulary:
         Returns:
             JsonLD: JSON-LD representation of the RDF data
         """
-        ret = json.loads(self.serialize(format=APPLICATION_LD_JSON))
-        if not isinstance(ret, dict):
-            raise ValueError(
-                "Expected JSON-LD serialization to be a JSON object"
-            )
-        return cast(JsonLD, ret)
+        data = json.loads(self.serialize(format=APPLICATION_LD_JSON))
+        if isinstance(data, dict):
+            if "@graph" not in data:
+                raise ValueError(
+                    "Expected JSON-LD serialization to contain a top-level '@graph' key"
+                )
+            return cast(JsonLD, data)
+        if isinstance(data, list):
+            return cast(JsonLD, {"@graph": data})
+        raise ValueError("Expected JSON-LD serialization to be a JSON object")
 
     def metadata(self) -> Graph:
         """
