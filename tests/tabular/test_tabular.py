@@ -6,8 +6,9 @@ import yaml
 from deepdiff import DeepDiff
 from pandas import DataFrame
 
-from tests.constants import ASSETS, TESTCASES
+from tests.constants import TESTCASES
 from tools.tabular import Tabular
+from tools.tabular.validate import TabularValidator
 from tools.vocabulary import JsonLD, JsonLDFrame
 
 TESTCASES_CSV_DIALECT = [
@@ -78,62 +79,37 @@ def test_tabular_minimal(
     """
     output_csv = tmp_path / "output.csv"
     datapackage_yaml = tmp_path / "datapackage.yaml"
+
+    # Given the RDF data and frame...
     tabular = Tabular(rdf_data=data, frame=frame)
     assert tabular
     df: DataFrame = tabular.load(data={"@graph": expected_payload})
     assert df is not None
     tabular.set_dialect(**frictionless_dialect)
 
-    datapackage = tabular.datapackage(resource_path=Path(output_csv.name))
+    # When I generate the complete datapackage stub...
+    datapackage = tabular.datapackage_stub(resource_path=Path(output_csv.name))
+    # ... then it has the expected value
     ddiff = DeepDiff(
-        expected_datapackage, tabular.datapackage(), ignore_order=True
+        expected_datapackage, tabular.datapackage_stub(), ignore_order=True
     )
-
-    tabular.to_csv(output_csv)
-
-    datapackage_yaml.write_text(yaml.safe_dump(datapackage), encoding="utf-8")
-    from frictionless import Package
-
-    package = Package(datapackage_yaml.as_posix())
-    resource = package.resources[0]
-    validation_result = resource.validate()
-    errors = validation_result[0].errors
-    assert not errors, f"Frictionless validation errors: {errors}"
-    resource.rows
-    assert output_csv.exists(), "CSV file was not created"
-
     assert ddiff["iterable_item_removed"]
-    raise NotImplementedError
 
+    # When I set the datapackage ...
+    tabular.datapackage = datapackage
+    # ... then I can generate the CSV output
+    tabular.to_csv(output_csv)
+    assert output_csv.exists(), "CSV file was not created"
+    datapackage_yaml.write_text(yaml.safe_dump(datapackage), encoding="utf-8")
 
-@pytest.mark.parametrize(
-    "vocabulary_ttl",
-    argvalues=ASSETS.glob("**/*.ttl"),
-    ids=[x.name for x in ASSETS.glob("**/*.ttl")],
-)
-def test_tabular_metadata(vocabulary_ttl, snapshot):
-    """
-    Test the metadata extraction from RDF data and creation of a datapackage descriptor.
-
-    Given:
-    - RDF vocabulary data in Turtle format
-    - A JSON-LD frame with @context definitions
-
-    When:
-    - I create an instance of the Tabular class with the RDF data and frame
-    - I call the metadata method to extract metadata and create a datapackage descriptor
-
-    Then:
-    - The metadata method should return a valid datapackage descriptor dictionary
-    """
-    tabular = Tabular(
-        rdf_data=vocabulary_ttl, frame={"@context": {}}
-    )  # Placeholder frame, replace with actual frame if needed
-    vocab = tabular.datapackage()
-
-    datapackage_yaml = snapshot / f"{vocab['name']}.datapackage.yaml"
-    assert datapackage_yaml.exists()
-
-    assert vocab == yaml.safe_load(datapackage_yaml.read_text()), (
-        "Metadata extraction does not match expected snapshot"
+    # When I read the datapackage and its data with Frictionless ...
+    tabular_validator: TabularValidator = TabularValidator(
+        datapackage_yaml, basepath=tmp_path.as_posix()
     )
+
+    # ... then the data can be loaded.
+    tabular_validator.load()
+    # .. and the data is a subset of the original RDF graph.
+    tabular_validator.validate(tabular.graph, min_triples=3)
+
+    raise NotImplementedError

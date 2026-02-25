@@ -18,11 +18,11 @@ import pandas as pd
 from frictionless import Package
 from rdflib import Graph
 
-import tools.utils
 from tools.base import TEXT_TURTLE
 from tools.projector import JsonLD, JsonLDFrame
-from tools.tabular.metadata import create_datapackage, create_dataresource
+from tools.tabular.metadata import create_datapackage
 from tools.utils import expand_context_to_absolute_uris
+from tools.vocabulary import Vocabulary
 
 IGNORE_RDF_PROPERTIES: Collection[str] = (
     "http://www.w3.org/2004/02/skos/core#inScheme",
@@ -44,8 +44,6 @@ CSV_DIALECT = {
         "commentChar": "#",
     }
 }
-
-from tools.vocabulary import APPLICATION_LD_JSON, Vocabulary
 
 
 class Tabular(Vocabulary):
@@ -73,6 +71,7 @@ class Tabular(Vocabulary):
         self.data: JsonLD = {}
         self.df: pd.DataFrame | None = None
         self._pandas_csv_dialect: dict | None = None
+        self._datapackage: dict | None = None
 
     @property
     def csv_dialect(self) -> dict:
@@ -86,7 +85,34 @@ class Tabular(Vocabulary):
             self.set_dialect()
         return self._pandas_csv_dialect
 
-    def datapackage(
+    @property
+    def datapackage(self) -> dict:
+        """
+        Get the datapackage descriptor for this tabular instance.
+
+        Returns:
+            dict: Frictionless datapackage descriptor
+        """
+        if not self._datapackage:
+            self._datapackage = self.datapackage_stub()
+        return self._datapackage
+
+    @datapackage.setter
+    def datapackage(self, datapackage: dict) -> None:
+        """
+        Set the datapackage descriptor for this tabular instance
+        and validates its *syntax* but not its content.
+        This will be used to configure
+        the CSV output settings when calling to_csv().
+
+        Args:
+            datapackage (dict): Frictionless datapackage descriptor
+        """
+        if not Package(datapackage):
+            raise ValueError(f"Invalid datapackage: {datapackage}")
+        self._datapackage = datapackage
+
+    def datapackage_stub(
         self,
         resource_path: Path | None = None,
     ) -> dict:
@@ -104,10 +130,12 @@ class Tabular(Vocabulary):
             metadata, next(iter(metadata.subjects())), resources=[]
         )
 
-        from frictionless import Package
-
+        # If the package is not valid, __init__ will raise an error.
+        # at this point we can't fully validate the package because
+        # this is just a stub.
         package = Package(_datapackage)
-        package.validate()
+        if not package:
+            raise ValueError(f"Invalid datapackage: {_datapackage}")
 
         if resource_path:
             resource_name = (
@@ -116,11 +144,11 @@ class Tabular(Vocabulary):
                 else resource_path.stem
             )
             _datapackage["resources"] = [
-                create_dataresource(resource_path, self.frame, resource_name)
+                self.dataresource_stub(resource_name, resource_path)
             ]
         return _datapackage
 
-    def dataresource(self, resource_name, resource_path) -> dict:
+    def dataresource_stub(self, resource_name, resource_path) -> dict:
         """
         Create a frictionless data resource dictionary from JSON-LD data.
         See https://datapackage.org/standard/data-resource/
@@ -161,13 +189,20 @@ class Tabular(Vocabulary):
         fields = []
 
         for key, value in context.items():
+            if value == "@id":
+                fields.append({"name": key, "type": "string"})
+                break
+
+        for key, value in expanded_context.items():
             if key.startswith("@"):
                 continue  # Skip JSON-LD keywords
-            if value.endswith(("#", "/", ":")):
-                continue  # Skip namespace declarations
-            if value in self.ignore_rdf_properties:
-                continue  # Skip ignored RDF properties
+            if isinstance(value, str):
+                if value.endswith(("#", "/", ":")):
+                    continue  # Skip namespace declarations
+                if value in self.ignore_rdf_properties:
+                    continue  # Skip ignored RDF properties
 
+            # breakpoint()  # Debugging: check field extraction logic
             # Determine field type based on @type in context or use string as default
             field_type = "string"
             if isinstance(value, dict):
@@ -197,27 +232,11 @@ class Tabular(Vocabulary):
             "format": "csv",
             "mediatype": "text/csv",
             "encoding": "utf-8",
-            "schema": {"fields": fields},
+            "schema": {
+                "fields": fields,
+                "x-jsonld-context": context,
+            },
         }
-
-    def set_datapackage(self, datapackage: dict) -> None:
-        """
-        Set the datapackage descriptor for this tabular instance.
-
-        This method can be used to set the datapackage descriptor
-        after it has been created, or to update it with additional information.
-
-        When I set a datapackage explicitly, it must be valid since it
-        will be used to configure the CSV output settings.
-
-        Args:
-            datapackage (dict): Frictionless datapackage descriptor
-        """
-        self._datapackage = datapackage
-        package = Package(datapackage)
-        package.validate()
-        if package.valid is False:
-            raise ValueError(f"Invalid datapackage: {package.errors}")
 
     def set_dialect(
         self,
@@ -298,18 +317,6 @@ class Tabular(Vocabulary):
             pd.DataFrame: CSV representation of the framed data.
 
         """
-        # Identify from the frame @context, the fields
-        #   associated with the skos:inScheme property.
-        context = self.frame["@context"]
-        expanded_context = tools.utils.expand_context_to_absolute_uris(context)
-
-        is_select_column = [
-            lambda col: not col.startswith("@"),
-            lambda col: (
-                expanded_context.get(col) not in self.ignore_rdf_properties
-            ),
-        ]
-
         # Convert framed data to tabular format
         # tabular_data = tabularize(data)
 
@@ -326,21 +333,6 @@ class Tabular(Vocabulary):
         #   must be escaped properly
         self.df = pd.DataFrame(self.data["@graph"])
 
-        # Remove:
-        # - JSON-LD keyword columns (those starting with @)
-        # - the field associated with "skos:inScheme" must be dropped.
-        self.df = self.df[
-            [
-                col
-                for col in self.df.columns
-                if all(predicate(col) for predicate in is_select_column)
-            ]
-        ]
-
-        # Sort:
-        # - data must be sorted by the "id" column if present
-        if "id" in self.df.columns:
-            self.df.sort_values(by=["id"], ignore_index=True, inplace=True)
         return self.df
 
     def to_csv(self, output_path: str, **kwargs):
@@ -351,6 +343,28 @@ class Tabular(Vocabulary):
         To invoke this method, a datapackage MUST be created first,
         because the metadata MUST already exist.
         """
+        if not self._datapackage:
+            raise ValueError(
+                "Datapackage descriptor is required to configure CSV output settings. Please set datapackage() before calling to_csv()."
+            )
+        if self.df is None:
+            raise ValueError(
+                "DataFrame is not loaded. Please call load() before to_csv()."
+            )
+        selected_columns = [
+            field["name"]
+            for field in self._datapackage.get("resources", [{}])[0]
+            .get("schema", {})
+            .get("fields", [])
+        ]
+        # Remove:
+        # - JSON-LD keyword columns (those starting with @)
+        # - the field associated with "skos:inScheme" must be dropped.
+        self.df = self.df[selected_columns]
+        # Sort:
+        # - data must be sorted by the "id" column if present
+        if "id" in self.df.columns:
+            self.df.sort_values(by=["id"], ignore_index=True, inplace=True)
         self.df.to_csv(
             output_path,
             index=False,

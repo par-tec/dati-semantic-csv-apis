@@ -48,9 +48,9 @@ def create_datapackage(
     # Check if vocabulary conforms to any ofdswith
 
     def get_identifier(predicate, unique=True, required=True):
-        values = set(
+        values = {
             str(obj) for obj in vocabulary.objects(vocabulary_uri, predicate)
-        )
+        }
         if unique and len(values) > 1:
             raise ValueError(
                 f"Expected exactly one value for {predicate}, found {len(values)}: {values}"

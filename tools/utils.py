@@ -19,6 +19,7 @@ class IGraph:
         try:
             g = Graph()
             g.parse(*args, **kwargs)
+            assert len(g) > 0, "Parsed RDF graph is empty"
             return to_isomorphic(g)
         except Exception as e:
             log.exception(f"Failed to parse RDF data: {args}, {kwargs}")
