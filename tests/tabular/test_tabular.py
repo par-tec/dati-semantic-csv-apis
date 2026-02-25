@@ -12,14 +12,22 @@ from tools.vocabulary import JsonLD, JsonLDFrame
 
 TESTCASES_CSV_DIALECT = [
     {
-        "name": "Default CSV dialect",
+        "name": "csv-default",
         "frictionless_dialect": {},
     },
     {
-        "name": "Custom CSV dialect with semicolon delimiter",
+        "name": "csv-semicolon",
         "frictionless_dialect": {
             "delimiter": ";",
             "lineTerminator": "\n",
+        },
+    },
+    {
+        "name": "csv-semicolon-quote",
+        "frictionless_dialect": {
+            "delimiter": ";",
+            "lineTerminator": "\n",
+            "quoteChar": "'",
         },
     },
 ]
@@ -53,7 +61,8 @@ def test_tabular_minimal(
     expected_payload: JsonLD,
     expected_datapackage: dict,
     frictionless_dialect: dict,
-    tmp_path: Path,
+    snapshot: Path,
+    request: pytest.FixtureRequest,
 ):
     """
     Test the Tabular class for creating a tabular representation of RDF datasets.
@@ -76,23 +85,30 @@ def test_tabular_minimal(
     - The generated CSV should match the expected payload when projected and serialized
     - The CSV should be parsable by the Frictionless framework without errors
     """
-    output_csv = tmp_path / "output.csv"
-    datapackage_yaml = tmp_path / "datapackage.yaml"
+    destdir = snapshot / request.node.name
+    destdir.mkdir(parents=True, exist_ok=True)
+    datapackage_yaml = destdir / "datapackage.yaml"
 
     # Given the RDF data and frame...
     tabular = Tabular(rdf_data=data, frame=frame)
+    uri = tabular.uri()
+    output_csv = destdir / f"{Path(uri).stem}.csv"
+
     tabular.load(data={"@graph": expected_payload})
     tabular.set_dialect(**frictionless_dialect)
 
     # When I generate the complete datapackage stub...
     datapackage = tabular.datapackage_stub(resource_path=Path(output_csv.name))
     # ... then it has the expected value
-    ddiff = DeepDiff(
-        expected_datapackage, tabular.datapackage_stub(), ignore_order=True
-    )
-    assert not ddiff["iterable_item_removed"], ddiff
+    ddiff = DeepDiff(expected_datapackage, datapackage, ignore_order=True)
+    assert ddiff == {
+        "dictionary_item_added": [
+            "root['resources'][0]['scheme']",
+            "root['resources'][0]['dialect']",
+        ]
+    }
 
-    # When I set the datapackage ...
+    # When I set the datapackage metadata...
     tabular.datapackage = datapackage
     # ... then I can generate the CSV output
     tabular.to_csv(output_csv)
@@ -101,12 +117,15 @@ def test_tabular_minimal(
 
     # When I read the datapackage and its data with Frictionless ...
     tabular_validator: TabularValidator = TabularValidator(
-        datapackage_yaml, basepath=tmp_path.as_posix()
+        yaml.safe_load(datapackage_yaml.read_text()),
+        basepath=destdir.as_posix(),
     )
 
     # ... then the data can be loaded.
     tabular_validator.load()
     # .. and the data is a subset of the original RDF graph.
-    tabular_validator.validate(tabular.graph, min_triples=3)
-
-    raise NotImplementedError
+    stats = tabular_validator.validate(tabular.graph, min_triples=3)
+    assert stats["csv_triples"] >= 3, (
+        "CSV-derived RDF graph has fewer triples than expected"
+    )
+    assert stats["csv_rows"] >= 3

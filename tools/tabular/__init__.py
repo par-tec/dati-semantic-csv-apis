@@ -35,7 +35,7 @@ IGNORE_RDF_PROPERTIES: Collection[str] = (
 CSV_DIALECT = {
     "dialect": {
         "csvddfVersion": 1.2,
-        "delimiter": ";",
+        "delimiter": ",",
         "doubleQuote": True,
         "lineTerminator": "\r\n",
         "quoteChar": '"',
@@ -70,7 +70,7 @@ class Tabular(Vocabulary):
 
         self.data: JsonLD = {}
         self.df: pd.DataFrame | None = None
-        self._pandas_csv_dialect: dict | None = None
+        self._dialect: dict = CSV_DIALECT.copy()
         self._datapackage: dict | None = None
 
     @property
@@ -81,9 +81,65 @@ class Tabular(Vocabulary):
         Returns:
             dict: CSV dialect settings
         """
-        if not self._pandas_csv_dialect:
-            self.set_dialect()
-        return self._pandas_csv_dialect
+        return self._dialect
+
+    def set_dialect(
+        self,
+        *,
+        delimiter: str = ",",
+        lineTerminator: str = "\r\n",
+        quoteChar: str = '"',
+        doubleQuote: bool = True,
+        escapechar: str | None = None,
+        skipInitialSpace: bool = False,
+        header: bool = True,
+        commentChar: str = "#",
+    ):
+        """
+        Saves the CSV dialect settings taken from the datapackage descriptor
+        and uses them to configure the CSV output.
+
+        dialect:
+            lineTerminator: "\n"
+            quoteChar: '"'
+            doubleQuote: true
+            skipInitialSpace: false
+            header: true
+
+        sep=",",
+        quoting=1,  # csv.QUOTE_ALL - quote all fields
+        escapechar="\\",
+        doublequote=True,
+        encoding="utf-8",
+
+        TODO: Process skipInitialSpace.
+        """
+
+        if escapechar:
+            raise ValueError("Unsupported escapechar.")
+        if header is not True:
+            raise ValueError(
+                f"Unsupported header '{header}' in CSV dialect. Only header: true is supported."
+            )
+        if commentChar != "#":
+            raise ValueError(
+                f"Unsupported commentChar '{commentChar}' in CSV dialect"
+            )
+        if doubleQuote is not True:
+            raise ValueError(
+                f"Unsupported doubleQuote '{doubleQuote}' in CSV dialect"
+            )
+
+        self._dialect = {
+            "delimiter": delimiter,
+            "lineTerminator": lineTerminator,
+            "quoteChar": quoteChar,
+            "doubleQuote": doubleQuote,
+            "escapechar": escapechar,
+            "skipInitialSpace": skipInitialSpace,
+            "header": header,
+            "commentChar": commentChar,
+        }
 
     @property
     def datapackage(self) -> dict:
@@ -225,83 +281,44 @@ class Tabular(Vocabulary):
             fields.append({"name": key, "type": field_type})
 
         return {
-            "name": resource_name,
+            # Constant values.
             "type": "table",
-            "path": str(resource_path),
             "scheme": "file",
             "format": "csv",
             "mediatype": "text/csv",
             "encoding": "utf-8",
+            # Dynamic values.
+            "name": resource_name,
+            "path": str(resource_path),
             "schema": {
                 "fields": fields,
                 "x-jsonld-context": context,
             },
+            "dialect": self.csv_dialect,
         }
 
-    def set_dialect(
-        self,
-        delimiter: str = ",",
-        lineTerminator: str = "\r\n",
-        quoteChar: str = '"',
-        doubleQuote: bool = True,
-        escapechar: str | None = None,
-        skipInitialSpace: bool = False,
-        header: bool = True,
-        commentChar: str = "#",
-    ):
-        """
-        Saves the CSV dialect settings taken from the datapackage descriptor
-        and uses them to configure the CSV output.
-
-        dialect:
-            lineTerminator: "\n"
-            quoteChar: '"'
-            doubleQuote: true
-            skipInitialSpace: false
-            header: true
-
-        sep=",",
-        quoting=1,  # csv.QUOTE_ALL - quote all fields
-        escapechar="\\",
-        doublequote=True,
-        encoding="utf-8",
-
-        TODO: Process skipInitialSpace.
-        """
-        if escapechar:
-            raise ValueError("Unsupported escapechar.")
-        if header is not True:
-            raise ValueError(
-                f"Unsupported header '{header}' in CSV dialect. Only header: true is supported."
-            )
-        if commentChar != "#":
-            raise ValueError(
-                f"Unsupported commentChar '{commentChar}' in CSV dialect"
-            )
-        if doubleQuote is not True:
-            raise ValueError(
-                f"Unsupported doubleQuote '{doubleQuote}' in CSV dialect"
-            )
-        self._pandas_csv_dialect = {
+    def _pandas_csv_dialect(self):
+        ret = {
             # Hardcoded settings, to ensure consistent CSV output.
             "quoting": csv.QUOTE_ALL,  # quote all fields
             "encoding": "utf-8",
             "escapechar": "\\",
             # Settings from datapackage descriptor.
-            "sep": delimiter,
-            "lineterminator": lineTerminator,
-            "header": header,
+            "sep": self._dialect["delimiter"],
+            "lineterminator": self._dialect["lineTerminator"],
+            "header": self._dialect["header"],
         }
-        if quoteChar == '"':
-            self._pandas_csv_dialect["doublequote"] = True
-            self._pandas_csv_dialect["quotechar"] = '"'
-        elif quoteChar == "'":
-            self._pandas_csv_dialect["doublequote"] = False
-            self._pandas_csv_dialect["quotechar"] = "'"
+        if self._dialect["quoteChar"] == '"':
+            ret["doublequote"] = True
+            ret["quotechar"] = '"'
+        elif self._dialect["quoteChar"] == "'":
+            ret["doublequote"] = False
+            ret["quotechar"] = "'"
         else:
             raise ValueError(
-                f"Unsupported quoteChar '{quoteChar}' in CSV dialect"
+                f"Unsupported quoteChar '{self._dialect['quoteChar']}' in CSV dialect"
             )
+        return ret
 
     def load(self, data: JsonLD | None = None) -> pd.DataFrame:
         """
@@ -309,7 +326,8 @@ class Tabular(Vocabulary):
         to the provided JSON-LD frame.
 
         Args:
-            data: Framed JSON-LD document
+            data: Framed JSON-LD document to be loaded into a DataFrame.
+                  XXX: If not provided, the method will attempt to project the data using the provided JSON-LD frame.
             frame: JSON-LD frame used for framing the data
             ignore_rdf_properties: Collection of RDF properties to ignore in the CSV output. By default, includes "skos:inScheme" and "skos:broader".
 
@@ -317,21 +335,20 @@ class Tabular(Vocabulary):
             pd.DataFrame: CSV representation of the framed data.
 
         """
-        # Convert framed data to tabular format
-        # tabular_data = tabularize(data)
-
-        self.data = self.data if self.data else data
+        self.data = data if data is not None else self.data
+        # XXX: Consider avoiding projecting data here.
         if not self.data:
             self.data = self.project(self.frame)
         if not self.data:
             raise ValueError("No data to load.")
-        if not self.data.get("@graph"):
+        items = self.data.get("@graph")
+        if not items:
             raise ValueError("Framed data must contain a @graph.")
         # The generated CSV has the following requirements:
         # - columns must not reference JSON-LD keywords (e.g., @id, @type)
         # - string columns must always be quoted, and the content
         #   must be escaped properly
-        self.df = pd.DataFrame(self.data["@graph"])
+        self.df = pd.DataFrame(items)
 
         return self.df
 
@@ -368,6 +385,6 @@ class Tabular(Vocabulary):
         self.df.to_csv(
             output_path,
             index=False,
-            **self._pandas_csv_dialect,
+            **self._pandas_csv_dialect(),
             **kwargs,
         )

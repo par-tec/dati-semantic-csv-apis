@@ -3,6 +3,7 @@ import logging
 import time
 from collections.abc import Callable, Iterable
 from pathlib import Path
+from typing import cast
 
 from rdflib import Graph
 
@@ -36,9 +37,12 @@ class Vocabulary:
             f"Parsed RDF data in {time.time() - ts:.3f}s, graph has {len(self.graph)} triples"
         )
 
+        self._uri: str | None = None
+        self._metadata = None
+
     def serialize(self, format=APPLICATION_LD_JSON) -> str:
         ts: float = time.time()
-        serialized = self.graph.serialize(format=format)
+        serialized: str = self.graph.serialize(format=format)
         log.debug(f"Serialized RDF to {format} in {time.time() - ts:.3f}s")
         return serialized
 
@@ -51,7 +55,12 @@ class Vocabulary:
         Returns:
             JsonLD: JSON-LD representation of the RDF data
         """
-        return json.loads(self.serialize(format=APPLICATION_LD_JSON))
+        ret = json.loads(self.serialize(format=APPLICATION_LD_JSON))
+        if not isinstance(ret, dict):
+            raise ValueError(
+                "Expected JSON-LD serialization to be a JSON object"
+            )
+        return cast(JsonLD, ret)
 
     def metadata(self) -> Graph:
         """
@@ -88,6 +97,19 @@ class Vocabulary:
             )
 
         return _metadata
+
+    def uri(self) -> str:
+        """
+        Get the URI of the vocabulary (concept scheme) represented by the RDF graph.
+
+        Returns:
+            str: URI of the vocabulary
+        """
+        if not self._uri:
+            metadata = self.metadata()
+            vocab_uri = next(iter(metadata.subjects()))
+            self._uri = str(vocab_uri)
+        return self._uri
 
     def project(
         self,

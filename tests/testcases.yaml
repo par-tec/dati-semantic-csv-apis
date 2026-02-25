@@ -295,7 +295,7 @@ testcases:
     1,Agenti chimici inorganici,1,[],grande_gruppo/1,../agente_causale
   expected_datapackage:
     $schema: https://datapackage.org/profiles/2.0/datapackage.json
-    created: '2022-09-06'
+    created: '2022-09-06T00:00:00Z'
     description: Decodifica dell'agente, lavorazione, o esposizione
       che puo' essere causa o concausa di malattia
     id: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
@@ -316,19 +316,15 @@ testcases:
     - name: agente_causale
       type: table
       path: agente_causale.csv
-      dialect:
-        inline:
-          keyed: true
-      format: inline
+      format: csv
+      encoding: utf-8  # This is the default.
+      mediatype: text/csv
       schema:
+        x-jsonld-context: *agente_causale_skos_context
         fields:
         - name: id
           type: string
-        - name: label
-          type: string
-        - name: label_de
-          type: string
-        - name: label_en
+        - name: label_it
           type: string
         - name: level
           type: integer
