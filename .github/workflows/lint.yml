@@ -44,6 +44,7 @@ jobs:
         VALIDATE_PYTHON_BLACK: false
         VALIDATE_PYTHON_BLACK_FORMAT: false
         VALIDATE_PYTHON_PYLINT: false
+        VALIDATE_PYTHON_FLAKE8: false
         #
         # YAML validation is delegated to pre-commit.
         #

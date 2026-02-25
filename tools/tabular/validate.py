@@ -113,7 +113,8 @@ class TabularValidator:
         csv_triples: int = len(csv_graph)
         if csv_triples < min_triples:
             raise ValueError(
-                f"CSV-derived RDF graph has {csv_triples} triples, which is less than the minimum expected {min_triples} triples."
+                f"CSV-derived RDF graph has {csv_triples} triples,"
+                f" which is less than the minimum expected {min_triples} triples."
             )
         log.info(
             f"CSV-derived RDF graph has {csv_triples} triples, which meets the minimum expected {min_triples} triples."

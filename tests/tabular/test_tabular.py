@@ -1,5 +1,6 @@
 from operator import itemgetter
 from pathlib import Path
+from typing import cast
 
 import pytest
 import yaml
@@ -94,7 +95,7 @@ def test_tabular_minimal(
     uri = tabular.uri()
     output_csv = destdir / f"{Path(uri).stem}.csv"
 
-    tabular.load(data={"@graph": expected_payload})
+    tabular.load(data=cast(JsonLD, {"@graph": expected_payload}))
     tabular.set_dialect(**frictionless_dialect)
 
     # When I generate the complete datapackage stub...

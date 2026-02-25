@@ -327,7 +327,8 @@ class Tabular(Vocabulary):
 
         Args:
             data: Framed JSON-LD document to be loaded into a DataFrame.
-                  XXX: If not provided, the method will attempt to project the data using the provided JSON-LD frame.
+                  XXX: If not provided, the method will attempt to project the data
+                  using the provided JSON-LD frame.
             frame: JSON-LD frame used for framing the data
             ignore_rdf_properties: Collection of RDF properties to ignore in the CSV output. By default, includes "skos:inScheme" and "skos:broader".
 
@@ -362,7 +363,8 @@ class Tabular(Vocabulary):
         """
         if not self._datapackage:
             raise ValueError(
-                "Datapackage descriptor is required to configure CSV output settings. Please set datapackage() before calling to_csv()."
+                "Datapackage descriptor is required to configure CSV output settings."
+                " Please set datapackage() before calling to_csv()."
             )
         if self.df is None:
             raise ValueError(
