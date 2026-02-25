@@ -4,102 +4,12 @@ import yaml
 from jsonschema import validate
 from rdflib import DCAT, DCTERMS, OWL, SKOS, Graph, Namespace, URIRef
 
-from tools.projector import JsonLDFrame
-
 # Define namespaces
 NDC = Namespace("https://w3id.org/italia/onto/NDC/")
 DATADIR = Path(__file__).parent.parent / "data"
 
 DATAPACKAGE_SCHEMA_YAML = DATADIR / "datapackage.schema.json"
 DATAPACKAGE_SCHEMA = yaml.safe_load(DATAPACKAGE_SCHEMA_YAML.read_text())
-
-
-def create_dataresource(
-    resource_path: Path, frame: JsonLDFrame, datapackage: dict
-):
-    """
-    Create a frictionless data resource dictionary from JSON-LD RDF data.
-    The input information come from:
-
-    - the RDF vocabulary data (or the information extracted via create_datapackage);
-    - the JSON-LD frame that is used to project the data into tabular format,
-      specifically every CSV field MUST match a property defined in the frame's @context,
-      eventually mapped to `null` if not present in the original RDF graph;
-    - the JSON Schema used to validate data syntax and types.
-
-    Since CSV does not provide a means to define data types,
-     you need a schema to correctly interpret its values.
-    These data types are defined in the "schema" section of the data resource dictionary.
-    and must be compatible with the JSON Schema used in the OAS and,
-    when present, with the xsd:schema defined in the RDF vocabulary.
-
-    After the dataresource is created,
-    the CSV file is validated against its schema.
-
-    See https://datapackage.org/standard/data-resource/
-
-    Args:
-        resource_path: Path to the CSV file resource
-        frame: JSON-LD frame containing the @context with field mappings
-        datapackage: Datapackage dictionary with metadata
-    Returns:
-        dict: Data resource dictionary
-    """
-    if not resource_path:
-        raise ValueError("resource_path is required")
-
-    if not frame or "@context" not in frame:
-        raise ValueError("frame must contain @context")
-
-    # Extract field definitions from frame's @context
-    context = frame["@context"]
-    fields = []
-
-    for key, value in context.items():
-        # Skip namespace declarations (they're URIs)
-        if isinstance(value, str) and (
-            value.startswith("http://") or value.startswith("https://")
-        ):
-            continue
-
-        # Determine field type based on @type in context or use string as default
-        field_type = "string"
-        if isinstance(value, dict):
-            xsd_type = value.get("@type", "")
-            if "integer" in xsd_type or "int" in xsd_type:
-                field_type = "integer"
-            elif "date" in xsd_type:
-                field_type = "date"
-            elif "boolean" in xsd_type:
-                field_type = "boolean"
-            elif "number" in xsd_type or "decimal" in xsd_type:
-                field_type = "number"
-
-        # Special handling for common fields
-        if key in ["id", "url"]:
-            field_type = "string"
-        elif key == "level":
-            field_type = "integer"
-
-        fields.append({"name": key, "type": field_type})
-
-    # Get resource name from path or datapackage
-    resource_name = (
-        datapackage.get("name", resource_path.stem)
-        if datapackage
-        else resource_path.stem
-    )
-
-    return {
-        "name": resource_name,
-        "type": "table",
-        "path": str(resource_path),
-        "scheme": "file",
-        "format": "csv",
-        "mediatype": "text/csv",
-        "encoding": "utf-8",
-        "schema": {"fields": fields},
-    }
 
 
 def create_datapackage(
@@ -212,6 +122,9 @@ def create_datapackage(
 
     created = get_value(DCTERMS.issued)
     if created:
+        # Add time component if missing (datapackage spec requires date-time format).
+        if len(created) == 10:
+            created += "T00:00:00Z"
         datapackage["created"] = created
 
     keywords = get_values(DCAT.keyword)
@@ -223,7 +136,27 @@ def create_datapackage(
     if licenses:
         datapackage["licenses"] = licenses
 
-    # validate_datapackage(datapackage)
+    #
+    # Since resources is required, we create a dummy resource if none is provided,
+    #  just to validate the content we added.
+    #
+    validate_datapackage(
+        datapackage
+        | {
+            "resources": [
+                {
+                    "name": "dummy",
+                    "path": "dummy.csv",
+                    "schema": {
+                        "fields": [
+                            {"name": "id", "type": "string"},
+                            {"name": "label", "type": "string"},
+                        ]
+                    },
+                }
+            ]
+        }
+    )
     return datapackage
 
 
