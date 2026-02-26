@@ -5,7 +5,9 @@ from pathlib import Path
 import pytest
 import yaml
 from click.testing import CliRunner
+from git import Repo
 
+from tests.constants import TESTDIR
 from tools.commands import cli
 
 
@@ -67,7 +69,26 @@ def assert_file(fileinfo: dict):
 
     if snapshot_path := fileinfo.get("snapshot"):
         snapshot_file: Path = Path(snapshot_path)
-        assert snapshot_file.exists(), (
-            f"Expected snapshot file not found: {snapshot_file}"
-        )
-        assert snapshot_file.read_bytes() == path.read_bytes()
+        if path == snapshot_file:
+            # compare the path file to its git commited version.
+            assert not git_diff(path), (
+                f"File {path} has uncommitted changes. Please commit the file or update the snapshot reference."
+            )
+        else:
+            assert snapshot_file.exists(), (
+                f"Expected snapshot file not found: {snapshot_file}"
+            )
+            assert snapshot_file.read_bytes() == path.read_bytes()
+
+
+def git_diff(path: Path) -> bytes:
+    """
+    Get the git diff of a file as bytes.
+
+    :param path: Path to the file to get the diff for
+    :return: The git diff as bytes
+    """
+
+    repo = Repo(TESTDIR.parent, search_parent_directories=True)
+    diff = repo.git.diff("HEAD", path.as_posix())
+    return diff.encode("utf-8")
