@@ -1,7 +1,7 @@
 ---
 - id: create_currency
   marks:
-  - slow
+  - asset
   description: |-
     Given:
     - a TTL file
@@ -53,9 +53,9 @@
     - jsonld
     - create
     - --ttl
-    - ../assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
     - --frame
-    - ../assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
     - --vocabulary-uri
     - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
     - --batch-size
@@ -73,7 +73,7 @@
 
 - id: validate_currency
   marks:
-  - slow
+  - asset
   description: |-
     Given:
     - a currency TTL file

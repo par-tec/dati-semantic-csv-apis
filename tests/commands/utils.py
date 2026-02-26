@@ -12,28 +12,13 @@ def make_fixtures(testfile) -> list:
     """
     _testcases_yaml = Path(testfile).with_suffix(".yaml")
     _testcases = yaml.safe_load(_testcases_yaml.read_text())
-    by_vocab: dict[str, dict] = {}
-    for tc in _testcases:
-        tc_id: str = tc["id"]
-        vocab_name = tc_id[len("create_") :]
-        by_vocab.setdefault(vocab_name, {})["create"] = tc
 
     fixtures = []
-    for vocab_name, steps in by_vocab.items():
-        create_tc = steps.get("create")
-        marks = []
+    for tc in _testcases:
         params: dict = {}
-        step = create_tc["steps"][0]
-        marks = [getattr(pytest.mark, m) for m in create_tc.get("marks", [])]
-        params["args"] = step["command"]
-        params["expected"] = step["expected"]
-        if not marks:
-            marks = [
-                getattr(pytest.mark, m) for m in create_tc.get("marks", [])
-            ]
-        fixtures.append(
-            pytest.param(vocab_name, params, marks=marks, id=vocab_name)
-        )
+        params["steps"] = tc["steps"]
+        marks = [getattr(pytest.mark, m) for m in tc.get("marks", [])]
+        fixtures.append(pytest.param(params, marks=marks, id=tc["id"]))
     return fixtures
 
 
