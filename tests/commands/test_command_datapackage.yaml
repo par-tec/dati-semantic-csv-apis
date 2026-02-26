@@ -1,0 +1,128 @@
+---
+- id: create_validate_datapackage_ateco_2025
+  marks:
+  - asset
+  description: |-
+    Given:
+    - a TTL file in assets/
+    - a JSON-LD frame in assets/
+
+    When:
+    - I run `datapackage create`
+
+    Then:
+    - the command exits successfully
+    - a datapackage stub YAML file is created
+    - logs show the datapackage stub was created
+  steps:
+  - description: |-
+      When:
+      - I run `datapackage create`
+
+      Then:
+      - the command exits successfully
+      - a datapackage stub YAML file is created
+      - logs show the datapackage stub was created
+    command:
+    - datapackage
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
+    - --frame
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - --output
+    - tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
+    expected:
+      files:
+      - path: tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
+        snapshot: tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
+      logs:
+      - >-
+        Datapackage stub created: .*tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
+      stdout:
+      - >-
+        Creating datapackage metadata for https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+      - >-
+        ✓ Created: .*tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
+  - description: |-
+      When:
+      - I run `datapackage validate` on the created datapackage stub
+
+      Then:
+      - the command exits successfully
+      - validation passes
+    command:
+    - datapackage
+    - validate
+    - --datapackage
+    - tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
+    expected:
+      stdout:
+      - >-
+        ✓ Datapackage validation passed
+
+- id: create_validate_datapackage_agente_causale
+  marks:
+  - asset
+  description: |-
+    Given:
+    - a TTL file in assets/
+    - a JSON-LD frame in assets/
+
+    When:
+    - I run `datapackage create`
+
+    Then:
+    - the command exits successfully
+    - a datapackage stub YAML file is created
+    - logs show the datapackage stub was created
+  steps:
+  - description: |-
+      When:
+      - I run `datapackage create`
+
+      Then:
+      - the command exits successfully
+      - a datapackage stub YAML file is created
+      - logs show the datapackage stub was created
+    command:
+    - datapackage
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl
+    - --frame
+    - assets/controlled-vocabularies/agente_causale/latest/agente_causale.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+    - --output
+    - tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+    expected:
+      files:
+      - path: tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+        snapshot: tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+      logs:
+      - >-
+        Datapackage stub created: .*tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+      stdout:
+      - >-
+        Creating datapackage metadata for https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+      - >-
+        ✓ Created: .*tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+  - description: |-
+      When:
+      - I run `datapackage validate` on the created datapackage stub
+
+      Then:
+      - the command exits successfully
+      - validation passes
+    command:
+    - datapackage
+    - validate
+    - --datapackage
+    - tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+    expected:
+      stdout:
+      - >-
+        ✓ Datapackage validation passed
