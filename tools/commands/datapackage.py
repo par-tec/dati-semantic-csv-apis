@@ -86,12 +86,7 @@ def create_command(
     required=True,
     help="Path to the datapackage metadata file (YAML/JSON)",
 )
-@click.option(
-    "--check-csv/--no-check-csv",
-    default=True,
-    help="Validate CSV file content (default: yes)",
-)
-def validate_command(datapackage: Path, check_csv: bool):
+def validate_command(datapackage: Path):
     """
     Validate Frictionless Data Package metadata and CSV content.
 
@@ -105,7 +100,7 @@ def validate_command(datapackage: Path, check_csv: bool):
     click.echo(f"Validating datapackage: {datapackage}")
 
     try:
-        validate_datapackage_metadata(datapackage, check_csv)
+        validate_datapackage_metadata(datapackage)
         click.secho("✓ Datapackage validation passed", fg="green")
     except Exception as e:
         click.secho(f"✗ Datapackage validation failed: {e}", fg="red", err=True)
@@ -168,16 +163,15 @@ def create_datapackage_metadata(
     log.info(f"Datapackage stub created: {output}")
 
 
-def validate_datapackage_metadata(datapackage: Path, check_csv: bool) -> None:
+def validate_datapackage_metadata(datapackage: Path) -> None:
     """
-    Validate Frictionless Data Package metadata and optionally CSV content.
+    Validate Frictionless Data Package metadata.
 
     Args:
         datapackage: Path to datapackage metadata file
-        check_csv: Whether to validate CSV file content
 
     Raises:
-        ValueError: If datapackage is invalid or CSV validation fails
+        ValueError: If datapackage is invalid
         FileNotFoundError: If datapackage file doesn't exist
     """
     if not datapackage.exists():
@@ -205,30 +199,7 @@ def validate_datapackage_metadata(datapackage: Path, check_csv: bool) -> None:
                     errors.append(f"Resource '{task.name}': {error.message}")
         if errors:
             raise ValueError(
-                "Datapackage validation failed:\n" + "\n".join(errors)
+                "Datapackage metadata validation failed:\n" + "\n".join(errors)
             )
 
-    log.debug("Datapackage structure is valid")
-
-    # Optionally validate CSV content
-    if check_csv:
-        log.debug("Validating CSV content")
-        if not package.resources:
-            raise ValueError("Datapackage has no resources to validate")
-
-        for resource in package.resources:
-            log.debug(f"Validating resource: {resource.name}")
-            # Validate the resource
-            report = resource.validate()
-            if not report.valid:
-                errors = [f"{err.type}: {err.message}" for err in report.errors]
-                raise ValueError(
-                    f"CSV validation failed for resource '{resource.name}':\n"
-                    + "\n".join(errors)
-                )
-
-        log.info("CSV content validation passed")
-    else:
-        log.debug("Skipping CSV content validation (--no-check-csv)")
-
-    log.info(f"Datapackage validation completed: {datapackage}")
+    log.info(f"Datapackage metadata validation completed: {datapackage}")

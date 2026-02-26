@@ -33,16 +33,14 @@ IGNORE_RDF_PROPERTIES: Collection[str] = (
 # Another option is to use the frictionless datapackage to project the JSON-LD data into CSV directly.
 # See https://frictionlessdata.io/docs/tabular-data-package/#csv-dialect
 CSV_DIALECT = {
-    "dialect": {
-        # "csvddfVersion": "1.2",
-        "delimiter": ",",
-        "doubleQuote": True,
-        "lineTerminator": "\r\n",
-        "quoteChar": '"',
-        "skipInitialSpace": True,
-        "header": True,
-        "commentChar": "#",
-    }
+    # "csvddfVersion": "1.2",
+    "delimiter": ",",
+    "doubleQuote": True,
+    "lineTerminator": "\r\n",
+    "quoteChar": '"',
+    "skipInitialSpace": True,
+    "header": True,
+    "commentChar": "#",
 }
 
 
