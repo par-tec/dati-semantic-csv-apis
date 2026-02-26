@@ -28,18 +28,9 @@
     # "@type": "@value"
 
   #Localize labels. Order is relevant.
-  label:
-    "@id": skos:prefLabel
-    "@language": it
   label_it:
     "@id": skos:prefLabel
     "@language": it
-  label_en:
-    "@id": skos:prefLabel
-    "@language": en
-  label_de:
-    "@id": skos:prefLabel
-    "@language": de
 
   # When mapping to a list, use @container: @set
   #   to ensure that JSON-LD framing handles it as an array.

@@ -1,7 +1,12 @@
+import logging
+import re
 from pathlib import Path
 
 import pytest
 import yaml
+from click.testing import CliRunner
+
+from tools.commands import cli
 
 
 def make_fixtures(testfile) -> list:
@@ -20,6 +25,38 @@ def make_fixtures(testfile) -> list:
         marks = [getattr(pytest.mark, m) for m in tc.get("marks", [])]
         fixtures.append(pytest.param(params, marks=marks, id=tc["id"]))
     return fixtures
+
+
+def harness_step(step, runner: CliRunner, caplog: pytest.LogCaptureFixture):
+    if step.get("skip", False):
+        logging.warning(
+            f"Skipping step: {step.get('description', 'No description')}"
+        )
+        return
+
+    expected = step["expected"]
+
+    # When I execute the command ...
+    result = runner.invoke(cli, step["command"])
+
+    # Then the status code is as expected...
+    assert result.exit_code == expected.get("exit_status", 0), result.output
+
+    # ... the output ...
+    for out in expected.get("stdout", []):
+        assert re.findall(out, result.output), (
+            f"Expected stdout message not found: {out}"
+        )
+
+    # ... the logs ...
+    for log in expected.get("logs", []):
+        assert re.findall(log, caplog.text), (
+            f"Expected log message not found: {log}"
+        )
+
+    # If there's an expected output file, it should match the snapshot
+    for fileinfo in expected.get("files", []):
+        assert_file(fileinfo)
 
 
 def assert_file(fileinfo: dict):

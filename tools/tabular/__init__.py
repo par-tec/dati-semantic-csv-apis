@@ -34,7 +34,7 @@ IGNORE_RDF_PROPERTIES: Collection[str] = (
 # See https://frictionlessdata.io/docs/tabular-data-package/#csv-dialect
 CSV_DIALECT = {
     "dialect": {
-        "csvddfVersion": 1.2,
+        # "csvddfVersion": "1.2",
         "delimiter": ",",
         "doubleQuote": True,
         "lineTerminator": "\r\n",
@@ -176,7 +176,11 @@ class Tabular(Vocabulary):
         Create a frictionless datapackage stub descriptor
         from the metadata of the RDF graph.
 
-        This does not add data resources.
+        Parameters:
+        - resource_path: Optional path to the CSV file resource.
+        If provided, adds a data resource
+        with information extracted from the RDF graph
+        and the JSON-LD frame.
 
         Returns:
             dict: Frictionless datapackage descriptor stub.

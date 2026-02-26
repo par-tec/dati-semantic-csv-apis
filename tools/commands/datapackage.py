@@ -14,6 +14,10 @@ import logging
 from pathlib import Path
 
 import click
+import yaml
+from frictionless import Package
+
+from tools.tabular import Tabular
 
 log = logging.getLogger(__name__)
 
@@ -111,8 +115,57 @@ def validate_command(datapackage: Path, check_csv: bool):
 def create_datapackage_metadata(
     ttl: Path, frame: Path, vocabulary_uri: str, output: Path, lang: str
 ) -> None:
-    """Create Frictionless Data Package metadata stub."""
-    raise NotImplementedError("create_datapackage_metadata not yet implemented")
+    """
+    Create Frictionless Data Package metadata stub from RDF vocabulary.
+
+    Args:
+        ttl: Path to the RDF vocabulary file in Turtle format
+        frame: Path to the JSON-LD frame file (.yamlld or .jsonld)
+        vocabulary_uri: URI of the vocabulary (ConceptScheme) to extract
+        output: Output path for datapackage metadata file
+        lang: Language code for labels and descriptions (currently unused)
+
+    The function:
+    1. Loads the RDF vocabulary from the TTL file
+    2. Loads the JSON-LD frame
+    3. Creates a Tabular instance
+    4. Generates a datapackage stub with metadata extracted from the RDF graph
+    5. Writes the datapackage stub to the output file in YAML format
+
+    Note: This creates only a stub. The generated file should be:
+    - Reviewed and completed with all necessary metadata fields
+    - Renamed to datapackage.json before use for CSV generation
+    """
+    if not ttl.exists():
+        raise FileNotFoundError(f"TTL file not found: {ttl}")
+
+    if not frame.exists():
+        raise FileNotFoundError(f"Frame file not found: {frame}")
+
+    if not output.parent.exists():
+        raise FileNotFoundError(
+            f"Output directory {output.parent} does not exist"
+        )
+
+    # Load the JSON-LD frame
+    frame_data = yaml.safe_load(frame.read_text(encoding="utf-8"))
+
+    # Create a Tabular instance from the RDF vocabulary and frame
+    log.debug(f"Creating Tabular instance from {ttl}")
+    tabular = Tabular(rdf_data=ttl, frame=frame_data)
+
+    # Generate the datapackage stub (without resources)
+    log.debug(f"Generating datapackage stub for vocabulary {vocabulary_uri}")
+
+    resource_path = Path(f"{Path(vocabulary_uri).stem}.csv")
+    datapackage_stub = tabular.datapackage_stub(resource_path=resource_path)
+
+    # Write the datapackage stub to the output file
+    log.debug(f"Writing datapackage stub to {output}")
+    with output.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(datapackage_stub, f, allow_unicode=True, indent=2)
+
+    log.info(f"Datapackage stub created: {output}")
 
 
 def validate_datapackage_metadata(datapackage: Path, check_csv: bool) -> None:
@@ -125,7 +178,57 @@ def validate_datapackage_metadata(datapackage: Path, check_csv: bool) -> None:
 
     Raises:
         ValueError: If datapackage is invalid or CSV validation fails
+        FileNotFoundError: If datapackage file doesn't exist
     """
-    raise NotImplementedError(
-        "validate_datapackage_metadata not yet implemented"
-    )
+    if not datapackage.exists():
+        raise FileNotFoundError(f"Datapackage file not found: {datapackage}")
+
+    # Load the datapackage file
+    log.debug(f"Loading datapackage from {datapackage}")
+    datapackage_dict = yaml.safe_load(datapackage.read_text(encoding="utf-8"))
+
+    # Create and validate the Package
+    log.debug("Validating datapackage structure")
+    basepath = datapackage.parent.as_posix()
+    package = Package(datapackage_dict, basepath=basepath)
+
+    if not package:
+        raise ValueError(f"Invalid datapackage structure: {datapackage}")
+
+    # Check that it has a valid schema
+    if not package.validate():
+        errors = []
+        validation_result = package.validate()
+        for task in validation_result.tasks:
+            if task.errors:
+                for error in task.errors:
+                    errors.append(f"Resource '{task.name}': {error.message}")
+        if errors:
+            raise ValueError(
+                "Datapackage validation failed:\n" + "\n".join(errors)
+            )
+
+    log.debug("Datapackage structure is valid")
+
+    # Optionally validate CSV content
+    if check_csv:
+        log.debug("Validating CSV content")
+        if not package.resources:
+            raise ValueError("Datapackage has no resources to validate")
+
+        for resource in package.resources:
+            log.debug(f"Validating resource: {resource.name}")
+            # Validate the resource
+            report = resource.validate()
+            if not report.valid:
+                errors = [f"{err.type}: {err.message}" for err in report.errors]
+                raise ValueError(
+                    f"CSV validation failed for resource '{resource.name}':\n"
+                    + "\n".join(errors)
+                )
+
+        log.info("CSV content validation passed")
+    else:
+        log.debug("Skipping CSV content validation (--no-check-csv)")
+
+    log.info(f"Datapackage validation completed: {datapackage}")
