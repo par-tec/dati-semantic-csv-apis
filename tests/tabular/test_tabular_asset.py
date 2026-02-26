@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import yaml
 from deepdiff import DeepDiff
@@ -12,7 +14,9 @@ from tools.tabular import Tabular
     argvalues=ASSETS.glob("**/*.ttl"),
     ids=[x.name for x in ASSETS.glob("**/*.ttl")],
 )
-def test_tabular_metadata(vocabulary_ttl, snapshot):
+def test_tabular_metadata(
+    vocabulary_ttl, snapshot, request: pytest.FixtureRequest
+):
     """
     Test the metadata extraction from RDF data and creation of a datapackage descriptor.
 
@@ -27,14 +31,19 @@ def test_tabular_metadata(vocabulary_ttl, snapshot):
     Then:
     - The metadata method should return a valid datapackage descriptor dictionary
     """
+    datapackage_yaml = snapshot / request.node.name / "datapackage.yaml"
+
     tabular = Tabular(
         rdf_data=vocabulary_ttl, frame={"@context": {}}
     )  # Placeholder frame, replace with actual frame if needed
     vocab = tabular.datapackage_stub()
 
-    datapackage_yaml = snapshot / f"{vocab['name']}.datapackage.yaml"
+    if os.environ.get("UPDATE_SNAPSHOTS", "false").lower() == "true":
+        datapackage_yaml.parent.mkdir(parents=True, exist_ok=True)
+        datapackage_yaml.write_text(yaml.safe_dump(vocab))
+        raise pytest.fail("Snapshot updated, skipping test.")
+
     assert datapackage_yaml.exists()
 
-    assert not DeepDiff(vocab, yaml.safe_load(datapackage_yaml.read_text())), (
-        "Metadata extraction does not match expected snapshot"
-    )
+    diff = DeepDiff(vocab, yaml.safe_load(datapackage_yaml.read_text()))
+    assert not diff, "Metadata extraction does not match expected snapshot"

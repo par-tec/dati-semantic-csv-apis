@@ -1,0 +1,13 @@
+---
+$schema: https://datapackage.org/profiles/2.0/datapackage.json
+created: '2025-01-01T00:00:00Z'
+id: ISTAT:D.7
+keywords:
+- Ateco
+- Ateco2025
+- "Attività Economica"
+- classificazione
+name: ateco-2025
+resources: []
+title: ''
+version: versione 2025

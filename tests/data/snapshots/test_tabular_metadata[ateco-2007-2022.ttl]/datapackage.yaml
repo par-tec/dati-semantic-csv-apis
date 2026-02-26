@@ -1,0 +1,13 @@
+---
+$schema: https://datapackage.org/profiles/2.0/datapackage.json
+created: '2025-01-01T00:00:00Z'
+id: ISTAT:D.8
+keywords:
+- ATECO
+- Ateco2007
+- "Attività Economica"
+- Classificazione
+name: ateco-2007-2022
+resources: []
+title: ''
+version: versione 2007 - Aggiornamento 2022
