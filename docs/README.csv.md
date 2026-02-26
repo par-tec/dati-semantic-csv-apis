@@ -744,18 +744,18 @@ I campi principali sono:
 |`id` | `dcterms:identifier` o il nome del file del vocabolario | Questo identificativo deve essere un semplice testo.|
 |`description`| `dcterms:description` o `skos:definition` | In aggiunta ai vocabolari skos, la PoC supporta anche l'utilizzo di `dcterms:description`.|
 
-La lingua utilizzata per i campi del datapackage
-è individuata:
+Visto che i metadati dei vocabolari controllati possono essere
+o meno localizzati, mentre i datapackage richiedono
+un solo valore per ciascun campo, la PoC adotta la seguente logica:
 
-1. vengono ignorati i valori con `@language`
-   non presente in `dct:language`;
-1. quindi la priorità è data in ordine `it`, `en`;
-1. se non sono presenti valori con `@language` si utilizzano
-   valori senza `@language`.
+1. Vengono prese in considerazione solo i language tag `it` ed `en`
+   se presenti in `dcterms:language`.
+1. Se una property non ha il language tag selezionato,
+   viene preso il primo valore disponibile che non ha language tag.
+1. Se una property non ha né valori localizzati, né senza language tag, il valore del campo corrispondente nel datapackage viene lasciato vuoto.
 
-:warning: Se un datapackage non presenta valori nella lingua indicata
-i campi verranno popolati vuoti,
-anche se sono presenti valori in altre lingue.
+Per limitare inconsistenze, i vocabolari dovrebbero adottare
+un sistema di localizzazione coerente.
 
 Esempio: Un datapackage stub generato a partire da agente-causale.
 
