@@ -1,10 +1,5 @@
-from pathlib import Path
-
 import pytest
 from click.testing import CliRunner
-
-TESTDIR = Path(__file__).parent.parent
-DATADIR = TESTDIR / "data"
 
 
 @pytest.fixture
@@ -16,11 +11,3 @@ def runner():
     return CliRunner(
         catch_exceptions=False,
     )
-
-
-@pytest.fixture
-def snapshot() -> Path:
-    """
-    Returns a snapshot fixture for snapshot testing.
-    """
-    return DATADIR / "snapshots"

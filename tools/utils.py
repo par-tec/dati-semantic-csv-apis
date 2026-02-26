@@ -15,13 +15,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 class IGraph:
     @staticmethod
-    def parse(*args, **kwargs) -> IsomorphicGraph:
+    def parse(source=None, data=None, **kwargs) -> IsomorphicGraph:
         try:
             g = Graph()
-            g.parse(*args, **kwargs)
+            g.parse(source=source, data=data, **kwargs)
+            assert len(g) > 0, "Parsed RDF graph is empty"
             return to_isomorphic(g)
         except Exception as e:
-            log.exception(f"Failed to parse RDF data: {args}, {kwargs}")
+            log.exception(f"Failed to parse RDF data: {kwargs}")
             raise e
 
 

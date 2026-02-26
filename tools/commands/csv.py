@@ -9,6 +9,10 @@ import logging
 from pathlib import Path
 
 import click
+import yaml
+
+from tools.tabular.validate import TabularValidator
+from tools.utils import IGraph
 
 log = logging.getLogger(__name__)
 
@@ -79,8 +83,12 @@ def validate_command(ttl: Path, datapackage: Path, vocabulary_uri: str):
     click.echo(f"Vocabulary URI: {vocabulary_uri}")
 
     try:
-        validate_csv_to_rdf_roundtrip(ttl, datapackage, vocabulary_uri)
-        click.secho("✓ CSV roundtrip validation passed", fg="green")
+        stats = validate_csv_to_rdf_roundtrip(ttl, datapackage, vocabulary_uri)
+        click.secho(
+            f"✓ CSV roundtrip validation passed with {stats['csv_rows']} rows"
+            f" and {stats['csv_triples']} triples",
+            fg="green",
+        )
     except Exception as e:
         click.secho(
             f"✗ CSV roundtrip validation failed: {e}", fg="red", err=True
@@ -97,7 +105,7 @@ def create_csv_from_jsonld(
 
 def validate_csv_to_rdf_roundtrip(
     ttl: Path, datapackage: Path, vocabulary_uri: str
-) -> None:
+) -> dict:
     """
     Validate CSV can roundtrip to RDF and result is subset of original.
 
@@ -106,9 +114,21 @@ def validate_csv_to_rdf_roundtrip(
         datapackage: Path to datapackage metadata with CSV and context
         vocabulary_uri: URI of the vocabulary to validate
 
+    Returns:
+        dict: Validation statistics including triple counts
     Raises:
         ValueError: If roundtrip fails or result is not a subset
     """
-    raise NotImplementedError(
-        "validate_csv_to_rdf_roundtrip not yet implemented"
+    log.info(f"Validating CSV roundtrip for {datapackage} against {ttl}")
+    tabular_validator: TabularValidator = TabularValidator(
+        yaml.safe_load(datapackage.read_text()),
+        basepath=datapackage.parent,
+    )
+    tabular_validator.load()
+    log.info("CSV data loaded and validated successfully")
+    with ttl.open() as f:
+        original_graph = IGraph.parse(source=f, format="turtle")
+    log.info(f"Original RDF graph loaded with {len(original_graph)} triples")
+    return tabular_validator.validate(
+        original_graph=original_graph,
     )

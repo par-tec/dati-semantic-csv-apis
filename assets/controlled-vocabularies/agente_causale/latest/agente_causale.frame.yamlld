@@ -67,11 +67,8 @@
   - &jsonld_type "INAILService:AgenteCausaleINAIL"
 url: {}
 id: {}
-label_de: {}
-label_en: {}
-label_it: {}
-label:
-  "@language": ["it", "en", "de"]
+label_it:
+  "@language": ["it"]
   "@value": {}
 level: {}
 

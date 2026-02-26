@@ -13,8 +13,9 @@ import click
 import yaml
 from rdflib.compare import IsomorphicGraph
 
-from tools.projector import frame_context_fields, project, select_fields
+from tools.projector import frame_context_fields, select_fields
 from tools.utils import IGraph
+from tools.vocabulary import Vocabulary
 
 log = logging.getLogger(__name__)
 
@@ -155,9 +156,9 @@ def create_jsonld_framed(
     log.debug(
         f"Creating framed JSON-LD with batch size {batch_size} and callbacks: {[cb.__name__ for cb in callbacks]}"
     )
-    framed = project(
+    vocabulary: Vocabulary = Vocabulary(ttl)
+    framed = vocabulary.project(
         frame_data,
-        ttl,
         callbacks=callbacks,
         batch_size=batch_size,
     )

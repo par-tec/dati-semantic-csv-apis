@@ -167,17 +167,9 @@ testcases:
         "@id": "skos:notation"
 
       #Localize labels. Order is relevant.
-      label:
-        "@id": skos:prefLabel
       label_it:
         "@id": skos:prefLabel
         "@language": it
-      label_en:
-        "@id": skos:prefLabel
-        "@language": en
-      label_de:
-        "@id": skos:prefLabel
-        "@language": de
       # When mapping to a list, use @container: @set
       #   to ensure that JSON-LD framing handles it as an array.
       parent:
@@ -206,11 +198,8 @@ testcases:
     - "https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL"
     url: {}
     id: {}
-    label_de: {}
-    label_en: {}
-    label_it: {}
-    label:
-      "@language": ["it", "en", "de"]
+    label_it:
+      "@language": ["it"]
       "@value": {}
     level: {}
 
@@ -305,24 +294,37 @@ testcases:
     11110102,Tritio,3,gruppo/1.1,agente/11110102,../agente_causale
     1,Agenti chimici inorganici,1,[],grande_gruppo/1,../agente_causale
   expected_datapackage:
-    name: datapackage
+    $schema: https://datapackage.org/profiles/2.0/datapackage.json
+    created: '2022-09-06T00:00:00Z'
+    description: Decodifica dell'agente, lavorazione, o esposizione
+      che puo' essere causa o concausa di malattia
+    id: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+    keywords:
+    - agente causale
+    - chemical product
+    - inail
+    - infortunio
+    - malattia professionale
+    - occupational accident
+    - occupational disease
+    - prodotto chimico
+    name: agente_causale
+    title: Vocabolario Controllato sulla classificazione degli
+      agenti causali adottata dall'INAIL
+    version: '0.5'
     resources:
     - name: agente_causale
       type: table
       path: agente_causale.csv
-      dialect:
-        inline:
-          keyed: true
-      format: inline
+      format: csv
+      encoding: utf-8  # This is the default.
+      mediatype: text/csv
       schema:
+        x-jsonld-context: *agente_causale_skos_context
         fields:
         - name: id
           type: string
-        - name: label
-          type: string
-        - name: label_de
-          type: string
-        - name: label_en
+        - name: label_it
           type: string
         - name: level
           type: integer

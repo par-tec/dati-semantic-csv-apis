@@ -1,20 +1,17 @@
 import json
 from operator import itemgetter
-from pathlib import Path
 
 import pytest
 import yaml
 from rdflib.compare import IsomorphicGraph
 
-from tools.projector import frame_context_fields, project, select_fields
+from tests.constants import ASSETS, TESTCASES
+from tools.base import TEXT_TURTLE
+from tools.projector import frame_context_fields, select_fields
 from tools.utils import IGraph
+from tools.vocabulary import APPLICATION_LD_JSON, Vocabulary
 
-TESTDIR = Path(__file__).parent.parent
-testcases_yaml = TESTDIR / "testcases.yaml"
-TESTCASES = yaml.safe_load(testcases_yaml.read_text())["testcases"]
-
-ASSET = TESTDIR.parent / "assets" / "controlled-vocabularies"
-vocabularies = list(ASSET.glob("**/*.ttl"))
+vocabularies = list(ASSETS.glob("**/*.ttl"))
 
 
 @pytest.mark.parametrize(
@@ -36,9 +33,9 @@ def test_can_project_data(data, frame, expected_payload):
     - I expect the projected API to only include fields from the framing context, or "@type"
     """
     selected_fields = {"@type", *frame_context_fields(frame)}
-    framed = project(
+    vocabulary = Vocabulary(data)
+    framed = vocabulary.project(
         frame,
-        data,
         callbacks=[lambda framed: select_fields(framed, selected_fields)],
     )
     graph = framed["@graph"]
@@ -75,20 +72,20 @@ def test_can_validate_data(data, frame, expected_payload):
     - I expect the JSON-LD is a subgraph of the original RDF graph.
     """
     selected_fields = {"@type", *frame_context_fields(frame)}
-    framed = project(
+    vocabulary = Vocabulary(data)
+    framed = vocabulary.project(
         frame,
-        data,
         callbacks=[lambda framed: select_fields(framed, selected_fields)],
     )
     statistics = framed.pop("statistics", {})
     assert statistics, "Statistics should be present in the framed data"
 
     framed_graph: IsomorphicGraph = IGraph.parse(
-        data=json.dumps(framed), format="application/ld+json"
+        data=json.dumps(framed), format=APPLICATION_LD_JSON
     )
 
     original_graph: IsomorphicGraph = IGraph.parse(
-        data=data, format="text/turtle"
+        data=data, format=TEXT_TURTLE
     )
     extra_triples = framed_graph - original_graph
     assert len(extra_triples) == 0, (
@@ -120,9 +117,9 @@ def test_can_frame_assets(vocabulary_ttl):
     frame = yaml.safe_load(frame_path.read_text())
 
     selected_fields = {"@type", *frame_context_fields(frame)}
-    framed = project(
+    vocabulary = Vocabulary(vocabulary_ttl)
+    framed = vocabulary.project(
         frame,
-        vocabulary_ttl,
         callbacks=[lambda framed: select_fields(framed, selected_fields)],
     )
     graph = framed["@graph"]
