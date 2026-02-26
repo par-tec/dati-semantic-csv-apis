@@ -1,8 +1,11 @@
+import logging
 from pathlib import Path
 
 import yaml
 from jsonschema import validate
 from rdflib import DCAT, DCTERMS, OWL, SKOS, Graph, Namespace, URIRef
+
+log = logging.getLogger(__name__)
 
 # Define namespaces
 NDC = Namespace("https://w3id.org/italia/onto/NDC/")
@@ -10,6 +13,14 @@ DATADIR = Path(__file__).parent.parent / "data"
 
 DATAPACKAGE_SCHEMA_YAML = DATADIR / "datapackage.schema.json"
 DATAPACKAGE_SCHEMA = yaml.safe_load(DATAPACKAGE_SCHEMA_YAML.read_text())
+
+
+class LangTag:
+    pass
+
+
+LANG_ANY = LangTag()
+LANG_NONE = LangTag()
 
 
 def create_datapackage(
@@ -72,23 +83,33 @@ def create_datapackage(
         return next(iter(values)) if values else None
 
     # Helper function to get literal value
-    def get_value(predicate, lang=None):
+    def get_value(predicate, lang: str | LangTag = LANG_ANY):
         for obj in vocabulary.objects(vocabulary_uri, predicate):
-            if lang and hasattr(obj, "language") and obj.language != lang:
+            if not _language_matches(obj, lang):
                 continue
             return str(obj)
         return None
 
+    def _language_matches(obj, lang: str | LangTag):
+        if lang is LANG_ANY:
+            return True
+        if lang is LANG_NONE:
+            return not (hasattr(obj, "language") and obj.language)
+        return hasattr(obj, "language") and obj.language == lang
+
     # Helper function to get all values as list
-    def get_values(predicate, lang=None):
+    def get_values(predicate, lang: str | LangTag = LANG_ANY):
         values = []
         for obj in vocabulary.objects(vocabulary_uri, predicate):
-            if lang and hasattr(obj, "language") and obj.language != lang:
-                continue
-            values.append(str(obj))
+            if _language_matches(obj, lang):
+                values.append(str(obj))
+            else:
+                log.info(
+                    f"Skipping value '{obj}' for predicate '{predicate}' due to language mismatch (expected: {lang})"
+                )
         return values if values else None
 
-    def get_first_value(predicates, lang=None):
+    def get_first_value(predicates, lang: str | LangTag = LANG_ANY):
         for predicate in predicates:
             value = get_value(predicate, lang=lang)
             if value:
@@ -102,6 +123,7 @@ def create_datapackage(
         "id": get_identifier(DCTERMS.identifier, unique=True, required=False)
         or str(vocabulary_uri),
         "title": get_first_value([DCTERMS.title, SKOS.prefLabel], lang=lang)
+        or get_first_value([DCTERMS.title, SKOS.prefLabel], lang=LANG_NONE)
         or "",
         "resources": resources or [],
     }
@@ -113,7 +135,8 @@ def create_datapackage(
 
     description = get_first_value(
         [DCTERMS.description, SKOS.definition], lang=lang
-    )
+    ) or get_first_value([DCTERMS.description, SKOS.definition], lang=LANG_NONE)
+
     if description:
         datapackage["description"] = description
 

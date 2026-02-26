@@ -45,5 +45,6 @@ def test_tabular_metadata(
 
     assert datapackage_yaml.exists()
 
-    diff = DeepDiff(vocab, yaml.safe_load(datapackage_yaml.read_text()))
+    expected = yaml.safe_load(datapackage_yaml.read_text())
+    diff = DeepDiff(expected, vocab)
     assert not diff, "Metadata extraction does not match expected snapshot"

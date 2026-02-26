@@ -744,6 +744,19 @@ I campi principali sono:
 |`id` | `dcterms:identifier` o il nome del file del vocabolario | Questo identificativo deve essere un semplice testo.|
 |`description`| `dcterms:description` o `skos:definition` | In aggiunta ai vocabolari skos, la PoC supporta anche l'utilizzo di `dcterms:description`.|
 
+La lingua utilizzata per i campi del datapackage
+è individuata:
+
+1. vengono ignorati i valori con `@language`
+   non presente in `dct:language`;
+1. quindi la priorità è data in ordine `it`, `en`;
+1. se non sono presenti valori con `@language` si utilizzano
+   valori senza `@language`.
+
+:warning: Se un datapackage non presenta valori nella lingua indicata
+i campi verranno popolati vuoti,
+anche se sono presenti valori in altre lingue.
+
 Esempio: Un datapackage stub generato a partire da agente-causale.
 
 ```yaml
@@ -756,8 +769,7 @@ id: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_
 #   preso da NDC:keyConcept.
 name: agente_causale
 # Il titolo del vocabolario, preso da dcterms:title o skos:prefLabel.
-title: Classification of causal agents adopted by INAIL Controlled
-  Vocabulary
+title: Vocabolario Controllato sulla classificazione degli agenti causali adottata dall'INAIL
 # La versione del vocabolario, presa da owl:versionInfo.
 #   Se questo campo non è definito, la versione non viene riportata nel datapackage.
 version: '0.5'
