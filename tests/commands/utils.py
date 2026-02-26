@@ -73,6 +73,7 @@ def assert_file(fileinfo: dict):
             # compare the path file to its git commited version.
             assert not git_diff(path), (
                 f"File {path} has uncommitted changes. Please commit the file or update the snapshot reference."
+                f"\nGit diff:\n{git_diff(path).decode('utf-8')}"
             )
         else:
             assert snapshot_file.exists(), (
