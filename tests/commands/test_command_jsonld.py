@@ -4,79 +4,73 @@ Parameterized tests for jsonld create and validate commands.
 Tests are organized by vocabulary and command type with shared test parameters.
 """
 
+from pathlib import Path
+
 import pytest
 import yaml
 
-from tests.constants import ASSETS, DATADIR
+from tests.constants import TESTDIR
 from tools.commands import cli
 
-# Test fixtures shared across parameterized tests
-JSONLD_CREATE_FIXTURES = [
-    pytest.param(
-        "currency",
-        {
-            "args": [
-                "jsonld",
-                "create",
-                "--ttl",
-                DATADIR / "currency.ttl",
-                "--frame",
-                DATADIR / "currency.frame.yamlld",
-                "--vocabulary-uri",
-                "http://publications.europa.eu/resource/authority/currency",
-                "--batch-size",
-                "0",
-                "--frame-only",
-            ],
-            "expected": {
-                "expected_items": 179,
-            },
-        },
-        marks=pytest.mark.slow,
-        id="currency",
-    ),
-    pytest.param(
-        "ateco-2025",
-        {
-            "args": [
-                "jsonld",
-                "create",
-                "--ttl",
-                ASSETS / "ateco-2025" / "ateco-2025.ttl",
-                "--frame",
-                ASSETS / "ateco-2025" / "ateco-2025.frame.yamlld",
-                "--vocabulary-uri",
-                "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
-                "--batch-size",
-                "1000",
-                "--frame-only",
-            ],
-            "expected": {
-                "expected_items": 3257,
-            },
-        },
-        marks=pytest.mark.asset,
-        id="ateco-2025",
-    ),
-]
+_TESTCASES_YAML = Path(__file__).parent / "test-command-jsonld.yaml"
+_TESTCASES = yaml.safe_load(_TESTCASES_YAML.read_text())
 
-JSONLD_VALIDATE_FIXTURES = [
-    pytest.param(
-        "currency",
-        {
-            "args": [
-                "jsonld",
-                "validate",
-                "--ttl",
-                DATADIR / "currency.ttl",
-                "--vocabulary-uri",
-                "http://publications.europa.eu/resource/authority/currency",
-            ],
-        },
-        marks=pytest.mark.slow,
-        id="currency",
-    ),
-]
+
+def _resolve_arg(arg: str) -> str | Path:
+    """Resolve path-like args relative to TESTDIR; leave flags and URIs as-is."""
+    if arg.startswith("-") or arg.startswith("http") or "/" not in arg:
+        return arg
+    candidate = (TESTDIR / arg).resolve()
+    return candidate if candidate.exists() else arg
+
+
+def _build_args(command: list[str]) -> list[str | Path]:
+    return [_resolve_arg(a) for a in command]
+
+
+def _make_create_fixtures() -> list:
+    fixtures = []
+    for tc in _TESTCASES:
+        if not tc["id"].startswith("create_"):
+            continue
+        vocab_name = tc["id"][len("create_") :]
+        step = tc["steps"][0]
+        marks = [getattr(pytest.mark, m) for m in tc.get("marks", [])]
+        fixtures.append(
+            pytest.param(
+                vocab_name,
+                {
+                    "args": _build_args(step["command"]),
+                    "expected": {"expected_items": step["expected"]["items"]},
+                },
+                marks=marks,
+                id=vocab_name,
+            )
+        )
+    return fixtures
+
+
+def _make_validate_fixtures() -> list:
+    fixtures = []
+    for tc in _TESTCASES:
+        if not tc["id"].startswith("validate_"):
+            continue
+        vocab_name = tc["id"][len("validate_") :]
+        step = tc["steps"][0]
+        marks = [getattr(pytest.mark, m) for m in tc.get("marks", [])]
+        fixtures.append(
+            pytest.param(
+                vocab_name,
+                {"args": _build_args(step["command"])},
+                marks=marks,
+                id=vocab_name,
+            )
+        )
+    return fixtures
+
+
+JSONLD_CREATE_FIXTURES = _make_create_fixtures()
+JSONLD_VALIDATE_FIXTURES = _make_validate_fixtures()
 
 
 @pytest.mark.parametrize("vocab_name,params", JSONLD_CREATE_FIXTURES)

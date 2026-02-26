@@ -1,0 +1,62 @@
+---
+- id: create_currency
+  marks:
+  - slow
+  description: |-
+    Given a currency TTL file and JSON-LD frame
+    When I run the `jsonld create` command
+    Then the command exits successfully and the output JSON-LD file contains 179 items
+  steps:
+  - command:
+    - jsonld
+    - create
+    - --ttl
+    - data/currency.ttl
+    - --frame
+    - data/currency.frame.yamlld
+    - --vocabulary-uri
+    - http://publications.europa.eu/resource/authority/currency
+    - --batch-size
+    - "0"
+    - --frame-only
+    expected:
+      items: 179
+
+- id: create_ateco-2025
+  marks:
+  - asset
+  description: |-
+    Given the ateco-2025 TTL file and JSON-LD frame
+    When I run the `jsonld create` command
+    Then the command exits successfully and the output JSON-LD file contains 3257 items
+  steps:
+  - command:
+    - jsonld
+    - create
+    - --ttl
+    - ../assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
+    - --frame
+    - ../assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - --batch-size
+    - "1000"
+    - --frame-only
+    expected:
+      items: 3257
+
+- id: validate_currency
+  marks:
+  - slow
+  description: |-
+    Given a currency TTL file and a previously created JSON-LD snapshot
+    When I run the `jsonld validate` command
+    Then the command exits successfully and validation passes
+  steps:
+  - command:
+    - jsonld
+    - validate
+    - --ttl
+    - data/currency.ttl
+    - --vocabulary-uri
+    - http://publications.europa.eu/resource/authority/currency
