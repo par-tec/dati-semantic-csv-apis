@@ -21,19 +21,23 @@ def openapi():
 @openapi.command(name="create")
 @click.option(
     "--jsonld",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the JSON-LD framed file",
 )
 @click.option(
     "--frame",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the JSON-LD frame used to create the jsonld file",
 )
 @click.option(
     "--output",
-    type=click.Path(dir_okay=False, path_type=Path),
+    type=click.Path(dir_okay=False, resolve_path=True, path_type=Path),
     required=True,
     help="Output path for OpenAPI specification",
 )

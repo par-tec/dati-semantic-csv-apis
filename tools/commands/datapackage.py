@@ -27,13 +27,17 @@ def datapackage():
 @datapackage.command(name="create")
 @click.option(
     "--ttl",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the RDF vocabulary file in Turtle format",
 )
 @click.option(
     "--frame",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the JSON-LD frame file (.yamlld or .jsonld)",
 )
@@ -45,7 +49,7 @@ def datapackage():
 )
 @click.option(
     "--output",
-    type=click.Path(dir_okay=False, path_type=Path),
+    type=click.Path(dir_okay=False, resolve_path=True, path_type=Path),
     required=True,
     help="Output path for datapackage metadata file",
 )
@@ -72,7 +76,9 @@ def create_command(
 @datapackage.command(name="validate")
 @click.option(
     "--datapackage",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the datapackage metadata file (YAML/JSON)",
 )

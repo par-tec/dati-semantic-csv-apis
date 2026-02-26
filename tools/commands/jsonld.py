@@ -29,13 +29,17 @@ def jsonld():
 @jsonld.command(name="create")
 @click.option(
     "--ttl",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the RDF vocabulary file in Turtle format",
 )
 @click.option(
     "--frame",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the JSON-LD frame file (.yamlld or .jsonld)",
 )
@@ -47,7 +51,7 @@ def jsonld():
 )
 @click.option(
     "--output",
-    type=click.Path(dir_okay=False, path_type=Path),
+    type=click.Path(dir_okay=False, resolve_path=True, path_type=Path),
     required=True,
     help="Output path for JSON-LD framed file",
 )
@@ -85,13 +89,17 @@ def create_command(
 @jsonld.command(name="validate")
 @click.option(
     "--ttl",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=False, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the original RDF vocabulary file in Turtle format",
 )
 @click.option(
     "--jsonld",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the JSON-LD framed file to validate",
 )
@@ -130,10 +138,10 @@ def create_jsonld_framed(
     """Create JSON-LD framed representation from TTL and frame."""
     if not output.parent.exists():
         raise FileNotFoundError(
-            f"Output directory {output.parent} does not exist"
+            f"Output directory {output.parent.absolute()} does not exist"
         )
     if not ttl.exists():
-        raise FileNotFoundError(f"TTL file not found: {ttl}")
+        raise FileNotFoundError(f"TTL file not found: {ttl.absolute()}")
 
     if not frame.exists():
         raise FileNotFoundError(f"Frame file not found: {frame}")
@@ -184,7 +192,10 @@ def validate_jsonld_subset(
         ValueError: If JSON-LD contains data not in original RDF
     """
     if not ttl.exists():
-        raise ValueError(f"Original RDF vocabulary file not found: {ttl}")
+        raise ValueError(
+            f"Original RDF vocabulary file not found: {ttl.absolute()}"
+        )
+
     original_graph: IsomorphicGraph = IGraph.parse(
         source=ttl, format="text/turtle"
     )
@@ -197,7 +208,7 @@ def validate_jsonld_subset(
     log.debug(f"Vocabulary URI {vocabulary_uri} found in original RDF graph")
 
     if not jsonld.exists():
-        raise ValueError(f"JSON-LD framed file not found: {jsonld}")
+        raise ValueError(f"JSON-LD framed file not found: {jsonld.absolute()}")
 
     #
     # These extra steps are needed to strip out

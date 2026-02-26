@@ -16,20 +16,25 @@
     - jsonld
     - create
     - --ttl
-    - data/currency.ttl
+    - tests/data/currency.ttl
     - --frame
-    - data/currency.frame.yamlld
+    - tests/data/currency.frame.yamlld
     - --vocabulary-uri
     - http://publications.europa.eu/resource/authority/currency
     - --batch-size
     - "0"
     - --frame-only
+    - --output
+    - tests/data/snapshots/tmp-currency.data.yamlld
     expected:
       logs:
       - >-
         Dataset contains 286 items, processing without batching
       - >-
         Batched framing completed, total items: 179
+      files:
+      - path: tests/data/snapshots/tmp-currency.data.yamlld
+        snapshot: tests/data/snapshots/currency.data.yamlld
 
 - id: create_ateco-2025
   marks:
@@ -56,6 +61,8 @@
     - --batch-size
     - "1000"
     - --frame-only
+    - --output
+    - ateco-2025.data.yamlld
     expected:
       logs:
       - >-
@@ -76,11 +83,24 @@
     Then:
     - the command exits successfully
     - validation passes
+    - logs are as expected
   steps:
   - command:
     - jsonld
     - validate
     - --ttl
-    - data/currency.ttl
+    - tests/data/currency.ttl
     - --vocabulary-uri
     - http://publications.europa.eu/resource/authority/currency
+    - --jsonld
+    - tests/data/snapshots/currency.data.yamlld
+    expected:
+      logs:
+      - >-
+        Vocabulary URI http://publications.europa.eu/resource/authority/currency
+        found in original RDF graph
+      - >-
+        Framed JSON-LD graph has 1074 triples
+      stdout:
+      - >-
+        JSON-LD validation passed
