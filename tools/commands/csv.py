@@ -26,19 +26,23 @@ def csv():
 @csv.command(name="create")
 @click.option(
     "--jsonld",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the JSON-LD framed file",
 )
 @click.option(
     "--datapackage",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the datapackage metadata file",
 )
 @click.option(
     "--output",
-    type=click.Path(dir_okay=False, path_type=Path),
+    type=click.Path(dir_okay=False, resolve_path=True, path_type=Path),
     required=False,
     help="Output path for CSV file. By default this is defined in the datapackage metadata.",
 )
@@ -52,13 +56,17 @@ def create_command(jsonld: Path, datapackage: Path, output: Path):
 @csv.command(name="validate")
 @click.option(
     "--ttl",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the original RDF vocabulary file in Turtle format",
 )
 @click.option(
     "--datapackage",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
     required=True,
     help="Path to the datapackage metadata file containing CSV and context",
 )

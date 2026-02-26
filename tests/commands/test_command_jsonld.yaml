@@ -1,0 +1,106 @@
+---
+- id: create_currency
+  marks:
+  - asset
+  description: |-
+    Given:
+    - a TTL file
+    - a JSON-LD frame
+    When:
+    - I run the `jsonld create` command
+    Then:
+    - the command exits successfully
+    - the output JSON-LD file contains 179 items
+  steps:
+  - command:
+    - jsonld
+    - create
+    - --ttl
+    - tests/data/currency.ttl
+    - --frame
+    - tests/data/currency.frame.yamlld
+    - --vocabulary-uri
+    - http://publications.europa.eu/resource/authority/currency
+    - --batch-size
+    - "0"
+    - --frame-only
+    - --output
+    - tests/data/snapshots/tmp-currency.data.yamlld
+    expected:
+      logs:
+      - >-
+        Dataset contains 286 items, processing without batching
+      - >-
+        Batched framing completed, total items: 179
+      files:
+      - path: tests/data/snapshots/tmp-currency.data.yamlld
+        snapshot: tests/data/snapshots/currency.data.yamlld
+
+- id: create_ateco-2025
+  marks:
+  - asset
+  description: |-
+    Given:
+    - the ateco-2025 TTL file
+    - a JSON-LD frame
+    When:
+    - I run the `jsonld create` command
+    Then:
+    - the command exits successfully
+    - the output JSON-LD file contains 3257 items
+  steps:
+  - command:
+    - jsonld
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
+    - --frame
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - --batch-size
+    - "1000"
+    - --frame-only
+    - --output
+    - ateco-2025.data.yamlld
+    expected:
+      logs:
+      - >-
+        Dataset contains 3345 items, processing in batches of
+        1000
+      - >-
+        Batched framing completed, total items: 3257
+
+- id: validate_currency
+  marks:
+  - asset
+  description: |-
+    Given:
+    - a currency TTL file
+    - a previously created JSON-LD snapshot
+    When:
+    - I run the `jsonld validate` command
+    Then:
+    - the command exits successfully
+    - validation passes
+    - logs are as expected
+  steps:
+  - command:
+    - jsonld
+    - validate
+    - --ttl
+    - tests/data/currency.ttl
+    - --vocabulary-uri
+    - http://publications.europa.eu/resource/authority/currency
+    - --jsonld
+    - tests/data/snapshots/currency.data.yamlld
+    expected:
+      logs:
+      - >-
+        Vocabulary URI http://publications.europa.eu/resource/authority/currency
+        found in original RDF graph
+      - >-
+        Framed JSON-LD graph has 1074 triples
+      stdout:
+      - >-
+        JSON-LD validation passed
