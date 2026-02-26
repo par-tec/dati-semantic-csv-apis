@@ -34,7 +34,7 @@ class Vocabulary:
         else:
             self.graph.parse(data=rdf_data, format=format)
         log.debug(
-            f"Parsed RDF data in {time.time() - ts:.3f}s, graph has {len(self.graph)} triples"
+            f"Parsed {len(self.graph)} RDF triples in {time.time() - ts:.3f}s"
         )
 
         self._uri: str | None = None

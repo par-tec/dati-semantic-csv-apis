@@ -3,6 +3,7 @@ Test expanding JSON-LD context entries to absolute URIs.
 """
 
 import logging
+import time
 
 import yaml
 from pyld import jsonld
@@ -17,9 +18,13 @@ class IGraph:
     @staticmethod
     def parse(source=None, data=None, **kwargs) -> IsomorphicGraph:
         try:
+            ts = time.time()
             g = Graph()
             g.parse(source=source, data=data, **kwargs)
             assert len(g) > 0, "Parsed RDF graph is empty"
+            log.debug(
+                f"Parsed RDF graph with {len(g)} triples in {time.time() - ts:.3f}s"
+            )
             return to_isomorphic(g)
         except Exception as e:
             log.exception(f"Failed to parse RDF data: {kwargs}")

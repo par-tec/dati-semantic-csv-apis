@@ -3,9 +3,14 @@
   marks:
   - slow
   description: |-
-    Given a currency TTL file and JSON-LD frame
-    When I run the `jsonld create` command
-    Then the command exits successfully and the output JSON-LD file contains 179 items
+    Given:
+    - a TTL file
+    - a JSON-LD frame
+    When:
+    - I run the `jsonld create` command
+    Then:
+    - the command exits successfully
+    - the output JSON-LD file contains 179 items
   steps:
   - command:
     - jsonld
@@ -20,15 +25,24 @@
     - "0"
     - --frame-only
     expected:
-      items: 179
+      logs:
+      - >-
+        Dataset contains 286 items, processing without batching
+      - >-
+        Batched framing completed, total items: 179
 
 - id: create_ateco-2025
   marks:
   - asset
   description: |-
-    Given the ateco-2025 TTL file and JSON-LD frame
-    When I run the `jsonld create` command
-    Then the command exits successfully and the output JSON-LD file contains 3257 items
+    Given:
+    - the ateco-2025 TTL file
+    - a JSON-LD frame
+    When:
+    - I run the `jsonld create` command
+    Then:
+    - the command exits successfully
+    - the output JSON-LD file contains 3257 items
   steps:
   - command:
     - jsonld
@@ -43,15 +57,25 @@
     - "1000"
     - --frame-only
     expected:
-      items: 3257
+      logs:
+      - >-
+        Dataset contains 3345 items, processing in batches of
+        1000
+      - >-
+        Batched framing completed, total items: 3257
 
 - id: validate_currency
   marks:
   - slow
   description: |-
-    Given a currency TTL file and a previously created JSON-LD snapshot
-    When I run the `jsonld validate` command
-    Then the command exits successfully and validation passes
+    Given:
+    - a currency TTL file
+    - a previously created JSON-LD snapshot
+    When:
+    - I run the `jsonld validate` command
+    Then:
+    - the command exits successfully
+    - validation passes
   steps:
   - command:
     - jsonld
