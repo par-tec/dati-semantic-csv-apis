@@ -38,6 +38,7 @@
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
         snapshot: tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
+        compare: data
       logs:
       - >-
         Datapackage stub created: .*tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
@@ -102,6 +103,7 @@
       files:
       - path: tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
         snapshot: tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+        compare: data
       logs:
       - >-
         Datapackage stub created: .*tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
