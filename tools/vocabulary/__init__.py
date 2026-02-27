@@ -13,6 +13,12 @@ from tools.projector import framer
 log = logging.getLogger(__name__)
 
 
+class UnsupportedVocabularyError(ValueError):
+    """The RDF data does not contain a supported vocabulary,
+    such as a ConceptScheme with NDC:keyConcept.
+    """
+
+
 class Vocabulary:
     """
     This class represents a vocabulary,
@@ -95,7 +101,7 @@ class Vocabulary:
         _metadata_uri = set(_metadata.subjects())
         do_i_have_just_one_vocab = len(_metadata_uri)
         if do_i_have_just_one_vocab != 1:
-            raise ValueError(
+            raise UnsupportedVocabularyError(
                 "Expected exactly one vocabulary in the RDF data",
                 do_i_have_just_one_vocab,
             )

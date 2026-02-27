@@ -20,9 +20,9 @@
 
     Then:
     - the command exits successfully
+  skip: true
   steps:
-  - skip: true
-    command:
+  - command:
     - csv
     - create
     - --vocabulary-uri
@@ -87,14 +87,14 @@
     - --ttl
     - assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl
     - --datapackage
-    - tests/data/snapshots/agente_causale/datapackage.yaml
+    - tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
     expected:
       logs:
       - >-
-        Vocabulary URI https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
-        found in original RDF graph
+        INFO CSV data loaded and validated successfully
       - >-
-        Framed JSON-LD graph has 3257 triples
+        Original RDF graph loaded with 32228 triples
       stdout:
       - >-
-        JSON-LD validation passed
+        CSV roundtrip validation passed with 2922 rows and 8766
+        triples

@@ -22,6 +22,9 @@ def make_fixtures(testfile) -> list:
 
     fixtures = []
     for tc in _testcases:
+        if tc.get("skip", False):
+            logging.warning(f"Skipping test case: {tc['id']}")
+            continue
         params: dict = {}
         params["steps"] = tc["steps"]
         marks = [getattr(pytest.mark, m) for m in tc.get("marks", [])]
