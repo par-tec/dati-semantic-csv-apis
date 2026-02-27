@@ -25,13 +25,12 @@
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025.csv
         snapshot: tests/data/snapshots/ateco-2025/ateco-2025.csv
-        compare: data
       logs:
       - >-
-        Dataset contains 3345 items, processing in batches of
-        1000
-      - >-
         CSV file created successfully at .*ateco-2025.csv
+      stdout:
+      - >-
+        Created: .*/ateco-2025.csv
 - id: csv_create_validate_agente_causale
   marks:
   - asset
