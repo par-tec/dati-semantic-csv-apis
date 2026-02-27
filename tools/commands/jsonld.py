@@ -78,7 +78,12 @@ def create_command(
     frame_only: bool,
     batch_size: int,
 ):
-    """Create JSON-LD framed representation from RDF vocabulary."""
+    """
+    Create JSON-LD framed representation from RDF vocabulary.
+
+    If passed files do not exist,
+    Click returns an error.
+    """
     click.echo(f"Framing vocabulary {vocabulary_uri} from {ttl}")
     create_jsonld_framed(
         ttl, frame, vocabulary_uri, output, frame_only, batch_size
@@ -90,7 +95,7 @@ def create_command(
 @click.option(
     "--ttl",
     type=click.Path(
-        exists=False, dir_okay=False, resolve_path=True, path_type=Path
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
     ),
     required=True,
     help="Path to the original RDF vocabulary file in Turtle format",
@@ -115,6 +120,9 @@ def validate_command(ttl: Path, jsonld: Path, vocabulary_uri: str):
 
     Performs graph isomorphism check to ensure the framed JSON-LD contains
     only data present in the original RDF vocabulary.
+
+    If passed files do not exist,
+    Click returns an error.
     """
     click.echo(f"Validating JSON-LD {jsonld} against {ttl}")
     click.echo(f"Vocabulary URI: {vocabulary_uri}")
@@ -136,15 +144,7 @@ def create_jsonld_framed(
     batch_size: int,
 ) -> None:
     """Create JSON-LD framed representation from TTL and frame."""
-    if not output.parent.exists():
-        raise FileNotFoundError(
-            f"Output directory {output.parent.absolute()} does not exist"
-        )
-    if not ttl.exists():
-        raise FileNotFoundError(f"TTL file not found: {ttl.absolute()}")
-
-    if not frame.exists():
-        raise FileNotFoundError(f"Frame file not found: {frame}")
+    # Click checks file existence.
     frame_data = yaml.safe_load(frame.read_text(encoding="utf-8"))
 
     callbacks = []
@@ -183,6 +183,9 @@ def validate_jsonld_subset(
     """
     Validate that JSON-LD framed representation is a subset of original RDF.
 
+    If passed files do not exist,
+    Click returns an error.
+
     Args:
         ttl: Path to original RDF vocabulary in Turtle format
         jsonld: Path to JSON-LD framed file
@@ -191,11 +194,6 @@ def validate_jsonld_subset(
     Raises:
         ValueError: If JSON-LD contains data not in original RDF
     """
-    if not ttl.exists():
-        raise ValueError(
-            f"Original RDF vocabulary file not found: {ttl.absolute()}"
-        )
-
     original_graph: IsomorphicGraph = IGraph.parse(
         source=ttl, format="text/turtle"
     )
