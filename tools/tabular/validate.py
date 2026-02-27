@@ -40,8 +40,11 @@ class TabularValidator:
         validation_result = self.package.validate()
         for task in validation_result.tasks:
             if task.errors:
-                raise ValueError(
+                log.debug(
                     f"Validation errors in resource '{task.name}': {task.errors}"
+                )
+                raise ValueError(
+                    f"Validation errors in resource '{task.name}': {task.errors[:3]} (showing up to 3 errors)"
                 )
         log.debug("Datapackage structure is valid.")
         self._load_jsonld_context()
