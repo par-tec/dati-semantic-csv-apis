@@ -1,5 +1,5 @@
 """
-Parameterized tests for jsonld create and validate commands.
+Parameterized tests for datapackage create and validate commands.
 
 Tests are organized by vocabulary and command type with shared test parameters.
 """
@@ -11,11 +11,13 @@ from click.testing import CliRunner
 
 from tests.commands.utils import harness_step, make_fixtures
 
-JSONLD_FIXTURES = make_fixtures(__file__)
+DATAPACKAGE_FIXTURES = make_fixtures(__file__)
 
 
-@pytest.mark.parametrize("params", argvalues=JSONLD_FIXTURES)
-def test_jsonld(params, runner: CliRunner, caplog: pytest.LogCaptureFixture):
+@pytest.mark.parametrize("params", argvalues=DATAPACKAGE_FIXTURES)
+def test_datapackage(
+    params, runner: CliRunner, caplog: pytest.LogCaptureFixture
+):
     """
     Execute the test suite defined in the associated YAML file.
     """

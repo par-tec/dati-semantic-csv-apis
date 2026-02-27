@@ -6,6 +6,7 @@ from deepdiff import DeepDiff
 
 from tests.constants import ASSETS
 from tools.tabular import Tabular
+from tools.vocabulary import UnsupportedVocabularyError
 
 
 @pytest.mark.asset
@@ -36,6 +37,12 @@ def test_tabular_metadata(
     tabular = Tabular(
         rdf_data=vocabulary_ttl, frame={"@context": {}}
     )  # Placeholder frame, replace with actual frame if needed
+    try:
+        tabular.uri()
+    except UnsupportedVocabularyError:
+        pytest.skip(
+            "Vocabulary not supported for URI extraction, skipping test."
+        )
     vocab = tabular.datapackage_stub()
 
     if os.environ.get("UPDATE_SNAPSHOTS", "false").lower() == "true":

@@ -1,0 +1,93 @@
+$schema: https://datapackage.org/profiles/2.0/datapackage.json
+created: '2025-01-01T00:00:00Z'
+description: "Classificazione statistica delle attività economiche finalizzata all’elaborazione\
+  \ di statistiche ufficiali, aventi per oggetto i fenomeni relativi alla partecipazione\
+  \ delle unità produttive ai processi economici. La classificazione è direttamente\
+  \ derivata da NACE Rev. 2.1 (Regolamento delegato (Ue) 2023/137 della Commissione\
+  \ che modifica il Regolamento (CE) n. 1893/2006 del Parlamento europeo e del Consiglio;\
+  \ rettifica n. 2024/90720). La classificazione Ateco 2025 comprende 1.290 sottocategorie,\
+  \ 920 categorie, raggruppate in 651 classi, 272 gruppi, 87 divisioni, 22 sezioni.\n\
+  \    La struttura delle versioni precedenti è:\n    - Ateco 2007 1° rilascio: 996\
+  \ categorie, raggruppate in 615 classi, 272 gruppi, 88 divisioni, 21 sezioni; negli\
+  \ anni la classificazione ha subito due aggiornamenti, uno nel 2021 l'altro nel\
+  \ 2022;\n    - Ateco 2002: 883 categorie, raggruppate in 514 classi, 224 gruppi,\
+  \ 62 divisioni, 17 sezioni, 16 sottosezioni;\n    - Ateco 1991: 874 categorie, raggruppate\
+  \ in 512 classi, 222 gruppi, 60 divisioni, 17 sezioni, 16 sottosezioni."
+id: ISTAT:D.7
+keywords:
+- Ateco
+- Ateco2025
+- Attività Economica
+- classificazione
+name: ateco-2025
+resources:
+- dialect:
+    commentChar: '#'
+    delimiter: ','
+    doubleQuote: true
+    header: true
+    lineTerminator: "\r\n"
+    quoteChar: '"'
+    skipInitialSpace: true
+  encoding: utf-8
+  format: csv
+  mediatype: text/csv
+  name: ateco-2025
+  path: ateco-2025.csv
+  schema:
+    fields:
+    - name: url
+      type: string
+    - name: id
+      type: string
+    - name: label
+      type: string
+    - name: label_it
+      type: string
+    - name: label_en
+      type: string
+    - name: label_de
+      type: string
+    - name: level
+      type: integer
+    x-jsonld-context:
+      '@base': https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025/
+      '@vocab': https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/
+      clvapit: https://w3id.org/italia/onto/CLV/
+      covapit: https://w3id.org/italia/onto/COV/
+      dct: http://purl.org/dc/terms/
+      id:
+        '@id': skos:notation
+      label:
+        '@id': skos:prefLabel
+        '@language': it
+      label_de:
+        '@id': skos:prefLabel
+        '@language': de
+      label_en:
+        '@id': skos:prefLabel
+        '@language': en
+      label_it:
+        '@id': skos:prefLabel
+        '@language': it
+      level:
+        '@id': clvapit:hasRankOrder
+        '@type': xsd:int
+      parent:
+        '@container': '@set'
+        '@context':
+          url: '@id'
+        '@id': skos:broader
+      skos: http://www.w3.org/2004/02/skos/core#
+      url: '@id'
+      vocab:
+        '@container': '@set'
+        '@context':
+          url: '@id'
+        '@id': skos:inScheme
+      xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+      xsd: http://www.w3.org/2001/XMLSchema#
+  scheme: file
+  type: table
+title: Ateco 2025 - Classificazione delle attività economiche
+version: versione 2025

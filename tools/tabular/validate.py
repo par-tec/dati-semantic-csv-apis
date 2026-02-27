@@ -20,7 +20,7 @@ class TabularValidator:
         self.datapackage = datapackage
         self.basepath = basepath
         self.package: Package = Package(
-            self.datapackage, basepath=self.basepath
+            self.datapackage, basepath=str(self.basepath)
         )
         self.csv_graph: IsomorphicGraph | None = None
         self.stats: dict = {
@@ -36,12 +36,17 @@ class TabularValidator:
 
         All functions in this class assume that the datapackage has already been loaded and validated.
         """
+        log.debug("Validating datapackage structure...")
         validation_result = self.package.validate()
         for task in validation_result.tasks:
             if task.errors:
-                raise ValueError(
+                log.debug(
                     f"Validation errors in resource '{task.name}': {task.errors}"
                 )
+                raise ValueError(
+                    f"Validation errors in resource '{task.name}': {task.errors[:3]} (showing up to 3 errors)"
+                )
+        log.debug("Datapackage structure is valid.")
         self._load_jsonld_context()
 
     @property
@@ -58,6 +63,7 @@ class TabularValidator:
         Validate the presence of a JSON-LD context in the datapackage descriptor
         and load it.
         """
+        log.debug("Extracting JSON-LD context from datapackage...")
         if not self.package:
             raise ValueError(
                 "Run 'load()' to load and validate the datapackage before accessing the JSON-LD context."
@@ -84,6 +90,7 @@ class TabularValidator:
                     f"The 'x-jsonld-context' in resource '{resource.name}' must be a JSON object."
                 )
             self._context = context
+            log.debug(f"JSON-LD context extracted: {self._context}")
 
     def to_jsonld(self) -> JsonLD:
         """Validate the datapackage descriptor and resources."""

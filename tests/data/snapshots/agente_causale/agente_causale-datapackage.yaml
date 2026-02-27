@@ -1,0 +1,72 @@
+$schema: https://datapackage.org/profiles/2.0/datapackage.json
+created: '2022-09-06T00:00:00Z'
+description: Decodifica dell'agente, lavorazione, o esposizione che puo' essere causa
+  o concausa di malattia
+id: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+keywords:
+- agente causale
+- chemical product
+- inail
+- infortunio
+- malattia professionale
+- occupational accident
+- occupational disease
+- prodotto chimico
+name: agente_causale
+resources:
+- dialect:
+    commentChar: '#'
+    delimiter: ','
+    doubleQuote: true
+    header: true
+    lineTerminator: "\r\n"
+    quoteChar: '"'
+    skipInitialSpace: true
+  encoding: utf-8
+  format: csv
+  mediatype: text/csv
+  name: agente_causale
+  path: agente_causale.csv
+  schema:
+    fields:
+    - name: url
+      type: string
+    - name: id
+      type: string
+    - name: label_it
+      type: string
+    - name: level
+      type: integer
+    x-jsonld-context:
+      '@vocab': https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/
+      INAILService: https://w3id.org/italia/work-accident/onto/adm_serv/
+      clvapit: https://w3id.org/italia/onto/CLV/
+      dct: http://purl.org/dc/terms/
+      id:
+        '@id': skos:notation
+      label_it:
+        '@id': skos:prefLabel
+        '@language': it
+      level:
+        '@id': xkos:depth
+        '@type': xsd:integer
+      parent:
+        '@container': '@set'
+        '@context':
+          id: skos:notation
+          url: '@id'
+        '@id': skos:broader
+      skos: http://www.w3.org/2004/02/skos/core#
+      url: '@id'
+      vocab:
+        '@container': '@set'
+        '@context':
+          url: '@id'
+        '@id': skos:inScheme
+      xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+      xsd: http://www.w3.org/2001/XMLSchema#
+  scheme: file
+  type: table
+title: Vocabolario Controllato sulla classificazione degli agenti causali adottata
+  dall'INAIL
+version: '0.5'

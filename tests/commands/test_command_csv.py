@@ -15,7 +15,7 @@ JSONLD_FIXTURES = make_fixtures(__file__)
 
 
 @pytest.mark.parametrize("params", argvalues=JSONLD_FIXTURES)
-def test_jsonld(params, runner: CliRunner, caplog: pytest.LogCaptureFixture):
+def test_csv(params, runner: CliRunner, caplog: pytest.LogCaptureFixture):
     """
     Execute the test suite defined in the associated YAML file.
     """
