@@ -108,7 +108,87 @@ def create_csv_from_jsonld(
     jsonld: Path, datapackage: Path, output: Path
 ) -> None:
     """Create CSV file from framed JSON-LD using datapackage metadata."""
-    raise NotImplementedError("create_csv_from_jsonld not yet implemented")
+    from tools.tabular import Tabular
+
+    log.debug(f"Loading JSON-LD data from {jsonld}")
+    # Load the framed JSON-LD data
+    jsonld_data = yaml.safe_load(jsonld.read_text())
+    log.debug(
+        f"Loaded JSON-LD data with {len(jsonld_data.get('@graph', []))} items"
+    )
+
+    log.debug(f"Loading datapackage metadata from {datapackage}")
+    # Load the datapackage metadata
+    datapackage_dict = yaml.safe_load(datapackage.read_text())
+
+    # Extract the frame (context) from the datapackage
+    resource = datapackage_dict.get("resources", [{}])[0]
+    context = resource.get("schema", {}).get("x-jsonld-context", {})
+    frame = {"@context": context}
+    log.debug("Extracted frame context from datapackage")
+
+    # Extract the CSV dialect from the datapackage
+    dialect = resource.get("dialect", {})
+    log.debug(f"Extracted CSV dialect: {dialect}")
+
+    # Create a minimal RDF graph (empty turtle) since we have pre-framed data
+    # The Tabular constructor requires rdf_data but we'll override it with load()
+    minimal_rdf = "@prefix skos: <http://www.w3.org/2004/02/skos/core#> ."
+
+    log.debug("Creating Tabular instance with minimal RDF")
+    # Create Tabular instance
+    tabular = Tabular(rdf_data=minimal_rdf, frame=frame, format="turtle")
+
+    log.debug("Loading framed JSON-LD data into Tabular")
+    # Load the pre-framed JSON-LD data
+    tabular.load(data=jsonld_data)
+
+    log.debug("Setting CSV dialect from datapackage")
+    # Set the dialect from the datapackage
+    tabular.set_dialect(**dialect)
+
+    log.debug("Setting datapackage metadata")
+    # Set the datapackage metadata
+    tabular.datapackage = datapackage_dict
+
+    # Ensure DataFrame has all columns expected by schema
+    # Some columns might be aliased in YAML (e.g., label and label_it)
+    schema_fields = [
+        field["name"] for field in resource.get("schema", {}).get("fields", [])
+    ]
+    log.debug(f"Schema expects fields: {schema_fields}")
+    log.debug(f"DataFrame has columns: {list(tabular.df.columns)}")
+
+    # Check for missing columns and try to infer them from context
+    for field_name in schema_fields:
+        if field_name not in tabular.df.columns:
+            # Check if this field is an alias for another field
+            # by comparing their context definitions
+            field_context = context.get(field_name, {})
+            if isinstance(field_context, dict):
+                # Find if another column has the same @id and @language
+                for col in tabular.df.columns:
+                    col_context = context.get(col, {})
+                    if isinstance(col_context, dict):
+                        if col_context.get("@id") == field_context.get(
+                            "@id"
+                        ) and col_context.get("@language") == field_context.get(
+                            "@language"
+                        ):
+                            log.debug(
+                                f"Adding missing column '{field_name}' as copy of '{col}'"
+                            )
+                            tabular.df[field_name] = tabular.df[col]
+                            break
+
+    # Determine output path
+    if not output:
+        output = datapackage.parent / resource.get("path", "output.csv")
+
+    log.debug(f"Writing CSV to {output}")
+    # Write the CSV file
+    tabular.to_csv(str(output))
+    log.info(f"CSV file created successfully at {output}")
 
 
 def validate_csv_to_rdf_roundtrip(
