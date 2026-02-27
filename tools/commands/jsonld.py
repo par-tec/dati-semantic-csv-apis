@@ -70,6 +70,13 @@ def jsonld():
     help="Number of RDF triples to process in each batch when framing. "
     "Set to 0 to process all triples at once (default: 0).",
 )
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
+    help="Overwrite output file if it already exists. Without this flag, the command fails if the output file exists.",
+)
 def create_command(
     ttl: Path,
     frame: Path,
@@ -77,14 +84,31 @@ def create_command(
     output: Path,
     frame_only: bool,
     batch_size: int,
+    force: bool,
 ):
     """
     Create JSON-LD framed representation from RDF vocabulary.
 
-    If passed files do not exist,
-    Click returns an error.
+    If passed files do not exist, Click returns an error.
+
+    Output file handling:
+    - If output file exists and --force/-f is not set, the command fails
+    - If output file exists and --force/-f is set, the file is overwritten
     """
     click.echo(f"Framing vocabulary {vocabulary_uri} from {ttl}")
+
+    # Check if output file exists
+    if output.exists():
+        if not force:
+            click.secho(
+                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
+                fg="red",
+                err=True,
+            )
+            raise click.Abort()
+        else:
+            log.debug(f"Overwriting existing file: {output}")
+
     create_jsonld_framed(
         ttl, frame, vocabulary_uri, output, frame_only, batch_size
     )

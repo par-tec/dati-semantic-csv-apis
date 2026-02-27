@@ -33,6 +33,7 @@
     - --frame-only
     - --output
     - tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
+    - --force
     expected:
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
@@ -74,6 +75,7 @@
     - --frame-only
     - --output
     - tests/data/snapshots/currency/currency.data.yamlld
+    - --force
     expected:
       logs:
       - >-

@@ -32,6 +32,7 @@
     - --frame-only
     - --output
     - tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
+    - --force
     expected:
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
@@ -72,6 +73,7 @@
     - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
     - --output
     - tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
+    - --force
     expected:
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
@@ -117,6 +119,7 @@
     - tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
     - --output
     - tests/data/snapshots/ateco-2025/ateco-2025.csv
+    - --force
     expected:
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025.csv

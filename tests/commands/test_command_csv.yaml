@@ -21,6 +21,7 @@
     - tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
     - --output
     - tests/data/snapshots/ateco-2025/ateco-2025.csv
+    - --force
     expected:
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025.csv
@@ -55,6 +56,7 @@
     - tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
     - --output
     - tests/data/snapshots/agente_causale/agente_causale.csv
+    - --force
     expected:
       files:
       - path: tests/data/snapshots/agente_causale/agente_causale.csv

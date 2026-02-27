@@ -46,11 +46,56 @@ def csv():
     "--output",
     type=click.Path(dir_okay=False, resolve_path=True, path_type=Path),
     required=False,
-    help="Output path for CSV file. By default this is defined in the datapackage metadata.",
+    help="Output path for CSV file. If not specified, uses the path from datapackage metadata. If specified and differs from datapackage path, a warning is shown.",
 )
-def create_command(jsonld: Path, datapackage: Path, output: Path):
-    """Create CSV file from framed JSON-LD using datapackage metadata."""
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
+    help="Overwrite output file if it already exists. Without this flag, the command fails if the output file exists.",
+)
+def create_command(jsonld: Path, datapackage: Path, output: Path, force: bool):
+    """Create CSV file from framed JSON-LD using datapackage metadata.
+
+    Output file handling:
+    - If --output is not specified, uses the path from datapackage metadata (relative to datapackage directory)
+    - If --output differs from datapackage path, a warning is shown
+    - If output file exists and --force/-f is not set, the command fails
+    - If output file exists and --force/-f is set, the file is overwritten
+    """
     click.echo(f"Creating CSV from {jsonld}")
+
+    # Load datapackage to get the expected output path
+    datapackage_dict = yaml.safe_load(datapackage.read_text())
+    resource = datapackage_dict.get("resources", [{}])[0]
+    datapackage_path = resource.get("path", "output.csv")
+    expected_output = datapackage.parent / datapackage_path
+
+    # Determine actual output path
+    if output is None:
+        output = expected_output
+        log.debug(f"Using output path from datapackage: {output}")
+    else:
+        # Check if output differs from datapackage path
+        if output.resolve() != expected_output.resolve():
+            click.echo(
+                f"⚠ Warning: Output path {output} differs from datapackage path {expected_output}",
+                err=True,
+            )
+
+    # Check if output file exists
+    if output.exists():
+        if not force:
+            click.secho(
+                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
+                fg="red",
+                err=True,
+            )
+            raise click.Abort()
+        else:
+            log.warning(f"Overwriting existing file: {output}")
+
     create_csv_from_jsonld(jsonld, datapackage, output)
     click.echo(f"✓ Created: {output}")
 
@@ -113,14 +158,13 @@ def create_csv_from_jsonld(
     from tools.tabular import Tabular
 
     log.debug(f"Loading JSON-LD data from {jsonld}")
-    # Load the framed JSON-LD data
-    jsonld_data = yaml.safe_load(jsonld.read_text())
+    with jsonld.open(encoding="utf-8") as f:
+        jsonld_data = yaml.safe_load(f)
     log.debug(
         f"Loaded JSON-LD data with {len(jsonld_data.get('@graph', []))} items"
     )
 
     log.debug(f"Loading datapackage metadata from {datapackage}")
-    # Load the datapackage metadata
     datapackage_dict = yaml.safe_load(datapackage.read_text())
 
     # Extract the frame (context) from the datapackage
@@ -133,26 +177,23 @@ def create_csv_from_jsonld(
     dialect = resource.get("dialect", {})
     log.debug(f"Extracted CSV dialect: {dialect}")
 
-    # Create a minimal RDF graph (empty turtle) since we have pre-framed data
-    # The Tabular constructor requires rdf_data but we'll override it with load()
-    minimal_rdf = "@prefix skos: <http://www.w3.org/2004/02/skos/core#> ."
-
-    log.debug("Creating Tabular instance with minimal RDF")
-    # Create Tabular instance
+    log.debug("Creating Tabular instance")
+    # Create Tabular instance using an "empty" RDF graph
+    #   since we will load() pre-framed data.
     tabular = Tabular(
-        rdf_data=minimal_rdf, frame=cast(JsonLDFrame, frame), format="turtle"
+        rdf_data="@prefix skos: <http://www.w3.org/2004/02/skos/core#> .",
+        frame=cast(JsonLDFrame, frame),
+        format="turtle",
     )
 
-    log.debug("Loading framed JSON-LD data into Tabular")
-    # Load the pre-framed JSON-LD data
+    log.debug("Loading framed JSON-LD data")
     tabular.load(data=jsonld_data)
 
-    log.debug("Setting CSV dialect from datapackage")
-    # Set the dialect from the datapackage
-    tabular.set_dialect(**dialect)
+    if dialect:
+        log.debug("Setting CSV dialect from datapackage")
+        tabular.set_dialect(**dialect)
 
     log.debug("Setting datapackage metadata")
-    # Set the datapackage metadata
     tabular.datapackage = datapackage_dict
 
     # Ensure DataFrame has all columns expected by schema
@@ -185,10 +226,6 @@ def create_csv_from_jsonld(
                             )
                             tabular.df[field_name] = tabular.df[col]
                             break
-
-    # Determine output path
-    if not output:
-        output = datapackage.parent / resource.get("path", "output.csv")
 
     log.debug(f"Writing CSV to {output}")
     # Write the CSV file
