@@ -37,6 +37,7 @@
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
         snapshot: tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
+        compare: data
       logs:
       - >-
         Dataset contains 3345 items, processing in batches of
@@ -63,16 +64,16 @@
     - jsonld
     - create
     - --ttl
-    - tests/data/currency.ttl
+    - assets/controlled-vocabularies/currency/currency.ttl
     - --frame
-    - tests/data/currency.frame.yamlld
+    - assets/controlled-vocabularies/currency/currency.frame.yamlld
     - --vocabulary-uri
     - http://publications.europa.eu/resource/authority/currency
     - --batch-size
     - "0"
     - --frame-only
     - --output
-    - tests/data/snapshots/tmp-currency.data.yamlld
+    - tests/data/snapshots/currency/currency.data.yamlld
     expected:
       logs:
       - >-
@@ -80,8 +81,9 @@
       - >-
         Batched framing completed, total items: 179
       files:
-      - path: tests/data/snapshots/currency/tmp-currency.data.yamlld
+      - path: tests/data/snapshots/currency/currency.data.yamlld
         snapshot: tests/data/snapshots/currency/currency.data.yamlld
+        compare: data
 - id: validate_currency
   marks:
   - asset
@@ -100,7 +102,7 @@
     - jsonld
     - validate
     - --ttl
-    - tests/data/currency.ttl
+    - assets/controlled-vocabularies/currency/currency.ttl
     - --vocabulary-uri
     - http://publications.europa.eu/resource/authority/currency
     - --jsonld

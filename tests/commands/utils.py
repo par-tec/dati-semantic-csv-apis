@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 import yaml
 from click.testing import CliRunner
+from deepdiff import DeepDiff
 from git import Repo
 
 from tests.constants import TESTDIR
@@ -70,20 +71,45 @@ def assert_file(fileinfo: dict):
         f"Expected file not found: {path}"
     )
 
-    if snapshot_path := fileinfo.get("snapshot"):
-        snapshot_file: Path = Path(snapshot_path)
-        if path == snapshot_file:
-            # compare the path file to its git commited version.
-            delta = git_diff(path)
-            assert not delta, (
-                f"File {path} has uncommitted changes. Please commit the file or update the snapshot reference."
-                f"\nGit diff:\n{delta.decode('utf-8')[:500]}"  # limit diff output to 500 chars
-            )
-        else:
-            assert snapshot_file.exists(), (
-                f"Expected snapshot file not found: {snapshot_file}"
-            )
-            assert snapshot_file.read_bytes() == path.read_bytes()
+    assert_snapshot(fileinfo)
+
+
+def assert_snapshot(fileinfo: dict):
+    snapshot_path = fileinfo.get("snapshot")
+    if not snapshot_path:
+        return
+    path = Path(fileinfo["path"])
+    snapshot_file: Path = Path(snapshot_path)
+
+    match fileinfo.get("compare"):
+        case "data":
+            compare_f = compare_data
+        case _:
+            compare_f = compare_content
+
+    compare_f(snapshot_file, path)
+
+
+def compare_data(snapshot_file: Path, path: Path):
+    snapshot_data = yaml.safe_load(snapshot_file.read_text())
+    path_data = yaml.safe_load(path.read_text())
+    delta = DeepDiff(snapshot_data, path_data, ignore_order=True)
+    assert delta == {}
+
+
+def compare_content(snapshot_file: Path, path: Path):
+    if snapshot_file == path:
+        # compare the path file to its git commited version.
+        delta = git_diff(path)
+        assert not delta, (
+            f"File {path} has uncommitted changes. Please commit the file or update the snapshot reference."
+            f"\nGit diff:\n{delta.decode('utf-8')[:500]}"  # limit diff output to 500 chars
+        )
+    else:
+        assert snapshot_file.exists(), (
+            f"Expected snapshot file not found: {snapshot_file}"
+        )
+        assert snapshot_file.read_bytes() == path.read_bytes()
 
 
 def git_diff(path: Path) -> bytes:

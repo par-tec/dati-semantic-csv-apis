@@ -1,4 +1,42 @@
 ---
+- id: csv_validate_agente_causale
+  marks:
+  - asset
+  description: |-
+    Given:
+    - a TTL file
+    - a JSON-LD data snapshot
+    - a datapackage.yaml
+
+    When:
+    - I run `csv validate`
+
+    Then:
+    - the command exits successfully
+  steps:
+  - command:
+    - csv
+    - validate
+    - --vocabulary-uri
+    - https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+    # Arguments
+    - --ttl
+    - assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl
+    - --datapackage
+    - tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+    expected:
+      logs:
+      - >-
+        INFO CSV data loaded and validated successfully
+      - >-
+        Original RDF graph loaded with 32228 triples
+      stdout:
+      - >-
+        CSV roundtrip validation passed with 2922 rows and 8766
+        triples
+#
+# Not supported for now
+#
 - id: csv_create_validate_currency
   marks:
   - asset
@@ -63,38 +101,3 @@
       stdout:
       - >-
         JSON-LD validation passed
-- id: csv_validate_agente_causale
-  marks:
-  - asset
-  description: |-
-    Given:
-    - a TTL file
-    - a JSON-LD data snapshot
-    - a datapackage.yaml
-
-    When:
-    - I run `csv validate`
-
-    Then:
-    - the command exits successfully
-  steps:
-  - command:
-    - csv
-    - validate
-    - --vocabulary-uri
-    - https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
-    # Arguments
-    - --ttl
-    - assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl
-    - --datapackage
-    - tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
-    expected:
-      logs:
-      - >-
-        INFO CSV data loaded and validated successfully
-      - >-
-        Original RDF graph loaded with 32228 triples
-      stdout:
-      - >-
-        CSV roundtrip validation passed with 2922 rows and 8766
-        triples

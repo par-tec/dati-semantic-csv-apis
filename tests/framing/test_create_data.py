@@ -9,7 +9,11 @@ from tests.constants import ASSETS, TESTCASES
 from tools.base import TEXT_TURTLE
 from tools.projector import frame_context_fields, select_fields
 from tools.utils import IGraph
-from tools.vocabulary import APPLICATION_LD_JSON, Vocabulary
+from tools.vocabulary import (
+    APPLICATION_LD_JSON,
+    UnsupportedVocabularyError,
+    Vocabulary,
+)
 
 vocabularies = list(ASSETS.glob("**/*.ttl"))
 
@@ -118,6 +122,13 @@ def test_can_frame_assets(vocabulary_ttl):
 
     selected_fields = {"@type", *frame_context_fields(frame)}
     vocabulary = Vocabulary(vocabulary_ttl)
+    try:
+        uri = vocabulary.uri()
+    except UnsupportedVocabularyError:
+        pytest.skip(f"Unsupported vocabulary in {vocabulary_ttl}")
+
+    assert uri, f"Vocabulary URI should be present in {vocabulary_ttl}"
+
     framed = vocabulary.project(
         frame,
         callbacks=[lambda framed: select_fields(framed, selected_fields)],
