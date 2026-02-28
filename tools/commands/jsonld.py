@@ -200,9 +200,7 @@ def create_jsonld_framed(
 
     # Sort @graph entries by id for consistent output
     if "@graph" in framed and isinstance(framed["@graph"], list):
-        framed["@graph"] = sorted(
-            framed["@graph"], key=lambda x: x.get("url")
-        )
+        framed["@graph"] = sorted(framed["@graph"], key=lambda x: x.get("url"))
 
     with output.open("w", encoding="utf-8") as f:
         yaml.safe_dump(framed, f, allow_unicode=True, indent=2, sort_keys=True)
