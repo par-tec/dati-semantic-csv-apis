@@ -121,5 +121,5 @@ def git_diff(path: Path) -> bytes:
     """
 
     repo = Repo(TESTDIR.parent, search_parent_directories=True)
-    diff = repo.git.diff("HEAD", path.as_posix())
+    diff = repo.git.diff("HEAD", path.as_posix(), ignore_cr_at_eol=True)
     return diff.encode("utf-8")
