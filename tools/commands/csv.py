@@ -7,10 +7,12 @@ Commands for creating and validating CSV artifacts.
 
 import logging
 from pathlib import Path
+from typing import cast
 
 import click
 import yaml
 
+from tools.base import JsonLDFrame
 from tools.tabular.validate import TabularValidator
 from tools.utils import IGraph
 
@@ -137,7 +139,9 @@ def create_csv_from_jsonld(
 
     log.debug("Creating Tabular instance with minimal RDF")
     # Create Tabular instance
-    tabular = Tabular(rdf_data=minimal_rdf, frame=frame, format="turtle")
+    tabular = Tabular(
+        rdf_data=minimal_rdf, frame=cast(JsonLDFrame, frame), format="turtle"
+    )
 
     log.debug("Loading framed JSON-LD data into Tabular")
     # Load the pre-framed JSON-LD data
@@ -157,6 +161,7 @@ def create_csv_from_jsonld(
         field["name"] for field in resource.get("schema", {}).get("fields", [])
     ]
     log.debug(f"Schema expects fields: {schema_fields}")
+    assert tabular.df is not None, "DataFrame should be loaded at this point"
     log.debug(f"DataFrame has columns: {list(tabular.df.columns)}")
 
     # Check for missing columns and try to infer them from context
