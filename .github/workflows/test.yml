@@ -62,6 +62,4 @@ jobs:
         pip3 install uv
         pip3 install tox-uv
         tox -- -v -m "not asset"
-        tox -- -v tests/commands/test_command_jsonld.py
-        tox -- -v tests/commands/test_command_datapackage.py
-        tox -- -v tests/commands/test_command_csv.py
+        tox -- -v -m asset
