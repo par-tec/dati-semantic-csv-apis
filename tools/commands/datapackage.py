@@ -187,7 +187,9 @@ def create_datapackage_metadata(
     # Write the datapackage stub to the output file
     log.debug(f"Writing datapackage stub to {output}")
     with output.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(datapackage_stub, f, allow_unicode=True, indent=2)
+        yaml.safe_dump(
+            datapackage_stub, f, allow_unicode=True, indent=2, sort_keys=True
+        )
 
     log.info(f"Datapackage stub created: {output}")
 

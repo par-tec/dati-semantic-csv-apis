@@ -43377,7 +43377,6 @@ statistics:
   filtered:
   - ''
   - ''
-  - ''
   - 22-rdf-syntax-ns#List
   - 22-rdf-syntax-ns#first
   - 22-rdf-syntax-ns#rest

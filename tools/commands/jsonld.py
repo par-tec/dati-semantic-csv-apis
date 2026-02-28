@@ -197,8 +197,15 @@ def create_jsonld_framed(
     log.debug(
         f"Framed JSON-LD created successfully with {len(framed.get('@graph', []))} items"
     )
+
+    # Sort @graph entries by id for consistent output
+    if "@graph" in framed and isinstance(framed["@graph"], list):
+        framed["@graph"] = sorted(
+            framed["@graph"], key=lambda x: x.get("url")
+        )
+
     with output.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(framed, f, allow_unicode=True, indent=2)
+        yaml.safe_dump(framed, f, allow_unicode=True, indent=2, sort_keys=True)
 
 
 def validate_jsonld_subset(

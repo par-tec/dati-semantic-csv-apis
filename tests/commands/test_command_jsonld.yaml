@@ -61,6 +61,8 @@
   - description: |-
       When:
       - I run the `jsonld create` command
+      - without batching because we need to access the full graph
+        for integrating parent entries.
 
       Then:
       - the command exits successfully
@@ -75,7 +77,7 @@
     - --vocabulary-uri
     - https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
     - --batch-size
-    - "1000"
+    - "0"
     - --frame-only
     - --output
     - tests/data/snapshots/agente_causale/agente_causale.data.yamlld
@@ -87,8 +89,7 @@
         compare: data
       logs:
       - >-
-        Dataset contains 2929 items, processing in batches of
-        1000
+        Dataset contains 2929 items, processing without batching
       - >-
         Batched framing completed, total items: 2922
 

@@ -47,7 +47,7 @@ def test_tabular_metadata(
 
     if os.environ.get("UPDATE_SNAPSHOTS", "false").lower() == "true":
         datapackage_yaml.parent.mkdir(parents=True, exist_ok=True)
-        datapackage_yaml.write_text(yaml.safe_dump(vocab))
+        datapackage_yaml.write_text(yaml.safe_dump(vocab, sort_keys=True))
         raise pytest.fail("Snapshot updated, skipping test.")
 
     assert datapackage_yaml.exists()
