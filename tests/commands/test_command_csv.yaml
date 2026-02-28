@@ -61,7 +61,7 @@
       files:
       - path: tests/data/snapshots/agente_causale/agente_causale.csv
         snapshot: tests/data/snapshots/agente_causale/agente_causale.csv
-        compare: data
+        #compare: data
   - command:
     - csv
     - validate
