@@ -34,6 +34,7 @@
     - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
     - --output
     - tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
+    - --force
     expected:
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025-datapackage.yaml
@@ -99,6 +100,7 @@
     - https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
     - --output
     - tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+    - --force
     expected:
       files:
       - path: tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml

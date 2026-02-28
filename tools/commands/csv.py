@@ -7,10 +7,12 @@ Commands for creating and validating CSV artifacts.
 
 import logging
 from pathlib import Path
+from typing import cast
 
 import click
 import yaml
 
+from tools.base import JsonLDFrame
 from tools.tabular.validate import TabularValidator
 from tools.utils import IGraph
 
@@ -44,11 +46,56 @@ def csv():
     "--output",
     type=click.Path(dir_okay=False, resolve_path=True, path_type=Path),
     required=False,
-    help="Output path for CSV file. By default this is defined in the datapackage metadata.",
+    help="Output path for CSV file. If not specified, uses the path from datapackage metadata. If specified and differs from datapackage path, a warning is shown.",
 )
-def create_command(jsonld: Path, datapackage: Path, output: Path):
-    """Create CSV file from framed JSON-LD using datapackage metadata."""
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
+    help="Overwrite output file if it already exists. Without this flag, the command fails if the output file exists.",
+)
+def create_command(jsonld: Path, datapackage: Path, output: Path, force: bool):
+    """Create CSV file from framed JSON-LD using datapackage metadata.
+
+    Output file handling:
+    - If --output is not specified, uses the path from datapackage metadata (relative to datapackage directory)
+    - If --output differs from datapackage path, a warning is shown
+    - If output file exists and --force/-f is not set, the command fails
+    - If output file exists and --force/-f is set, the file is overwritten
+    """
     click.echo(f"Creating CSV from {jsonld}")
+
+    # Load datapackage to get the expected output path
+    datapackage_dict = yaml.safe_load(datapackage.read_text())
+    resource = datapackage_dict.get("resources", [{}])[0]
+    datapackage_path = resource.get("path", "output.csv")
+    expected_output = datapackage.parent / datapackage_path
+
+    # Determine actual output path
+    if output is None:
+        output = expected_output
+        log.debug(f"Using output path from datapackage: {output}")
+    else:
+        # Check if output differs from datapackage path
+        if output.resolve() != expected_output.resolve():
+            click.echo(
+                f"⚠ Warning: Output path {output} differs from datapackage path {expected_output}",
+                err=True,
+            )
+
+    # Check if output file exists
+    if output.exists():
+        if not force:
+            click.secho(
+                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
+                fg="red",
+                err=True,
+            )
+            raise click.Abort()
+        else:
+            log.warning(f"Overwriting existing file: {output}")
+
     create_csv_from_jsonld(jsonld, datapackage, output)
     click.echo(f"✓ Created: {output}")
 
@@ -108,7 +155,82 @@ def create_csv_from_jsonld(
     jsonld: Path, datapackage: Path, output: Path
 ) -> None:
     """Create CSV file from framed JSON-LD using datapackage metadata."""
-    raise NotImplementedError("create_csv_from_jsonld not yet implemented")
+    from tools.tabular import Tabular
+
+    log.debug(f"Loading JSON-LD data from {jsonld}")
+    with jsonld.open(encoding="utf-8") as f:
+        jsonld_data = yaml.safe_load(f)
+    log.debug(
+        f"Loaded JSON-LD data with {len(jsonld_data.get('@graph', []))} items"
+    )
+
+    log.debug(f"Loading datapackage metadata from {datapackage}")
+    datapackage_dict = yaml.safe_load(datapackage.read_text())
+
+    # Extract the frame (context) from the datapackage
+    resource = datapackage_dict.get("resources", [{}])[0]
+    context = resource.get("schema", {}).get("x-jsonld-context", {})
+    frame = {"@context": context}
+    log.debug("Extracted frame context from datapackage")
+
+    # Extract the CSV dialect from the datapackage
+    dialect = resource.get("dialect", {})
+    log.debug(f"Extracted CSV dialect: {dialect}")
+
+    log.debug("Creating Tabular instance")
+    # Create Tabular instance using an "empty" RDF graph
+    #   since we will load() pre-framed data.
+    tabular = Tabular(
+        rdf_data="@prefix skos: <http://www.w3.org/2004/02/skos/core#> .",
+        frame=cast(JsonLDFrame, frame),
+        format="turtle",
+    )
+
+    log.debug("Loading framed JSON-LD data")
+    tabular.load(data=jsonld_data)
+
+    if dialect:
+        log.debug("Setting CSV dialect from datapackage")
+        tabular.set_dialect(**dialect)
+
+    log.debug("Setting datapackage metadata")
+    tabular.datapackage = datapackage_dict
+
+    # Ensure DataFrame has all columns expected by schema
+    # Some columns might be aliased in YAML (e.g., label and label_it)
+    schema_fields = [
+        field["name"] for field in resource.get("schema", {}).get("fields", [])
+    ]
+    log.debug(f"Schema expects fields: {schema_fields}")
+    assert tabular.df is not None, "DataFrame should be loaded at this point"
+    log.debug(f"DataFrame has columns: {list(tabular.df.columns)}")
+
+    # Check for missing columns and try to infer them from context
+    for field_name in schema_fields:
+        if field_name not in tabular.df.columns:
+            # Check if this field is an alias for another field
+            # by comparing their context definitions
+            field_context = context.get(field_name, {})
+            if isinstance(field_context, dict):
+                # Find if another column has the same @id and @language
+                for col in tabular.df.columns:
+                    col_context = context.get(col, {})
+                    if isinstance(col_context, dict):
+                        if col_context.get("@id") == field_context.get(
+                            "@id"
+                        ) and col_context.get("@language") == field_context.get(
+                            "@language"
+                        ):
+                            log.debug(
+                                f"Adding missing column '{field_name}' as copy of '{col}'"
+                            )
+                            tabular.df[field_name] = tabular.df[col]
+                            break
+
+    log.debug(f"Writing CSV to {output}")
+    # Write the CSV file
+    tabular.to_csv(str(output))
+    log.info(f"CSV file created successfully at {output}")
 
 
 def validate_csv_to_rdf_roundtrip(

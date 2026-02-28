@@ -33,6 +33,7 @@
     - --frame-only
     - --output
     - tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
+    - --force
     expected:
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
@@ -44,6 +45,54 @@
         1000
       - >-
         Batched framing completed, total items: 3257
+- id: create_jsonld_agente_causale
+  marks:
+  - asset
+  description: |-
+    Given:
+    - a TTL file
+    - a JSON-LD frame
+    When:
+    - I run the `jsonld create` command
+    Then:
+    - the command exits successfully
+    - the output JSON-LD file contains 2922 items
+  steps:
+  - description: |-
+      When:
+      - I run the `jsonld create` command
+      - without batching because we need to access the full graph
+        for integrating parent entries.
+
+      Then:
+      - the command exits successfully
+      - the output JSON-LD file contains 2922 items
+    command:
+    - jsonld
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl
+    - --frame
+    - assets/controlled-vocabularies/agente_causale/latest/agente_causale.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+    - --batch-size
+    - "0"
+    - --frame-only
+    - --output
+    - tests/data/snapshots/agente_causale/agente_causale.data.yamlld
+    - --force
+    expected:
+      files:
+      - path: tests/data/snapshots/agente_causale/agente_causale.data.yamlld
+        snapshot: tests/data/snapshots/agente_causale/agente_causale.data.yamlld
+        compare: data
+      logs:
+      - >-
+        Dataset contains 2929 items, processing without batching
+      - >-
+        Batched framing completed, total items: 2922
+
 #
 # EU vocabulary, not currently supported.
 #
@@ -74,6 +123,7 @@
     - --frame-only
     - --output
     - tests/data/snapshots/currency/currency.data.yamlld
+    - --force
     expected:
       logs:
       - >-

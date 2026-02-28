@@ -70,6 +70,13 @@ def jsonld():
     help="Number of RDF triples to process in each batch when framing. "
     "Set to 0 to process all triples at once (default: 0).",
 )
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
+    help="Overwrite output file if it already exists. Without this flag, the command fails if the output file exists.",
+)
 def create_command(
     ttl: Path,
     frame: Path,
@@ -77,9 +84,31 @@ def create_command(
     output: Path,
     frame_only: bool,
     batch_size: int,
+    force: bool,
 ):
-    """Create JSON-LD framed representation from RDF vocabulary."""
+    """
+    Create JSON-LD framed representation from RDF vocabulary.
+
+    If passed files do not exist, Click returns an error.
+
+    Output file handling:
+    - If output file exists and --force/-f is not set, the command fails
+    - If output file exists and --force/-f is set, the file is overwritten
+    """
     click.echo(f"Framing vocabulary {vocabulary_uri} from {ttl}")
+
+    # Check if output file exists
+    if output.exists():
+        if not force:
+            click.secho(
+                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
+                fg="red",
+                err=True,
+            )
+            raise click.Abort()
+        else:
+            log.debug(f"Overwriting existing file: {output}")
+
     create_jsonld_framed(
         ttl, frame, vocabulary_uri, output, frame_only, batch_size
     )
@@ -90,7 +119,7 @@ def create_command(
 @click.option(
     "--ttl",
     type=click.Path(
-        exists=False, dir_okay=False, resolve_path=True, path_type=Path
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
     ),
     required=True,
     help="Path to the original RDF vocabulary file in Turtle format",
@@ -115,6 +144,9 @@ def validate_command(ttl: Path, jsonld: Path, vocabulary_uri: str):
 
     Performs graph isomorphism check to ensure the framed JSON-LD contains
     only data present in the original RDF vocabulary.
+
+    If passed files do not exist,
+    Click returns an error.
     """
     click.echo(f"Validating JSON-LD {jsonld} against {ttl}")
     click.echo(f"Vocabulary URI: {vocabulary_uri}")
@@ -136,15 +168,7 @@ def create_jsonld_framed(
     batch_size: int,
 ) -> None:
     """Create JSON-LD framed representation from TTL and frame."""
-    if not output.parent.exists():
-        raise FileNotFoundError(
-            f"Output directory {output.parent.absolute()} does not exist"
-        )
-    if not ttl.exists():
-        raise FileNotFoundError(f"TTL file not found: {ttl.absolute()}")
-
-    if not frame.exists():
-        raise FileNotFoundError(f"Frame file not found: {frame}")
+    # Click checks file existence.
     frame_data = yaml.safe_load(frame.read_text(encoding="utf-8"))
 
     callbacks = []
@@ -173,8 +197,13 @@ def create_jsonld_framed(
     log.debug(
         f"Framed JSON-LD created successfully with {len(framed.get('@graph', []))} items"
     )
+
+    # Sort @graph entries by id for consistent output
+    if "@graph" in framed and isinstance(framed["@graph"], list):
+        framed["@graph"] = sorted(framed["@graph"], key=lambda x: x.get("url"))
+
     with output.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(framed, f, allow_unicode=True, indent=2)
+        yaml.safe_dump(framed, f, allow_unicode=True, indent=2, sort_keys=True)
 
 
 def validate_jsonld_subset(
@@ -182,6 +211,9 @@ def validate_jsonld_subset(
 ) -> None:
     """
     Validate that JSON-LD framed representation is a subset of original RDF.
+
+    If passed files do not exist,
+    Click returns an error.
 
     Args:
         ttl: Path to original RDF vocabulary in Turtle format
@@ -191,11 +223,6 @@ def validate_jsonld_subset(
     Raises:
         ValueError: If JSON-LD contains data not in original RDF
     """
-    if not ttl.exists():
-        raise ValueError(
-            f"Original RDF vocabulary file not found: {ttl.absolute()}"
-        )
-
     original_graph: IsomorphicGraph = IGraph.parse(
         source=ttl, format="text/turtle"
     )

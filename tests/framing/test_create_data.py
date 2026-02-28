@@ -148,4 +148,4 @@ def test_can_frame_assets(vocabulary_ttl):
         )
 
     data = vocabulary_ttl.with_suffix(".data.yaml")
-    data.write_text(yaml.safe_dump(framed))
+    data.write_text(yaml.safe_dump(framed, sort_keys=True))

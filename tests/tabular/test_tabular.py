@@ -114,7 +114,9 @@ def test_tabular_minimal(
     # ... then I can generate the CSV output
     tabular.to_csv(output_csv)
     assert output_csv.exists(), "CSV file was not created"
-    datapackage_yaml.write_text(yaml.safe_dump(datapackage), encoding="utf-8")
+    datapackage_yaml.write_text(
+        yaml.safe_dump(datapackage, sort_keys=True), encoding="utf-8"
+    )
 
     # When I read the datapackage and its data with Frictionless ...
     tabular_validator: TabularValidator = TabularValidator(

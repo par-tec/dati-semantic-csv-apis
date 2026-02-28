@@ -63,16 +63,45 @@ def datapackage():
     default="it",
     help="Language code for labels and descriptions (default: it)",
 )
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
+    help="Overwrite output file if it already exists. Without this flag, the command fails if the output file exists.",
+)
 def create_command(
-    ttl: Path, frame: Path, vocabulary_uri: str, output: Path, lang: str
+    ttl: Path,
+    frame: Path,
+    vocabulary_uri: str,
+    output: Path,
+    lang: str,
+    force: bool,
 ):
     """Create Frictionless Data Package metadata stub.
 
     This stub is a datapackage.yaml file with minimal metadata extracted from the RDF vocabulary.
     It must be completed with all the metadata fields before use
     and then renamed to datapackage.json in order to be used for CSV generation.
+
+    Output file handling:
+    - If output file exists and --force/-f is not set, the command fails
+    - If output file exists and --force/-f is set, the file is overwritten
     """
     click.echo(f"Creating datapackage metadata for {vocabulary_uri}")
+
+    # Check if output file exists
+    if output.exists():
+        if not force:
+            click.secho(
+                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
+                fg="red",
+                err=True,
+            )
+            raise click.Abort()
+        else:
+            log.debug(f"Overwriting existing file: {output}")
+
     create_datapackage_metadata(ttl, frame, vocabulary_uri, output, lang)
     click.echo(f"✓ Created: {output}")
 
@@ -158,7 +187,9 @@ def create_datapackage_metadata(
     # Write the datapackage stub to the output file
     log.debug(f"Writing datapackage stub to {output}")
     with output.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(datapackage_stub, f, allow_unicode=True, indent=2)
+        yaml.safe_dump(
+            datapackage_stub, f, allow_unicode=True, indent=2, sort_keys=True
+        )
 
     log.info(f"Datapackage stub created: {output}")
 
