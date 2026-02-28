@@ -51,7 +51,14 @@ jobs:
       with:
         fetch-depth: 0
         persist-credentials: false
+    - name: >-
+        Configure git safe directory, because GITHUB_WORKSPACE
+        is owned by a different user than the one running the
+        tests.
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - name: Run tests.
       run: |
-        pip3 install tox
+        pip3 install uv
+        pip3 install tox-uv
         tox

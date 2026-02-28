@@ -7,7 +7,6 @@ import yaml
 from click.testing import CliRunner
 from deepdiff import DeepDiff
 from git import Repo
-from git.exc import GitCommandError
 
 from tests.constants import TESTDIR
 from tools.commands import cli
@@ -122,24 +121,5 @@ def git_diff(path: Path) -> bytes:
     """
 
     repo = Repo(TESTDIR.parent, search_parent_directories=True)
-
-    # Try different git references in order of preference
-    refs_to_try = ["HEAD", "origin/HEAD", "@"]
-
-    for ref in refs_to_try:
-        try:
-            diff = repo.git.diff(ref, path.as_posix())
-            return diff.encode("utf-8")
-        except GitCommandError:
-            continue
-
-    # If all refs fail, compare against the index
-    try:
-        diff = repo.git.diff("--cached", path.as_posix())
-        return diff.encode("utf-8")
-    except GitCommandError as e:
-        logging.error(
-            f"Git diff failed for {path} against all references: {refs_to_try} and index."
-        )
-
-    raise AssertionError(f"Git diff unavailable for {path}")
+    diff = repo.git.diff("HEAD", path.as_posix())
+    return diff.encode("utf-8")
