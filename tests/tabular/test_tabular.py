@@ -82,6 +82,7 @@ def test_tabular_minimal(
     - I create an instance of the Tabular class with the RDF data and frame
     - I call the set_dialect method to configure the CSV output settings
     - I generate the complete datapackage stub
+    -
 
     Then:
     - The Tabular instance should be created successfully
