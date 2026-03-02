@@ -34,13 +34,9 @@ TESTCASES_CSV_DIALECT = [
 ]
 
 TESTCASES_CSV_DIALECT_ERROR = [
-    {
-        "name": "csv-error",
-        "frictionless_dialect": {
-            "escapechar": "\\"
-        }
-    }
+    {"name": "csv-error", "frictionless_dialect": {"escapechar": "\\"}}
 ]
+
 
 @pytest.mark.parametrize(
     "data,frame,expected_payload,expected_datapackage",
@@ -141,6 +137,7 @@ def test_tabular_minimal(
     )
     assert stats["csv_rows"] >= 3
 
+
 @pytest.mark.parametrize(
     "data,frame,expected_payload,expected_datapackage",
     argvalues=[
@@ -160,7 +157,9 @@ def test_tabular_minimal(
         if "frictionless_dialect" in x
     ],
     ids=[
-        x["name"] for x in TESTCASES_CSV_DIALECT_ERROR if "frictionless_dialect" in x
+        x["name"]
+        for x in TESTCASES_CSV_DIALECT_ERROR
+        if "frictionless_dialect" in x
     ],
 )
 def test_tabular_error(
@@ -191,13 +190,9 @@ def test_tabular_error(
     """
     destdir = snapshot / request.node.name
     destdir.mkdir(parents=True, exist_ok=True)
-    datapackage_yaml = destdir / "datapackage.yaml"
 
     # Given the RDF data and frame...
     tabular = Tabular(rdf_data=data, frame=frame)
-    uri = tabular.uri()
-    # output_csv = destdir / f"{Path(uri).stem}.csv"
 
-    # tabular.load(data=cast(JsonLD, {"@graph": expected_payload}))
     with pytest.raises(ValueError):
         tabular.set_dialect(**frictionless_dialect)
