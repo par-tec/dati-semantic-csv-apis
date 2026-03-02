@@ -1,0 +1,12 @@
+---
+#
+# docker-compose up -d dev
+#
+services:
+  dev:
+    build:
+      context: .
+      target: dev
+    working_dir: /code
+    volumes:
+    - .:/code

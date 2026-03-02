@@ -17,9 +17,9 @@ Provide consistent test definitions and expectations.
 ## Decision
 
 - [x] Use snapshot testing to easily verify the generated output of
-      processing functions.
+  processing functions.
 - [x] Store snapshots in a dedicated directory (e.g., `tests/data/snapshots/`)
-      to keep them organized and separate from test code.
+  to keep them organized and separate from test code.
 - [x] Avoid uploading large snapshots.
 
 ## Consequences
