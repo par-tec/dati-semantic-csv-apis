@@ -1,0 +1,889 @@
+'@context':
+  '@vocab': https://w3id.org/italia/controlled-vocabulary/theme-subtheme-mapping
+  clvapit: https://w3id.org/italia/onto/CLV/
+  dct: http://purl.org/dc/terms/
+  eurovoc:
+    '@container': '@set'
+    '@context':
+      id:
+        '@id': dct:identifier
+        '@type': xsd:string
+      url: '@id'
+    '@id': skos:narrowMatch
+    '@type': '@id'
+  label_en:
+    '@id': skos:prefLabel
+    '@language': en
+  label_it:
+    '@id': skos:prefLabel
+    '@language': it
+  skos: http://www.w3.org/2004/02/skos/core#
+  url: '@id'
+  xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+  xsd: http://www.w3.org/2001/XMLSchema#
+'@graph':
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '5606'
+    label_en: 5606 agricultural policy
+    label_it: 5606 politica agricola
+    url: http://eurovoc.europa.eu/100245
+  - '@type': skos:ConceptScheme
+    id: '5611'
+    label_en: 5611 agricultural structures and production
+    label_it: 5611 produzione e strutture agricole
+    url: http://eurovoc.europa.eu/100246
+  - '@type': skos:ConceptScheme
+    id: '5616'
+    label_en: 5616 farming systems
+    label_it: 5616 orientamento produttivo agricolo
+    url: http://eurovoc.europa.eu/100247
+  - '@type': skos:ConceptScheme
+    id: '5621'
+    label_en: 5621 cultivation of agricultural land
+    label_it: 5621 coltivazione di terreni agricoli
+    url: http://eurovoc.europa.eu/100248
+  - '@type': skos:ConceptScheme
+    id: '5626'
+    label_en: 5626 means of agricultural production
+    label_it: 5626 mezzo di produzione agricola
+    url: http://eurovoc.europa.eu/100249
+  - '@type': skos:ConceptScheme
+    id: '5631'
+    label_en: 5631 agricultural activity
+    label_it: 5631 attività agricola
+    url: http://eurovoc.europa.eu/100250
+  - '@type': skos:ConceptScheme
+    id: '5636'
+    label_en: 5636 forestry
+    label_it: 5636 foresta
+    url: http://eurovoc.europa.eu/100251
+  - '@type': skos:ConceptScheme
+    id: '5641'
+    label_en: 5641 fishieries
+    label_it: 5641 pesca
+    url: http://eurovoc.europa.eu/100252
+  - '@type': skos:ConceptScheme
+    id: '6006'
+    label_en: 6006 plant product
+    label_it: 6006 prodotto vegetale
+    url: http://eurovoc.europa.eu/100253
+  - '@type': skos:ConceptScheme
+    id: '6011'
+    label_en: 6011 animal product
+    label_it: 6011 prodotto animale
+    url: http://eurovoc.europa.eu/100254
+  - '@type': skos:ConceptScheme
+    id: '6016'
+    label_en: 6016 processed agricultural produce
+    label_it: 6016 prodotto agricolo trasformato
+    url: http://eurovoc.europa.eu/100255
+  - '@type': skos:ConceptScheme
+    id: '6021'
+    label_en: 6021 beverages and sugar
+    label_it: 6021 bevande e zucchero
+    url: http://eurovoc.europa.eu/100256
+  - '@type': skos:ConceptScheme
+    id: '6026'
+    label_en: 6026 foodstuff
+    label_it: 6026 prodotto alimentare
+    url: http://eurovoc.europa.eu/100257
+  - '@type': skos:ConceptScheme
+    id: '6031'
+    label_en: 6031 agri-foodstuffs
+    label_it: 6031 industria agro-alimentarea
+    url: http://eurovoc.europa.eu/100258
+  - '@type': skos:ConceptScheme
+    id: '6036'
+    label_en: 6036 food technology
+    label_it: 6036 tecnologia alimentare
+    url: http://eurovoc.europa.eu/100259
+  label_en: Agriculture, fisheries, forestry and food
+  label_it: Agricoltura, pesca, silvicoltura e prodotti alimentari
+  url: http://publications.europa.eu/resource/authority/data-theme/AGRI
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '1606'
+    label_en: 1606 economic policy
+    label_it: 1606 politica economica
+    url: http://eurovoc.europa.eu/100185
+  - '@type': skos:ConceptScheme
+    id: '1611'
+    label_en: 1611 economic conditions
+    label_it: 1611 crescita economica
+    url: http://eurovoc.europa.eu/100186
+  - '@type': skos:ConceptScheme
+    id: '1616'
+    label_en: 1616 regions and regional policy
+    label_it: 1616 regione e politica regionale
+    url: http://eurovoc.europa.eu/100187
+  - '@type': skos:ConceptScheme
+    id: '1621'
+    label_en: 1621 economic structure
+    label_it: 1621 struttura economica
+    url: http://eurovoc.europa.eu/100188
+  - '@type': skos:ConceptScheme
+    id: '1626'
+    label_en: 1626 national accounts
+    label_it: 1626 contabilità nazionale
+    url: http://eurovoc.europa.eu/100189
+  - '@type': skos:ConceptScheme
+    id: '1631'
+    label_en: 1631 economic analysis
+    label_it: 1631 analisi economica
+    url: http://eurovoc.europa.eu/100190
+  - '@type': skos:ConceptScheme
+    id: '2406'
+    label_en: 2406 monetary relations
+    label_it: 2406 relazioni monetarie
+    url: http://eurovoc.europa.eu/100198
+  - '@type': skos:ConceptScheme
+    id: '2411'
+    label_en: 2411 monetary economics
+    label_it: 2411 economia monetaria
+    url: http://eurovoc.europa.eu/100199
+  - '@type': skos:ConceptScheme
+    id: '2416'
+    label_en: 2416 financial institutions and credit
+    label_it: 2416 istituti finanziari e di credito
+    url: http://eurovoc.europa.eu/100200
+  - '@type': skos:ConceptScheme
+    id: '2421'
+    label_en: 2421 free movement of capital
+    label_it: 2421 libera circolazione dei capitali
+    url: http://eurovoc.europa.eu/100201
+  - '@type': skos:ConceptScheme
+    id: '2426'
+    label_en: 2426 financing and investment
+    label_it: 2426 investimenti e finanziamenti
+    url: http://eurovoc.europa.eu/100202
+  - '@type': skos:ConceptScheme
+    id: '2431'
+    label_en: 2431 insurance
+    label_it: 2431 assicurazioni
+    url: http://eurovoc.europa.eu/100203
+  - '@type': skos:ConceptScheme
+    id: '2436'
+    label_en: 2436 public finance and budget policy
+    label_it: 2436 finanze pubbliche e politica di bilancio
+    url: http://eurovoc.europa.eu/100204
+  - '@type': skos:ConceptScheme
+    id: '2441'
+    label_en: 2441 budget
+    label_it: 2441 bilancio
+    url: http://eurovoc.europa.eu/100205
+  - '@type': skos:ConceptScheme
+    id: '2446'
+    label_en: 2446 taxation
+    label_it: 2446 fiscalità
+    url: http://eurovoc.europa.eu/100206
+  - '@type': skos:ConceptScheme
+    id: '2006'
+    label_en: 2006 trade policy
+    label_it: 2006 politica commerciale
+    url: http://eurovoc.europa.eu/100191
+  - '@type': skos:ConceptScheme
+    id: '2011'
+    label_en: 2011 tariff policy
+    label_it: 2011 politica tariffaria
+    url: http://eurovoc.europa.eu/100192
+  - '@type': skos:ConceptScheme
+    id: '2016'
+    label_en: 2016 trade
+    label_it: 2016 scambi economici
+    url: http://eurovoc.europa.eu/100193
+  - '@type': skos:ConceptScheme
+    id: '2021'
+    label_en: 2021 international trade
+    label_it: 2021 commercio internazionale
+    url: http://eurovoc.europa.eu/100194
+  - '@type': skos:ConceptScheme
+    id: '2026'
+    label_en: 2026 consumption
+    label_it: 2026 consumo
+    url: http://eurovoc.europa.eu/100195
+  - '@type': skos:ConceptScheme
+    id: '2031'
+    label_en: 2031 marketing
+    label_it: 2031 commercializzazione
+    url: http://eurovoc.europa.eu/100196
+  - '@type': skos:ConceptScheme
+    id: '2036'
+    label_en: 2036 distributive trades
+    label_it: 2036 distribuzione commerciale
+    url: http://eurovoc.europa.eu/100197
+  - '@type': skos:ConceptScheme
+    id: '4006'
+    label_en: 4006 business organisation
+    label_it: 4006 organizzazione aziendale
+    url: http://eurovoc.europa.eu/100226
+  - '@type': skos:ConceptScheme
+    id: '4011'
+    label_en: 4011 business classification
+    label_it: 4011 tipo d'impresa
+    url: http://eurovoc.europa.eu/100227
+  - '@type': skos:ConceptScheme
+    id: '4016'
+    label_en: 4016 legal form of organisations
+    label_it: 4016 forma giuridica di società
+    url: http://eurovoc.europa.eu/100228
+  - '@type': skos:ConceptScheme
+    id: '4021'
+    label_en: 4021 management
+    label_it: 4021 gestione amministrativa
+    url: http://eurovoc.europa.eu/100229
+  - '@type': skos:ConceptScheme
+    id: '4026'
+    label_en: 4026 accounting
+    label_it: 4026 gestione contabile
+    url: http://eurovoc.europa.eu/100230
+  - '@type': skos:ConceptScheme
+    id: '4031'
+    label_en: 4031 competition
+    label_it: 4031 concorrenza
+    url: http://eurovoc.europa.eu/100231
+  - '@type': skos:ConceptScheme
+    id: '6806'
+    label_en: 6806 industrial structures and policy
+    label_it: 6806 politiche e strutture industriali
+    url: http://eurovoc.europa.eu/100268
+  - '@type': skos:ConceptScheme
+    id: '6811'
+    label_en: 6811 chemistry
+    label_it: 6811 chimica
+    url: http://eurovoc.europa.eu/100269
+  - '@type': skos:ConceptScheme
+    id: '6816'
+    label_en: 6816 iron, steel and other metal industries
+    label_it: 6816 metallurgia e siderurgia
+    url: http://eurovoc.europa.eu/100270
+  - '@type': skos:ConceptScheme
+    id: '6821'
+    label_en: 6821 mechanical engineering
+    label_it: 6821 industria meccanica
+    url: http://eurovoc.europa.eu/100271
+  - '@type': skos:ConceptScheme
+    id: '6826'
+    label_en: 6826 electronics and electrical engineering
+    label_it: 6826 elettronica ed elettrotecnica
+    url: http://eurovoc.europa.eu/100272
+  - '@type': skos:ConceptScheme
+    id: '6831'
+    label_en: 6831 building and public works
+    label_it: 6831 edilizia e lavori pubblici
+    url: http://eurovoc.europa.eu/100273
+  - '@type': skos:ConceptScheme
+    id: '6836'
+    label_en: 6836 wood industry
+    label_it: 6836 industria del legno
+    url: http://eurovoc.europa.eu/100274
+  - '@type': skos:ConceptScheme
+    id: '6841'
+    label_en: 6841 leather and textile industries
+    label_it: 6841 industria del cuoio e dei prodotti tessili
+    url: http://eurovoc.europa.eu/100275
+  - '@type': skos:ConceptScheme
+    id: '6846'
+    label_en: 6846 miscellaneous industries
+    label_it: 6846 industrie varie
+    url: http://eurovoc.europa.eu/100276
+  label_en: Economy and finance
+  label_it: Economia e finanze
+  url: http://publications.europa.eu/resource/authority/data-theme/ECON
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '3206'
+    label_en: 3206 education
+    label_it: 3206 istruzione
+    url: http://eurovoc.europa.eu/100217
+  - '@type': skos:ConceptScheme
+    id: '3211'
+    label_en: 3211 teaching
+    label_it: 3211 insegnamento
+    url: http://eurovoc.europa.eu/100218
+  - '@type': skos:ConceptScheme
+    id: '3216'
+    label_en: 3216 organisation of teaching
+    label_it: 3216 organizzazione scolastica
+    url: http://eurovoc.europa.eu/100219
+  - '@type': skos:ConceptScheme
+    id: '3221'
+    label_en: 3221 documentation
+    label_it: 3221 documentazione
+    url: http://eurovoc.europa.eu/100220
+  - '@type': skos:ConceptScheme
+    id: '3226'
+    label_en: 3226 comunication
+    label_it: 3226 comunicazionee
+    url: http://eurovoc.europa.eu/100221
+  - '@type': skos:ConceptScheme
+    id: '3231'
+    label_en: 3231 information and information processing
+    label_it: 3231 informazione ed elaborazione dell’informazione
+    url: http://eurovoc.europa.eu/100222
+  - '@type': skos:ConceptScheme
+    id: '3236'
+    label_en: 3236 information technology and data processing
+    label_it: 3236 informatica e trattamento dei dati
+    url: http://eurovoc.europa.eu/100223
+  - '@type': skos:ConceptScheme
+    id: '2831'
+    label_en: 2831 culture and religion
+    label_it: 2831 cultura e religione
+    url: http://eurovoc.europa.eu/100213
+  - '@type': skos:ConceptScheme
+    id: '2826'
+    label_en: 2826 social affairs
+    label_it: 2826 vita sociale
+    url: http://eurovoc.europa.eu/100212
+  label_en: Education, culture and spor
+  label_it: Istruzione, cultura e sport
+  url: http://publications.europa.eu/resource/authority/data-theme/EDUC
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '6606'
+    label_en: 6606 energy policy
+    label_it: 6606 politica energetica
+    url: http://eurovoc.europa.eu/100263
+  - '@type': skos:ConceptScheme
+    id: '6611'
+    label_en: 6611 coal and mining industries
+    label_it: 6611 industria carboniera e mineraria
+    url: http://eurovoc.europa.eu/100264
+  - '@type': skos:ConceptScheme
+    id: '6616'
+    label_en: 6616 oil industry
+    label_it: 6616 industria petrolifera
+    url: http://eurovoc.europa.eu/100265
+  - '@type': skos:ConceptScheme
+    id: '6621'
+    label_en: 6621 electrical and nuclear industries
+    label_it: 6621 industria nucleare ed elettrica
+    url: http://eurovoc.europa.eu/100266
+  - '@type': skos:ConceptScheme
+    id: '6626'
+    label_en: 6626 soft energy
+    label_it: 6626 energia dolce
+    url: http://eurovoc.europa.eu/100267
+  label_en: Energy
+  label_it: Energia
+  url: http://publications.europa.eu/resource/authority/data-theme/ENER
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '5206'
+    label_en: 5206 environmental policy
+    label_it: 5206 politica dell’ambiente
+    url: http://eurovoc.europa.eu/100242
+  - '@type': skos:ConceptScheme
+    id: '5211'
+    label_en: 5211 natural environment
+    label_it: 5211 ambiente naturale
+    url: http://eurovoc.europa.eu/100243
+  - '@type': skos:ConceptScheme
+    id: '5216'
+    label_en: 5216 deterioration of the environment
+    label_it: 5216 degrado ambientale
+    url: http://eurovoc.europa.eu/100244
+  label_en: Environment
+  label_it: Ambiente
+  url: http://publications.europa.eu/resource/authority/data-theme/ENVI
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '0406'
+    label_en: 0406 political framework
+    label_it: 0406 quadro politico
+    url: http://eurovoc.europa.eu/100163
+  - '@type': skos:ConceptScheme
+    id: '0411'
+    label_en: 0411 political party
+    label_it: 0411 partito politico
+    url: http://eurovoc.europa.eu/100164
+  - '@type': skos:ConceptScheme
+    id: '0416'
+    label_en: 0416 electoral procedure and voting
+    label_it: 0416 procedura elettorale e voto
+    url: http://eurovoc.europa.eu/100165
+  - '@type': skos:ConceptScheme
+    id: '0421'
+    label_en: 0421 parliament
+    label_it: 0421 Parlamento
+    url: http://eurovoc.europa.eu/100166
+  - '@type': skos:ConceptScheme
+    id: '0426'
+    label_en: 0426 parliamentary proceedings
+    label_it: 0426 lavori parlamentari
+    url: http://eurovoc.europa.eu/100167
+  - '@type': skos:ConceptScheme
+    id: '0431'
+    label_en: 0431 politics and public safety
+    label_it: 0431 vita politica e sicurezza pubblica
+    url: http://eurovoc.europa.eu/100168
+  - '@type': skos:ConceptScheme
+    id: '0436'
+    label_en: 0436 executive power and public service
+    label_it: 0436 potere esecutivo e amministrazione pubblica
+    url: http://eurovoc.europa.eu/100169
+  - '@type': skos:ConceptScheme
+    id: '1006'
+    label_en: 1006 EU institutions and European civil service
+    label_it: 1006 istituzioni dell’Unione europea e funzione pubblica
+    url: http://eurovoc.europa.eu/100174
+  - '@type': skos:ConceptScheme
+    id: '1011'
+    label_en: 1011 European Union law
+    label_it: 1011 diritto dell’Unione Europea
+    url: http://eurovoc.europa.eu/100175
+  - '@type': skos:ConceptScheme
+    id: '1016'
+    label_en: 1016 European construction
+    label_it: 1016 costruzione europea
+    url: http://eurovoc.europa.eu/100176
+  - '@type': skos:ConceptScheme
+    id: '1021'
+    label_en: 1021 EU finance
+    label_it: 1021 finanze dell’Unione europea
+    url: http://eurovoc.europa.eu/100177
+  label_en: Government and public sector
+  label_it: Governo e settore pubblico
+  url: http://publications.europa.eu/resource/authority/data-theme/GOVE
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '7606'
+    label_en: 7606 United Nations
+    label_it: 7606 Nazioni Unite
+    url: http://eurovoc.europa.eu/100285
+  - '@type': skos:ConceptScheme
+    id: '7611'
+    label_en: 7611 European organisations
+    label_it: 7611 organizzazioni europee
+    url: http://eurovoc.europa.eu/100286
+  - '@type': skos:ConceptScheme
+    id: '7616'
+    label_en: 7616 extra-European organisations
+    label_it: 7616 organizzazioni extraeuropee
+    url: http://eurovoc.europa.eu/100287
+  - '@type': skos:ConceptScheme
+    id: '7621'
+    label_en: 7621 world organisations
+    label_it: 7621 organizzazioni mondiali
+    url: http://eurovoc.europa.eu/100288
+  - '@type': skos:ConceptScheme
+    id: '7626'
+    label_en: 7626 non-governamental organisations
+    label_it: 7626 organizzazioni non governative
+    url: http://eurovoc.europa.eu/100289
+  - '@type': skos:ConceptScheme
+    id: 0806
+    label_en: 0806 international affairs
+    label_it: 0806 politica internazionale
+    url: http://eurovoc.europa.eu/100170
+  - '@type': skos:ConceptScheme
+    id: 0811
+    label_en: 0811 cooperation policy
+    label_it: 0811 politica di cooperazione
+    url: http://eurovoc.europa.eu/100171
+  - '@type': skos:ConceptScheme
+    id: 0816
+    label_en: 0816 international balance
+    label_it: 0816 equilibrio internazionale
+    url: http://eurovoc.europa.eu/100172
+  - '@type': skos:ConceptScheme
+    id: 0821
+    label_en: 0821 defence
+    label_it: 0821 difesa
+    url: http://eurovoc.europa.eu/100173
+  label_en: International issues
+  label_it: Tematiche internazionali
+  url: http://publications.europa.eu/resource/authority/data-theme/INTR
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '1206'
+    label_en: 1206 sources and branches of the law
+    label_it: 1206 fonti e branche del diritto
+    url: http://eurovoc.europa.eu/100178
+  - '@type': skos:ConceptScheme
+    id: '1216'
+    label_en: 1216 criminal law
+    label_it: 1216 diritto penale
+    url: http://eurovoc.europa.eu/100180
+  - '@type': skos:ConceptScheme
+    id: '1221'
+    label_en: 1221 justice
+    label_it: 1221 giustizia
+    url: http://eurovoc.europa.eu/100181
+  - '@type': skos:ConceptScheme
+    id: '1226'
+    label_en: 1226 organisation of the legal system
+    label_it: 1226 organizzazione della giustizia
+    url: http://eurovoc.europa.eu/100182
+  - '@type': skos:ConceptScheme
+    id: '1231'
+    label_en: 1231 international law
+    label_it: 1231 diritto internazionale
+    url: http://eurovoc.europa.eu/100183
+  - '@type': skos:ConceptScheme
+    id: '1236'
+    label_en: 1236 rights and freedoms
+    label_it: 1236 diritti e libertà
+    url: http://eurovoc.europa.eu/100184
+  label_en: Justice, legal system and public safety
+  label_it: Giustizia, sistema giuridico e sicurezza pubblica
+  url: http://publications.europa.eu/resource/authority/data-theme/JUST
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '7206'
+    label_en: 7206 Europe
+    label_it: 7206 Europa
+    url: http://eurovoc.europa.eu/100277
+  - '@type': skos:ConceptScheme
+    id: '7211'
+    label_en: 7211 regions of EU Member States
+    label_it: 7211 regioni degli Stati membri dell’Unione europea
+    url: http://eurovoc.europa.eu/100278
+  - '@type': skos:ConceptScheme
+    id: '7216'
+    label_en: 7216 America
+    label_it: 7216 America
+    url: http://eurovoc.europa.eu/100279
+  - '@type': skos:ConceptScheme
+    id: '7221'
+    label_en: 7221 Africa
+    label_it: 7221 Africa
+    url: http://eurovoc.europa.eu/100280
+  - '@type': skos:ConceptScheme
+    id: '7226'
+    label_en: 7226 Asia and Oceania
+    label_it: 7226 Asia-Oceania
+    url: http://eurovoc.europa.eu/100281
+  - '@type': skos:ConceptScheme
+    id: '7231'
+    label_en: 7231 economic geography
+    label_it: 7231 geografia economica
+    url: http://eurovoc.europa.eu/100282
+  - '@type': skos:ConceptScheme
+    id: '7236'
+    label_en: 7236 political geography
+    label_it: 7236 geografia politica
+    url: http://eurovoc.europa.eu/100283
+  - '@type': skos:ConceptScheme
+    id: '7241'
+    label_en: 7241 overseas countries and territories
+    label_it: 7241 paesi e territori d’oltremare
+    url: http://eurovoc.europa.eu/100284
+  label_en: Regions and cities
+  label_it: Regioni e città
+  url: http://publications.europa.eu/resource/authority/data-theme/REGI
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '2806'
+    label_en: 2806 family
+    label_it: 2806 famiglia
+    url: http://eurovoc.europa.eu/100208
+  - '@type': skos:ConceptScheme
+    id: '2811'
+    label_en: 2811 migration
+    label_it: 2811 migrazione
+    url: http://eurovoc.europa.eu/100209
+  - '@type': skos:ConceptScheme
+    id: '2816'
+    label_en: 2816 demography and population
+    label_it: 2816 demografia e popolazione
+    url: http://eurovoc.europa.eu/100210
+  - '@type': skos:ConceptScheme
+    id: '2821'
+    label_en: 2821 social framework
+    label_it: 2821 quadro sociale
+    url: http://eurovoc.europa.eu/100211
+  - '@type': skos:ConceptScheme
+    id: '2826'
+    label_en: 2826 social affairs
+    label_it: 2826 vita sociale
+    url: http://eurovoc.europa.eu/100212
+  - '@type': skos:ConceptScheme
+    id: '2836'
+    label_en: 2836 social protection
+    label_it: 2836 protezione sociale
+    url: http://eurovoc.europa.eu/100214
+  - '@type': skos:ConceptScheme
+    id: '4406'
+    label_en: 4406 employmnet
+    label_it: 4406 occupazione
+    url: http://eurovoc.europa.eu/100232
+  - '@type': skos:ConceptScheme
+    id: '4411'
+    label_en: 4411 labour market
+    label_it: 4411 mercato del lavoro
+    url: http://eurovoc.europa.eu/100233
+  - '@type': skos:ConceptScheme
+    id: '4416'
+    label_en: 4416 organisation of work and working conditions
+    label_it: 4416 condizioni e organizzazioni del lavoro
+    url: http://eurovoc.europa.eu/100234
+  - '@type': skos:ConceptScheme
+    id: '4421'
+    label_en: 4421 personnel management and staff remuneration
+    label_it: 4421 amministrazione e remunerazione del personale
+    url: http://eurovoc.europa.eu/100235
+  - '@type': skos:ConceptScheme
+    id: '4426'
+    label_en: 4426 labour law and labour relations
+    label_it: 4426 rapporti di lavoro e diritto del lavoro
+    url: http://eurovoc.europa.eu/100236
+  label_en: Population and society
+  label_it: Popolazione e società
+  url: http://publications.europa.eu/resource/authority/data-theme/SOCI
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '3606'
+    label_en: 3606 natural and applied sciences
+    label_it: 3606 scienze naturali e applicate
+    url: http://eurovoc.europa.eu/100224
+  - '@type': skos:ConceptScheme
+    id: '3611'
+    label_en: 3611 humanities
+    label_it: 3611 scienze umane
+    url: http://eurovoc.europa.eu/100225
+  - '@type': skos:ConceptScheme
+    id: '6406'
+    label_en: 6406 production
+    label_it: 6406 produzione
+    url: http://eurovoc.europa.eu/100260
+  - '@type': skos:ConceptScheme
+    id: '6411'
+    label_en: 6411 technology and technical regulations
+    label_it: 6411 tecnologia e regolamentazione tecnica
+    url: http://eurovoc.europa.eu/100261
+  - '@type': skos:ConceptScheme
+    id: '6416'
+    label_en: 6416 research and intellectual property
+    label_it: 6416 ricerca e proprietà intellettuale
+    url: http://eurovoc.europa.eu/100262
+  label_en: Science and technology
+  label_it: Scienze e tecnologia
+  url: http://publications.europa.eu/resource/authority/data-theme/TECH
+- '@type': skos:Concept
+  eurovoc:
+  - '@type': skos:ConceptScheme
+    id: '4806'
+    label_en: 4806 transport policy
+    label_it: 4806 politica dei trasporti
+    url: http://eurovoc.europa.eu/100237
+  - '@type': skos:ConceptScheme
+    id: '4811'
+    label_en: 4811 organisation of transport
+    label_it: 4811 organizzazione dei trasporti
+    url: http://eurovoc.europa.eu/100238
+  - '@type': skos:ConceptScheme
+    id: '4816'
+    label_en: 4816 land transport
+    label_it: 4816 trasporti terrestri
+    url: http://eurovoc.europa.eu/100239
+  - '@type': skos:ConceptScheme
+    id: '4821'
+    label_en: 4821 maritime and inland waterway transport
+    label_it: 4821 trasporti marittimi e fluviali
+    url: http://eurovoc.europa.eu/100240
+  - '@type': skos:ConceptScheme
+    id: '4826'
+    label_en: 4826 air and space transport
+    label_it: 4826 trasporti aerei e spaziali
+    url: http://eurovoc.europa.eu/100241
+  label_en: Transport
+  label_it: Transporti
+  url: http://publications.europa.eu/resource/authority/data-theme/TRAN
+statistics:
+  filtered:
+  - '100163'
+  - '100164'
+  - '100165'
+  - '100166'
+  - '100167'
+  - '100168'
+  - '100169'
+  - '100170'
+  - '100171'
+  - '100172'
+  - '100173'
+  - '100174'
+  - '100175'
+  - '100176'
+  - '100177'
+  - '100178'
+  - '100179'
+  - '100180'
+  - '100181'
+  - '100182'
+  - '100183'
+  - '100184'
+  - '100185'
+  - '100186'
+  - '100187'
+  - '100188'
+  - '100189'
+  - '100190'
+  - '100191'
+  - '100192'
+  - '100193'
+  - '100194'
+  - '100195'
+  - '100196'
+  - '100197'
+  - '100198'
+  - '100199'
+  - '100200'
+  - '100201'
+  - '100202'
+  - '100203'
+  - '100204'
+  - '100205'
+  - '100206'
+  - '100207'
+  - '100208'
+  - '100209'
+  - '100210'
+  - '100211'
+  - '100212'
+  - '100213'
+  - '100214'
+  - '100215'
+  - '100216'
+  - '100217'
+  - '100218'
+  - '100219'
+  - '100220'
+  - '100221'
+  - '100222'
+  - '100223'
+  - '100224'
+  - '100225'
+  - '100226'
+  - '100227'
+  - '100228'
+  - '100229'
+  - '100230'
+  - '100231'
+  - '100232'
+  - '100233'
+  - '100234'
+  - '100235'
+  - '100236'
+  - '100237'
+  - '100238'
+  - '100239'
+  - '100240'
+  - '100241'
+  - '100242'
+  - '100243'
+  - '100244'
+  - '100245'
+  - '100246'
+  - '100247'
+  - '100248'
+  - '100249'
+  - '100250'
+  - '100251'
+  - '100252'
+  - '100253'
+  - '100254'
+  - '100255'
+  - '100256'
+  - '100257'
+  - '100258'
+  - '100259'
+  - '100260'
+  - '100261'
+  - '100262'
+  - '100263'
+  - '100264'
+  - '100265'
+  - '100266'
+  - '100267'
+  - '100268'
+  - '100269'
+  - '100270'
+  - '100271'
+  - '100272'
+  - '100273'
+  - '100274'
+  - '100275'
+  - '100276'
+  - '100277'
+  - '100278'
+  - '100279'
+  - '100280'
+  - '100281'
+  - '100282'
+  - '100283'
+  - '100284'
+  - '100285'
+  - '100286'
+  - '100287'
+  - '100288'
+  - '100289'
+  - Agent
+  - HEAL
+  - SKOS
+  - Standard
+  - accrualPeriodicity
+  - adms#representationTechnique
+  - agid
+  - alignment#Alignment
+  - alignment#onto1
+  - alignment#onto2
+  - conformsTo
+  - core#Concept
+  - core#ConceptScheme
+  - core#definition
+  - core#inScheme
+  - core#notation
+  - core#prefLabel
+  - creator
+  - dcat#accessURL
+  - dcat#contactPoint
+  - dcat#distribution
+  - dcat#downloadURL
+  - dcat#keyword
+  - dcat#theme
+  - dcatapit#Agent
+  - dcatapit#Dataset
+  - dcatapit#Distribution
+  - dcatapit#Organization
+  - dcatapit#Standard
+  - description
+  - format
+  - identifier
+  - issued
+  - keyConcept
+  - language
+  - license
+  - mappingDTE_JSON
+  - mappingDTE_JSON_LD
+  - mappingDTE_RDF_Turtle
+  - mappingDTE_RDF_XML
+  - modified
+  - name
+  - ns#Kind
+  - ns#Organization
+  - ns#fn
+  - ns#hasEmail
+  - owl#versionInfo
+  - publisher
+  - rightsHolder
+  - subject
+  - theme-subtheme-mapping
+  - title
+  - type
+  - voc_AgID
+  framed_items: 12
+  source_items: 193
