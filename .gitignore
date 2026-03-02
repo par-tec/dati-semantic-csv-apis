@@ -52,6 +52,8 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+tests/data/snapshots/test_tabular_minimal*/
+tests/data/snapshots/test_tabular_metadata*/
 
 # Translations
 *.mo
