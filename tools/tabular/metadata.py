@@ -125,6 +125,11 @@ def create_datapackage(
         "title": get_first_value([DCTERMS.title, SKOS.prefLabel], lang=lang)
         or get_first_value([DCTERMS.title, SKOS.prefLabel], lang=LANG_NONE)
         or "",
+        "sources": [
+            {
+                "path": str(vocabulary_uri),
+            }
+        ],
         "resources": resources or [],
     }
 

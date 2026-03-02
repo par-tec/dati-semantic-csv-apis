@@ -1,9 +1,7 @@
----
 $schema: https://datapackage.org/profiles/2.0/datapackage.json
 created: '2017-10-20T00:00:00Z'
-description: Mappatura tra i vocabolari controllati europei sui
-  Temi dei dati ed Eurovoc utile per il profilo nazionale di metadatazione
-  DCAT-AP_IT
+description: Mappatura tra i vocabolari controllati europei sui Temi dei dati ed Eurovoc
+  utile per il profilo nazionale di metadatazione DCAT-AP_IT
 id: agid:D.10
 keywords:
 - data themes
@@ -16,5 +14,7 @@ keywords:
 - temi dati
 name: theme-subtheme-mapping
 resources: []
+sources:
+- path: https://w3id.org/italia/controlled-vocabulary/theme-subtheme-mapping
 title: Mappatura tra Temi dei dati - Eurovoc
 version: versione 0.1
