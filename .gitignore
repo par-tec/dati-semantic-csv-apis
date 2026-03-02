@@ -133,7 +133,7 @@ dmypy.json
 
 # IDE
 .vscode/
+.idea
 
 # built docs
 doc/*pdf
-.idea
