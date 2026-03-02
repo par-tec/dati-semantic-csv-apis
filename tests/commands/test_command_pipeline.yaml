@@ -3,21 +3,26 @@
   marks:
   - asset
   description: |-
-    TODO
+    Given:
+    - a TTL file
+    - a JSON-LD frame
+
+    When:
+    - I execute the `jsonld create` command
+    - I execute the `datapackage create` command
+    - I execute the `csv create` command
+
+    Then:
+    - all commands exit successfully
+    - the output CSV file contains the expected number of items
   steps:
   - description: |-
-      Given:
-      - a TTL file
-      - a JSON-LD frame
-
       When:
-      - I execute the `jsonld create` command
-      - I execute the `datapackage create` command
-      - I execute the `csv create` command
+      - I run the `jsonld create` command
 
       Then:
-      - all commands exit successfully
-      - the output CSV file contains 3257 items
+      - the command exits successfully
+      - the output JSON-LD file contains 3257 items
     command:
     - jsonld
     - create
@@ -27,8 +32,6 @@
     - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
     - --vocabulary-uri
     - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
-    - --batch-size
-    - "1000"
     - --frame-only
     - --output
     - tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
