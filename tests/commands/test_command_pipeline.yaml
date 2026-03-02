@@ -43,8 +43,7 @@
         compare: data
       logs:
       - >-
-        Dataset contains 3345 items, processing in batches of
-        1000
+        Dataset contains 3345 items, processing without batching
       - >-
         Batched framing completed, total items: 3257
   - command:

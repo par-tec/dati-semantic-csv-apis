@@ -1,8 +1,7 @@
----
 $schema: https://datapackage.org/profiles/2.0/datapackage.json
 created: '2022-09-06T00:00:00Z'
-description: Decodifica dell'agente, lavorazione, o esposizione
-  che puo' essere causa o concausa di malattia
+description: Decodifica dell'agente, lavorazione, o esposizione che puo' essere causa
+  o concausa di malattia
 id: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
 keywords:
 - agente causale
@@ -15,6 +14,8 @@ keywords:
 - prodotto chimico
 name: agente_causale
 resources: []
-title: Vocabolario Controllato sulla classificazione degli agenti
-  causali adottata dall'INAIL
+sources:
+- path: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+title: Vocabolario Controllato sulla classificazione degli agenti causali adottata
+  dall'INAIL
 version: '0.5'
