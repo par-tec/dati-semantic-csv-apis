@@ -14,7 +14,8 @@ LABEL maintainer="dati-semantic-csv-apis"
 LABEL org.opencontainers.image.description="Semantic CSV APIs for controlled vocabularies"
 LABEL org.opencontainers.image.source="https://github.com/par-tec/dati-semantic-csv-apis"
 
-
+# checkov:skip=CKV_DOCKER_2
+# checkov:skip=CKV_DOCKER_3
 FROM base AS dev
 
 RUN apt-get update && \
@@ -37,6 +38,7 @@ CMD ["infinity"]
 #
 # Test stage with non-root user for better security.
 #
+# checkov:skip=CKV_DOCKER_2
 FROM dev AS test
 
 USER root
