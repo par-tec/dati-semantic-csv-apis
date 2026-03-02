@@ -14,11 +14,12 @@ LABEL maintainer="dati-semantic-csv-apis"
 LABEL org.opencontainers.image.description="Semantic CSV APIs for controlled vocabularies"
 LABEL org.opencontainers.image.source="https://github.com/par-tec/dati-semantic-csv-apis"
 
-# Don't need to pin packages in the dev image.
-# checkov:skip=CKV_DOCKER_2
 # checkov:skip=CKV_DOCKER_3
 FROM base AS dev
+# No need for health checks in the dev image.
+HEALTHCHECK NONE
 
+# Don't need to pin packages in the dev image.
 # hadolint ignore=DL3008
 RUN apt-get update && \
     apt-get upgrade -y && \
@@ -34,14 +35,12 @@ RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel && \
     pip3 install --no-cache-dir uv==0.4.* && \
     pip3 install --no-cache-dir tox-uv==1.11.*
 
-
 ENTRYPOINT [ "sleep" ]
 CMD ["infinity"]
 
 #
 # Test stage with non-root user for better security.
 #
-# checkov:skip=CKV_DOCKER_2
 FROM dev AS test
 
 USER root
