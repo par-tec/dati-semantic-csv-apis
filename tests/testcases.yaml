@@ -330,6 +330,8 @@ testcases:
           type: integer
         - name: url
           type: string
+    sources:
+    - path: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
 - name: agente_causale_skos_uri
   data: *agente_causale_ttl
   frame:

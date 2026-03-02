@@ -793,6 +793,11 @@ keywords:
 - occupational accident
 - occupational disease
 - prodotto chimico
+# Riferimento al vocabolario RDF originale,
+#   che può essere diverso dal valore definito
+#   in `id`.
+source:
+- path: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
 resources:
 - mediatype: text/csv
   name: agente_causale_data
