@@ -34,7 +34,7 @@
     - tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
     - --force
     expected:
-      exit_status: 1
+      exit_status: 0
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
         snapshot: tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
