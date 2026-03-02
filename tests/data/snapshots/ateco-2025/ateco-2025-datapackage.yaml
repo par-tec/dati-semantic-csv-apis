@@ -89,5 +89,7 @@ resources:
       xsd: http://www.w3.org/2001/XMLSchema#
   scheme: file
   type: table
+source:
+- path: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
 title: Ateco 2025 - Classificazione delle attività economiche
 version: versione 2025

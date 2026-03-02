@@ -67,6 +67,8 @@ resources:
       xsd: http://www.w3.org/2001/XMLSchema#
   scheme: file
   type: table
+source:
+- path: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
 title: Vocabolario Controllato sulla classificazione degli agenti causali adottata
   dall'INAIL
 version: '0.5'
