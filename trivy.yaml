@@ -1,0 +1,7 @@
+#
+# Trivy config file. We ignore low severity.
+severity:
+- UNKNOWN
+- MEDIUM
+- HIGH
+- CRITICAL

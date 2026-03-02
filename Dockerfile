@@ -7,17 +7,19 @@
 #
 #   docker build --target test -t dati-semantic-csv-apis:test .
 #
-FROM python:3.14-slim AS base
+FROM docker.io/library/python:3.14-slim AS base
 
 # Add security labels
 LABEL maintainer="dati-semantic-csv-apis"
 LABEL org.opencontainers.image.description="Semantic CSV APIs for controlled vocabularies"
 LABEL org.opencontainers.image.source="https://github.com/par-tec/dati-semantic-csv-apis"
 
+# Don't need to pin packages in the dev image.
 # checkov:skip=CKV_DOCKER_2
 # checkov:skip=CKV_DOCKER_3
 FROM base AS dev
 
+# hadolint ignore=DL3008
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
@@ -27,6 +29,7 @@ RUN apt-get update && \
 
 # Pin package versions for reproducibility and supply chain security
 # Use --no-cache-dir to reduce image size and prevent cache poisoning
+# hadolint ignore=DL3013
 RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel && \
     pip3 install --no-cache-dir uv==0.4.* && \
     pip3 install --no-cache-dir tox-uv==1.11.*
