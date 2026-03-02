@@ -37,6 +37,14 @@ repos:
   - id: yamlfmt
     files: \.(yaml|yml)$
     exclude: 'config\.yaml|tests/data/snapshots/.*\.yaml'
+- repo: https://github.com/executablebooks/mdformat
+  rev: 0.7.17
+  hooks:
+  - id: mdformat
+    exclude: '.github/.*'
+    additional_dependencies:
+    - mdformat-tables
+    - mdformat-gfm
 #
 # Python linters.
 #
