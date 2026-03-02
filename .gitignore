@@ -136,3 +136,4 @@ dmypy.json
 
 # built docs
 doc/*pdf
+.idea
