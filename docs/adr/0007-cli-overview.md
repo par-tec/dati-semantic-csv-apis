@@ -1,4 +1,4 @@
-# 5. Snapshot Testing
+# 7. CLI Overview
 
 <!-- In vim, use !!date -I to get current date. -->
 

@@ -49,15 +49,15 @@ def harness_step(step, runner: CliRunner, caplog: pytest.LogCaptureFixture):
     assert result.exit_code == expected.get("exit_status", 0), result.output
 
     # ... the output ...
-    for out in expected.get("stdout", []):
-        assert re.findall(out, result.output), (
-            f"Expected stdout message not found: {out}"
+    for expected_stdout in expected.get("stdout", []):
+        assert re.findall(expected_stdout, result.output), (
+            f"Expected stdout message not found: {expected_stdout}"
         )
 
     # ... the logs ...
-    for log in expected.get("logs", []):
-        assert re.findall(log, caplog.text), (
-            f"Expected log message not found: {log}"
+    for expected_log in expected.get("logs", []):
+        assert re.findall(expected_log, caplog.text), (
+            f"Expected log message not found: {expected_log}"
         )
 
     # If there's an expected output file, it should match the snapshot
