@@ -33,6 +33,10 @@ TESTCASES_CSV_DIALECT = [
     },
 ]
 
+TESTCASES_CSV_DIALECT_ERROR = [
+    {"name": "csv-error", "frictionless_dialect": {"escapechar": "\\"}}
+]
+
 
 @pytest.mark.parametrize(
     "data,frame,expected_payload,expected_datapackage",
@@ -132,3 +136,63 @@ def test_tabular_minimal(
         "CSV-derived RDF graph has fewer triples than expected"
     )
     assert stats["csv_rows"] >= 3
+
+
+@pytest.mark.parametrize(
+    "data,frame,expected_payload,expected_datapackage",
+    argvalues=[
+        itemgetter("data", "frame", "expected_payload", "expected_datapackage")(
+            x
+        )
+        for x in TESTCASES
+        if "expected_datapackage" in x
+    ],
+    ids=[x["name"] for x in TESTCASES if "expected_datapackage" in x],
+)
+@pytest.mark.parametrize(
+    "frictionless_dialect",
+    argvalues=[
+        itemgetter("frictionless_dialect")(x)
+        for x in TESTCASES_CSV_DIALECT_ERROR
+        if "frictionless_dialect" in x
+    ],
+    ids=[
+        x["name"]
+        for x in TESTCASES_CSV_DIALECT_ERROR
+        if "frictionless_dialect" in x
+    ],
+)
+def test_tabular_error(
+    data: str,
+    frame: JsonLDFrame,
+    expected_payload: JsonLD,
+    expected_datapackage: dict,
+    frictionless_dialect: dict,
+    snapshot: Path,
+    request: pytest.FixtureRequest,
+):
+    """
+    Test the Tabular class for creating a tabular representation of RDF datasets.
+
+    Given:
+    - RDF vocabulary data in JSON-LD format
+    - A JSON-LD frame with @context definitions
+    - An expected payload in JSON-LD format that is used instead
+      of the computed projection
+
+    When:
+    - I create an instance of the Tabular class with the RDF data and frame
+    - I call the set_dialect method to configure the CSV output settings
+
+    Then:
+    - The Tabular instance should be created successfully
+    - An Error is expected
+    """
+    destdir = snapshot / request.node.name
+    destdir.mkdir(parents=True, exist_ok=True)
+
+    # Given the RDF data and frame...
+    tabular = Tabular(rdf_data=data, frame=frame)
+
+    with pytest.raises(ValueError):
+        tabular.set_dialect(**frictionless_dialect)
