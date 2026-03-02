@@ -7,5 +7,6 @@ services:
     build:
       context: .
       target: dev
+    working_dir: /code
     volumes:
     - .:/code

@@ -1,1 +1,71 @@
+# Build artifacts and caches
 .tox
+.tox/**
+*.pyc
+__pycache__
+__pycache__/**
+*.pyo
+*.egg-info
+*.egg-info/**
+dist
+dist/**
+build
+build/**
+.pytest_cache
+.pytest_cache/**
+*.coverage
+.coverage
+coverage.xml
+htmlcov
+htmlcov/**
+.mypy_cache
+.mypy_cache/**
+
+# Git and version control
+.git
+.git/**
+.gitignore
+.gitattributes
+.github
+.github/**
+
+# IDE and editor files
+.vscode
+.vscode/**
+.idea
+.idea/**
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment and secrets
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+secrets.yml
+
+# CI/CD
+.gitlab-ci.yml
+.travis.yml
+azure-pipelines.yml
+
+# Documentation
+docs
+docs/**
+*.md
+!README.md
+LICENSE
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Test files (if not needed for test stage)
+tests/**/*.pyc
+report.xml
