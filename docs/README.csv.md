@@ -754,7 +754,8 @@ un solo valore per ciascun campo, la PoC adotta la seguente logica:
    se presenti in `dcterms:language`.
 1. Se una property non ha il language tag selezionato,
    viene preso il primo valore disponibile che non ha language tag.
-1. Se una property non ha né valori localizzati, né senza language tag, il valore del campo corrispondente nel datapackage viene lasciato vuoto.
+1. Se una property non ha né valori localizzati, né senza language tag,
+   il valore del campo corrispondente nel datapackage viene lasciato vuoto.
 
 Per limitare inconsistenze, i vocabolari dovrebbero adottare
 un sistema di localizzazione coerente.
@@ -777,7 +778,7 @@ title: Vocabolario Controllato sulla classificazione degli agenti causali adotta
 version: '0.5'
 # La data di creazione del vocabolario, presa da dcterms:issued.
 #   Se questo campo non è definito, la data di creazione non viene riportata nel datapackage.
-created: '2022-09-06'
+created: '2022-09-06T00:00:00Z'
 # La descrizione del vocabolario, presa da dcterms:description o skos:definition.
 #   Se questo campo non è definito, la descrizione non viene riportata nel datapackage.
 description: Decodifica dell'agente, lavorazione, o esposizione
@@ -800,12 +801,25 @@ resources:
 
 L'Erogatore può integrare ulteriori campi di metadatazione.
 
-> :?: vogliamo dare la possibilità di aggiungere un x-jsonld-context
-> anche a livello di datapackage per trasformare i metadati in RDF?
-> In una fase successiva potrebbe essere utile.
-> Il meccanismo di validazione può sempre basarsi sull'embedding.
-> L'ideale sarebbe avere un x-jsonld-context comune per tutti i datapackage,
-> ma questo potrebbe essere limitativo.
+#### Limitazioni (#datapackage-limitazioni)
+
+Poiché le informazioni da inserire nel datapackage sono prese
+da più proprietà RDF (e.g., `dcterms:title` o `skos:prefLabel` per il campo `title`),
+non è possibile definire un mapping univoco tra le proprietà RDF e i campi del datapackage.
+Non basta quindi definire un `@context` per mappare i campi del datapackage alle proprietà RDF.
+
+Inoltre le data property presenti nei metadati del grafo RDF potrebbero non essere compatibili
+con il JSON Schema definito dal Frictionless Datapackage,
+non è sempre possibile derivare l’RDF del vocabolario a partire dal contenuto del datapackage.
+
+Ad esempio, la tripla
+
+```turtle
+dcat:created 2026-01-01^^xsd:date ;
+```
+
+Non è compatible col JSON Schema di Frictionless Datapackage
+che richiede un valore di tipo `string` con formato `date-time` (e.g., `2026-01-01T00:00:00Z`).
 
 ### Test
 
