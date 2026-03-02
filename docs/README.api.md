@@ -110,14 +110,14 @@ Le API REST attualmente in produzione (v0.0.1) seguono l'OAS
 La loro alberatura è la seguente:
 
 - /vocabularies: ritorna l'elenco dei vocabolari
-    controllati disponibili. I nomi dei campi e i valori
-    ritornati sono uniformi tra i vari vocabolari ma i
-    valori nel campo "links" non rispettano le specifiche di
-    Link Relation, né contengono le annotazioni semantiche.
+  controllati disponibili. I nomi dei campi e i valori
+  ritornati sono uniformi tra i vari vocabolari ma i
+  valori nel campo "links" non rispettano le specifiche di
+  Link Relation, né contengono le annotazioni semantiche.
 
-    Esempio di risposta:
+  Esempio di risposta:
 
-``` yaml
+```yaml
 # GET /vocabularies
 
 totalCount: 157
@@ -147,35 +147,35 @@ Relation definite da IANA
 (<https://www.iana.org/assignments/link-relations/link-relations.xhtml>):
 
 - il campo `rel` non contiene una Link Relation valida,
-    poiché `items` non è registrata;
+  poiché `items` non è registrata;
 
 - il campo `type` deve contenere un media type e non un
-    metodo.
+  metodo.
 
 - /vocabularies/{agencyId}: 404 non è esposto, un
-    vocabolario va sempre identificato tramite agencyId e
-    vocabularyId
+  vocabolario va sempre identificato tramite agencyId e
+  vocabularyId
 
 - /vocabularies/{agencyId}/{vocabularyId}: ritorna
-    l'elenco paginato dei termini del vocabolario
-    controllato specificato, che attualmente è una
-    proiezione lineare dei dati RDF presenti nel CSV
-    pubblicato dall'ente. I nomi dei campi e i valori
-    ritornati dipendono dal CSV pubblicato dall'ente, senza
-    nessuna garanzia di uniformità tra i vari vocabolari né
-    di coerenza con il Modello di Interoperabilità.
+  l'elenco paginato dei termini del vocabolario
+  controllato specificato, che attualmente è una
+  proiezione lineare dei dati RDF presenti nel CSV
+  pubblicato dall'ente. I nomi dei campi e i valori
+  ritornati dipendono dal CSV pubblicato dall'ente, senza
+  nessuna garanzia di uniformità tra i vari vocabolari né
+  di coerenza con il Modello di Interoperabilità.
 
-    La lingua utilizza i codici del vocabolario
-    <http://publications.europa.eu/resource/dataset/language>,
-    ad esempio "ITA" per l'italiano anziché i language tag
-    (e.g., `it`, `en`, ..) definiti all'interno dell'RDF e
-    raccomandati dalle Linee Guida Agid: questa scelta crea
-    un problema di interoperabilità poiché la localizzazione
-    delle stringhe in RDF è basata sui language tag.
+  La lingua utilizza i codici del vocabolario
+  <http://publications.europa.eu/resource/dataset/language>,
+  ad esempio "ITA" per l'italiano anziché i language tag
+  (e.g., `it`, `en`, ..) definiti all'interno dell'RDF e
+  raccomandati dalle Linee Guida Agid: questa scelta crea
+  un problema di interoperabilità poiché la localizzazione
+  delle stringhe in RDF è basata sui language tag.
 
 Esempio di risposta:
 
-``` yaml
+```yaml
 # GET /vocabularies/m_bac/cultural-interest-places
 
 totalResults: 81
@@ -210,7 +210,7 @@ data:
 
 Esempio di risposta:
 
-``` yaml
+```yaml
 # GET /vocabularies/m_bac/cultural-interest-places/A.1
 
 Label_ITA_2_livello: "Castello"
@@ -237,7 +237,7 @@ metadatazione proprio, definito dall'Erogatore.
 Lo schema dati può anche essere unico, con una mappatura tra
 i campi personalizzata.
 
-``` yaml
+```yaml
 openapi: 3.0.1
 ...
 paths:
@@ -290,36 +290,36 @@ REST.
 #### Pubblicazione delle API REST v1
 
 1. Analogamente al modello di erogazione attuale, le API
-    vengono rese disponibili da un URL centralizzato
-    <https://schema.gov.it/api/vocabularies/v1/> che funge
-    da catalogo e restituisce un linkset RFC 9727 con le
-    distribuzioni API dei vocabolari controllati.
+   vengono rese disponibili da un URL centralizzato
+   <https://schema.gov.it/api/vocabularies/v1/> che funge
+   da catalogo e restituisce un linkset RFC 9727 con le
+   distribuzioni API dei vocabolari controllati.
 
-2. L'OAS v1 di riferimento è mantenuto in
-    `apiv1/openapi.yaml` ed è basato sulla semantica dei
-    vocabolari RDF, disaccoppiando il contenuto esposto
-    dalle eventuali proiezioni CSV legacy. che ritorna
-    l'elenco di tutti gli endpoint. L'OAS è in linea, ma non
-    identico, a quello attuale.
+1. L'OAS v1 di riferimento è mantenuto in
+   `apiv1/openapi.yaml` ed è basato sulla semantica dei
+   vocabolari RDF, disaccoppiando il contenuto esposto
+   dalle eventuali proiezioni CSV legacy. che ritorna
+   l'elenco di tutti gli endpoint. L'OAS è in linea, ma non
+   identico, a quello attuale.
 
-3. L'endpoint `/vocabularies` ritorna un JSON
-    machine-readable, con i metadati delle API (href,
-    service-desc, version, hreflang, author, description) e
-    supporta:
+1. L'endpoint `/vocabularies` ritorna un JSON
+   machine-readable, con i metadati delle API (href,
+   service-desc, version, hreflang, author, description) e
+   supporta:
 
-    - paginazione;
-    - filtri testuali;
-    - filtri per metadata.
+   - paginazione;
+   - filtri testuali;
+   - filtri per metadata.
 
-4. Lo schema dati presenta una serie di annotazioni
-    semantiche che collegano i campi JSON alle proprietà RDF
-    del vocabolario controllato.
+1. Lo schema dati presenta una serie di annotazioni
+   semantiche che collegano i campi JSON alle proprietà RDF
+   del vocabolario controllato.
 
-5. Il campo "predecessor-version" referenzia la versione
-    precedente dell'API, facilitando la migrazione degli
-    utenti.
+1. Il campo "predecessor-version" referenzia la versione
+   precedente dell'API, facilitando la migrazione degli
+   utenti.
 
-``` yaml
+```yaml
 # Il risultato è di tipo application/linkset+json:
 #   NB: la specifica RFC9727 definisce il formato linkset
 #       come un oggetto JSON con la sola proprietà "linkset".
@@ -345,36 +345,36 @@ linkset:
 ```
 
 1. <http://purl.org/linked-data/xkos#supersedes> tracks the
-    previous version of the vocabulary.
+   previous version of the vocabulary.
 
-2. L'URL attuale <https://schema.gov.it/api/vocabularies/>
-    verrà rediretto sulla versione delle API v0 fino a
-    quando la v0 verrà dismessa.
+1. L'URL attuale <https://schema.gov.it/api/vocabularies/>
+   verrà rediretto sulla versione delle API v0 fino a
+   quando la v0 verrà dismessa.
 
-3. Conformemente alle Linee Guida per le API REST del
-    Modello di Interoperabilità, l'URL delle API REST
-    conterrà la versione dell'API, ad esempio:
+1. Conformemente alle Linee Guida per le API REST del
+   Modello di Interoperabilità, l'URL delle API REST
+   conterrà la versione dell'API, ad esempio:
 
-    - l'indirizzo con l'elenco dei vocabolari sarà
-        <https://schema.gov.it/api/vocabularies/v1>;
-    - l'indirizzo di un vocabolario specifico sarà
-        <https://schema.gov.it/api/vocabularies/v1/%7BagencyId%7D/%7BvocabularyId%7D>.
+   - l'indirizzo con l'elenco dei vocabolari sarà
+     <https://schema.gov.it/api/vocabularies/v1>;
+   - l'indirizzo di un vocabolario specifico sarà
+     <https://schema.gov.it/api/vocabularies/v1/%7BagencyId%7D/%7BvocabularyId%7D>.
 
-4. La precedente versione delle API REST (v0.0.1)
-    continuerà ad essere erogata per un periodo di tempo
-    concordato con gli erogatori all'URL
-    <https://schema.gov.it/api/vocabularies/v0/> per
-    permettere la migrazione degli utenti verso la nuova
-    versione.
+1. La precedente versione delle API REST (v0.0.1)
+   continuerà ad essere erogata per un periodo di tempo
+   concordato con gli erogatori all'URL
+   <https://schema.gov.it/api/vocabularies/v0/> per
+   permettere la migrazione degli utenti verso la nuova
+   versione.
 
-5. L'API REST v1 utilizza i meccanismi di paging descritti
-    nelle Linee Guida per le API REST del Modello di
-    Interoperabilità.
+1. L'API REST v1 utilizza i meccanismi di paging descritti
+   nelle Linee Guida per le API REST del Modello di
+   Interoperabilità.
 
-6. L'API REST v1 permette l'accesso puntuale alle risorse
-    del vocabolario.
+1. L'API REST v1 permette l'accesso puntuale alle risorse
+   del vocabolario.
 
-``` mermaid
+```mermaid
 ---
 config:
   layout: elk
@@ -404,76 +404,76 @@ graph LR
 #### Requisiti opzionali
 
 1. Localizzazione: le API REST v1 supporteranno la
-    localizzazione dei risultati laddove fornita nei
-    vocabolari controllati. La lingua della risposta verrà
-    selezionata tramite il query parameter `lang` e/o
-    tramite l'header HTTP `Accept-Language`. Verrà stabilita
-    una lingua di default.
+   localizzazione dei risultati laddove fornita nei
+   vocabolari controllati. La lingua della risposta verrà
+   selezionata tramite il query parameter `lang` e/o
+   tramite l'header HTTP `Accept-Language`. Verrà stabilita
+   una lingua di default.
 
 #### Metadatazione semantica
 
 1. Le API REST v1 pubblicano la specifica OAS all'indirizzo
-    <https://schema.gov.it/api/vocabularies/v1/%7BagencyId%7D/%7BvocabularyId%7D/openapi.yaml>
+   <https://schema.gov.it/api/vocabularies/v1/%7BagencyId%7D/%7BvocabularyId%7D/openapi.yaml>
 
-2. Nella v1, la struttura dell'OAS sarà simile a quella
-    attuale per facilitare la migrazione degli utenti, e
-    seguirà una struttura lineare. Una ulteriore evoluzione
-    delle API REST potrà prevedere una struttura più
-    aderente al grafo RDF del vocabolario controllato.
+1. Nella v1, la struttura dell'OAS sarà simile a quella
+   attuale per facilitare la migrazione degli utenti, e
+   seguirà una struttura lineare. Una ulteriore evoluzione
+   delle API REST potrà prevedere una struttura più
+   aderente al grafo RDF del vocabolario controllato.
 
-3. L'OAS contiene le annotazioni semantiche che collegano i
-    campi delle proiezioni JSON alle proprietà RDF del
-    vocabolario controllato. Il contenuto delle annotazioni
-    semantiche viene definito dall'Erogatore ed è contenuto
-    nel file di descrizione del mapping. L'OAS viene
-    generato automaticamente a partire dal file di
-    descrizione del mapping.
+1. L'OAS contiene le annotazioni semantiche che collegano i
+   campi delle proiezioni JSON alle proprietà RDF del
+   vocabolario controllato. Il contenuto delle annotazioni
+   semantiche viene definito dall'Erogatore ed è contenuto
+   nel file di descrizione del mapping. L'OAS viene
+   generato automaticamente a partire dal file di
+   descrizione del mapping.
 
-4. I vocabolario possono utilizzare riferimenti semantici
-    contenuti o meno in schema.gov.it. Ad esempio, alcuni
-    vocabolari utilizzano SKOS o DCAT.
+1. I vocabolario possono utilizzare riferimenti semantici
+   contenuti o meno in schema.gov.it. Ad esempio, alcuni
+   vocabolari utilizzano SKOS o DCAT.
 
-    ``` turtle
-     @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-     @prefix dcat: <http://www.w3.org/ns/dcat#> .
-     @base   <https://w3id.org/italia> .
+   ```turtle
+    @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+    @prefix dcat: <http://www.w3.org/ns/dcat#> .
+    @base   <https://w3id.org/italia> .
 
-     <italia/social-security/controlled-vocabulary/CUStatement/codice_titolo_erogazione_tfr/A>
-         rdf:type            skos:Concept;
+    <italia/social-security/controlled-vocabulary/CUStatement/codice_titolo_erogazione_tfr/A>
+        rdf:type            skos:Concept;
 
-         # DCAT modeling.
-         rdfs:label          "se si tratta di anticipazione;"@it;
-         dcterms:identifier  "A";
+        # DCAT modeling.
+        rdfs:label          "se si tratta di anticipazione;"@it;
+        dcterms:identifier  "A";
 
-         # Skos modeling.
-         skos:inScheme       <italia/social-security/controlled-vocabulary/CUStatement/codice_titolo_erogazione_tfr>;
-         skos:notation       "A";
-         skos:prefLabel      "se si tratta di anticipazione;"@it .
-    ```
+        # Skos modeling.
+        skos:inScheme       <italia/social-security/controlled-vocabulary/CUStatement/codice_titolo_erogazione_tfr>;
+        skos:notation       "A";
+        skos:prefLabel      "se si tratta di anticipazione;"@it .
+   ```
 
-5. Una guida con degli esempi illustrerà vari modi per
-    mostrare le mappature tra i campi RDF e JSON, per
-    permettere agli erogatori di scegliere la
-    rappresentazione più adatta ai loro vocabolari
-    controllati. Questo semplificherà anche l'erogazione di
-    API basate su vocabolari stratificati.
+1. Una guida con degli esempi illustrerà vari modi per
+   mostrare le mappature tra i campi RDF e JSON, per
+   permettere agli erogatori di scegliere la
+   rappresentazione più adatta ai loro vocabolari
+   controllati. Questo semplificherà anche l'erogazione di
+   API basate su vocabolari stratificati.
 
 #### Generazione delle proiezioni JSON e integrazione delle annotazioni semantiche nelle API
 
 1. Il documento [README.csv.md](README.csv.md) descrive il
-    processo di proiezione dei dati RDF in formato JSON per
-    le API REST v1 in modo da validare che il processo di
-    proiezione sia invertibile, ossia che sia possibile
-    ricostruire il grafo RDF originale a partire dal JSON e
-    dall'annotazione semantica..
+   processo di proiezione dei dati RDF in formato JSON per
+   le API REST v1 in modo da validare che il processo di
+   proiezione sia invertibile, ossia che sia possibile
+   ricostruire il grafo RDF originale a partire dal JSON e
+   dall'annotazione semantica..
 
-2. Verranno forniti dei tool per facilitare la generazione
-    delle proiezioni JSON a partire dai dati RDF e per
-    l'integrazione delle annotazioni semantiche nelle API
-    REST v1. I tool saranno open source in conformità al
-    Codice per l'Amministrazione Digitale.
+1. Verranno forniti dei tool per facilitare la generazione
+   delle proiezioni JSON a partire dai dati RDF e per
+   l'integrazione delle annotazioni semantiche nelle API
+   REST v1. I tool saranno open source in conformità al
+   Codice per l'Amministrazione Digitale.
 
-``` mermaid
+```mermaid
 graph TD
 
    subgraph E["Erogatore dei Vocabolari Controllati"]
@@ -503,65 +503,65 @@ graph TD
 #### PoC di Funzionalità di autocompletamento dei dizionari
 
 1. Verrà fornito un PoC di una API di autocompletamento che
-    permetta di cercare i termini di un vocabolario
-    controllato tramite una stringa di ricerca parziale.
+   permetta di cercare i termini di un vocabolario
+   controllato tramite una stringa di ricerca parziale.
 
-2. Verrà fornita una PoC di una API che restituisce i
-    vocabolari controllati in formato JSON Schema.
+1. Verrà fornita una PoC di una API che restituisce i
+   vocabolari controllati in formato JSON Schema.
 
 #### Limitazioni
 
 1. Le API REST v1 continueranno a erogare solo proiezioni
-    lineari dei vocabolari controllati (e.g., codelist). Non
-    verranno erogate strutture ad albero o grafi. Queste
-    potranno essere oggetto di future evoluzioni delle API
-    REST.
+   lineari dei vocabolari controllati (e.g., codelist). Non
+   verranno erogate strutture ad albero o grafi. Queste
+   potranno essere oggetto di future evoluzioni delle API
+   REST.
 
-2. La piattaforma non validerà nel merito il file di
-    descrizione del mapping fornito dagli erogatori. La
-    responsabilità della correttezza del file di descrizione
-    del mapping rimane all'erogatore. Potrà essere validato
-    il formato del file di mappatura (frame) e verificata la
-    presenza dei campi obbligatori che ogni API REST v1 deve
-    esporre.
+1. La piattaforma non validerà nel merito il file di
+   descrizione del mapping fornito dagli erogatori. La
+   responsabilità della correttezza del file di descrizione
+   del mapping rimane all'erogatore. Potrà essere validato
+   il formato del file di mappatura (frame) e verificata la
+   presenza dei campi obbligatori che ogni API REST v1 deve
+   esporre.
 
-3. Il calcolo del Semantic Score delle API dei vocabolari
-    potrebbe non tenere conto dei riferimenti semantici
-    generici e/o non presenti in schema.gov.it (e.g.,
-    riferimenti a vocabolari esterni come schema.org, oppure
-    SKOS).
+1. Il calcolo del Semantic Score delle API dei vocabolari
+   potrebbe non tenere conto dei riferimenti semantici
+   generici e/o non presenti in schema.gov.it (e.g.,
+   riferimenti a vocabolari esterni come schema.org, oppure
+   SKOS).
 
-4. I campi ritornati potranno essere limitati ai seguenti
-    tipi: string, array, object. Questo perché i valori dei
-    vocabolari controllati sono definiti tramite specifiche
-    XSD che non sono sempre mappabili in tipi JSON più
-    complessi (e.g., date, numeri, booleani). La
-    deserializzazione dei campi è lasciata ai fruitori.
+1. I campi ritornati potranno essere limitati ai seguenti
+   tipi: string, array, object. Questo perché i valori dei
+   vocabolari controllati sono definiti tramite specifiche
+   XSD che non sono sempre mappabili in tipi JSON più
+   complessi (e.g., date, numeri, booleani). La
+   deserializzazione dei campi è lasciata ai fruitori.
 
-5. Gli strumenti forniti a supporto della generazione delle
-    proiezioni JSON saranno basati su librerie open source
-    che implementano le specifiche JSON-LD e RDF: eventuali
-    limitazioni e/o bug di tali librerie si rifletteranno
-    sugli strumenti stessi.
+1. Gli strumenti forniti a supporto della generazione delle
+   proiezioni JSON saranno basati su librerie open source
+   che implementano le specifiche JSON-LD e RDF: eventuali
+   limitazioni e/o bug di tali librerie si rifletteranno
+   sugli strumenti stessi.
 
-6. Quando viene pubblicata una nuova versione di un
-    vocabolario controllato, l'API REST v1 erogherà la
-    versione nuova del vocabolario controllato, e la vecchia
-    versione non sarà più disponibile. La versione dell'API
-    dei vocabolari controllati è indipendente dalla versione
-    del vocabolario controllato erogato.
+1. Quando viene pubblicata una nuova versione di un
+   vocabolario controllato, l'API REST v1 erogherà la
+   versione nuova del vocabolario controllato, e la vecchia
+   versione non sarà più disponibile. La versione dell'API
+   dei vocabolari controllati è indipendente dalla versione
+   del vocabolario controllato erogato.
 
-    Esempio:
+   Esempio:
 
-    Il vocabolario controllato "ateco-2007" viene pubblicato
-    a partire dai dati nella cartella
-    `vocabularies/ISTAT/ateco-2007/latest/`. Quando l'ISTAT
-    pubblica una nuova versione del vocabolario controllato
-    "ateco-2007" (ad esempio,
-    `vocabularies/ISTAT/ateco-2007/2025-01-01/`), con
-    `latest/` che punta alla nuova versione, l'API REST v1
-    erogherà la nuova versione del vocabolario controllato
-    che sarà "ateco 2007 - revisione 2021".
+   Il vocabolario controllato "ateco-2007" viene pubblicato
+   a partire dai dati nella cartella
+   `vocabularies/ISTAT/ateco-2007/latest/`. Quando l'ISTAT
+   pubblica una nuova versione del vocabolario controllato
+   "ateco-2007" (ad esempio,
+   `vocabularies/ISTAT/ateco-2007/2025-01-01/`), con
+   `latest/` che punta alla nuova versione, l'API REST v1
+   erogherà la nuova versione del vocabolario controllato
+   che sarà "ateco 2007 - revisione 2021".
 
-7. TODO: un vocabolario può non avere skos:ConceptScheme ma
-    solo dcatapit:Dataset
+1. TODO: un vocabolario può non avere skos:ConceptScheme ma
+   solo dcatapit:Dataset
