@@ -829,21 +829,13 @@ presenti in [assets/controlled-vocabularies](assets/controlled-vocabularies).
    E' importante inserire nel frame tutta la documentazione
    necessaria a descrivere le regole di proiezione e i campi
    generati, in modo da facilitarene la manutenzione e l'uso.
-   Genera quindi la proiezione usando il comando:
 
-   ```bash
-   python -m tools.projector \
-      --ttl path/to/vocabulary.ttl \
-      --frame path/to/vocabulary.frame.yamlld \
-      --output path/to/vocabulary.data.yamlld
-   ```
-
+1. L'Erogatore utilizza la CLI per generare la proiezione
+   indicando le informazioni necessarie (file RDF, file di framing, ecc.)
+   e le opzioni desiderate  che permettono di escludere
+   campi specifici dalla proiezione.
    Il file di output `vocabulary.data.yamlld` conterrà la proiezione
    utile a generare il CSV annotato.
-
-   Una proiezione potrebbe contenere dei campi non desiderti,
-   ad esempio perché non presenti in tutte le chiavi del grafo RDF
-   originale, o perché non rilevanti per la proiezione desiderata.
 
 ## CLI
 
@@ -859,8 +851,10 @@ Tutti i comandi della CLI mostrano una documentazione
 dettagliata se eseguiti con  `--help`.
 
 Per ridurre la possibilità di sovrascrittura dei file generati,
-la CLI utilizza comandi diversi, e non opzioni per la creazione
+la CLI utilizza comandi diversi invece di usare opzioni per la creazione
 e la validazione dei file.
+Inoltre, la sovrascrittura dei file generati è disabilitata di default
+e deve essere abilitata tramite l'opzione `--force` per ogni comando.
 
 Esempio:
 
