@@ -36,7 +36,7 @@ repos:
   hooks:
   - id: yamlfmt
     files: \.(yaml|yml)$
-    exclude: 'config\.yaml|tests/data/snapshots/.*\.yaml'
+    exclude: '.spectral|config\.yaml|tests/data/snapshots/.*\.yaml'
 - repo: https://github.com/executablebooks/mdformat
   rev: 0.7.17
   hooks:
@@ -69,19 +69,20 @@ repos:
 - repo: local
   hooks:
   - id: generate-bundles
-    name: Generate jsonschema bundles
+    name: Generate OAS bundles
     language: docker_image
     files: apiv1/catalog/open.*yaml
     entry: |-
-      --entrypoint bash
-      ghcr.io/sourcemeta/jsonschema:v11.8.3
+      --entrypoint sh
+      docker.io/redocly/cli:2.20.3
       -c
       'mkdir -p apiv1/openapi/
       for f in $0 $@; \
       do
         DIR=${f%/*}
-        jsonschema bundle -d http://json-schema.org/draft-04/schema# "$f" \
-        > "apiv1/openapi/${DIR##*/}.yaml"
+        redocly bundle \
+          "$f" \
+        -o "apiv1/openapi/${DIR##*/}.yaml"
       done'
 #
 # Security linters.
