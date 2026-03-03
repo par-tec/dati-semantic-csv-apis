@@ -280,17 +280,28 @@ components:
     title:
       name: title
       in: query
-      description: Filter by vocabulary title
+      description: >-
+        Filter by vocabulary title.
+
+        This is a substring match on the title field of the vocabulary
+        metadata.
       schema:
         $ref: '#/components/schemas/TitleString'
       example: ateco
     description:
       name: description
       in: query
-      description: Filter by vocabulary description
+      description: >-
+        Filter by vocabulary description.
+
+        This is a substring match on the description field of
+        the vocabulary metadata.
+
+        TODO: Further matching criteria may be added
+        in the future.
       schema:
         $ref: '#/components/schemas/TitleString'
-      example: politiche pubbliche
+      example: registro imprese
   schemas:
     URI:
       $ref: 'components.oas3.yaml#/components/schemas/URI'
