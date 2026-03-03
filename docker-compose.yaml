@@ -11,6 +11,11 @@ services:
     volumes:
     - .:/code
 
+  test:
+    build:
+      context: .
+      target: test
+
   api-catalog:
     build:
       context: apiv1

@@ -61,5 +61,5 @@ jobs:
       run: |
         pip3 install uv
         pip3 install tox-uv
-        tox -- -v -m "not asset"
-        tox -- -v -m asset
+        tox -e coverage -- -v -m "not asset"
+        tox -e coverage -- -v -m asset
