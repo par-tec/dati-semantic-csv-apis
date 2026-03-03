@@ -169,8 +169,10 @@ components:
         type: integer
     Cache-Control:
       description: |-
-        The list of vocabularies can be cached on daily basis,
-        so an hourly cache is more than enough.
+        This field will indicate caching directives for the response
+        using the max-age directive.
+        Since this dataset is updated daily, a low threshold
+        of 3600 seconds (1 hour) is acceptable.
       schema:
         example: max-age=3600
         externalDocs:
@@ -306,13 +308,6 @@ components:
       maxLength: 2048
       pattern: ^(about:|https://|urn:).*
       example: https://schema.gov.it/vocabularies/v1/agid/agentecausale/
-    Url:
-      description: An URL that is either absolute or relative.
-      type: string
-      format: uri-reference
-      example: /vocabularies/v1/agid/agentecausale/openapi.yaml
-    AbsoluteUrl:
-      $ref: '#/components/schemas/URI'
     LanguageTagShort:
       description: ISO 639-1 2-letter language code
       type: string
@@ -669,6 +664,11 @@ components:
           maxLength: 1024
         instance:
           $ref: '#/components/schemas/Url'
+    Url:
+      description: An URL that is either absolute or relative.
+      type: string
+      format: uri-reference
+      example: /vocabularies/v1/agid/agentecausale/openapi.yaml
     Limit:
       description: A limit for pagination.
       type: integer
