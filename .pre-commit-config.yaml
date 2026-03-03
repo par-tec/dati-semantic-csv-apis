@@ -8,6 +8,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 default_stages:
   - pre-commit
+  - manual
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
@@ -36,7 +37,7 @@ repos:
   hooks:
   - id: yamlfmt
     files: \.(yaml|yml)$
-    exclude: '.spectral|config\.yaml|tests/data/snapshots/.*\.yaml'
+    exclude: '.spectral|config\.yaml|apiv1/openapi|tests/data/snapshots/.*\.yaml'
 - repo: https://github.com/executablebooks/mdformat
   rev: 0.7.17
   hooks:
@@ -70,6 +71,8 @@ repos:
   hooks:
   - id: generate-bundles
     name: Generate OAS bundles
+    stages:
+    - manual
     language: docker_image
     files: apiv1/catalog/open.*yaml
     entry: |-
@@ -119,3 +122,5 @@ repos:
       lint -F hint -vvv --ruleset .spectral/rulesets/.openapirc.yml "$@"' --
     files: >-
       apiv1/openapi/.*\.(yaml|yml)$
+    stages:
+    - manual
