@@ -57,7 +57,7 @@ jobs:
         VALIDATE_YAML: false
         VALIDATE_YAML_PRETTIER: false
         VALIDATE_OPENAPI: true
-        # OPENAPI_CONFIG_FILE: .openapirc.yml
+        OPENAPI_CONFIG_FILE: .spectral/rulesets/.openapirc.yml
         VALIDATE_NATURAL_LANGUAGE: false
         #
         # JS/CSS delegated to eslint.
