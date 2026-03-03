@@ -8,6 +8,8 @@
 # See https://pre-commit.com/hooks.html for more hooks
 default_stages:
   - pre-commit
+  - manual
+  - pre-push
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
@@ -36,7 +38,7 @@ repos:
   hooks:
   - id: yamlfmt
     files: \.(yaml|yml)$
-    exclude: 'config\.yaml|tests/data/snapshots/.*\.yaml'
+    exclude: '.spectral|config\.yaml|apiv1/openapi|tests/data/snapshots/.*\.yaml'
 - repo: https://github.com/executablebooks/mdformat
   rev: 0.7.17
   hooks:
@@ -64,26 +66,70 @@ repos:
     additional_dependencies: [types-PyYAML]
     exclude: ^tests/
 #
+# Generators.
+#
+- repo: local
+  hooks:
+  - id: generate-bundles
+    name: Generate OAS bundles
+    stages:
+    - manual
+    language: docker_image
+    files: apiv1/catalog/open.*yaml
+    entry: |-
+      --entrypoint sh
+      docker.io/redocly/cli:2.20.3
+      -c
+      'mkdir -p apiv1/openapi/
+      for f in $0 $@; \
+      do
+        DIR=${f%/*}
+        redocly bundle \
+          "$f" \
+        -o "apiv1/openapi/${DIR##*/}.yaml"
+      done'
+#
 # Security linters.
 #
 - repo: https://github.com/bridgecrewio/checkov.git
   rev: 3.2.504  # change to tag or sha
   hooks:
   - id: checkov
+    files: '^Dockerfile$'
+    entry: >-
+      checkov
+        -d .
+        --skip-path assets/
+        --skip-path apiv1/openapi/
+        --skip-path apiv1/data/
+        --skip-path tests
   - id: checkov_secrets
-    stages: ["pre-push"]
-- repo: local
-  hooks:
-  - id: trufflehog
-    name: TruffleHog
-    description: Detect secrets in your data.
-    entry: bash -c 'docker run --rm -v "$(pwd):/workdir" -i --rm
-      trufflesecurity/trufflehog:latest git file:///workdir --since-commit
-      HEAD --results=verified,unknown --fail'
-    language: system
     stages: ["pre-push"]
 - repo: https://github.com/zizmorcore/zizmor-pre-commit
   rev: v1.22.0
   hooks:
     - id: zizmor
       stages: ["pre-push"]
+- repo: local
+  hooks:
+  - id: trufflehog
+    name: TruffleHog
+    description: Detect secrets in your data.
+    entry: bash -c 'docker run -c 2 --rm -v "$(pwd):/workdir" -i --rm
+      docker.io/trufflesecurity/trufflehog:latest git file:///workdir --since-commit
+      HEAD --results=verified,unknown --fail'
+    language: system
+    stages: ["pre-push"]
+  - id: spectral
+    name: Spectral
+    language: system
+    description: Validate OpenAPI specifications with Spectral.
+    # choices: "error", "warn", "info", "hint"
+    entry: >-
+      bash -c 'docker run --rm -v "$(pwd):/workdir" -w /workdir -i --rm
+      docker.io/stoplight/spectral:latest
+      lint -F hint -vvv --ruleset .spectral/rulesets/.openapirc.yml "$@"' --
+    files: >-
+      apiv1/openapi/.*\.(yaml|yml)$
+    stages:
+    - manual
