@@ -23,7 +23,7 @@ services:
     ports:
     - "8000:8080"
     volumes:
-    - ./tests/api/vocabularies.linkset.yaml:/app/vocabularies.linkset.yaml:ro
+    - ./tests/api/vocabularies.linkset.yaml:/app/vocabularies.yaml:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
       interval: 1m30s

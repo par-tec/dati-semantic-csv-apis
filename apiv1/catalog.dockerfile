@@ -22,14 +22,17 @@ COPY ./openapi/catalog.yaml /app/catalog/openapi.yaml
 RUN groupadd -r appuser && \
     useradd -r -g appuser -u 1001 -m -s /bin/bash appuser
 
-WORKDIR /src
-RUN chown appuser:appuser /src
-COPY --chown=appuser:appuser . /src
+ENV SPARQL_URL=https://schema.gov.it/sparql
+ENV API_BASE_URL=https://schema.gov.it/vocabularies/v1
+ENV PYTHONPATH=:.:
+WORKDIR /app
+
+RUN python -m catalog download
+RUN chown appuser:appuser /app
+# COPY --chown=appuser:appuser . /app
 
 USER appuser
 
-WORKDIR /app
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "curl", "-f", "http://localhost:8080/status" ]
-ENV PYTHONPATH=:.:
 ENTRYPOINT [ "python" ]
 CMD [ "-m", "catalog" ]
