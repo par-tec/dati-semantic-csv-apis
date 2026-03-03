@@ -25,12 +25,6 @@ jobs:
         # Don't persist credentials to prevent credentials to be leaked on artifacts.
         persist-credentials: false
 
-    - name: Download Spectral ruleset
-      run: |
-        mkdir -p "${{ github.workspace }}/.github/linters"
-        curl -sL https://github.com/italia/api-oas-checker-rules/releases/latest/download/spectral.yml \
-          -o "${{ github.workspace }}/.openapirc.yml"
-
     - name: Super-Linter
       uses: super-linter/super-linter/slim@61abc07d755095a68f4987d1c2c3d1d64408f1f9  # v8.5.0
       env:
@@ -56,7 +50,7 @@ jobs:
         #
         VALIDATE_YAML: false
         VALIDATE_YAML_PRETTIER: false
-        VALIDATE_OPENAPI: true
+        VALIDATE_OPENAPI: "true"
         OPENAPI_CONFIG_FILE: .spectral/rulesets/.openapirc.yml
         VALIDATE_NATURAL_LANGUAGE: false
         #
