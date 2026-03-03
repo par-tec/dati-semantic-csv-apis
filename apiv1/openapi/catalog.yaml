@@ -48,7 +48,7 @@ tags:
 paths:
   /status:
     get:
-      operationId: handlers.get_status
+      operationId: catalog.handlers.get_status
       summary: Get API status
       description: Returns the operational status of the service.
       tags:
@@ -77,7 +77,7 @@ paths:
           $ref: '#/components/responses/GenericError'
   /vocabularies/{agencyId}:
     get:
-      operationId: handlers.get_vocabularies_by_agency
+      operationId: catalog.handlers.list_vocabularies_by_agency
       summary: Get vocabulary by agency ID
       description: |-
         Returns the API distribution for a specific controlled vocabularies
@@ -106,7 +106,7 @@ paths:
           $ref: '#/components/responses/GenericError'
   /vocabularies:
     get:
-      operationId: handlers.get_vocabularies
+      operationId: catalog.handlers.list_vocabularies
       summary: Get controlled vocabularies
       description: |
         Returns a linkset of controlled vocabularies in RFC 9727 format.
