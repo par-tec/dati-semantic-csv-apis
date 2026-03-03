@@ -102,7 +102,7 @@ difficile l'uso delle API da parte degli utenti finali
 poiché i nomi dei campi e i valori usati non sono uniformi
 tra i vari vocabolari.
 
-#### Breve descrizione
+#### Breve descrizione (#api-esistenti-descrizione)
 
 Le API REST attualmente in produzione (v0.0.1) seguono l'OAS
 3.0 indicato sopra.
@@ -226,7 +226,7 @@ Label_ITA_1_livello: "Architettura militare e fortificata"
 Label_ITA_1_livello_alternativa_altri_sistemi: ""
 ```
 
-#### Cosa migliorare
+#### Cosa migliorare (#api-esistenti-limitazioni)
 
 L'OAS delle API esposte è all'URL
 <https://schema.gov.it/api/openapi.yaml>
@@ -287,7 +287,16 @@ REST.
 
 ### API v1
 
-#### Pubblicazione delle API REST v1
+La nuova API si compone di due endpoint principali:
+
+- catalogo: pubblica l'elenco dei vocabolari controllati disponibili, con i
+  metadati e i link alle distribuzioni API REST v1;
+
+- dati: pubblica i dataset dei vocabolari controllati, con i metadati e le annotazioni semantiche
+  che collegano i campi JSON alle proprietà RDF del vocabolario
+  controllato.
+
+#### Pubblicazione (#api-v1-pubblicazione)
 
 1. Analogamente al modello di erogazione attuale, le API
    vengono rese disponibili da un URL centralizzato
@@ -296,7 +305,7 @@ REST.
    distribuzioni API dei vocabolari controllati.
 
 1. L'OAS v1 di riferimento è mantenuto in
-   `apiv1/openapi.yaml` ed è basato sulla semantica dei
+   [apiv1/openapi/catalog.yaml](apiv1/openapi/catalog.yaml) ed è basato sulla semantica dei
    vocabolari RDF, disaccoppiando il contenuto esposto
    dalle eventuali proiezioni CSV legacy. che ritorna
    l'elenco di tutti gli endpoint. L'OAS è in linea, ma non
@@ -315,7 +324,7 @@ REST.
    semantiche che collegano i campi JSON alle proprietà RDF
    del vocabolario controllato.
 
-1. Il campo "predecessor-version" referenzia la versione
+1. Il campo `predecessor-version` referenzia la versione
    precedente dell'API, facilitando la migrazione degli
    utenti.
 
@@ -344,12 +353,8 @@ linkset:
     description: "Extracted from vocabulary XYZ"
 ```
 
-1. <http://purl.org/linked-data/xkos#supersedes> tracks the
-   previous version of the vocabulary.
-
-1. L'URL attuale <https://schema.gov.it/api/vocabularies/>
-   verrà rediretto sulla versione delle API v0 fino a
-   quando la v0 verrà dismessa.
+1. <http://purl.org/linked-data/xkos#supersedes> traccia
+   la precedente versione dell'API facilitando la migrazione.
 
 1. Conformemente alle Linee Guida per le API REST del
    Modello di Interoperabilità, l'URL delle API REST
@@ -358,14 +363,7 @@ linkset:
    - l'indirizzo con l'elenco dei vocabolari sarà
      <https://schema.gov.it/api/vocabularies/v1>;
    - l'indirizzo di un vocabolario specifico sarà
-     <https://schema.gov.it/api/vocabularies/v1/%7BagencyId%7D/%7BvocabularyId%7D>.
-
-1. La precedente versione delle API REST (v0.0.1)
-   continuerà ad essere erogata per un periodo di tempo
-   concordato con gli erogatori all'URL
-   <https://schema.gov.it/api/vocabularies/v0/> per
-   permettere la migrazione degli utenti verso la nuova
-   versione.
+     `https://schema.gov.it/api/vocabularies/v1/{agencyId}/{vocabularyId}`.
 
 1. L'API REST v1 utilizza i meccanismi di paging descritti
    nelle Linee Guida per le API REST del Modello di
@@ -401,6 +399,19 @@ graph LR
    v1-api-catalog --> |references| v0-api1 & v0-api2
 ```
 
+Elementi di migrazione:
+
+1. La precedente versione delle API REST (v0.0.1)
+   continuerà ad essere erogata per un periodo di tempo
+   concordato con gli erogatori all'URL
+   <https://schema.gov.it/api/vocabularies/v0/> per
+   permettere la migrazione degli utenti verso la nuova
+   versione.
+
+1. L'URL attuale <https://schema.gov.it/api/vocabularies/>
+   verrà rediretto sulla versione delle API v0 fino a
+   quando la v0 verrà dismessa.
+
 #### Requisiti opzionali
 
 1. Localizzazione: le API REST v1 supporteranno la
@@ -413,7 +424,7 @@ graph LR
 #### Metadatazione semantica
 
 1. Le API REST v1 pubblicano la specifica OAS all'indirizzo
-   <https://schema.gov.it/api/vocabularies/v1/%7BagencyId%7D/%7BvocabularyId%7D/openapi.yaml>
+   `https://schema.gov.it/api/vocabularies/v1/{agencyId}/{vocabularyId}/openapi.yaml`
 
 1. Nella v1, la struttura dell'OAS sarà simile a quella
    attuale per facilitare la migrazione degli utenti, e
@@ -565,3 +576,31 @@ graph TD
 
 1. TODO: un vocabolario può non avere skos:ConceptScheme ma
    solo dcatapit:Dataset
+
+## PoC
+
+La PoC si compone di:
+
+- un applicativo containerizzato che implementa la Catalog API;
+- un applicativo containerizzato che implementa la Data API.
+  La Data API pubblica un set di vocabolari controllati.
+
+Il codice della PoC è implementato in Python 3.12+
+ed utilizza il framework Connexion per l'implementazione delle API REST.
+
+### Catalog API (#poc-catalog-api)
+
+L'applicativo che implementa la Catalog API è nella cartella
+[apiv1/catalog](apiv1/catalog).
+
+La documentazione dell'API è definita nell'OAS che viene assemblato
+automaticamente a partire dai file YAML presenti nella cartella.
+
+[apiv1/openapi/catalog.yaml](apiv1/openapi/catalog.yaml).
+
+Viene testato ed assemblato come container Docker tramite GitHub Actions
+e pubblicato sul Github Container Registry di questo repository.
+
+### Data API (#poc-data-api)
+
+TBD
