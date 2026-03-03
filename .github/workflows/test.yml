@@ -125,8 +125,9 @@ jobs:
       if: steps.should_build.outputs.build == 'true'
       uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f  # v5.8.0
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PREFIX
-          }}${{ matrix.image_suffix }}
+        images: >-
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PREFIX }}${{
+          matrix.image_suffix }}
         labels: |
           maintainer=par-tec
           org.opencontainers.image.title=${{ env.IMAGE_NAME_PREFIX }}${{ matrix.image_suffix }}
