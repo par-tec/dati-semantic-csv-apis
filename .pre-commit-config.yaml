@@ -109,7 +109,6 @@ repos:
   rev: v1.22.0
   hooks:
     - id: zizmor
-      stages: ["pre-push"]
 - repo: local
   hooks:
   - id: trufflehog
