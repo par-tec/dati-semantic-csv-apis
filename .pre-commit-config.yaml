@@ -64,6 +64,26 @@ repos:
     additional_dependencies: [types-PyYAML]
     exclude: ^tests/
 #
+# Generators.
+#
+- repo: local
+  hooks:
+  - id: generate-bundles
+    name: Generate jsonschema bundles
+    language: docker_image
+    files: apiv1/catalog/open.*yaml
+    entry: |-
+      --entrypoint bash
+      ghcr.io/sourcemeta/jsonschema:v11.8.3
+      -c
+      'mkdir -p apiv1/openapi/
+      for f in $0 $@; \
+      do
+        DIR=${f%/*}
+        jsonschema bundle -d http://json-schema.org/draft-04/schema# "$f" \
+        > "apiv1/openapi/${DIR##*/}.yaml"
+      done'
+#
 # Security linters.
 #
 - repo: https://github.com/bridgecrewio/checkov.git
@@ -72,18 +92,29 @@ repos:
   - id: checkov
   - id: checkov_secrets
     stages: ["pre-push"]
+- repo: https://github.com/zizmorcore/zizmor-pre-commit
+  rev: v1.22.0
+  hooks:
+    - id: zizmor
+      stages: ["pre-push"]
 - repo: local
   hooks:
   - id: trufflehog
     name: TruffleHog
     description: Detect secrets in your data.
     entry: bash -c 'docker run --rm -v "$(pwd):/workdir" -i --rm
-      trufflesecurity/trufflehog:latest git file:///workdir --since-commit
+      docker.io/trufflesecurity/trufflehog:latest git file:///workdir --since-commit
       HEAD --results=verified,unknown --fail'
     language: system
     stages: ["pre-push"]
-- repo: https://github.com/zizmorcore/zizmor-pre-commit
-  rev: v1.22.0
-  hooks:
-    - id: zizmor
-      stages: ["pre-push"]
+  - id: spectral
+    name: Spectral
+    language: system
+    description: Validate OpenAPI specifications with Spectral.
+    # choices: "error", "warn", "info", "hint"
+    entry: >-
+      bash -c 'docker run --rm -v "$(pwd):/workdir" -w /workdir -i --rm
+      docker.io/stoplight/spectral:latest
+      lint -F hint -vvv --ruleset .spectral/rulesets/.openapirc.yml "$@"' --
+    files: >-
+      apiv1/openapi/.*\.(yaml|yml)$
