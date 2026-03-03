@@ -8,6 +8,8 @@ info:
 paths: {}
 # spectral:disable-next-line oas3-api-servers
 servers: []
+# checkov:skip=CKV_OPENAPI_4
+# checkov:skip=CKV_OPENAPI_5
 components:
   parameters:
     #

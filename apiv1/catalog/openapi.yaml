@@ -39,7 +39,9 @@ info:
   license:
     name: CC0 1.0
     url: https://creativecommons.org/publicdomain/zero/1.0/
-
+# This is a public API.
+# checkov:skip=CKV_OPENAPI_4
+# checkov:skip=CKV_OPENAPI_5
 tags:
 - name: health-check
   description: |-
@@ -54,7 +56,6 @@ tags:
   description: |-
     Dump the whole dataset for statistics or
     internal reuse
-
 servers:
 - url: http://localhost:8080
   description: Development server

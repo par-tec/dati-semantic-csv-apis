@@ -94,6 +94,8 @@ repos:
   rev: 3.2.504  # change to tag or sha
   hooks:
   - id: checkov
+    # OAS files are linted with Spectral.
+    exclude: 'apiv1/openapi'
   - id: checkov_secrets
     stages: ["pre-push"]
 - repo: https://github.com/zizmorcore/zizmor-pre-commit
