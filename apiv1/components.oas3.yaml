@@ -6,6 +6,8 @@ info:
     This document defines common schemas used across the Controlled Vocabularies APIs.
   version: 1.0.0
 paths: {}
+# spectral:disable-next-line oas3-api-servers
+servers: []
 components:
   parameters:
     #
@@ -26,8 +28,16 @@ components:
       schema:
         $ref: '#/components/schemas/Offset'
       example: 0
-
   schemas:
+    Link:
+      description: |-
+        A link to a resource.
+      type: object
+      required:
+      - href
+      properties:
+        href:
+          $ref: '#/components/schemas/URI'
     URI: &URI
       description: |-
         An absolute URI.

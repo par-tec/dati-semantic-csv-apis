@@ -449,7 +449,7 @@ components:
           minItems: 1
           maxItems: 1
           items:
-            $ref: '#/components/schemas/URI'
+            $ref: '#/components/schemas/Link'
       example: &APIDistribution_example
         href: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
         about: https://w3id.org/italia/controlled-vocabulary/classifications-for-organizations/ateco-2007
@@ -551,6 +551,7 @@ components:
       example:
         linkset:
         - *APICatalog_example
-
+    Link:
+      $ref: 'components.oas3.yaml#/components/schemas/Link'
     Problem:
       $ref: 'components.oas3.yaml#/components/schemas/Problem'
