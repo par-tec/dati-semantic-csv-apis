@@ -68,7 +68,7 @@ jobs:
         pip3 install uv
         pip3 install tox-uv
         tox -e coverage -- -v -m "not asset"
-        # tox -e coverage -- -v -m asset
+        tox -e coverage -- -v -m asset
 
   build-containers:
     timeout-minutes: 15
@@ -76,8 +76,8 @@ jobs:
     permissions:
       contents: read
       packages: write
-    needs:
-    - test
+    # needs:
+    # - test
     strategy:
       matrix:
         include:
@@ -146,7 +146,7 @@ jobs:
       uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83  # v6.18.0
       with:
         context: apiv1
-        file: apiv1/catalog.dockerfile
+        file: apiv1/${{ matrix.target }}.dockerfile
         # target: ${{ matrix.target }}
         push: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name,
           matrix.force_push_label) }}
