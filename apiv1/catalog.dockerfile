@@ -18,6 +18,16 @@ RUN pip3 install --no-cache-dir -r /app/requirements.txt
 RUN mkdir -p /app/catalog
 COPY ./catalog/*.py /app/catalog/
 COPY ./openapi/catalog.yaml /app/catalog/openapi.yaml
+
+RUN groupadd -r appuser && \
+    useradd -r -g appuser -u 1001 -m -s /bin/bash appuser
+
+WORKDIR /src
+RUN chown appuser:appuser /src
+COPY --chown=appuser:appuser . /src
+
+USER appuser
+
 WORKDIR /app
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "curl", "-f", "http://localhost:8080/status" ]
 ENV PYTHONPATH=:.:

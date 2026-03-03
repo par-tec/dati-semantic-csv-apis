@@ -103,6 +103,8 @@ jobs:
       env:
         GITHUB_REF: ${{ github.ref }}
       run: |
+        # set -euo pipefail
+        # GITHUB_REF is a GitHub-controlled variable with format: refs/heads/*, refs/tags/*, refs/pull/*/merge
         if [[ "${GITHUB_REF}" == "refs/heads/main" ]] || [[ "${{ github.event_name }}" == "pull_request" ]] || [[ "${GITHUB_REF}" =~ ${{ matrix.tag_pattern }} ]]; then
           echo "build=true" >> "$GITHUB_OUTPUT"
         else
@@ -116,6 +118,7 @@ jobs:
         GITHUB_REF: ${{ github.ref }}
         UNTRUSTED_GITHUB_REF_NAME: ${{ github.ref_name }}  # E.g. my-app@1.0.0 - Always populated; contains the branch name, tag name, or ref name depending on the event type.
       run: |
+        # set -euo pipefail
         if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
           VERSION="latest"
         elif [[ "${GITHUB_REF}" =~ ${{ matrix.tag_pattern }} ]]; then
