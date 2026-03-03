@@ -19,10 +19,16 @@ on:
     branches:
     - main
 
+env:
+  CI: true
+  REGISTRY: ghcr.io
+  IMAGE_NAME_PREFIX: ${{ github.repository }}
+  DOCKER_BUILDKIT: "1"
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-  test-tox-job:
+  test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     container: python:3.12
@@ -63,3 +69,101 @@ jobs:
         pip3 install tox-uv
         tox -e coverage -- -v -m "not asset"
         tox -e coverage -- -v -m asset
+
+  build-containers:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    needs:
+    - test
+    strategy:
+      matrix:
+        include:
+        - target: catalog
+          image_suffix: "-catalog"
+          tag_pattern: "^refs/tags/catalog@(.+)$"
+          force_push_label: push-container:catalog  # Label prefix to force push the image in pull request
+    name: Docker Build ${{ matrix.target }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+
+    - name: Log in to the Github Container registry
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef  # v3.6.0
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Check if should build
+      id: should_build
+      run: |
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.event_name }}" == "pull_request" ]] || [[ "${{ github.ref }}" =~ ${{ matrix.tag_pattern }} ]]; then
+          echo "build=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "build=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Determine version
+      id: version
+      if: steps.should_build.outputs.build == 'true'
+      env:
+        UNTRUSTED_GITHUB_REF_NAME: ${{ github.ref_name }}  # E.g. my-app@1.0.0 - Always populated; contains the branch name, tag name, or ref name depending on the event type.
+      run: |
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          VERSION="latest"
+        elif [[ "${{ github.ref }}" =~ ${{ matrix.tag_pattern }} ]]; then
+          VERSION="${UNTRUSTED_GITHUB_REF_NAME#*@}" # Strip the prefix from the tag name in order to get the tag version only
+        fi
+        echo "value=${VERSION}" >> "$GITHUB_OUTPUT"
+
+    - name: Extract metadata
+      id: meta
+      if: steps.should_build.outputs.build == 'true'
+      uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f  # v5.8.0
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PREFIX
+          }}${{ matrix.image_suffix }}
+        labels: |
+          maintainer=par-tec
+          org.opencontainers.image.title=${{ env.IMAGE_NAME_PREFIX }}${{ matrix.image_suffix }}
+        tags: |
+          type=raw,value={{date 'YYYYMMDD'}}-${{github.run_number}}-{{sha}}
+          type=raw,value=${{ steps.version.outputs.value }},enable=${{ steps.version.outputs.value != '' }}
+
+    - name: Build and push
+      if: steps.should_build.outputs.build == 'true'
+      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83  # v6.18.0
+      with:
+        context: .
+        target: ${{ matrix.target }}
+        push: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name,
+          matrix.force_push_label) }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    needs:
+    - build-containers
+    strategy:
+      matrix:
+        include:
+        - target: catalog
+          image_suffix: "-catalog"
+    name: Cleanup Docker Images ${{ matrix.target }}
+    steps:
+    - name: Cleanup Docker Images
+      uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55  # v5
+      with:
+        package-name: "${{ env.IMAGE_NAME_PREFIX }}${{ matrix.image_suffix
+          }}"
+        package-type: "container"
+        min-versions-to-keep: 10
+        ignore-versions: "(latest|^[0-9]+\\.[0-9]+\\.[0-9]+$)"
