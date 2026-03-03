@@ -9,6 +9,7 @@
 default_stages:
   - pre-commit
   - manual
+  - pre-push
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
