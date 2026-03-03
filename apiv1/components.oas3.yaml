@@ -1,0 +1,99 @@
+---
+openapi: 3.0.4
+info:
+  title: Controlled Vocabularies API - Common Schemas
+  description: |-
+    This document defines common schemas used across the Controlled Vocabularies APIs.
+  version: 1.0.0
+paths: {}
+components:
+  parameters:
+    #
+    # Pagination.
+    #
+    limit:
+      name: limit
+      in: query
+      description: Maximum number of items to return. If unset,
+        used default value 10.
+      schema:
+        $ref: '#/components/schemas/Limit'
+      example: 10
+    offset:
+      name: offset
+      in: query
+      description: Offset for pagination
+      schema:
+        $ref: '#/components/schemas/Offset'
+      example: 0
+
+  schemas:
+    URI: &URI
+      description: |-
+        An absolute URI.
+      type: string
+      format: uri
+      maxLength: 2048
+      pattern: >-
+        ^(about:|https://|urn:).*
+      example: https://schema.gov.it/vocabularies/v1/agid/agentecausale/
+    Url:
+      description: |-
+        An URL that is either absolute or relative.
+      type: string
+      format: uri-reference
+      example: /vocabularies/v1/agid/agentecausale/openapi.yaml
+    AbsoluteUrl:
+      $ref: '#/components/schemas/URI'
+    Limit:
+      description: |-
+        A limit for pagination.
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 200
+      default: 20
+      example: 50
+    Offset:
+      description: |-
+        An offset for pagination.
+      type: integer
+      format: int32
+      minimum: 0
+      default: 0
+      example: 0
+    Problem:
+      description: |-
+        Convey information conditions
+        in HTTP API responses according to
+        RFC 9457 Problem Details.
+
+        Do not disclose sensitive information
+        or internal implementation details.
+
+        You need to provide the minimum
+        information required to help the client
+        to issue a successful request.
+      additionalProperties: false
+      type: object
+      required:
+      - type
+      - title
+      - status
+      properties:
+        type:
+          <<: *URI
+          default: about:blank
+        title:
+          type: string
+          maxLength: 128
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+          format: int32
+        detail:
+          type: string
+          maxLength: 1024
+        instance:
+          $ref: '#/components/schemas/Url'
