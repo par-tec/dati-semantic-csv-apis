@@ -285,6 +285,9 @@ components:
 
         This is a substring match on the title field of the vocabulary
         metadata.
+
+        TODO: As a request parameter, we can further
+        constrain the maximum length.
       schema:
         $ref: '#/components/schemas/TitleString'
       example: ateco
@@ -299,6 +302,9 @@ components:
 
         TODO: Further matching criteria may be added
         in the future.
+
+        TODO: As a request parameter, we can further
+        constrain the maximum length.
       schema:
         $ref: '#/components/schemas/TitleString'
       example: registro imprese
@@ -314,8 +320,8 @@ components:
     TitleString: &TitleString
       description: Title string
       type: string
-      maxLength: 128
-      pattern: '^.{1,128}$'
+      maxLength: 200
+      pattern: '^[\s\S]{1,200}$'
     ServiceDescription:
       description: |-
         A link to a service description document as per RFC 8631.
@@ -387,14 +393,12 @@ components:
         dcat: http://www.w3.org/ns/dcat#
         dcterms: http://purl.org/dc/terms/
         description: dcterms:description
-        ndc: https://w3id.org/italia/onto/NDC/
         owl: http://www.w3.org/2002/07/owl#
         skos: http://www.w3.org/2004/02/skos/core#
         # Properties
         about:
           '@id': https://w3id.org/italia/onto/NDC/servesDataset
           '@type': '@id'
-        concept: ndc:keyConcept
         href: '@id'
         languages: dcterms:language
         publisher:
@@ -408,6 +412,8 @@ components:
         author: null
         type: null
         hreflang: null
+        _concept: NDC:keyConcept
+        _vocabulary_type: null
       type: object
       additionalProperties: false
       required:
@@ -437,6 +443,30 @@ components:
             Human-readable title extracted from the vocabulary
             metadata,
             (e.g., skos:prefLabel).
+        _concept:
+          deprecated: true
+          description: |-
+            The key concept of the vocabulary, if any.
+
+            This is extracted from the vocabulary metadata
+            and can be used for filtering and searching.
+
+            For example, for a classification vocabulary,
+            this is the concept that represents the classification itself.
+
+            :warning: Do we need this? URIs are more stable.
+          oneOf:
+          - $ref: '#/components/schemas/TitleString'
+          example: ateco-2007
+        _vocabulary_type:
+          deprecated: true
+          description: |-
+            The type of the vocabulary, if any.
+            This is extracted from the vocabulary metadata
+            :warning: Do we need this?.
+          oneOf:
+          - $ref: '#/components/schemas/URI'
+          example: http://purl.org/adms/assettype/CodeList
         # type:
         #   description: API response content type. :warning: May be redundant.
         #   type: string
@@ -465,9 +495,11 @@ components:
             Human-readable description extracted from the vocabulary metadata,
             (e.g., skos:definition).
             This is not associated with any Link Relation.
+
+            The underlying regexp allows for newlines and other whitespace characters.
           type: string
-          maxLength: 2048
-          pattern: '^.{1,2048}$'
+          maxLength: 4000
+          pattern: '^[\s\S]{1,4000}$'
         version:
           description: Version identifier
           type: string
@@ -558,16 +590,31 @@ components:
             to retrieve the full list of items, or query for specific
             items.
           type: array
-          minItems: 1
+          minItems: 0
           maxItems: 100
           items:
             $ref: '#/components/schemas/APIDistribution'
+        #
+        # XXX: Do we need pagination metadata?
+        #
+        total_count:
+          $ref: 'components.oas3.yaml#/components/schemas/Offset'
+        count:
+          $ref: 'components.oas3.yaml#/components/schemas/Limit'
+        limit:
+          $ref: 'components.oas3.yaml#/components/schemas/Limit'
+        offset:
+          $ref: 'components.oas3.yaml#/components/schemas/Offset'
       example: &APICatalog_example
         api-catalog: https://schema.gov.it/api/vocabularies/v1/
         anchor: https://schema.gov.it/api/vocabularies/v1/
         item:
         - *APIDistribution_example
-
+        # Pagination metadata.
+        total_count: 4340
+        count: 12
+        limit: 20
+        offset: 5
     Linkset:
       description: |-
         A linkset containing a list of API Catalogs

@@ -7,64 +7,30 @@ in RFC 9727 linkset format.
 
 import contextlib
 import logging
-import os
 from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
-import yaml
 from connexion import AsyncApp, ConnexionMiddleware
+
+from .download import load_linkset_data
+from .errors import handle_exception, handle_not_implemented
+
+
+class Config(TypedDict):
+    SPARQL_URL: str | None
+    API_BASE_URL: str | None
+    VOCABULARIES_DATAFILE: str
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def _load_linkset_data() -> dict[str, Any]:
-    """
-    Load linkset data from the configured YAML file.
-
-    This function is called once at app initialization to load
-    the vocabularies linkset into memory for efficient serving.
-
-    Returns:
-        The parsed linkset data structure.
-
-    Raises:
-        FileNotFoundError: If the data file cannot be found.
-        yaml.YAMLError: If the YAML file is malformed.
-    """
-    datafile: str = os.getenv(
-        "VOCABULARIES_DATAFILE", "vocabularies.linkset.yaml"
-    )
-
-    datafile_path = Path(datafile)
-
-    if not datafile_path.is_file():
-        if datafile_path.is_absolute():
-            raise FileNotFoundError(f"Data file not found: {datafile_path}")
-        # Try resolving relative path
-        datafile_path = datafile_path.resolve()
-        if not datafile_path.is_file():
-            raise FileNotFoundError(f"Data file not found: {datafile_path}")
-
-    logger.info(f"Loading vocabularies dataset from: {datafile_path}")
-
-    with open(datafile_path, encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-
-    if not isinstance(data, dict) or "linkset" not in data:
-        raise ValueError(f"Invalid linkset format in {datafile_path}")
-
-    logger.info(
-        f"Loaded {len(data.get('linkset', [{}])[0].get('item', []))} vocabulary items"
-    )
-
-    return data
-
-
 @contextlib.asynccontextmanager
 async def load_dataset_handler(
+    datafile: str,
     app: ConnexionMiddleware,
 ) -> AsyncIterator[dict[str, Any]]:
     """
@@ -76,9 +42,11 @@ async def load_dataset_handler(
 
     Yields:
         Dictionary containing the application state (linkset_data).
+
+    TODO: pass datafile path via a config variable in the app.
     """
     logger.info("Application startup: loading vocabularies dataset")
-    linkset_data = _load_linkset_data()
+    linkset_data = load_linkset_data(datafile=datafile)
     logger.info("Application startup complete")
 
     # Yield state that will be available on request.state
@@ -87,7 +55,7 @@ async def load_dataset_handler(
     logger.info("Application shutdown")
 
 
-def create_app() -> AsyncApp:
+def create_app(config: Config | None = None) -> AsyncApp:
     """
     Create and configure the Connexion application.
 
@@ -96,16 +64,32 @@ def create_app() -> AsyncApp:
 
     Returns:
         The configured AsyncApp instance.
+
+    TODO: set a config variable with the datafile path.
     """
+    if config is None:
+        config = Config(
+            SPARQL_URL=None,
+            API_BASE_URL=None,
+            VOCABULARIES_DATAFILE="vocabularies.linkset.yaml",
+        )
+    assert config is not None, "Config must be provided to create_app"
     app: AsyncApp = AsyncApp(
         import_name=__name__,
         specification_dir=str(Path(__file__).parent),
-        lifespan=load_dataset_handler,
+        lifespan=lambda app: load_dataset_handler(
+            config["VOCABULARIES_DATAFILE"], app
+        ),
     )
-
     app.add_api(
         "openapi.yaml",
         strict_validation=True,
     )
+
+    # Register exception handler for generic exceptions
+    app.add_error_handler(NotImplementedError, handle_not_implemented)
+    app.add_error_handler(501, handle_not_implemented)
+    app.add_error_handler(500, handle_exception)
+    app.add_error_handler(Exception, handle_exception)
 
     return app

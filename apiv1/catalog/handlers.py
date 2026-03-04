@@ -56,16 +56,20 @@ def get_status():
     Get the status of the API.
     """
     return (
-        {"status": "ok", "message": "Vocabularies API is running"},
+        {
+            "status": 200,
+            "title": "Vocabularies API is running",
+            "type": "about:blank",
+        },
         200,
-        {"Content-Type": "application/problem+json"},
+        {"Content-Type": "application/json"},
     )
 
 
 def list_vocabularies_by_agency(
     agencyId: str,
 ) -> tuple[dict[str, Any], int, dict[str, str]]:
-    raise NotImplementedError("This handler is not implemented yet.")
+    raise NotImplementedError("This endpoint is not implemented yet.")
 
 
 def list_vocabularies(
@@ -99,8 +103,12 @@ def list_vocabularies(
     if kwargs:
         raise ValueError(f"Unexpected query parameters: {kwargs}")
 
-    # Access dataset from request state (set by lifespan handler)
-    linkset_data = request.state.linkset_data
+    try:
+        linkset_data = request.state.linkset_data
+    except AttributeError as e:
+        raise RuntimeError(
+            "Linkset data is not available in request state: ensure it is loaded in the lifespan handler"
+        ) from e
     catalog = linkset_data["linkset"][0]
     items = catalog.get("item", [])
 
@@ -124,6 +132,7 @@ def list_vocabularies(
                 "anchor": catalog["anchor"],
                 "api-catalog": catalog["api-catalog"],
                 "item": filtered_items[offset : offset + limit],
+                # Pagination metadata.
                 "total_count": len(filtered_items),
                 "count": len(filtered_items[offset : offset + limit]),
                 "limit": limit,

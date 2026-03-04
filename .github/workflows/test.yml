@@ -74,14 +74,33 @@ jobs:
         tox -e coverage -- -v -m "not asset"
         tox -e coverage -- -v -m asset
 
+  test-api:
+    runs-on: ubuntu-latest
+    container: python:3.12
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+    - name: >-
+        Configure git safe directory, because GITHUB_WORKSPACE
+        is owned by a different user than the one running the
+        tests.
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - name: Run API tests.
+      run: |
+        pip3 install uv
+        pip3 install tox-uv
+        tox -e api -- -vs
+
   build-containers:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    # needs:
-    # - test
+    needs:
+    - test-api
     strategy:
       matrix:
         include:
