@@ -176,3 +176,6 @@ jobs:
         package-type: "container"
         min-versions-to-keep: 10
         ignore-versions: "(latest|^[0-9]+\\.[0-9]+\\.[0-9]+$)"
+        # XXX: Ignore cleanup errors for now.
+        continue-on-error: true
+
