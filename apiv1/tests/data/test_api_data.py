@@ -17,7 +17,8 @@ from schemathesis.specs.openapi.schemas import OpenApiSchema
 
 TESTDIR = Path(__file__).parent.parent
 ASSETSDIR = TESTDIR.parent.parent / "assets" / "controlled-vocabularies"
-OPENAPI_SPEC_PATH = TESTDIR.parent / "data" / "openapi.yaml"
+APIDIR: Path = TESTDIR.parent / "data"
+OPENAPI_SPEC_PATH = APIDIR / "openapi.yaml"
 
 oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
     str(OPENAPI_SPEC_PATH)

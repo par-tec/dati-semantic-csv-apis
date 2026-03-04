@@ -37,7 +37,9 @@ async def show_items(
     # Apply label filter if provided
     if label:
         items = [
-            item for item in items if label.lower() in item["label"].lower()
+            item
+            for item in items
+            if label.lower() in item.get("label", item["label_it"]).lower()
         ]
 
     # Apply cursor-based pagination if cursor is provided

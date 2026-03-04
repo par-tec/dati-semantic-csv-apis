@@ -16,7 +16,8 @@ from hypothesis import settings
 from schemathesis.specs.openapi.schemas import OpenApiSchema
 
 TESTDIR = Path(__file__).parent.parent
-OPENAPI_SPEC_PATH = TESTDIR.parent / "catalog" / "openapi.yaml"
+APIDIR: Path = TESTDIR.parent / "catalog"
+OPENAPI_SPEC_PATH = APIDIR / "openapi.yaml"
 
 oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
     str(OPENAPI_SPEC_PATH)
