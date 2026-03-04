@@ -34,7 +34,22 @@ TESTCASES_CSV_DIALECT = [
 ]
 
 TESTCASES_CSV_DIALECT_ERROR = [
-    {"name": "csv-error", "frictionless_dialect": {"escapechar": "\\"}}
+    {
+        "name": "csv-error-unsupported-escapechar",
+        "frictionless_dialect": {"escapechar": "\\"},
+    },
+    {
+        "name": "csv-error-unsupported-header",
+        "frictionless_dialect": {"header": False},
+    },
+    {
+        "name": "csv-error-unsupported-commentchar",
+        "frictionless_dialect": {"commentChar": "!"},
+    },
+    {
+        "name": "csv-error-unsupported-doublequote",
+        "frictionless_dialect": {"doubleQuote": False},
+    },
 ]
 
 
@@ -82,6 +97,7 @@ def test_tabular_minimal(
     - I create an instance of the Tabular class with the RDF data and frame
     - I call the set_dialect method to configure the CSV output settings
     - I generate the complete datapackage stub
+    -
 
     Then:
     - The Tabular instance should be created successfully
@@ -129,6 +145,7 @@ def test_tabular_minimal(
     )
 
     # ... then the data can be loaded.
+    #
     tabular_validator.load()
     # .. and the data is a subset of the original RDF graph.
     stats = tabular_validator.validate(tabular.graph, min_triples=3)
