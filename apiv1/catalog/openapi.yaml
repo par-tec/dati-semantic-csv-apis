@@ -550,6 +550,21 @@ components:
           allOf:
           - $ref: '#/components/schemas/URI'
           description: The current API Catalog URL.
+        count:
+          deprecated: true
+          description: |-
+            Total number of API distributions returned by the query,
+            without pagination.
+
+            This is for informational purposes, to allow clients
+            to know the total size of the dataset and plan pagination
+            accordingly.
+
+            :warning: Do we need this?
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
         item:
           description: |-
             List of API distributions published by
