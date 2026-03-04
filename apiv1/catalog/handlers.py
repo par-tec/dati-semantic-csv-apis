@@ -56,9 +56,13 @@ def get_status():
     Get the status of the API.
     """
     return (
-        {"status": "ok", "message": "Vocabularies API is running"},
+        {
+            "status": 200,
+            "title": "Vocabularies API is running",
+            "type": "about:blank",
+        },
         200,
-        {"Content-Type": "application/problem+json"},
+        {"Content-Type": "application/json"},
     )
 
 
