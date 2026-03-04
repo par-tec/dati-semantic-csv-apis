@@ -5,6 +5,10 @@ info:
   description: |-
     This document defines the data endpoints
     for a Controlled Vocabulary API.
+
+    This content will be generated merging this
+    "template" with the specific schema definition
+    published by the provider in the repository.
   version: 1.0.0
 servers:
 - url: http://localhost:8080/
