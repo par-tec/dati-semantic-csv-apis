@@ -305,10 +305,13 @@ components:
         You need to provide the minimum
         information required to help the client
         to issue a successful request.
+
+        Note: According to RFC9457, `type` is the only required field;
+        since it defaults to `about:blank`, in this JSON Schema
+        it is not required.
       additionalProperties: false
       type: object
       required:
-        - type
         - title
         - status
       properties:
