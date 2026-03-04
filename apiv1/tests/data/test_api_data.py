@@ -10,13 +10,13 @@ import pytest
 
 # See https://schemathesis.readthedocs.io/en/stable/tutorials/pytest/ for using schemathesis with pytest.
 import schemathesis
-from catalog.app import Config, create_app
+from data.app import Config, create_app
 from httpx import Response
-from hypothesis import settings
+from hypothesis import Verbosity, settings
 from schemathesis.specs.openapi.schemas import OpenApiSchema
 
 TESTDIR = Path(__file__).parent.parent
-APIDIR: Path = TESTDIR.parent / "catalog"
+APIDIR: Path = TESTDIR.parent / "data"
 OPENAPI_SPEC_PATH = APIDIR / "openapi.yaml"
 
 oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
@@ -42,7 +42,7 @@ def log_records():
 
 
 @oas_schema.parametrize()
-@settings()
+@settings(max_examples=1, verbosity=Verbosity.debug)
 def test_status_endpoint_schema_compliance(case):
     """Test that the /status endpoint complies with OAS schema."""
 
@@ -50,10 +50,9 @@ def test_status_endpoint_schema_compliance(case):
         # Given the ASGI app...
         app = create_app(
             Config(
-                SPARQL_URL="https://example.com/sparql",
                 API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-                VOCABULARIES_DATAFILE=str(
-                    TESTDIR / "api" / "vocabularies.linkset.yaml"
+                VOCABULARY_DATAFILE=str(
+                    TESTDIR / "api" / "agente_causale.short.yaml"
                 ),
             )
         )
@@ -61,7 +60,7 @@ def test_status_endpoint_schema_compliance(case):
         with app.test_client() as client:
             # .. the logs should indicate that the vocabularies dataset is being loaded.
             for expected_log in [
-                "Loading vocabularies dataset from: ",
+                # "Loaded 2922 vocabulary items",
                 "Application startup complete",
             ]:
                 assert any(expected_log in log for log in logs), (

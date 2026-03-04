@@ -10,8 +10,26 @@ info:
     "template" with the specific schema definition
     published by the provider in the repository.
   version: 1.0.0
+  contact:
+    name: Repository and API maintainer
+    url: https://github.com/par-tec/dati-semantic-csv-apis
+    email: roberto.polli@par-tec.it
+  x-summary: >-
+    This will be taken from skos:prefLabel of the ConceptScheme.
+  termsOfService: https://schema.gov.it
+  x-api-id: a68b0d9e-0445-4f98-bd6e-269a97268d8b
+# This is a public API.
+# checkov:skip=CKV_OPENAPI_4
+# checkov:skip=CKV_OPENAPI_5
+tags:
+- name: health-check
+  description: Endpoints for checking the health of the API.
+- name: retrieve-data
+  description: Endpoints for retrieving vocabulary data.
+- name: dump-dataset
+  description: Endpoints for dumping the whole dataset.
 servers:
-- url: http://localhost:8080/
+- url: http://localhost:8080
   description: Local development server
   x-sandbox: true
 - url: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
@@ -45,7 +63,76 @@ paths:
   #           application/openapi+yaml:
   #             schema:
   #               type: object
+  /status:
+    get:
+      operationId: data.handlers.status
+      description: |-
+        Retrieve the status of the API for the vocabulary
+        identified by `agencyId` and `vocabularyId`.
+        The URL must be one of those
+        retrieved from the `/vocabularies` endpoint.
+      security:
+      - {}
+      tags:
+      - health-check
+      responses:
+        '200':
+          description: |-
+            A successful response returns the status of the API
+            for the vocabulary identified by `agencyId`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
+  #
+  # Data endpoints.
+  #
+  /dump:
+    get:
+      operationId: data.handlers.dump_vocabulary_dataset
+      description: |-
+        Dump the whole dataset
+        for the vocabulary
+        identified by `agencyId` and `vocabularyId`.
+        The URL must be one of those
+        retrieved from the `/vocabularies` endpoint.
 
+        Alternatively, this endpoint
+        may return a 300 Redirect response
+        to static files containing the whole dataset
+        according to the vocabulary serialization format.
+      security:
+      - {}
+      - high-volume: []
+      tags:
+      - dump-dataset
+      responses:
+        '200':
+          description: |-
+            A successful response returns the whole dataset
+            from the vocabulary identified by `agencyId`.
+
+            The response should be a compressed stream of
+            all the dataset.
+
+            Dump does not support filtering: it retrieves
+            the whole dataset as is.
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/DumpResponse"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
   /:
     get:
       summary: List all vocabulary items.
@@ -55,7 +142,7 @@ paths:
         Pagination is implemented via
         - offset
         - cursor, using the `id` of the last item in the previous page.
-      operationId: handlers.show_items
+      operationId: data.handlers.show_items
       security:
       - {}
       - high-volume: []
@@ -79,6 +166,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginatedResponse"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
   /{id}:
     get:
       summary: Retrieve a single vocabulary item by its ID.
@@ -138,7 +231,7 @@ paths:
         - url: https://example.com/vocab/l1/A
         ```
 
-      operationId: handlers.get_item
+      operationId: data.handlers.get_item
       security:
       - {}
       tags:
@@ -159,45 +252,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Item"
-  #
-  # Data endpoints.
-  #
-  /dump:
-    get:
-      operationId: handlers.dump_vocabulary_dataset
-      description: |-
-        Dump the whole dataset
-        for the vocabulary
-        identified by `agencyId` and `vocabularyId`.
-        The URL must be one of those
-        retrieved from the `/vocabularies` endpoint.
-
-        Alternatively, this endpoint
-        may return a 300 Redirect response
-        to static files containing the whole dataset
-        according to the vocabulary serialization format.
-      security:
-      - {}
-      - high-volume: []
-      tags:
-      - dump-dataset
-      responses:
-        '200':
-          description: |-
-            A successful response returns the whole dataset
-            from the vocabulary identified by `agencyId`.
-
-            The response should be a compressed stream of
-            all the dataset.
-
-            Dump does not support filtering: it retrieves
-            the whole dataset as is.
-          content:
-            application/octet-stream:
-              schema:
-                $ref: "#/components/schemas/DumpResponse"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
 
 components:
+  responses:
+    TooManyRequests:
+      $ref: 'components.oas3.yaml#/components/responses/TooManyRequests'
+    ServiceUnavailable:
+      $ref: 'components.oas3.yaml#/components/responses/ServiceUnavailable'
+    GenericError:
+      $ref: 'components.oas3.yaml#/components/responses/GenericError'
   securitySchemes:
     high-volume:
       description: |-
@@ -237,8 +306,6 @@ components:
       $ref: 'components.oas3.yaml#/components/schemas/Limit'
     Offset:
       $ref: 'components.oas3.yaml#/components/schemas/Offset'
-    URI:
-      $ref: 'components.oas3.yaml#/components/schemas/URI'
     Url:
       $ref: 'components.oas3.yaml#/components/schemas/Url'
     PaginatedResponse:
@@ -273,7 +340,7 @@ components:
     Item:
       example:
         id: "11160204"
-        label: Idrogeno solforato
+        label_it: Idrogeno solforato
         level: 3
         parent:
         - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
@@ -285,32 +352,33 @@ components:
           minLength: 1
           pattern: ^[A-Za-z0-9._-]+$
           type: string
-        label:
+        label_it:
           maxLength: 500
           minLength: 1
           type: string
         level:
           maximum: 10
           minimum: 0
+          format: int32
           type: integer
         parent:
           items:
             properties:
               url:
-                format: uri
+                format: uri-reference
                 type: string
             required:
             - url
             type: object
           type: array
         url:
-          format: uri
+          format: uri-reference
           type: string
         vocab:
           items:
             properties:
               url:
-                format: uri
+                format: uri-reference
                 type: string
             required:
             - url
@@ -318,7 +386,7 @@ components:
           type: array
       required:
       - id
-      - label
+      - label_it
       - level
       - parent
       - url
@@ -331,7 +399,7 @@ components:
         dct: http://purl.org/dc/terms/
         id:
           "@id": skos:notation
-        label:
+        label_it:
           "@id": skos:prefLabel
           "@language": it
         label_de:
@@ -340,9 +408,6 @@ components:
         label_en:
           "@id": skos:prefLabel
           "@language": en
-        label_it:
-          "@id": skos:prefLabel
-          "@language": it
         level:
           "@id": xkos:depth
           "@type": xsd:integer

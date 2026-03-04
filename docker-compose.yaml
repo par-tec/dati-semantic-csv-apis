@@ -30,3 +30,17 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+  api-data:
+    build:
+      context: apiv1
+      dockerfile: data.dockerfile
+    ports:
+    - "8001:8080"
+    volumes:
+    - ./assets:/assets:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
