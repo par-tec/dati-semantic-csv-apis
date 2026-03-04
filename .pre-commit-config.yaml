@@ -95,6 +95,7 @@ repos:
   rev: 3.2.504  # change to tag or sha
   hooks:
   - id: checkov
+    stages: ["pre-push"]
     files: '^Dockerfile$'
     entry: >-
       checkov
