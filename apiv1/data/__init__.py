@@ -1,0 +1,3 @@
+"""
+Data API package initialization.
+"""
