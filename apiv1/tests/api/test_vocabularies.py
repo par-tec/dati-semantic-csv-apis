@@ -22,7 +22,7 @@ def test_transform_vocabularies_to_linkset():
 
     KNOWN_DUPLICATES = {"ateco-2007"}
     # Load test data from vocabularies.yamlld
-    with open(CWD / "vocabularies.jsonld", encoding="utf-8") as f:
+    with open(CWD / "vocabularies.yamlld", encoding="utf-8") as f:
         sparql_results = yaml.safe_load(f)
 
     # Transform to linkset format
