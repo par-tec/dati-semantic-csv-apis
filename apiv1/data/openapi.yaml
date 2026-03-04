@@ -10,8 +10,24 @@ info:
     "template" with the specific schema definition
     published by the provider in the repository.
   version: 1.0.0
+  contact:
+    name: Repository and API maintainer
+    url: https://github.com/par-tec/dati-semantic-csv-apis
+    email: roberto.polli@par-tec.it
+  x-summary: >-
+    This will be taken from skos:prefLabel of the ConceptScheme.
+  termsOfService: https://schema.gov.it
+  x-api-id: a68b0d9e-0445-4f98-bd6e-269a97268d8b
+# This is a public API.
+# checkov:skip=CKV_OPENAPI_4
+# checkov:skip=CKV_OPENAPI_5
+tags:
+- name: retrieve-data
+  description: Endpoints for retrieving vocabulary data.
+- name: dump-dataset
+  description: Endpoints for dumping the whole dataset.
 servers:
-- url: http://localhost:8080/
+- url: http://localhost:8080
   description: Local development server
   x-sandbox: true
 - url: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
@@ -55,7 +71,7 @@ paths:
         Pagination is implemented via
         - offset
         - cursor, using the `id` of the last item in the previous page.
-      operationId: handlers.show_items
+      operationId: data.handlers.show_items
       security:
       - {}
       - high-volume: []
@@ -138,7 +154,7 @@ paths:
         - url: https://example.com/vocab/l1/A
         ```
 
-      operationId: handlers.get_item
+      operationId: data.handlers.get_item
       security:
       - {}
       tags:
@@ -164,7 +180,7 @@ paths:
   #
   /dump:
     get:
-      operationId: handlers.dump_vocabulary_dataset
+      operationId: data.handlers.dump_vocabulary_dataset
       description: |-
         Dump the whole dataset
         for the vocabulary
@@ -292,6 +308,7 @@ components:
         level:
           maximum: 10
           minimum: 0
+          format: int32
           type: integer
         parent:
           items:

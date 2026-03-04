@@ -65,7 +65,6 @@ def create_app(config: Config | None = None) -> AsyncApp:
     Returns:
         The configured AsyncApp instance.
 
-    TODO: set a config variable with the datafile path.
     """
     if config is None:
         config = Config(

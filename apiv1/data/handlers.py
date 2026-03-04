@@ -1,100 +1,15 @@
 """
-Mock handlers for Controlled Vocabularies Data API.
+API handlers for Controlled Vocabularies Data API.
 
-This module provides mock implementations of the API endpoints
-defined in openapi.yaml for testing and development purposes.
+This module provides implementations of the API endpoints
+defined in openapi.yaml for serving vocabulary data items.
 """
 
-from pathlib import Path
+import gzip
+import json
 from typing import Any
 
-import yaml
-
-
-def _get_api_base_url() -> str:
-    """
-    Extract the API base URL from the OpenAPI specification.
-
-    Returns the first server URL from the OpenAPI spec, removing trailing slashes.
-
-    Returns:
-        The API base URL.
-    """
-    openapi_file = Path(__file__).parent / "openapi.yaml"
-    with open(openapi_file, encoding="utf-8") as f:
-        spec = yaml.safe_load(f)
-
-    servers = spec.get("servers", [])
-    if servers:
-        base_url: str = servers[0].get("url", "http://localhost:8080")
-        if not isinstance(base_url, str):
-            raise TypeError("Server URL must be a string")
-        return base_url.rstrip("/")
-    return "http://localhost:8080"
-
-
-# Get API base URL from OpenAPI specification
-API_BASE_URL = _get_api_base_url()
-
-
-def _transform_item(obj: Any) -> Any:
-    """
-    Recursively transform items by removing @type fields and adding href references.
-
-    Args:
-        obj: The object to transform (dict, list, or primitive).
-
-    Returns:
-        The transformed object.
-    """
-    if isinstance(obj, dict):
-        # Remove @type field
-        item = {k: _transform_item(v) for k, v in obj.items() if k != "@type"}
-
-        # Add href to main entry using its id
-        if "id" in item:
-            item["href"] = f"{API_BASE_URL}/{item['id']}"
-
-        # Add href to parent items by extracting ID from their url
-        if "parent" in item and isinstance(item["parent"], list):
-            for parent in item["parent"]:
-                if isinstance(parent, dict) and "url" in parent:
-                    parent_id = parent["url"].rstrip("/").split("/")[-1]
-                    parent["href"] = f"{API_BASE_URL}/{parent_id}"
-
-        return item
-    elif isinstance(obj, list):
-        return [_transform_item(item) for item in obj]
-    else:
-        return obj
-
-
-# Load vocabulary items from the agente_causale data file
-def _load_vocabulary_items() -> list[dict[str, Any]]:
-    """
-    Load vocabulary items from agente_causale.data.yaml.
-
-    Returns:
-        List of vocabulary items with @type field removed and href field added.
-    """
-    data_file = (
-        Path(__file__).parent.parent.parent
-        / "assets"
-        / "controlled-vocabularies"
-        / "agente_causale"
-        / "latest"
-        / "agente_causale.data.yaml"
-    )
-
-    with open(data_file, encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-
-    # Extract items from @graph and apply transformations
-    return [_transform_item(item) for item in data.get("@graph", [])]
-
-
-# Load the vocabulary items at module initialization
-VOCABULARY_ITEMS = _load_vocabulary_items()
+from connexion import request
 
 
 async def show_items(
@@ -115,7 +30,9 @@ async def show_items(
     Returns:
         A tuple containing the paginated response dictionary and HTTP status code 200.
     """
-    items = VOCABULARY_ITEMS.copy()
+    # Access dataset from request state (set by lifespan handler)
+    vocabulary_items = request.state.vocabulary_items
+    items = vocabulary_items.copy()
 
     # Apply label filter if provided
     if label:
@@ -139,7 +56,7 @@ async def show_items(
     items = items[:limit]
 
     response = {
-        "totalResults": len(VOCABULARY_ITEMS),
+        "totalResults": len(vocabulary_items),
         "limit": limit,
         "offset": offset,
         "items": items,
@@ -159,8 +76,11 @@ async def get_item(id: str) -> tuple[dict[str, Any], int]:
         A tuple containing the item dictionary and HTTP status code,
         or a problem details object with 404 if not found.
     """
+    # Access dataset from request state (set by lifespan handler)
+    vocabulary_items = request.state.vocabulary_items
+
     # Find item by ID
-    item = next((item for item in VOCABULARY_ITEMS if item["id"] == id), None)
+    item = next((item for item in vocabulary_items if item["id"] == id), None)
 
     if item is None:
         # Return RFC 9457 Problem Details
@@ -188,15 +108,15 @@ async def dump_vocabulary_dataset(
         A tuple containing the binary dump data, HTTP status code 200,
         and response headers.
     """
-    # Create a mock compressed dump of the dataset
-    import gzip
-    import json
+    # Access dataset from request state (set by lifespan handler)
+    vocabulary_items = request.state.vocabulary_items
 
+    # Create a compressed dump of the dataset
     data = {
         "agencyId": agencyId,
-        "items": VOCABULARY_ITEMS,
+        "items": vocabulary_items,
         "metadata": {
-            "totalItems": len(VOCABULARY_ITEMS),
+            "totalItems": len(vocabulary_items),
             "dumpDate": "2026-01-30T00:00:00Z",
         },
     }
