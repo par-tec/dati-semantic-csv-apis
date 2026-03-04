@@ -47,7 +47,7 @@ components:
       format: uri
       maxLength: 2048
       pattern: >-
-        ^(about:|https://|urn:).*
+        ^(about:|https?://|urn:).*
       example: https://schema.gov.it/vocabularies/v1/agid/agentecausale/
     Url:
       description: |-
@@ -58,6 +58,7 @@ components:
     Limit:
       description: |-
         A limit for pagination.
+        This value is bounded by the maximum number of items that can be returned by the API.
       type: integer
       format: int32
       minimum: 1
@@ -67,9 +68,12 @@ components:
     Offset:
       description: |-
         An offset for pagination.
+
+        This API supports at maximum ~100_000 items vocabularies.
       type: integer
       format: int32
       minimum: 0
+      maximum: 100000
       default: 0
       example: 0
     Problem:

@@ -132,6 +132,7 @@ def list_vocabularies(
                 "anchor": catalog["anchor"],
                 "api-catalog": catalog["api-catalog"],
                 "item": filtered_items[offset : offset + limit],
+                # Pagination metadata.
                 "total_count": len(filtered_items),
                 "count": len(filtered_items[offset : offset + limit]),
                 "limit": limit,

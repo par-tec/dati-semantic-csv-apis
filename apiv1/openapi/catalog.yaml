@@ -319,7 +319,7 @@ components:
       type: string
       format: uri
       maxLength: 2048
-      pattern: ^(about:|https://|urn:).*
+      pattern: ^(about:|https?://|urn:).*
       example: https://schema.gov.it/vocabularies/v1/agid/agentecausale/
     LanguageTagShort:
       description: ISO 639-1 2-letter language code
@@ -402,13 +402,11 @@ components:
         dcat: http://www.w3.org/ns/dcat#
         dcterms: http://purl.org/dc/terms/
         description: dcterms:description
-        ndc: https://w3id.org/italia/onto/NDC/
         owl: http://www.w3.org/2002/07/owl#
         skos: http://www.w3.org/2004/02/skos/core#
         about:
           '@id': https://w3id.org/italia/onto/NDC/servesDataset
           '@type': '@id'
-        concept: ndc:keyConcept
         href: '@id'
         languages: dcterms:language
         publisher:
@@ -422,6 +420,8 @@ components:
         author: null
         type: null
         hreflang: null
+        _concept: NDC:keyConcept
+        _vocabulary_type: null
       type: object
       additionalProperties: false
       required:
@@ -445,6 +445,30 @@ components:
           oneOf:
             - $ref: '#/components/schemas/TitleString'
           description: Human-readable title extracted from the vocabulary metadata, (e.g., skos:prefLabel).
+        _concept:
+          deprecated: true
+          description: |-
+            The key concept of the vocabulary, if any.
+
+            This is extracted from the vocabulary metadata
+            and can be used for filtering and searching.
+
+            For example, for a classification vocabulary,
+            this is the concept that represents the classification itself.
+
+            :warning: Do we need this? URIs are more stable.
+          oneOf:
+            - $ref: '#/components/schemas/TitleString'
+          example: ateco-2007
+        _vocabulary_type:
+          deprecated: true
+          description: |-
+            The type of the vocabulary, if any.
+            This is extracted from the vocabulary metadata
+            :warning: Do we need this?.
+          oneOf:
+            - $ref: '#/components/schemas/URI'
+          example: http://purl.org/adms/assettype/CodeList
         hreflang:
           description: |-
             Language codes supported by the vocabulary
@@ -549,21 +573,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/URI'
           description: The current API Catalog URL.
-        count:
-          deprecated: true
-          description: |-
-            Total number of API distributions returned by the query,
-            without pagination.
-
-            This is for informational purposes, to allow clients
-            to know the total size of the dataset and plan pagination
-            accordingly.
-
-            :warning: Do we need this?
-          type: integer
-          format: int32
-          minimum: 0
-          maximum: 100
         item:
           description: |-
             List of API distributions published by
@@ -576,6 +585,14 @@ components:
           maxItems: 100
           items:
             $ref: '#/components/schemas/APIDistribution'
+        total_count:
+          $ref: '#/components/schemas/Offset'
+        count:
+          $ref: '#/components/schemas/Limit'
+        limit:
+          $ref: '#/components/schemas/Limit'
+        offset:
+          $ref: '#/components/schemas/Offset'
       example:
         api-catalog: https://schema.gov.it/api/vocabularies/v1/
         anchor: https://schema.gov.it/api/vocabularies/v1/
@@ -596,6 +613,10 @@ components:
                 type: application/ld+json
             predecessor-version:
               - href: https://schema.gov.it/api/vocabularies/istat/ateco-2007
+        total_count: 4340
+        count: 12
+        limit: 20
+        offset: 5
     Linkset:
       description: |-
         A linkset containing a list of API Catalogs
@@ -644,6 +665,10 @@ components:
                     type: application/ld+json
                 predecessor-version:
                   - href: https://schema.gov.it/api/vocabularies/istat/ateco-2007
+            total_count: 4340
+            count: 12
+            limit: 20
+            offset: 5
     Link:
       description: A link to a resource.
       type: object
@@ -676,7 +701,7 @@ components:
           type: string
           format: uri
           maxLength: 2048
-          pattern: ^(about:|https://|urn:).*
+          pattern: ^(about:|https?://|urn:).*
           example: https://schema.gov.it/vocabularies/v1/agid/agentecausale/
           default: about:blank
         title:
@@ -698,7 +723,9 @@ components:
       format: uri-reference
       example: /vocabularies/v1/agid/agentecausale/openapi.yaml
     Limit:
-      description: A limit for pagination.
+      description: |-
+        A limit for pagination.
+        This value is bounded by the maximum number of items that can be returned by the API.
       type: integer
       format: int32
       minimum: 1
@@ -706,10 +733,14 @@ components:
       default: 20
       example: 50
     Offset:
-      description: An offset for pagination.
+      description: |-
+        An offset for pagination.
+
+        This API supports at maximum ~100_000 items vocabularies.
       type: integer
       format: int32
       minimum: 0
+      maximum: 100000
       default: 0
       example: 0
 x-common:
