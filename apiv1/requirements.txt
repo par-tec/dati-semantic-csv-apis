@@ -1,5 +1,5 @@
 # API dependencies
-connexion<=3.3.0
+connexion>=3.3.0
 connexion[swagger-ui]>=3.0.0,<4.0.0
 connexion[flask]>=3.0.0,<4.0.0
 connexion[uvicorn]>=3.0.0,<4.0.0

@@ -7,9 +7,27 @@ defined in openapi.yaml for serving vocabulary data items.
 
 import gzip
 import json
+import logging
 from typing import Any
 
 from connexion import request
+from connexion.lifecycle import ConnexionResponse
+
+log = logging.getLogger(__name__)
+
+
+async def status() -> ConnexionResponse:
+    """
+    Health check endpoint to verify that the API is running.
+
+    Returns:
+        A ConnexionResponse with status code 200 and a simple JSON body.
+    """
+    return ConnexionResponse(
+        status_code=200,
+        content_type="application/json",
+        body={"status": 200, "title": "OK"},
+    )
 
 
 async def show_items(
@@ -17,7 +35,8 @@ async def show_items(
     offset: int = 0,
     cursor: str | None = None,
     label: str | None = None,
-) -> tuple[dict[str, Any], int]:
+    **kwargs: Any,
+) -> ConnexionResponse:
     """
     List all vocabulary items.
 
@@ -28,8 +47,10 @@ async def show_items(
         label: Filter items by label.
 
     Returns:
-        A tuple containing the paginated response dictionary and HTTP status code 200.
+        A tuple containing the paginated response dictionary, HTTP status code 200,
+        and response headers.
     """
+    log.debug("Extra query parameters: %s", kwargs)
     # Access dataset from request state (set by lifespan handler)
     vocabulary_items = request.state.vocabulary_items
     items = vocabulary_items.copy()
@@ -63,11 +84,14 @@ async def show_items(
         "offset": offset,
         "items": items,
     }
+    return ConnexionResponse(
+        status_code=200,
+        content_type="application/json",
+        body=response,
+    )
 
-    return response, 200
 
-
-async def get_item(id: str) -> tuple[dict[str, Any], int]:
+async def get_item(id: str) -> ConnexionResponse:
     """
     Retrieve a single vocabulary item by its ID.
 
@@ -75,7 +99,7 @@ async def get_item(id: str) -> tuple[dict[str, Any], int]:
         id: The unique identifier of the vocabulary item.
 
     Returns:
-        A tuple containing the item dictionary and HTTP status code,
+        A ConnexionResponse containing the item dictionary and HTTP status code,
         or a problem details object with 404 if not found.
     """
     # Access dataset from request state (set by lifespan handler)
@@ -92,30 +116,32 @@ async def get_item(id: str) -> tuple[dict[str, Any], int]:
             "status": 404,
             "detail": f"Vocabulary item with ID '{id}' not found",
         }
-        return problem, 404
+        return ConnexionResponse(
+            body=problem,
+            status_code=404,
+            content_type="application/problem+json",
+        )
 
-    return item, 200
+    return ConnexionResponse(
+        status_code=200, content_type="application/json", body=item
+    )
 
 
-async def dump_vocabulary_dataset(
-    agencyId: str,
-) -> tuple[bytes, int, dict[str, str]]:
+async def dump_vocabulary_dataset() -> ConnexionResponse:
     """
     Dump the whole dataset for the vocabulary.
 
-    Args:
-        agencyId: Identifier of the vocabulary agency.
-
     Returns:
-        A tuple containing the binary dump data, HTTP status code 200,
+        A ConnexionResponse containing the binary dump data, HTTP status code 200,
         and response headers.
     """
+    keyConcept = "agente_causale"
+    # raise NotImplementedError("Dump endpoint not implemented yet")
     # Access dataset from request state (set by lifespan handler)
     vocabulary_items = request.state.vocabulary_items
 
     # Create a compressed dump of the dataset
     data = {
-        "agencyId": agencyId,
         "items": vocabulary_items,
         "metadata": {
             "totalItems": len(vocabulary_items),
@@ -130,7 +156,9 @@ async def dump_vocabulary_dataset(
     headers = {
         "Content-Type": "application/octet-stream",
         "Content-Encoding": "gzip",
-        "Content-Disposition": f'attachment; filename="vocabulary_{agencyId}_dump.json.gz"',
+        "Content-Disposition": f'attachment; filename="vocabulary_{keyConcept}_dump.json.gz"',
     }
 
-    return compressed_data, 200, headers
+    return ConnexionResponse(
+        status_code=200, headers=headers, body=compressed_data
+    )

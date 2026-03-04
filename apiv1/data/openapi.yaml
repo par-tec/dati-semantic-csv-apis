@@ -22,6 +22,8 @@ info:
 # checkov:skip=CKV_OPENAPI_4
 # checkov:skip=CKV_OPENAPI_5
 tags:
+- name: health-check
+  description: Endpoints for checking the health of the API.
 - name: retrieve-data
   description: Endpoints for retrieving vocabulary data.
 - name: dump-dataset
@@ -61,7 +63,76 @@ paths:
   #           application/openapi+yaml:
   #             schema:
   #               type: object
+  /status:
+    get:
+      operationId: data.handlers.status
+      description: |-
+        Retrieve the status of the API for the vocabulary
+        identified by `agencyId` and `vocabularyId`.
+        The URL must be one of those
+        retrieved from the `/vocabularies` endpoint.
+      security:
+      - {}
+      tags:
+      - health-check
+      responses:
+        '200':
+          description: |-
+            A successful response returns the status of the API
+            for the vocabulary identified by `agencyId`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
+  #
+  # Data endpoints.
+  #
+  /dump:
+    get:
+      operationId: data.handlers.dump_vocabulary_dataset
+      description: |-
+        Dump the whole dataset
+        for the vocabulary
+        identified by `agencyId` and `vocabularyId`.
+        The URL must be one of those
+        retrieved from the `/vocabularies` endpoint.
 
+        Alternatively, this endpoint
+        may return a 300 Redirect response
+        to static files containing the whole dataset
+        according to the vocabulary serialization format.
+      security:
+      - {}
+      - high-volume: []
+      tags:
+      - dump-dataset
+      responses:
+        '200':
+          description: |-
+            A successful response returns the whole dataset
+            from the vocabulary identified by `agencyId`.
+
+            The response should be a compressed stream of
+            all the dataset.
+
+            Dump does not support filtering: it retrieves
+            the whole dataset as is.
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/DumpResponse"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
   /:
     get:
       summary: List all vocabulary items.
@@ -101,7 +172,6 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         'default':
           $ref: '#/components/responses/GenericError'
-
   /{id}:
     get:
       summary: Retrieve a single vocabulary item by its ID.
@@ -182,50 +252,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Item"
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailable'
-        'default':
-          $ref: '#/components/responses/GenericError'
-
-  #
-  # Data endpoints.
-  #
-  /dump:
-    get:
-      operationId: data.handlers.dump_vocabulary_dataset
-      description: |-
-        Dump the whole dataset
-        for the vocabulary
-        identified by `agencyId` and `vocabularyId`.
-        The URL must be one of those
-        retrieved from the `/vocabularies` endpoint.
-
-        Alternatively, this endpoint
-        may return a 300 Redirect response
-        to static files containing the whole dataset
-        according to the vocabulary serialization format.
-      security:
-      - {}
-      - high-volume: []
-      tags:
-      - dump-dataset
-      responses:
-        '200':
-          description: |-
-            A successful response returns the whole dataset
-            from the vocabulary identified by `agencyId`.
-
-            The response should be a compressed stream of
-            all the dataset.
-
-            Dump does not support filtering: it retrieves
-            the whole dataset as is.
-          content:
-            application/octet-stream:
-              schema:
-                $ref: "#/components/schemas/DumpResponse"
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '503':
@@ -314,7 +340,7 @@ components:
     Item:
       example:
         id: "11160204"
-        label: Idrogeno solforato
+        label_it: Idrogeno solforato
         level: 3
         parent:
         - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
@@ -326,7 +352,7 @@ components:
           minLength: 1
           pattern: ^[A-Za-z0-9._-]+$
           type: string
-        label:
+        label_it:
           maxLength: 500
           minLength: 1
           type: string
@@ -339,20 +365,20 @@ components:
           items:
             properties:
               url:
-                format: uri
+                format: uri-reference
                 type: string
             required:
             - url
             type: object
           type: array
         url:
-          format: uri
+          format: uri-reference
           type: string
         vocab:
           items:
             properties:
               url:
-                format: uri
+                format: uri-reference
                 type: string
             required:
             - url
@@ -360,7 +386,7 @@ components:
           type: array
       required:
       - id
-      - label
+      - label_it
       - level
       - parent
       - url
@@ -373,7 +399,7 @@ components:
         dct: http://purl.org/dc/terms/
         id:
           "@id": skos:notation
-        label:
+        label_it:
           "@id": skos:prefLabel
           "@language": it
         label_de:
@@ -382,9 +408,6 @@ components:
         label_en:
           "@id": skos:prefLabel
           "@language": en
-        label_it:
-          "@id": skos:prefLabel
-          "@language": it
         level:
           "@id": xkos:depth
           "@type": xsd:integer
