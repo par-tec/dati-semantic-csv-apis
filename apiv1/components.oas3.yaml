@@ -61,7 +61,7 @@ components:
         This value is bounded by the maximum number of items that can be returned by the API.
       type: integer
       format: int32
-      minimum: 1
+      minimum: 0
       maximum: 200
       default: 20
       example: 50

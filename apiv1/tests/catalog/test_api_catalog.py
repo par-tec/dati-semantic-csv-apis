@@ -10,6 +10,7 @@ import pytest
 # See https://schemathesis.readthedocs.io/en/stable/tutorials/pytest/ for using schemathesis with pytest.
 import schemathesis
 from catalog.app import Config, create_app
+from httpx import Response
 from hypothesis import settings
 from starlette.testclient import TestClient
 
@@ -34,7 +35,7 @@ oas_schema = schemathesis.openapi.from_path(str(OPENAPI_SPEC_PATH))
 
 
 @oas_schema.parametrize()
-@settings(max_examples=10)
+@settings(max_examples=100)
 def test_status_endpoint_schema_compliance(case):
     """Test that the /status endpoint complies with OAS schema."""
 
@@ -62,11 +63,12 @@ def test_status_endpoint_schema_compliance(case):
         )
 
         # Use TestClient as context manager to trigger lifespan events
-        with TestClient(app) as client:
-            response = client.request(
+        with app.test_client() as client:
+            response: Response = client.request(
                 method=case.method,
                 url=case.formatted_path,
                 headers=case.headers,
+                params=case.query,
             )
 
             # Skip test if endpoint returns 501 (Not Implemented)

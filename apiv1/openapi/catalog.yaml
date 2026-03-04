@@ -330,8 +330,8 @@ components:
     TitleString:
       description: Title string
       type: string
-      maxLength: 128
-      pattern: ^.{1,128}$
+      maxLength: 200
+      pattern: ^[\s\S]{1,200}$
     ServiceDescription:
       description: |-
         A link to a service description document as per RFC 8631.
@@ -491,9 +491,11 @@ components:
             Human-readable description extracted from the vocabulary metadata,
             (e.g., skos:definition).
             This is not associated with any Link Relation.
+
+            The underlying regexp allows for newlines and other whitespace characters.
           type: string
-          maxLength: 2048
-          pattern: ^.{1,2048}$
+          maxLength: 4000
+          pattern: ^[\s\S]{1,4000}$
         version:
           description: Version identifier
           type: string

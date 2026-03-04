@@ -81,7 +81,6 @@ def create_app(config: Config | None = None) -> AsyncApp:
             config["VOCABULARIES_DATAFILE"], app
         ),
     )
-
     app.add_api(
         "openapi.yaml",
         strict_validation=True,
