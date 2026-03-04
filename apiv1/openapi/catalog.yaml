@@ -300,6 +300,7 @@ components:
       description: |-
         Filter by vocabulary title.
         This is a substring match on the title field of the vocabulary metadata.
+        TODO: As a request parameter, we can further constrain the maximum length.
       schema:
         $ref: '#/components/schemas/TitleString'
       example: ateco
@@ -310,6 +311,7 @@ components:
         Filter by vocabulary description.
         This is a substring match on the description field of the vocabulary metadata.
         TODO: Further matching criteria may be added in the future.
+        TODO: As a request parameter, we can further constrain the maximum length.
       schema:
         $ref: '#/components/schemas/TitleString'
       example: registro imprese
@@ -583,7 +585,7 @@ components:
             to retrieve the full list of items, or query for specific
             items.
           type: array
-          minItems: 1
+          minItems: 0
           maxItems: 100
           items:
             $ref: '#/components/schemas/APIDistribution'
@@ -730,7 +732,7 @@ components:
         This value is bounded by the maximum number of items that can be returned by the API.
       type: integer
       format: int32
-      minimum: 1
+      minimum: 0
       maximum: 200
       default: 20
       example: 50

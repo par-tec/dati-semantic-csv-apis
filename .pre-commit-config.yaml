@@ -75,7 +75,8 @@ repos:
     stages:
     - manual
     language: docker_image
-    files: apiv1/catalog/open.*yaml
+    files: >-
+      apiv1/(catalog|data)/open.*yaml
     entry: |-
       --entrypoint sh
       docker.io/redocly/cli:2.20.3

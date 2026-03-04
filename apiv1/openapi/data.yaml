@@ -1,0 +1,395 @@
+openapi: 3.0.3
+info:
+  title: Controlled Vocabularies API - Vocabulary Data Endpoints
+  description: |-
+    This document defines the data endpoints
+    for a Controlled Vocabulary API.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/
+    description: Local development server
+    x-sandbox: true
+  - url: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
+    description: Example API server
+paths:
+  /:
+    get:
+      summary: List all vocabulary items.
+      description: |-
+        Returns a list of all vocabulary items in the controlled vocabulary.
+
+        Pagination is implemented via
+        - offset
+        - cursor, using the `id` of the last item in the previous page.
+      operationId: handlers.show_items
+      security:
+        - {}
+        - high-volume: []
+      tags:
+        - retrieve-data
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/label'
+      responses:
+        '200':
+          description: |-
+            A successful response returns the data
+            from the vocabulary identified by `agencyId`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+  /{id}:
+    get:
+      summary: Retrieve a single vocabulary item by its ID.
+      description: |-
+        Returns a single vocabulary item
+        identified by its unique ID.
+
+        The uniqueness of the ID inside the vocabulary
+        should be guaranteed by the provider.
+
+        Example:
+
+        In a skos:ConceptScheme, each skos:Concept should have
+        a unique skos:notation property value.
+
+        If the skos:ConceptScheme has multiple levels,
+        as long as the skos:notation is unique across all levels,
+        the vocabulary item can be retrieved by its ID.
+
+        There is no guarantee that the API URL respects
+        the same hierarchy of the vocabulary levels.
+
+        Example:
+
+        ```turtle
+        @base <https://example.com/vocab/> .
+
+        <l1/A>
+          a skos:Concept ;
+          skos:notation "A" ;
+          skos:prefLabel "Level 1 - A"@it .
+        <l1/A/B>
+          a skos:Concept ;
+          skos:notation "A.B" ;
+          skos:prefLabel "Level 2 - B"@it ;
+          skos:broader <l1/A> .
+        ```
+
+        results in two API resources:
+
+        ```yaml
+        GET /vocab/A
+        Host: example.dom
+
+        id: A
+        label: Level 1 - A
+        uri: https://example.com/vocab/l1/A
+
+        GET /vocab/A.B
+        Host: example.dom
+
+        HTTP/1.1 200 OK
+        id: A.B
+        label: Level 2 - B
+        uri: https://example.com/vocab/l1/A/B
+        parent:
+        - url: https://example.com/vocab/l1/A
+        ```
+      operationId: handlers.get_item
+      security:
+        - {}
+      tags:
+        - retrieve-data
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the vocabulary item.
+      responses:
+        '200':
+          description: |-
+            A successful response returns the vocabulary item
+            identified by the given ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+  /dump:
+    get:
+      operationId: handlers.dump_vocabulary_dataset
+      description: |-
+        Dump the whole dataset
+        for the vocabulary
+        identified by `agencyId` and `vocabularyId`.
+        The URL must be one of those
+        retrieved from the `/vocabularies` endpoint.
+
+        Alternatively, this endpoint
+        may return a 300 Redirect response
+        to static files containing the whole dataset
+        according to the vocabulary serialization format.
+      security:
+        - {}
+        - high-volume: []
+      tags:
+        - dump-dataset
+      responses:
+        '200':
+          description: |-
+            A successful response returns the whole dataset
+            from the vocabulary identified by `agencyId`.
+
+            The response should be a compressed stream of
+            all the dataset.
+
+            Dump does not support filtering: it retrieves
+            the whole dataset as is.
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/DumpResponse'
+components:
+  securitySchemes:
+    high-volume:
+      description: High volume users use this security scheme.
+      type: http
+      scheme: Basic
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: Maximum number of items to return. If unset, used default value 10.
+      schema:
+        $ref: '#/components/schemas/Limit'
+      example: 10
+    offset:
+      name: offset
+      in: query
+      description: Offset for pagination
+      schema:
+        $ref: '#/components/schemas/Offset'
+      example: 0
+    cursor:
+      name: cursor
+      in: query
+      description: |-
+        Cursor for pagination.
+        It is the `id` of the last item
+        in the previous page.
+      schema:
+        type: string
+      example: '11160204'
+    label:
+      name: label
+      in: query
+      description: Filter items by label.
+      schema:
+        type: string
+      example: Idrogeno solforato
+  schemas:
+    DumpResponse:
+      type: string
+      format: binary
+    Problem:
+      description: |-
+        Convey information conditions
+        in HTTP API responses according to
+        RFC 9457 Problem Details.
+
+        Do not disclose sensitive information
+        or internal implementation details.
+
+        You need to provide the minimum
+        information required to help the client
+        to issue a successful request.
+      additionalProperties: false
+      type: object
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          description: An absolute URI.
+          type: string
+          format: uri
+          maxLength: 2048
+          pattern: ^(about:|https?://|urn:).*
+          example: https://schema.gov.it/vocabularies/v1/agid/agentecausale/
+          default: about:blank
+        title:
+          type: string
+          maxLength: 128
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+          format: int32
+        detail:
+          type: string
+          maxLength: 1024
+        instance:
+          $ref: '#/components/schemas/Url'
+    Limit:
+      description: |-
+        A limit for pagination.
+        This value is bounded by the maximum number of items that can be returned by the API.
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 200
+      default: 20
+      example: 50
+    Offset:
+      description: |-
+        An offset for pagination.
+
+        This API supports at maximum ~100_000 items vocabularies.
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 100000
+      default: 0
+      example: 0
+    URI:
+      description: An absolute URI.
+      type: string
+      format: uri
+      maxLength: 2048
+      pattern: ^(about:|https?://|urn:).*
+      example: https://schema.gov.it/vocabularies/v1/agid/agentecausale/
+    Url:
+      description: An URL that is either absolute or relative.
+      type: string
+      format: uri-reference
+      example: /vocabularies/v1/agid/agentecausale/openapi.yaml
+    PaginatedResponse:
+      type: object
+      additionalProperties: false
+      x-jsonld-type: ConceptScheme
+      x-jsonld-context:
+        '@vocab': http://www.w3.org/2004/02/skos/core#
+        l0: https://w3id.org/italia/onto/l0/
+        limit: null
+        offset: null
+        totalResults: null
+        items:
+          '@container': '@set'
+          '@id': l0:hasMember
+      properties:
+        totalResults:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+        limit:
+          $ref: '#/components/schemas/Limit'
+        offset:
+          $ref: '#/components/schemas/Offset'
+        items:
+          type: array
+          minItems: 0
+          maxItems: 200
+          items:
+            $ref: '#/components/schemas/Item'
+    Item:
+      example:
+        id: '11160204'
+        label: Idrogeno solforato
+        level: 3
+        parent:
+          - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
+        url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11160204
+        vocab:
+          - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+      properties:
+        id:
+          minLength: 1
+          pattern: ^[A-Za-z0-9._-]+$
+          type: string
+        label:
+          maxLength: 500
+          minLength: 1
+          type: string
+        level:
+          maximum: 10
+          minimum: 0
+          type: integer
+        parent:
+          items:
+            properties:
+              url:
+                format: uri
+                type: string
+            required:
+              - url
+            type: object
+          type: array
+        url:
+          format: uri
+          type: string
+        vocab:
+          items:
+            properties:
+              url:
+                format: uri
+                type: string
+            required:
+              - url
+            type: object
+          type: array
+      required:
+        - id
+        - label
+        - level
+        - parent
+        - url
+        - vocab
+      type: object
+      x-jsonld-context:
+        '@vocab': https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/
+        INAILService: https://w3id.org/italia/work-accident/onto/adm_serv/
+        clvapit: https://w3id.org/italia/onto/CLV/
+        dct: http://purl.org/dc/terms/
+        id:
+          '@id': skos:notation
+        label:
+          '@id': skos:prefLabel
+          '@language': it
+        label_de:
+          '@id': skos:prefLabel
+          '@language': de
+        label_en:
+          '@id': skos:prefLabel
+          '@language': en
+        label_it:
+          '@id': skos:prefLabel
+          '@language': it
+        level:
+          '@id': xkos:depth
+          '@type': xsd:integer
+        parent:
+          '@container': '@set'
+          '@context':
+            url: '@id'
+          '@id': skos:broader
+        skos: http://www.w3.org/2004/02/skos/core#
+        url: '@id'
+        vocab:
+          '@container': '@set'
+          '@context':
+            url: '@id'
+          '@id': skos:inScheme
+        xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+        xsd: http://www.w3.org/2001/XMLSchema#
+      x-jsonld-type: INAILService:AgenteCausaleINAIL
+      x-validation:
+        error_count: 0
+        errors: []
+        valid: true
