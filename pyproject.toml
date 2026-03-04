@@ -55,10 +55,8 @@ packages = ["tools"]
 log_format = "%(asctime)s %(levelname)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 norecursedirs = "docs *.egg-info .git .tox var/large_ml_model/"
-#addopts = "-v -p no:memray -p no:profiling"
-addopts = "-v -p no:memray -p no:profiling --cov --color=yes --cov-report term-missing --cov-report xml:coverage.xml --junitxml=report.xml"
-# FIXME: speed up tests for now.
-# --cov --color=yes --cov-report term-missing --cov-report xml:coverage.xml --junitxml=report.xml
+# XXX: To speed up tests, coverage is only enabled in tox -e coverage.
+addopts = "-v -p no:memray -p no:profiling"
 console_output_style = "count"
 testpaths = ["tests"]
 empty_parameter_set_mark = "fail_at_collect"

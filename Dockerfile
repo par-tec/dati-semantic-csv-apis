@@ -49,10 +49,10 @@ RUN groupadd -r appuser && \
 
 WORKDIR /src
 RUN chown appuser:appuser /src
+COPY --chown=appuser:appuser . /src
 
 USER appuser
 
-# Copy only necessary files (ensure .dockerignore is configured)
-COPY --chown=appuser:appuser . /src
-
-RUN tox
+# Run fast tests first, then the slower ones.
+RUN tox -e coverage -- -v -m "not asset" && \
+    tox -e coverage -- -v -m asset

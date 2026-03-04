@@ -29,6 +29,18 @@ You can find it in the [docs](docs) folder.
 - [CSV Serialization](docs/README.csv.md)
 - [REST API for Controlled Vocabularies](docs/README.api.md)
 
+Run `tools` tests with:
+
+```bash
+docker compose up test
+```
+
+Build and run the API with:
+
+```bash
+docker compose up catalog-api
+```
+
 ## Contributing
 
 Please, see [CONTRIBUTING.md](CONTRIBUTING.md) for more details on:

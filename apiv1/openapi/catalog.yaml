@@ -255,7 +255,9 @@ components:
     agencyIdPath:
       name: agencyId
       in: path
-      description: Agency identifier
+      description: |-
+        Agency identifier matched via the latest path segment of the agency URI.
+        For example, for the agency URI `https://w3id.org/italia/data/public-organization/ISTAT`, `istat` is a valid agencyIdPath.
       required: true
       schema:
         type: string
@@ -266,7 +268,9 @@ components:
     author:
       name: author
       in: query
-      description: Filter by author URI
+      description: |-
+        Filter by a substring of the author URI.
+        For example, for the author URI `https://w3id.org/italia/data/public-organization/ISTAT`, `istat` is a valid author filter.
       schema:
         type: string
         maxLength: 64
@@ -275,7 +279,11 @@ components:
     hreflang:
       name: hreflang
       in: query
-      description: Filter by language code (ISO 639-1)
+      description: |-
+        Filter by language code (ISO 639-1).
+        The language code is the ISO 639-1 two-letter code of the languages supported by the vocabulary, to be compatible with the `hreflang` link attribute defined in RFC 8288.
+        Since schema.gov.it vocabularies use the eurovoc language tags, the `hreflang` value uses the ISO 639-1 two-letter code of the language part of the eurovoc tag.
+        eurovoc languages that do not have an ISO 639-1 two-letter code are not supported by this filter.
       schema:
         $ref: '#/components/schemas/LanguageTagShort'
       example: it
@@ -289,17 +297,22 @@ components:
     title:
       name: title
       in: query
-      description: Filter by vocabulary title
+      description: |-
+        Filter by vocabulary title.
+        This is a substring match on the title field of the vocabulary metadata.
       schema:
         $ref: '#/components/schemas/TitleString'
       example: ateco
     description:
       name: description
       in: query
-      description: Filter by vocabulary description
+      description: |-
+        Filter by vocabulary description.
+        This is a substring match on the description field of the vocabulary metadata.
+        TODO: Further matching criteria may be added in the future.
       schema:
         $ref: '#/components/schemas/TitleString'
-      example: politiche pubbliche
+      example: registro imprese
   schemas:
     URI:
       description: An absolute URI.
