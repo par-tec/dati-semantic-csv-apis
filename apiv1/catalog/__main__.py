@@ -6,7 +6,7 @@ from sys import argv
 import yaml
 from connexion import AsyncApp
 
-from . import create_app
+from . import Config, create_app
 from .download import (
     sparql_query_vocabularies,
     transform_sparql_to_linkset,
@@ -18,7 +18,9 @@ log = logging.getLogger(__name__)
 if __name__ == "__main__":
     sparql_url = os.getenv("SPARQL_URL")
     api_base_url = os.getenv("API_BASE_URL")
-    vocabularies_datafile: str | None = os.getenv("VOCABULARIES_DATAFILE")
+    vocabularies_datafile = (
+        os.getenv("VOCABULARIES_DATAFILE") or "vocabularies.linkset.yaml"
+    )
     if "download" in argv:
         if sparql_url is None:
             print(
@@ -45,10 +47,10 @@ if __name__ == "__main__":
         )
         exit(0)
     app: AsyncApp = create_app(
-        config={
-            "SPARQL_URL": sparql_url,
-            "API_BASE_URL": api_base_url,
-            "VOCABULARIES_DATAFILE": vocabularies_datafile,
-        }
+        config=Config(
+            SPARQL_URL=sparql_url,
+            API_BASE_URL=api_base_url,
+            VOCABULARIES_DATAFILE=vocabularies_datafile,
+        )
     )
     app.run(host="0.0.0.0", port=8080)

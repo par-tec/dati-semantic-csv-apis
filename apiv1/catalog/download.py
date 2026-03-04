@@ -4,7 +4,6 @@ Model vocabulary endpoint according to the following expected payload:
 
 import json
 import logging
-import os
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -201,7 +200,7 @@ def transform_sparql_to_linkset(sparql_results: dict, base_url: str) -> dict:
     return {"linkset": linkset}
 
 
-def load_linkset_data() -> dict[str, Any]:
+def load_linkset_data(datafile: str) -> dict[str, Any]:
     """
     Load linkset data from the configured YAML file.
 
@@ -215,9 +214,6 @@ def load_linkset_data() -> dict[str, Any]:
         FileNotFoundError: If the data file cannot be found.
         yaml.YAMLError: If the YAML file is malformed.
     """
-    datafile: str = os.getenv(
-        "VOCABULARIES_DATAFILE", "vocabularies.linkset.yaml"
-    )
 
     datafile_path = Path(datafile)
 
