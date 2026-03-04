@@ -280,8 +280,6 @@ components:
       $ref: 'components.oas3.yaml#/components/schemas/Limit'
     Offset:
       $ref: 'components.oas3.yaml#/components/schemas/Offset'
-    URI:
-      $ref: 'components.oas3.yaml#/components/schemas/URI'
     Url:
       $ref: 'components.oas3.yaml#/components/schemas/Url'
     PaginatedResponse:

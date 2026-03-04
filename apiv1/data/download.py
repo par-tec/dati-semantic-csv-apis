@@ -5,9 +5,10 @@ This module provides functions for loading and transforming vocabulary data
 from YAML files.
 """
 
+import ast
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 
@@ -92,10 +93,9 @@ def load_vocabulary_items(
     # Replace placeholder in href fields with actual API base URL
     items_json = str(items)
     items_json = items_json.replace("{API_BASE_URL}", api_base_url)
-    import ast
 
-    items = ast.literal_eval(items_json)
+    items_result = cast(list[dict[str, Any]], ast.literal_eval(items_json))
 
-    log.info(f"Loaded {len(items)} vocabulary items")
+    log.info(f"Loaded {len(items_result)} vocabulary items")
 
-    return items
+    return items_result

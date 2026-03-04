@@ -325,13 +325,6 @@ components:
       maximum: 100000
       default: 0
       example: 0
-    URI:
-      description: An absolute URI.
-      type: string
-      format: uri
-      maxLength: 2048
-      pattern: ^(about:|https?://|urn:).*
-      example: https://schema.gov.it/vocabularies/v1/agid/agentecausale/
     Url:
       description: An URL that is either absolute or relative.
       type: string
