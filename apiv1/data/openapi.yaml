@@ -95,6 +95,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginatedResponse"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
+
   /{id}:
     get:
       summary: Retrieve a single vocabulary item by its ID.
@@ -175,6 +182,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Item"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
+
   #
   # Data endpoints.
   #
@@ -212,8 +226,21 @@ paths:
             application/octet-stream:
               schema:
                 $ref: "#/components/schemas/DumpResponse"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
 
 components:
+  responses:
+    TooManyRequests:
+      $ref: 'components.oas3.yaml#/components/responses/TooManyRequests'
+    ServiceUnavailable:
+      $ref: 'components.oas3.yaml#/components/responses/ServiceUnavailable'
+    GenericError:
+      $ref: 'components.oas3.yaml#/components/responses/GenericError'
   securitySchemes:
     high-volume:
       description: |-
