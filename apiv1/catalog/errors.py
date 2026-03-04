@@ -9,12 +9,31 @@ Responses:
 
 """
 
-import json
 import logging
 
+from connexion.exceptions import BadRequestProblem
 from connexion.lifecycle import ConnexionRequest, ConnexionResponse
+from connexion.problem import problem
 
 logger = logging.getLogger(__name__)
+
+
+def bad_request(
+    request: ConnexionRequest, error: BadRequestProblem
+) -> ConnexionResponse:
+    """
+    Handle BadRequestProblem exceptions and return a 400 response.
+
+    Args:
+        error: The BadRequestProblem that was raised.
+    Returns:
+        A ConnexionResponse object representing the error response.
+    """
+    return problem(
+        status=400,
+        title="Bad Request",
+        detail=str(error)[:1024],
+    )
 
 
 def handle_exception(
@@ -33,17 +52,11 @@ def handle_exception(
     """
     logger.exception("Unhandled exception", exc_info=error)
 
-    return ConnexionResponse(
-        status_code=500,
-        body=json.dumps(
-            {
-                "type": "about:blank",
-                "status": 500,
-                "title": "Internal Server Error",
-                "detail": "An unexpected error occurred",
-            }
-        ),
-        content_type="application/problem+json",
+    return problem(
+        status=500,
+        title="Internal Server Error",
+        detail="An unexpected error occurred",
+        headers={"Content-Type": "application/problem+json"},
     )
 
 
@@ -60,15 +73,10 @@ def handle_not_implemented(
     """
     logger.exception("NotImplementedError: %s", str(error), exc_info=error)
 
-    return ConnexionResponse(
-        status_code=501,
-        body=json.dumps(
-            {
-                "type": "about:blank",
-                "status": 501,
-                "title": "Not Implemented",
-                "instance": str(request.url),
-            }
-        ),
-        content_type="application/problem+json",
+    return problem(
+        status=501,
+        title="Not Implemented",
+        detail=str(error)[:1024],
+        instance=str(request.url)[:1024],
+        headers={"Content-Type": "application/problem+json"},
     )
