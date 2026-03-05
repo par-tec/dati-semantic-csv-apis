@@ -152,11 +152,9 @@ class JsonLDFrame(dict):
         data = yaml.safe_load(fpath.read_text())
         return JsonLDFrame(data)
 
-    def frame_context_fields(self) -> list:
+    def get_fields(self) -> list:
         """
-        Extract field names from a JSON-LD frame,
-
-        Including:
+        Extract field names from a JSON-LD frame, including:
         - '@context' fields
         - '@default' fields
         - detached fields (i.e., fields with value `null` in the frame).

@@ -181,9 +181,7 @@ def create_jsonld_framed(
         )
 
         def filter_fields_cb(framed):
-            return select_fields(
-                framed, {"@type", *frame_data.frame_context_fields()}
-            )
+            return select_fields(framed, {"@type", *frame_data.get_fields()})
 
         callbacks.append(filter_fields_cb)
     log.debug(

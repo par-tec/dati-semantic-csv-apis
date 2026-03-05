@@ -37,7 +37,7 @@ def test_can_project_data(data, frame, expected_payload):
     - I expect the projected API to only include fields from the framing context, or "@type"
     """
     frame = JsonLDFrame(frame)
-    selected_fields = {"@type", *frame.frame_context_fields()}
+    selected_fields = {"@type", *frame.get_fields()}
     vocabulary = Vocabulary(data)
     framed = vocabulary.project(
         frame,
@@ -77,7 +77,7 @@ def test_can_validate_data(data, frame, expected_payload):
     - I expect the JSON-LD is a subgraph of the original RDF graph.
     """
     frame = JsonLDFrame(frame)
-    selected_fields = {"@type", *frame.frame_context_fields()}
+    selected_fields = {"@type", *frame.get_fields()}
     vocabulary = Vocabulary(data)
     framed = vocabulary.project(
         frame,
@@ -123,7 +123,7 @@ def test_can_frame_assets(vocabulary_ttl):
 
     frame = JsonLDFrame.load(frame_path)
 
-    selected_fields = {"@type", *frame.frame_context_fields()}
+    selected_fields = {"@type", *frame.get_fields()}
     vocabulary = Vocabulary(vocabulary_ttl)
     try:
         uri = vocabulary.uri()
