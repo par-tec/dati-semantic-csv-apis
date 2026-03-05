@@ -52,7 +52,7 @@ def create_schema_from_frame_and_data(
         schema = add_constraints_from_context(schema, frame)
 
     # Add JSON-LD context as extension
-    schema["x-jsonld-context"] = frame.get("@context", {})
+    schema["x-jsonld-context"] = frame.context
     if "@type" in frame:
         schema["x-jsonld-type"] = (
             frame["@type"]
@@ -213,7 +213,7 @@ def add_constraints_from_context(schema, frame):
     # First, recursively add format: uri to all 'url' fields
     add_url_format_recursively(schema)
 
-    context = frame.get("@context", {})
+    context = frame.context
     properties = schema.get("properties", {})
 
     for field, prop_schema in properties.items():

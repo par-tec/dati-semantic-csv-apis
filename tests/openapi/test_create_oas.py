@@ -165,7 +165,7 @@ def test_schema_with_constraints_and_validation(
                 )
 
     # Check for string constraints (e.g., SKOS notation)
-    context = frame.get("@context", {})
+    context = frame.context
     for field_name, field_def in context.items():
         if isinstance(field_def, dict) and "@id" in field_def:
             predicate = field_def["@id"]
