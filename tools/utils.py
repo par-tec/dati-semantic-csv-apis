@@ -38,8 +38,16 @@ class QuotedStringDumper(yaml.SafeDumper):
 
 
 def quoted_string_representer(dumper, data):
-    """Represent strings with double quotes."""
-    return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
+    """Represent strings with conditional quoting based on length."""
+    if len(data) < 16:
+        # Don't quote
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data)
+    elif len(data) < 120:
+        # Use folded scalar style (>)
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style=">")
+    else:
+        # Use literal scalar style (|)
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
 
 
 QuotedStringDumper.add_representer(str, quoted_string_representer)

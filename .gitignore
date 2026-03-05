@@ -54,6 +54,7 @@ coverage.xml
 .pytest_cache/
 tests/data/snapshots/test_tabular_minimal*/
 tests/data/snapshots/test_tabular_metadata*/
+tests/data/snapshots/test_openapi_minimal*/
 
 # Translations
 *.mo
