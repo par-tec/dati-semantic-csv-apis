@@ -97,7 +97,8 @@ def test_schema_with_constraints_and_validation(
     )
     if not frame_yamlld.exists():
         raise pytest.skip(frame_yamlld.name)
-    frame = yaml.safe_load(frame_yamlld.read_text())
+
+    frame = JsonLDFrame.load(frame_yamlld)
 
     with vocabulary_data_yaml.open() as f:
         data = yaml.safe_load(f)

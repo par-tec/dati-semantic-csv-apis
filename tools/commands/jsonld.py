@@ -13,7 +13,8 @@ import click
 import yaml
 from rdflib.compare import IsomorphicGraph
 
-from tools.projector import frame_context_fields, select_fields
+from tools.base import JsonLDFrame
+from tools.projector import select_fields
 from tools.utils import IGraph
 from tools.vocabulary import Vocabulary
 
@@ -169,7 +170,7 @@ def create_jsonld_framed(
 ) -> None:
     """Create JSON-LD framed representation from TTL and frame."""
     # Click checks file existence.
-    frame_data = yaml.safe_load(frame.read_text(encoding="utf-8"))
+    frame_data = JsonLDFrame.load(frame)
 
     callbacks = []
     if frame_only:
@@ -181,7 +182,7 @@ def create_jsonld_framed(
 
         def filter_fields_cb(framed):
             return select_fields(
-                framed, {"@type", *frame_context_fields(frame_data)}
+                framed, {"@type", *frame_data.frame_context_fields()}
             )
 
         callbacks.append(filter_fields_cb)

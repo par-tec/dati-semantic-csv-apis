@@ -1,5 +1,8 @@
 import logging
+from pathlib import Path
 from typing import Any, TypedDict, cast
+
+import yaml
 
 from tools.utils import expand_context_to_absolute_uris
 
@@ -141,3 +144,45 @@ class JsonLDFrame(dict):
         import yaml
 
         print(yaml.dump(dict(self), sort_keys=False))
+
+    @staticmethod
+    def load(fpath: Path) -> "JsonLDFrame":
+        """Load frame from a YAML file."""
+
+        data = yaml.safe_load(fpath.read_text())
+        return JsonLDFrame(data)
+
+    def frame_context_fields(self) -> list:
+        """
+        Extract field names from a JSON-LD frame,
+
+        Including:
+        - '@context' fields
+        - '@default' fields
+        - detached fields (i.e., fields with value `null` in the frame).
+
+        Excluding:
+        - Namespace declarations (i.e., fields whose value is a URI string)
+        - `@-`prefixed JSON-LD keywords (e.g., `@id`, `@type`, etc.)
+        """
+
+        def is_field(k, v):
+            if k.startswith("@"):
+                return False
+            if isinstance(v, str) and v.startswith("http"):
+                return False
+            return True
+
+        context_fields = [k for k, v in self.context.items() if is_field(k, v)]
+
+        default_fields = [
+            k
+            for k, v in self.items()
+            if isinstance(v, dict) and "@default" in v
+        ]
+
+        detached_fields = [
+            k for k, v in self.items() if isinstance(v, dict) and v is None
+        ]
+
+        return list(set(context_fields + default_fields + detached_fields))

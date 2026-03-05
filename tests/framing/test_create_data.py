@@ -6,8 +6,8 @@ import yaml
 from rdflib.compare import IsomorphicGraph
 
 from tests.constants import ASSETS, TESTCASES
-from tools.base import TEXT_TURTLE
-from tools.projector import frame_context_fields, select_fields
+from tools.base import TEXT_TURTLE, JsonLDFrame
+from tools.projector import select_fields
 from tools.utils import IGraph
 from tools.vocabulary import (
     APPLICATION_LD_JSON,
@@ -36,7 +36,8 @@ def test_can_project_data(data, frame, expected_payload):
     Then:
     - I expect the projected API to only include fields from the framing context, or "@type"
     """
-    selected_fields = {"@type", *frame_context_fields(frame)}
+    frame = JsonLDFrame(frame)
+    selected_fields = {"@type", *frame.frame_context_fields()}
     vocabulary = Vocabulary(data)
     framed = vocabulary.project(
         frame,
@@ -75,7 +76,8 @@ def test_can_validate_data(data, frame, expected_payload):
     Then:
     - I expect the JSON-LD is a subgraph of the original RDF graph.
     """
-    selected_fields = {"@type", *frame_context_fields(frame)}
+    frame = JsonLDFrame(frame)
+    selected_fields = {"@type", *frame.frame_context_fields()}
     vocabulary = Vocabulary(data)
     framed = vocabulary.project(
         frame,
@@ -118,9 +120,10 @@ def test_can_frame_assets(vocabulary_ttl):
     frame_path = vocabulary_ttl.with_suffix(".frame.yamlld")
     if not frame_path.exists():
         pytest.skip(f"No framing context found for {vocabulary_ttl}")
-    frame = yaml.safe_load(frame_path.read_text())
 
-    selected_fields = {"@type", *frame_context_fields(frame)}
+    frame = JsonLDFrame.load(frame_path)
+
+    selected_fields = {"@type", *frame.frame_context_fields()}
     vocabulary = Vocabulary(vocabulary_ttl)
     try:
         uri = vocabulary.uri()
