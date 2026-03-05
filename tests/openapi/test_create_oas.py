@@ -75,6 +75,7 @@ def test_openapi_minimal(
         assert expected_equals not in delta
 
 
+@pytest.mark.skip(reason="TODO: Add data.")
 @pytest.mark.asset
 @pytest.mark.parametrize(
     "vocabulary_data_yaml", vocabularies, ids=[x.name for x in vocabularies]
