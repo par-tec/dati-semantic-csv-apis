@@ -123,7 +123,7 @@ class Vocabulary:
 
     def project(
         self,
-        frame: JsonLDFrame,
+        frame: JsonLDFrame | dict,
         batch_size: int = 0,
         callbacks: Iterable[Callable] = (),
     ) -> JsonLD:
@@ -138,6 +138,9 @@ class Vocabulary:
             JsonLD: Projected JSON-LD document containing only fields in the frame context.
         """
         ld_doc: JsonLD = self.json_ld()
+        if isinstance(frame, dict):
+            frame = JsonLDFrame(frame)
+            frame.validate(strict=True)
         framed = framer(ld_doc, frame, batch_size)
 
         for callback in callbacks or []:

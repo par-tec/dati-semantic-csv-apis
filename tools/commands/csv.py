@@ -7,7 +7,6 @@ Commands for creating and validating CSV artifacts.
 
 import logging
 from pathlib import Path
-from typing import cast
 
 import click
 import yaml
@@ -170,7 +169,8 @@ def create_csv_from_jsonld(
     # Extract the frame (context) from the datapackage
     resource = datapackage_dict.get("resources", [{}])[0]
     context = resource.get("schema", {}).get("x-jsonld-context", {})
-    frame = {"@context": context}
+    frame = JsonLDFrame({"@context": context})
+    frame.validate(strict=True)
     log.debug("Extracted frame context from datapackage")
 
     # Extract the CSV dialect from the datapackage
@@ -182,7 +182,7 @@ def create_csv_from_jsonld(
     #   since we will load() pre-framed data.
     tabular = Tabular(
         rdf_data="@prefix skos: <http://www.w3.org/2004/02/skos/core#> .",
-        frame=cast(JsonLDFrame, frame),
+        frame=frame,
         format="turtle",
     )
 

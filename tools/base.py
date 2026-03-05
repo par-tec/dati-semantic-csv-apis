@@ -1,5 +1,5 @@
 import logging
-from typing import TypedDict, Any, cast
+from typing import Any, TypedDict, cast
 
 from tools.utils import expand_context_to_absolute_uris
 
@@ -42,7 +42,9 @@ class JsonLDFrame(dict):
         """Check if frame has a @context defined."""
         return "@context" in self and bool(self["@context"])
 
-    def merge_context(self, additional_context: dict[str, Any]) -> "JsonLDFrame":
+    def merge_context(
+        self, additional_context: dict[str, Any]
+    ) -> "JsonLDFrame":
         """
         Merge additional context into the existing @context.
 
@@ -52,7 +54,7 @@ class JsonLDFrame(dict):
         Returns:
             Self for method chaining
         """
-        current = self.get("@context", {})
+        current = self.context
         if isinstance(current, dict):
             current.update(additional_context)
             self["@context"] = current
