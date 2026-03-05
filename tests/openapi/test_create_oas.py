@@ -79,9 +79,7 @@ def test_openapi_minimal(
 @pytest.mark.parametrize(
     "vocabulary_data_yaml", vocabularies, ids=[x.name for x in vocabularies]
 )
-def test_schema_with_constraints_and_validation(
-    vocabulary_data_yaml: Path, snapshot: Path, request: pytest.FixtureRequest
-):
+def test_schema_with_constraints_and_validation(vocabulary_data_yaml: Path):
     """
     Test that JSON Schema is enhanced with constraints from context
     and validates the actual vocabulary data.
