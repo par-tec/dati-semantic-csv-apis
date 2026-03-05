@@ -104,7 +104,7 @@ def create_schema_from_frame_and_data(
         framed: Framed JSON-LD data (output of create_api_data)
 
     Returns:
-        dict: OpenAPI schema inferred from framed samples
+        OpenAPI: OpenAPI schema inferred from framed samples
     """
 
     if not frame.validate(strict=True):
