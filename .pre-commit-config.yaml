@@ -10,6 +10,10 @@ default_stages:
   - pre-commit
   - manual
   - pre-push
+# Override language hinting because we need mypy to use python3.12,
+#   even if some hooks don't support it yet.
+default_language_version:
+  python: python3.12
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
@@ -52,7 +56,7 @@ repos:
 #
 - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
-  rev: v0.15.1
+  rev: v0.15.4
   hooks:
   # Run the linter.
   - id: ruff
@@ -93,7 +97,7 @@ repos:
 # Security linters.
 #
 - repo: https://github.com/bridgecrewio/checkov.git
-  rev: 3.2.504  # change to tag or sha
+  rev: 3.2.507  # change to tag or sha
   hooks:
   - id: checkov
     stages: ["pre-push"]

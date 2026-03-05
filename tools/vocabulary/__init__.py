@@ -44,7 +44,7 @@ class Vocabulary:
         self,
         rdf_data: RDFText | JSONLDText | Path,
         format=TEXT_TURTLE,
-    ):
+    ) -> None:
         self.graph = Graph()
         ts: float = time.time()
         if isinstance(rdf_data, Path):
@@ -95,6 +95,7 @@ class Vocabulary:
             )
         if self._jsonld is not None:
             return self._jsonld
+        raise ValueError("No RDF graph loaded and no JSON-LD data available")
 
     @json_ld.setter
     def json_ld(self, value: JsonLD) -> None:

@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import Any, cast
 
 from genson import SchemaBuilder
 from jsonschema import ValidationError, validate
@@ -9,6 +10,8 @@ from tools.base import JsonLD, JsonLDFrame, JSONLDText, RDFText
 from tools.vocabulary import Vocabulary
 
 log = logging.getLogger(__name__)
+
+type OpenAPI = dict[str, Any]
 
 
 class Apiable(Vocabulary):
@@ -59,7 +62,9 @@ class Apiable(Vocabulary):
         assert "@context" in framed
         return framed
 
-    def json_schema(self, add_constraints=True, validate_output=True) -> dict:
+    def json_schema(
+        self, add_constraints=True, validate_output=True
+    ) -> OpenAPI:
         """
         Generate an OpenAPI schema from the framed RDF data.
 
@@ -68,7 +73,7 @@ class Apiable(Vocabulary):
         the schema with constraints derived from the JSON-LD context.
 
         Returns:
-            dict: OpenAPI schema inferred from framed samples
+            OpenAPI: OpenAPI schema inferred from framed samples
         """
         ld: JsonLD = self.create_api_data()
         return create_schema_from_frame_and_data(
@@ -80,8 +85,11 @@ class Apiable(Vocabulary):
 
 
 def create_schema_from_frame_and_data(
-    frame: JsonLDFrame, framed: dict, add_constraints=True, validate_output=True
-):
+    frame: JsonLDFrame,
+    framed: JsonLD,
+    add_constraints=True,
+    validate_output=True,
+) -> OpenAPI:
     """
     Sample-based approach: Frame the RDF data and infer schema from result.
 
@@ -157,7 +165,7 @@ def create_schema_from_frame_and_data(
                     error["path"],
                 )
 
-    return schema
+    return cast(OpenAPI, schema)
 
 
 def infer_schema_from_samples(samples):
