@@ -62,7 +62,10 @@ class Tabular(Vocabulary):
         format=TEXT_TURTLE,
     ):
         super().__init__(rdf_data, format=format)
-        self.frame: JsonLDFrame = frame
+        self.frame: JsonLDFrame = (
+            frame if isinstance(frame, JsonLDFrame) else JsonLDFrame(frame)
+        )
+        self.frame.validate(strict=True)
         self.ignore_rdf_properties = ignore_rdf_properties
         self.sort_by = sort_by
 

@@ -251,6 +251,7 @@ testcases:
     vocab:
     - url: '../agente_causale'
   expected_jsonschema: &agente_causale_skos_jsonschema
+    x-jsonld-context: *agente_causale_skos_context
     type: object
     properties:
       url: *URL
@@ -393,7 +394,7 @@ testcases:
     "@omitDefault": true
 
     # Use context.
-    "@context":
+    "@context": &agente_causale_rdfs_context
       "@base": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/"
       "@vocab": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/"
       #
@@ -455,6 +456,7 @@ testcases:
     level: '1'
     url: grande_gruppo/1
   expected_jsonschema:
+    x-jsonld-context: *agente_causale_rdfs_context
     type: object
     properties:
       url: *URL
@@ -687,6 +689,7 @@ testcases:
     "@embed": "@never"
     "@omitDefault": true
     "@requireAll": true
+    "@type": skos:Concept
     url: {}
     id: {}
     label:

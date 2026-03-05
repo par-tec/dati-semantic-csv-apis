@@ -111,7 +111,7 @@ def test_tabular_minimal(
     datapackage_yaml = destdir / "datapackage.yaml"
 
     # Given the RDF data and frame...
-    tabular = Tabular(rdf_data=data, frame=frame)
+    tabular = Tabular(rdf_data=data, frame=JsonLDFrame(frame))
     uri = tabular.uri()
     output_csv = destdir / f"{Path(uri).stem}.csv"
 

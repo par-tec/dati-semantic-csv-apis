@@ -7,7 +7,15 @@ from typing import cast
 
 from rdflib import Graph
 
-from tools.base import APPLICATION_LD_JSON, TEXT_TURTLE, JsonLD, JsonLDFrame
+# from rdflib.plugins.serializers.jsonld import from_rdf
+from tools.base import (
+    APPLICATION_LD_JSON,
+    TEXT_TURTLE,
+    JsonLD,
+    JsonLDFrame,
+    JSONLDText,
+    RDFText,
+)
 from tools.projector import framer
 
 log = logging.getLogger(__name__)
@@ -32,19 +40,28 @@ class Vocabulary:
     By default, uses Oxigraph.
     """
 
-    def __init__(self, rdf_data: str | Path, format=TEXT_TURTLE):
+    def __init__(
+        self,
+        rdf_data: RDFText | JSONLDText | Path,
+        format=TEXT_TURTLE,
+    ) -> None:
         self.graph = Graph()
         ts: float = time.time()
         if isinstance(rdf_data, Path):
             self.graph.parse(rdf_data, format=format)
-        else:
+        elif isinstance(rdf_data, str):
             self.graph.parse(data=rdf_data, format=format)
+        else:
+            raise ValueError(
+                f"Unsupported type for rdf_data: {type(rdf_data)}. Expected str or Path."
+            )
         log.debug(
             f"Parsed {len(self.graph)} RDF triples in {time.time() - ts:.3f}s"
         )
 
         self._uri: str | None = None
         self._metadata = None
+        self._jsonld: JsonLD | None = None
 
     def serialize(self, format=APPLICATION_LD_JSON) -> str:
         ts: float = time.time()
@@ -52,6 +69,7 @@ class Vocabulary:
         log.debug(f"Serialized RDF to {format} in {time.time() - ts:.3f}s")
         return serialized
 
+    @property
     def json_ld(self) -> JsonLD:
         """
         Convert RDF data in Turtle format to JSON-LD.
@@ -61,16 +79,27 @@ class Vocabulary:
         Returns:
             JsonLD: JSON-LD representation of the RDF data
         """
-        data = json.loads(self.serialize(format=APPLICATION_LD_JSON))
-        if isinstance(data, dict):
-            if "@graph" not in data:
-                raise ValueError(
-                    "Expected JSON-LD serialization to contain a top-level '@graph' key"
-                )
-            return cast(JsonLD, data)
-        if isinstance(data, list):
-            return cast(JsonLD, {"@graph": data})
-        raise ValueError("Expected JSON-LD serialization to be a JSON object")
+        if self.graph:
+            # data = from_rdf(self.graph, auto_compact=True) # .json_ld()
+            data = json.loads(self.serialize(format=APPLICATION_LD_JSON))
+            if isinstance(data, dict):
+                if "@graph" not in data:
+                    raise ValueError(
+                        "Expected JSON-LD serialization to contain a top-level '@graph' key"
+                    )
+                return cast(JsonLD, data)
+            if isinstance(data, list):
+                return cast(JsonLD, {"@graph": data})
+            raise ValueError(
+                "Expected JSON-LD serialization to be a JSON object"
+            )
+        if self._jsonld is not None:
+            return self._jsonld
+        raise ValueError("No RDF graph loaded and no JSON-LD data available")
+
+    @json_ld.setter
+    def json_ld(self, value: JsonLD) -> None:
+        self._jsonld = value
 
     def metadata(self) -> Graph:
         """
@@ -123,7 +152,7 @@ class Vocabulary:
 
     def project(
         self,
-        frame: JsonLDFrame,
+        frame: JsonLDFrame | dict,
         batch_size: int = 0,
         callbacks: Iterable[Callable] = (),
     ) -> JsonLD:
@@ -137,7 +166,10 @@ class Vocabulary:
         Returns:
             JsonLD: Projected JSON-LD document containing only fields in the frame context.
         """
-        ld_doc: JsonLD = self.json_ld()
+        ld_doc: JsonLD = self.json_ld
+        if isinstance(frame, dict):
+            frame = JsonLDFrame(frame)
+            frame.validate(strict=True)
         framed = framer(ld_doc, frame, batch_size)
 
         for callback in callbacks or []:
