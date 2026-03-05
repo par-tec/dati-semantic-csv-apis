@@ -1,11 +1,82 @@
 import logging
+from pathlib import Path
 
 from genson import SchemaBuilder
 from jsonschema import ValidationError, validate
+from rdflib.plugins.parsers.jsonld import to_rdf
 
-from tools.base import JsonLDFrame
+from tools.base import JsonLD, JsonLDFrame, JSONLDText, RDFText
+from tools.vocabulary import Vocabulary
 
 log = logging.getLogger(__name__)
+
+
+class Apiable(Vocabulary):
+    """
+    A Vocabulary that can be framed and projected as API data.
+
+    This class extends Vocabulary with API-specific functionality,
+    such as framing RDF data according to a JSON-LD frame and
+    generating an OpenAPI schema from the framed data.
+
+    The design is intentionally strict, trying to be
+    as deterministic as possible even for dataset created
+    by different organizations.
+    """
+
+    def __init__(
+        self,
+        rdf_data: RDFText | JSONLDText | JsonLD | Path,
+        frame: JsonLDFrame,
+        format="text/turtle",
+    ):
+        if isinstance(rdf_data, (str, Path)):
+            super().__init__(rdf_data, format=format)
+        elif isinstance(rdf_data, dict):
+            #
+            # I just want to get the dict, with an empty graph.
+            #
+            super().__init__("")
+            self.json_ld = rdf_data
+            self.graph = to_rdf(rdf_data, self.graph)
+        else:
+            raise ValueError(f"Unsupported rdf_data type: {type(rdf_data)}")
+
+        if not frame.validate(strict=True):
+            raise ValueError(f"Invalid frame: {frame}")
+
+        self.frame = frame
+
+    def create_api_data(self) -> JsonLD:
+        """
+        Frame the RDF data according to the provided JSON-LD frame.
+
+        Returns:
+            dict: Framed JSON-LD data ready for API output
+        """
+        framed: JsonLD = self.project(self.frame)
+        assert "@graph" in framed
+        assert "@context" in framed
+        return framed
+
+    def json_schema(self, add_constraints=True, validate_output=True) -> dict:
+        """
+        Generate an OpenAPI schema from the framed RDF data.
+
+        This method frames the RDF data according to the provided JSON-LD frame,
+        then infers a JSON Schema from the framed data, and finally enhances
+        the schema with constraints derived from the JSON-LD context.
+
+        Returns:
+            dict: OpenAPI schema inferred from framed samples
+        """
+        ld: JsonLD = self.create_api_data()
+        return create_schema_from_frame_and_data(
+            self.frame,
+            ld,
+            add_constraints=add_constraints,
+            validate_output=validate_output,
+        )
 
 
 def create_schema_from_frame_and_data(
@@ -61,8 +132,10 @@ def create_schema_from_frame_and_data(
         )
 
     # Add an example entry, that can be used
-    #   inside the Schema Editor.
+    #   inside the Schema Editor, eventually
+    #   removing @type.
     schema["example"] = samples[0]
+    schema["example"].pop("@type", None)
 
     # Validate the framed data against the schema
     if validate_output:

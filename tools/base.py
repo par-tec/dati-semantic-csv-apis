@@ -14,6 +14,8 @@ APPLICATION_LD_JSON = "application/ld+json"
 
 
 JsonLD = TypedDict("JsonLD", {"@context": dict, "@graph": list}, total=False)
+type RDFText = str
+type JSONLDText = str
 
 
 class JsonLDFrame(dict):

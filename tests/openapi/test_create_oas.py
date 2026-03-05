@@ -6,9 +6,14 @@ import pytest
 import yaml
 from deepdiff import DeepDiff
 
+# from rdflib.plugins.serializers.jsonld import from_rdf
+# from rdflib.plugins.parsers.jsonld import to_rdf
 from tests.constants import ASSETS, TESTCASES
 from tools.base import JsonLDFrame
-from tools.openapi.openapi_generator import create_schema_from_frame_and_data
+from tools.openapi.openapi_generator import (
+    Apiable,
+    create_schema_from_frame_and_data,
+)
 from tools.utils import QuotedStringDumper
 
 vocabularies = list(ASSETS.glob("**/*.data.yaml"))
@@ -24,11 +29,10 @@ vocabularies = list(ASSETS.glob("**/*.data.yaml"))
     ids=[x["name"] for x in TESTCASES if "expected_jsonschema" in x],
 )
 def test_openapi_minimal(
-    expected_payload: str,
+    expected_payload: dict,
     frame: JsonLDFrame,
     expected_jsonschema: dict,
     snapshot_dir: Path,
-    request: pytest.FixtureRequest,
 ):
     """
     Test the OpenAPI schema generation from JSON-LD frames and data.
@@ -50,11 +54,14 @@ def test_openapi_minimal(
 
     # apiable = Apiable(data, frame)
     # json_schema = apiable.json_schema()
-    json_schema = create_schema_from_frame_and_data(
-        JsonLDFrame(frame),
-        {"@graph": expected_payload},
-        add_constraints=True,
-        validate_output=True,
+    frame = JsonLDFrame(frame)
+    apiable = Apiable(
+        {"@graph": expected_payload, "@context": frame.context},
+        frame,
+    )
+
+    json_schema = apiable.json_schema(
+        add_constraints=True, validate_output=True
     )
     jsonschema_oas3_yaml.write_text(
         yaml.dump(json_schema, Dumper=QuotedStringDumper, sort_keys=True)

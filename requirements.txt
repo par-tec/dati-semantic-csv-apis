@@ -10,3 +10,7 @@ pandas
 git+https://github.com/digitalbazaar/pyld.git@598dd0a7b1614d86926aec5f3e61210caeaf17e0#egg=pyld
 pyyaml
 rdflib>=7.4
+#
+# A faster alternative to json library, used under the hood by rdflib.
+#
+orjson
