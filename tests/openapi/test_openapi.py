@@ -74,6 +74,8 @@ def test_openapi_minimal(
     ):
         assert expected_equals not in delta
 
+    assert_schema(json_schema, frame)
+
 
 @pytest.mark.skip(reason="TODO: Add data.")
 @pytest.mark.asset
