@@ -1,21 +1,80 @@
 import logging
+from operator import itemgetter
 from pathlib import Path
 
 import pytest
 import yaml
+from deepdiff import DeepDiff
 
-from tools.openapi_generator import create_schema_from_frame_and_data
+from tests.constants import ASSETS, TESTCASES
+from tools.base import JsonLDFrame
+from tools.openapi.openapi_generator import create_schema_from_frame_and_data
 from tools.utils import QuotedStringDumper
 
-ASSET = Path(__file__).parent.parent / "assets" / "controlled-vocabularies"
-vocabularies = list(ASSET.glob("**/*.data.yaml"))
+vocabularies = list(ASSETS.glob("**/*.data.yaml"))
+
+
+@pytest.mark.parametrize(
+    "expected_payload,frame,expected_jsonschema",
+    argvalues=[
+        itemgetter("expected_payload", "frame", "expected_jsonschema")(x)
+        for x in TESTCASES
+        if "expected_jsonschema" in x
+    ],
+    ids=[x["name"] for x in TESTCASES if "expected_jsonschema" in x],
+)
+def test_openapi_minimal(
+    expected_payload: str,
+    frame: JsonLDFrame,
+    expected_jsonschema: dict,
+    snapshot_dir: Path,
+    request: pytest.FixtureRequest,
+):
+    """
+    Test the OpenAPI schema generation from JSON-LD frames and data.
+
+    Given:
+    - RDF vocabulary data in JSON-LD format
+    - A JSON-LD frame with @context definitions
+
+    When:
+    - I create an instance of the Apiable class with the RDF data and frame
+    - I generate the complete json_schema stub
+
+    Then:
+    - The OpenAPI schema should be created successfully
+    - The schema should include the expected properties and constraints
+    - The schema should be valid according to the OpenAPI specification
+    """
+    jsonschema_oas3_yaml = snapshot_dir / "oas3_schema.yaml"
+
+    # apiable = Apiable(data, frame)
+    # json_schema = apiable.json_schema()
+    json_schema = create_schema_from_frame_and_data(
+        JsonLDFrame(frame),
+        {"@graph": expected_payload},
+        add_constraints=True,
+        validate_output=True,
+    )
+    jsonschema_oas3_yaml.write_text(
+        yaml.dump(json_schema, Dumper=QuotedStringDumper, sort_keys=True)
+    )
+    delta = DeepDiff(json_schema, expected_jsonschema, ignore_order=True)
+
+    for expected_equals in (
+        "properties",
+        "x-jsonld-context",
+    ):
+        assert expected_equals not in delta
 
 
 @pytest.mark.asset
 @pytest.mark.parametrize(
     "vocabulary_data_yaml", vocabularies, ids=[x.name for x in vocabularies]
 )
-def test_schema_with_constraints_and_validation(vocabulary_data_yaml):
+def test_schema_with_constraints_and_validation(
+    vocabulary_data_yaml: Path, snapshot: Path, request: pytest.FixtureRequest
+):
     """
     Test that JSON Schema is enhanced with constraints from context
     and validates the actual vocabulary data.
@@ -40,7 +99,8 @@ def test_schema_with_constraints_and_validation(vocabulary_data_yaml):
         raise pytest.skip(frame_yamlld.name)
     frame = yaml.safe_load(frame_yamlld.read_text())
 
-    data = yaml.safe_load(vocabulary_data_yaml.read_text())
+    with vocabulary_data_yaml.open() as f:
+        data = yaml.safe_load(f)
 
     # Generate schema with constraints and validation
     schema = create_schema_from_frame_and_data(
