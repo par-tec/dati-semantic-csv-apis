@@ -12,7 +12,7 @@ from tests.constants import ASSETS, TESTCASES
 from tools.base import JsonLDFrame
 from tools.openapi.openapi_generator import (
     Apiable,
-    create_schema_from_frame_and_data,
+    OpenAPI,
 )
 from tools.utils import QuotedStringDumper
 
@@ -110,9 +110,10 @@ def test_schema_with_constraints_and_validation(
     with vocabulary_data_yaml.open() as f:
         data = yaml.safe_load(f)
 
-    # Generate schema with constraints and validation
-    schema = create_schema_from_frame_and_data(
-        frame, data, add_constraints=True, validate_output=True
+    apiable = Apiable({"@graph": data, "@context": frame.context}, frame)
+
+    json_schema = apiable.json_schema(
+        add_constraints=True, validate_output=True
     )
 
     oas_yaml = vocabulary_data_yaml.with_suffix("").with_suffix(".oas3.yaml")
@@ -121,23 +122,25 @@ def test_schema_with_constraints_and_validation(
             {
                 "openapi": "3.0.3",
                 "paths": {},
-                "components": {"schemas": {"Item": schema}},
+                "components": {"schemas": {"Item": json_schema}},
             },
             Dumper=QuotedStringDumper,
             sort_keys=True,
         )
     )
-    schema_copy = schema.copy()
-    schema_copy.pop("x-validation", None)  # Remove validation for comparison
-    schema_copy.pop("x-jsonld-type", None)
-    schema_copy.pop("x-jsonld-context", None)
+    schema_copy = json_schema.copy()
+    assert_schema(schema_copy, frame)
 
+
+def assert_schema(schema_copy: OpenAPI, frame: JsonLDFrame) -> None:
+    """ """
+    validation = schema_copy.pop("x-validation", None)
+    x_jsonld_type = schema_copy.pop("x-jsonld-type", None)
+    assert x_jsonld_type
+    x_jsonld_context = schema_copy.pop("x-jsonld-context", None)
+    assert x_jsonld_context
     # Check that schema was generated
-    assert "properties" in schema, "Schema should have properties"
-    assert "x-validation" in schema, "Schema should include validation results"
-
-    # Get validation results
-    validation = schema["x-validation"]
+    assert validation is not None, "Schema should include x-validation results"
 
     # Log validation results for inspection
     logging.info("Validation results for %s:", frame.get("@type"))
@@ -151,7 +154,8 @@ def test_schema_with_constraints_and_validation(
             )
 
     # Check that constraints were added where expected
-    properties = schema.get("properties", {})
+    properties = schema_copy.get("properties", {})
+    assert properties, "Schema should have properties"
 
     # Check for integer constraints (e.g., level field with xsd:integer)
     for field_name, prop_schema in properties.items():
