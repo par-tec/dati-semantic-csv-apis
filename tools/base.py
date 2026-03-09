@@ -106,6 +106,7 @@ class JsonLDFrame(dict):
                 "id": [
                     "http://www.w3.org/2004/02/skos/core#notation",
                     "http://purl.org/dc/terms/identifier",
+                    "http://purl.org/dc/elements/1.1/identifier",
                 ],
                 "label": ["http://www.w3.org/2004/02/skos/core#prefLabel"],
                 #'label_de': ['http://www.w3.org/2004/02/skos/core#prefLabel'],
