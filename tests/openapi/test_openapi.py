@@ -9,7 +9,7 @@ from deepdiff import DeepDiff
 # from rdflib.plugins.serializers.jsonld import from_rdf
 # from rdflib.plugins.parsers.jsonld import to_rdf
 from tests.constants import ASSETS, TESTCASES
-from tools.base import JsonLDFrame
+from tools.base import JsonLDFrame, RDFText
 from tools.openapi.openapi_generator import (
     Apiable,
     OpenAPI,
@@ -20,7 +20,7 @@ vocabularies = list(ASSETS.glob("**/*.data.yaml"))
 
 
 @pytest.mark.parametrize(
-    "expected_payload,frame,expected_jsonschema",
+    "data,frame,expected_jsonschema",
     argvalues=[
         itemgetter("expected_payload", "frame", "expected_jsonschema")(x)
         for x in TESTCASES
@@ -29,7 +29,7 @@ vocabularies = list(ASSETS.glob("**/*.data.yaml"))
     ids=[x["name"] for x in TESTCASES if "expected_jsonschema" in x],
 )
 def test_openapi_minimal(
-    expected_payload: dict,
+    data: dict,
     frame: JsonLDFrame,
     expected_jsonschema: dict,
     snapshot_dir: Path,
@@ -56,10 +56,66 @@ def test_openapi_minimal(
     # json_schema = apiable.json_schema()
     frame = JsonLDFrame(frame)
     apiable = Apiable(
-        {"@graph": expected_payload, "@context": frame.context},
+        {"@graph": data, "@context": frame.context},
         frame,
     )
 
+    json_schema = apiable.json_schema(
+        add_constraints=True, validate_output=True
+    )
+    jsonschema_oas3_yaml.write_text(
+        yaml.dump(json_schema, Dumper=QuotedStringDumper, sort_keys=True)
+    )
+    delta = DeepDiff(json_schema, expected_jsonschema, ignore_order=True)
+
+    for expected_equals in (
+        "properties",
+        "x-jsonld-context",
+    ):
+        assert expected_equals not in delta
+
+    assert_schema(json_schema, frame)
+
+
+@pytest.mark.parametrize(
+    "turtle,frame,expected_jsonschema",
+    argvalues=[
+        itemgetter("data", "frame", "expected_jsonschema")(x)
+        for x in TESTCASES
+        if "expected_jsonschema" in x
+    ],
+    ids=[x["name"] for x in TESTCASES if "expected_jsonschema" in x],
+)
+def test_openapi_metadata(
+    turtle: RDFText,
+    frame: JsonLDFrame,
+    expected_jsonschema: dict,
+    snapshot_dir: Path,
+):
+    """
+    Test the OpenAPI schema generation from JSON-LD frames and data.
+
+    Given:
+    - RDF vocabulary data in JSON-LD format
+    - A JSON-LD frame with @context definitions
+
+    When:
+    - I create an instance of the Apiable class with the RDF data and frame
+    - I generate the complete json_schema stub
+
+    Then:
+    - The OpenAPI schema should be created successfully
+    - The schema should include the expected properties and constraints
+    - The schema should be valid according to the OpenAPI specification
+    """
+    jsonschema_oas3_yaml = snapshot_dir / "oas3_schema.yaml"
+
+    # apiable = Apiable(data, frame)
+    # json_schema = apiable.json_schema()
+    frame = JsonLDFrame(frame)
+    apiable = Apiable(turtle, frame)
+
+    breakpoint()
     json_schema = apiable.json_schema(
         add_constraints=True, validate_output=True
     )

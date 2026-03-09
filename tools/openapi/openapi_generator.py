@@ -4,6 +4,7 @@ from typing import Any, cast
 
 from genson import SchemaBuilder
 from jsonschema import ValidationError, validate
+from rdflib import Graph
 from rdflib.plugins.parsers.jsonld import to_rdf
 
 from tools.base import JsonLD, JsonLDFrame, JSONLDText, RDFText
@@ -82,6 +83,25 @@ class Apiable(Vocabulary):
             add_constraints=add_constraints,
             validate_output=validate_output,
         )
+
+    def openapi(self, **kwargs) -> OpenAPI:
+        """
+        Return an OAS 3.0 document which includes the Vocabulary metadata
+        together with the generated OpenAPI schema.
+        """
+        metadata: Graph = self.metadata()
+        return {
+            "openapi": "3.0.0",
+            "info": {
+                "title": metadata.get("title", "API"),
+                "version": metadata.get("version", "1.0.0"),
+                "description": metadata.get("description", ""),
+            },
+            "paths": {},  # Paths would be defined here based on the vocabulary
+            "components": {"schemas": {"Item": self.json_schema(**kwargs)}},
+        }
+
+    # self.json_schema(**kwargs)
 
 
 def create_schema_from_frame_and_data(

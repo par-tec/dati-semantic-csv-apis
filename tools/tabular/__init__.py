@@ -187,9 +187,7 @@ class Tabular(Vocabulary):
             dict: Frictionless datapackage descriptor stub.
         """
         metadata: Graph = self.metadata()
-        _datapackage = create_datapackage(
-            metadata, next(iter(metadata.subjects())), resources=[]
-        )
+        _datapackage = create_datapackage(metadata, resources=[])
 
         # If the package is not valid, __init__ will raise an error.
         # at this point we can't fully validate the package because

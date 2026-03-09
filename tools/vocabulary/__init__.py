@@ -134,8 +134,10 @@ class Vocabulary:
                 "Expected exactly one vocabulary in the RDF data",
                 do_i_have_just_one_vocab,
             )
-
-        return _metadata
+        _m2 = Graph(identifier=_metadata_uri.pop())
+        for s, p, o in _metadata:
+            _m2.add((s, p, o))
+        return _m2
 
     def uri(self) -> str:
         """
