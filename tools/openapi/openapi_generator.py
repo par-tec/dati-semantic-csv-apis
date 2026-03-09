@@ -17,6 +17,8 @@ type OpenAPI = dict[str, Any]
 OPENAPI_30_SCHEMA_JSON = DATADIR / "openapi_30.schema.json"
 OAS30_SCHEMA = json.loads(OPENAPI_30_SCHEMA_JSON.read_text())
 
+URI = "url"
+
 
 class Apiable(Vocabulary):
     """
@@ -287,10 +289,12 @@ def validate_data_against_schema(data, schema):
 
 def add_url_format_recursively(schema):
     """
-    Recursively add format: uri to all 'url' fields in schema.
+    Recursively add format: uri-reference to all 'url' fields in schema.
 
     Args:
         schema: JSON Schema (or sub-schema) to process
+
+    FIXME: Use `uri` (absolute) instead of `uri-reference` (relative)
     """
     if not isinstance(schema, dict):
         return
@@ -298,8 +302,8 @@ def add_url_format_recursively(schema):
     # Process properties at current level
     if "properties" in schema:
         for field_name, prop_schema in schema["properties"].items():
-            if field_name == "url" and prop_schema.get("type") == "string":
-                prop_schema["format"] = "uri"
+            if field_name == URI and prop_schema.get("type") == "string":
+                prop_schema["format"] = "uri-reference"
             # Recurse into nested objects
             if prop_schema.get("type") == "object":
                 add_url_format_recursively(prop_schema)

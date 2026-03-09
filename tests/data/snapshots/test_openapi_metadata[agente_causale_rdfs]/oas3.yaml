@@ -19,7 +19,7 @@ components:
         level:
           type: string
         url:
-          format: uri
+          format: uri-reference
           type: string
       required:
       - id

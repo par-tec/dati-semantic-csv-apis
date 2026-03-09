@@ -71,6 +71,7 @@ def create_datapackage(
 
     created = vocabulary.get_value(DCTERMS.issued)
     if created:
+        created = str(created)
         # Add time component if missing (datapackage spec requires date-time format).
         if len(created) == 10:
             created += "T00:00:00Z"

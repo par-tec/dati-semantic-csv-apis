@@ -31,20 +31,20 @@ components:
           items:
             properties:
               url:
-                format: uri
+                format: uri-reference
                 type: string
             required:
             - url
             type: object
           type: array
         url:
-          format: uri
+          format: uri-reference
           type: string
         vocab:
           items:
             properties:
               url:
-                format: uri
+                format: uri-reference
                 type: string
             required:
             - url
