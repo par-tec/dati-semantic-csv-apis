@@ -108,28 +108,21 @@ def test_openapi_metadata(
     - The schema should include the expected properties and constraints
     - The schema should be valid according to the OpenAPI specification
     """
-    jsonschema_oas3_yaml = snapshot_dir / "oas3_schema.yaml"
+    jsonschema_oas3_yaml = snapshot_dir / "oas3.yaml"
 
     # apiable = Apiable(data, frame)
     # json_schema = apiable.json_schema()
     frame = JsonLDFrame(frame)
     apiable = Apiable(turtle, frame)
 
-    json_schema = apiable.json_schema(
-        add_constraints=True, validate_output=True
-    )
+    openapi: OpenAPI = apiable.openapi()
     jsonschema_oas3_yaml.write_text(
-        yaml.dump(json_schema, Dumper=QuotedStringDumper, sort_keys=True)
+        yaml.dump(openapi, Dumper=QuotedStringDumper, sort_keys=True)
     )
-    delta = DeepDiff(json_schema, expected_jsonschema, ignore_order=True)
+    delta = DeepDiff(openapi, expected_jsonschema, ignore_order=True)
 
-    for expected_equals in (
-        "properties",
-        "x-jsonld-context",
-    ):
-        assert expected_equals not in delta
-
-    assert_schema(json_schema, frame)
+    assert not delta
+    raise NotImplementedError
 
 
 @pytest.mark.skip(reason="TODO: Add data.")

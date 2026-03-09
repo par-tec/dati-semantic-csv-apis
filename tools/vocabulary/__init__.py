@@ -59,18 +59,15 @@ class VocabularyMetadata(Graph):
             lang = None
         return lang
 
-    def get_first_value(vocabulary, predicates, lang: str | LangTag = LANG_ANY):
+    def get_first_value(self, predicates: list, lang: str | LangTag = LANG_ANY):
         for predicate in predicates:
-            value = vocabulary.get_value(predicate, lang=lang)
+            value = self.get_value(predicate, lang=lang)
             if value:
                 return value
         return None
 
-    def get_identifier(vocabulary, predicate, unique=True, required=True):
-        values = {
-            str(obj)
-            for obj in vocabulary.objects(vocabulary.identifier, predicate)
-        }
+    def get_identifier(self, predicate, unique=True, required=True):
+        values = {str(obj) for obj in self.objects(self.identifier, predicate)}
         if unique and len(values) > 1:
             raise ValueError(
                 f"Expected exactly one value for {predicate}, found {len(values)}: {values}"
@@ -79,7 +76,7 @@ class VocabularyMetadata(Graph):
         #  raise an error.
         if any(
             hasattr(obj, "language") and obj.language
-            for obj in vocabulary.objects(vocabulary.identifier, predicate)
+            for obj in self.objects(self.identifier, predicate)
         ):
             raise ValueError(
                 f"Expected a non-language-tagged literal for {predicate}, but found language-tagged literals: {values}"
@@ -91,17 +88,17 @@ class VocabularyMetadata(Graph):
         return next(iter(values)) if values else None
 
     # Helper function to get literal value
-    def get_value(vocabulary, predicate, lang: str | LangTag = LANG_ANY):
-        for obj in vocabulary.objects(vocabulary.identifier, predicate):
+    def get_value(self, predicate, lang: str | LangTag = LANG_ANY):
+        for obj in self.objects(self.identifier, predicate):
             if not _language_matches(obj, lang):
                 continue
             return str(obj)
         return None
 
     # Helper function to get all values as list
-    def get_values(vocabulary, predicate, lang: str | LangTag = LANG_ANY):
+    def get_values(self, predicate, lang: str | LangTag = LANG_ANY):
         values = []
-        for obj in vocabulary.objects(vocabulary.identifier, predicate):
+        for obj in self.objects(self.identifier, predicate):
             if _language_matches(obj, lang):
                 values.append(str(obj))
             else:

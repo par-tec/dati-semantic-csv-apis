@@ -5,12 +5,12 @@ import yaml
 from jsonschema import validate
 from rdflib import DCAT, DCTERMS
 
+from tools.base import DATADIR
 from tools.vocabulary import VocabularyMetadata
 
 log = logging.getLogger(__name__)
 
 # Define namespaces
-DATADIR = Path(__file__).parent.parent / "data"
 
 DATAPACKAGE_SCHEMA_YAML = DATADIR / "datapackage.schema.json"
 DATAPACKAGE_SCHEMA = yaml.safe_load(DATAPACKAGE_SCHEMA_YAML.read_text())
