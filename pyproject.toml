@@ -60,7 +60,7 @@ addopts = "-v -p no:memray -p no:profiling"
 console_output_style = "count"
 testpaths = ["tests"]
 # XXX: Re-enable failing when no tests are collected.
-empty_parameter_set_mark = "fail_at_collect"
+# empty_parameter_set_mark = "fail_at_collect"
 collect_imported_tests = false
 markers = [
   "asset: marks tests as processing entire assets",

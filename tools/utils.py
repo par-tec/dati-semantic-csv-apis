@@ -9,6 +9,7 @@ import yaml
 from pyld import jsonld
 from rdflib import Graph
 from rdflib.compare import IsomorphicGraph, to_isomorphic
+from rdflib.term import Literal
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -51,6 +52,7 @@ def quoted_string_representer(dumper, data):
 
 
 QuotedStringDumper.add_representer(str, quoted_string_representer)
+QuotedStringDumper.add_representer(Literal, quoted_string_representer)
 
 
 def expand_context_to_absolute_uris(context: dict) -> dict:

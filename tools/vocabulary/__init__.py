@@ -3,7 +3,7 @@ import logging
 import time
 from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 from rdflib import DCTERMS, OWL, SKOS, Graph, Namespace
 
@@ -46,18 +46,22 @@ def _language_matches(obj, lang: str | LangTag):
 
 
 class VocabularyMetadata(Graph):
-    def language(self) -> str | None:
+    def language(self) -> str:
         language = self.value(self.identifier, DCTERMS.language)
-        if str(language).lower().endswith(("/it", "/ita")):
-            lang = "it"
-        elif str(language).lower().endswith(("/en", "/eng")):
-            lang = "en"
-        else:
-            raise NotImplementedError(
-                f"Unsupported language '{language}' for vocabulary {self.identifier}"
+        if not language:
+            raise ValueError(
+                f"Vocabulary {self.identifier} is missing required DCTERMS:language"
             )
-            lang = None
-        return lang
+        uri = str(language).lower()
+
+        # Infer language from URI.
+        if uri.endswith(("/it", "/ita")):
+            return "it"
+        if uri.endswith(("/en", "/eng")):
+            return "en"
+        raise NotImplementedError(
+            f"Unsupported language '{language}' for vocabulary {self.identifier}"
+        )
 
     def get_first_value(self, predicates: list, lang: str | LangTag = LANG_ANY):
         for predicate in predicates:
@@ -87,16 +91,28 @@ class VocabularyMetadata(Graph):
             )
         return next(iter(values)) if values else None
 
-    # Helper function to get literal value
-    def get_value(self, predicate, lang: str | LangTag = LANG_ANY):
+    def get_value(self, predicate, lang: str | LangTag = LANG_ANY) -> Any:
+        """
+        Get the first value for a given predicate that matches the specified language.
+
+        Args:
+            predicate: The RDF predicate to query.
+            lang: The language tag to match. Can be a string or a LangTag.
+
+        Returns:
+            The first matching value, or None if no match is found.
+
+        """
         for obj in self.objects(self.identifier, predicate):
             if not _language_matches(obj, lang):
                 continue
-            return str(obj)
+            return obj
         return None
 
     # Helper function to get all values as list
-    def get_values(self, predicate, lang: str | LangTag = LANG_ANY):
+    def get_values(
+        self, predicate, lang: str | LangTag = LANG_ANY
+    ) -> None | list:
         values = []
         for obj in self.objects(self.identifier, predicate):
             if _language_matches(obj, lang):
@@ -110,19 +126,20 @@ class VocabularyMetadata(Graph):
     @property
     def name(self) -> str:
         value = self.get_value(NDC.keyConcept, lang=LANG_NONE)
-        if value is None:
-            raise ValueError(
-                f"Vocabulary {self.identifier} is missing a non-language-tagged NDC:keyConcept"
-            )
-        return value
+        if isinstance(value, str):
+            return value
+        raise ValueError(
+            f"Vocabulary {self.identifier} is missing a string, non-language-tagged NDC:keyConcept"
+        )
 
     @property
     def title(self) -> str:
-        for lang in {self.language(), LANG_NONE}:
+        lang_tag: str | LangTag = self.language() or LANG_NONE
+        for lang in {lang_tag, LANG_NONE}:
             value = self.get_first_value(
                 [DCTERMS.title, SKOS.prefLabel], lang=lang
             )
-            if value is not None:
+            if isinstance(value, str):
                 return value
         raise ValueError(
             f"Vocabulary {self.identifier} is missing required title (DCTERMS:title or SKOS:prefLabel)"
@@ -130,16 +147,23 @@ class VocabularyMetadata(Graph):
 
     @property
     def version(self) -> str | None:
-        return self.get_value(OWL.versionInfo)
+        version = self.get_value(OWL.versionInfo)
+        return str(version) if version else None
 
     @property
-    def description(self) -> str | None:
+    def description(self) -> str:
         description = self.get_first_value(
             [DCTERMS.description, SKOS.definition], lang=self.language()
         ) or self.get_first_value(
             [DCTERMS.description, SKOS.definition], lang=LANG_NONE
         )
-        return description
+        if description is None:
+            return ""
+        if isinstance(description, str):
+            return description
+        raise ValueError(
+            f"Vocabulary {self.identifier} has a description that is not a string: {description}"
+        )
 
 
 class Vocabulary:

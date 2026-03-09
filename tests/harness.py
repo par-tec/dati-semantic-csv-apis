@@ -78,10 +78,10 @@ def git_show_head(path: Path) -> str:
     :param path: Path to the file to get the show for
     :return: The git show as bytes
     """
-
     repo = Repo(TESTDIR.parent, search_parent_directories=True)
+    relative_path = path.relative_to(TESTDIR.parent)
     show = repo.git.show(
-        f"HEAD:{path.as_posix()}",
+        f"HEAD:{relative_path.as_posix()}",
     )
     return show
 
