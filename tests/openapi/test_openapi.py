@@ -9,6 +9,7 @@ from deepdiff import DeepDiff
 # from rdflib.plugins.serializers.jsonld import from_rdf
 # from rdflib.plugins.parsers.jsonld import to_rdf
 from tests.constants import ASSETS, TESTCASES
+from tests.harness import compare_data
 from tools.base import JsonLDFrame, RDFText
 from tools.openapi.openapi_generator import (
     Apiable,
@@ -101,14 +102,14 @@ def test_openapi_metadata(
 
     When:
     - I create an instance of the Apiable class with the RDF data and frame
-    - I generate the complete json_schema stub
+    - I generate the complete OpenAPI stub
 
     Then:
     - The OpenAPI schema should be created successfully
     - The schema should include the expected properties and constraints
     - The schema should be valid according to the OpenAPI specification
     """
-    jsonschema_oas3_yaml = snapshot_dir / "oas3.yaml"
+    oas3_yaml = snapshot_dir / "oas3.yaml"
 
     # apiable = Apiable(data, frame)
     # json_schema = apiable.json_schema()
@@ -116,12 +117,11 @@ def test_openapi_metadata(
     apiable = Apiable(turtle, frame)
 
     openapi: OpenAPI = apiable.openapi()
-    jsonschema_oas3_yaml.write_text(
+    oas3_yaml.write_text(
         yaml.dump(openapi, Dumper=QuotedStringDumper, sort_keys=True)
     )
-    delta = DeepDiff(openapi, expected_jsonschema, ignore_order=True)
 
-    assert not delta
+    compare_data(oas3_yaml, oas3_yaml)
     raise NotImplementedError
 
 
