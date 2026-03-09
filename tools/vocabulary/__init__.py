@@ -127,7 +127,10 @@ class VocabularyMetadata(Graph):
     def name(self) -> str:
         value = self.get_value(NDC.keyConcept, lang=LANG_NONE)
         if isinstance(value, str):
-            return value
+            # Note: Since rdflib.terms.Literal is a subclass of str,
+            #   but yaml can't serialize it directly.
+            #   We thus convert it to a plain string before returning.
+            return str(value)
         raise ValueError(
             f"Vocabulary {self.identifier} is missing a string, non-language-tagged NDC:keyConcept"
         )
