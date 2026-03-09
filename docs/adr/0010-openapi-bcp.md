@@ -12,7 +12,7 @@ Accepted
 
 ## Context
 
-This project need to support the publication of REST APIs for controlled vocabularies.
+This project supports the publication of REST APIs for controlled vocabularies.
 APIs are defined using OpenAPI specifications documents that should be valid
 according to the Italian Interoperability Framework (ModI).
 

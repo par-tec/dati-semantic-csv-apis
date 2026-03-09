@@ -115,7 +115,6 @@ def test_openapi_metadata(
     frame = JsonLDFrame(frame)
     apiable = Apiable(turtle, frame)
 
-    breakpoint()
     json_schema = apiable.json_schema(
         add_constraints=True, validate_output=True
     )

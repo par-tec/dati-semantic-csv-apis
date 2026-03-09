@@ -5,7 +5,7 @@ from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import cast
 
-from rdflib import Graph
+from rdflib import DCTERMS, OWL, SKOS, Graph, Namespace
 
 # from rdflib.plugins.serializers.jsonld import from_rdf
 from tools.base import (
@@ -20,11 +20,129 @@ from tools.projector import framer
 
 log = logging.getLogger(__name__)
 
+NDC = Namespace("https://w3id.org/italia/onto/NDC/")
+
 
 class UnsupportedVocabularyError(ValueError):
     """The RDF data does not contain a supported vocabulary,
     such as a ConceptScheme with NDC:keyConcept.
     """
+
+
+class LangTag:
+    pass
+
+
+LANG_ANY = LangTag()
+LANG_NONE = LangTag()
+
+
+def _language_matches(obj, lang: str | LangTag):
+    if lang is LANG_ANY:
+        return True
+    if lang is LANG_NONE:
+        return not (hasattr(obj, "language") and obj.language)
+    return hasattr(obj, "language") and obj.language == lang
+
+
+class VocabularyMetadata(Graph):
+    def language(self) -> str | None:
+        language = self.value(self.identifier, DCTERMS.language)
+        if str(language).lower().endswith(("/it", "/ita")):
+            lang = "it"
+        elif str(language).lower().endswith(("/en", "/eng")):
+            lang = "en"
+        else:
+            raise NotImplementedError(
+                f"Unsupported language '{language}' for vocabulary {self.identifier}"
+            )
+            lang = None
+        return lang
+
+    def get_first_value(vocabulary, predicates, lang: str | LangTag = LANG_ANY):
+        for predicate in predicates:
+            value = vocabulary.get_value(predicate, lang=lang)
+            if value:
+                return value
+        return None
+
+    def get_identifier(vocabulary, predicate, unique=True, required=True):
+        values = {
+            str(obj)
+            for obj in vocabulary.objects(vocabulary.identifier, predicate)
+        }
+        if unique and len(values) > 1:
+            raise ValueError(
+                f"Expected exactly one value for {predicate}, found {len(values)}: {values}"
+            )
+        # If the identifier has a language-tagged literal,
+        #  raise an error.
+        if any(
+            hasattr(obj, "language") and obj.language
+            for obj in vocabulary.objects(vocabulary.identifier, predicate)
+        ):
+            raise ValueError(
+                f"Expected a non-language-tagged literal for {predicate}, but found language-tagged literals: {values}"
+            )
+        if required and not values:
+            raise ValueError(
+                f"Expected a value for {predicate}, but found none"
+            )
+        return next(iter(values)) if values else None
+
+    # Helper function to get literal value
+    def get_value(vocabulary, predicate, lang: str | LangTag = LANG_ANY):
+        for obj in vocabulary.objects(vocabulary.identifier, predicate):
+            if not _language_matches(obj, lang):
+                continue
+            return str(obj)
+        return None
+
+    # Helper function to get all values as list
+    def get_values(vocabulary, predicate, lang: str | LangTag = LANG_ANY):
+        values = []
+        for obj in vocabulary.objects(vocabulary.identifier, predicate):
+            if _language_matches(obj, lang):
+                values.append(str(obj))
+            else:
+                log.info(
+                    f"Skipping value '{obj}' for predicate '{predicate}' due to language mismatch (expected: {lang})"
+                )
+        return values if values else None
+
+    @property
+    def name(self) -> str:
+        value = self.get_value(NDC.keyConcept, lang=LANG_NONE)
+        if value is None:
+            raise ValueError(
+                f"Vocabulary {self.identifier} is missing a non-language-tagged NDC:keyConcept"
+            )
+        return value
+
+    @property
+    def title(self) -> str:
+        for lang in {self.language(), LANG_NONE}:
+            value = self.get_first_value(
+                [DCTERMS.title, SKOS.prefLabel], lang=lang
+            )
+            if value is not None:
+                return value
+        raise ValueError(
+            f"Vocabulary {self.identifier} is missing required title (DCTERMS:title or SKOS:prefLabel)"
+        )
+
+    @property
+    def version(self) -> str | None:
+        return self.get_value(OWL.versionInfo)
+
+    @property
+    def description(self) -> str | None:
+        description = self.get_first_value(
+            [DCTERMS.description, SKOS.definition], lang=self.language()
+        ) or self.get_first_value(
+            [DCTERMS.description, SKOS.definition], lang=LANG_NONE
+        )
+        return description
 
 
 class Vocabulary:
@@ -134,7 +252,7 @@ class Vocabulary:
                 "Expected exactly one vocabulary in the RDF data",
                 do_i_have_just_one_vocab,
             )
-        _m2 = Graph(identifier=_metadata_uri.pop())
+        _m2 = VocabularyMetadata(identifier=_metadata_uri.pop())
         for s, p, o in _metadata:
             _m2.add((s, p, o))
         return _m2
