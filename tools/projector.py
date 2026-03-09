@@ -31,7 +31,7 @@ def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
         JsonLD: Framed JSON-LD document containing @context and @graph fields.
     """
 
-    original_context = frame.get("@context", {})
+    original_context = frame.context
 
     # Determine items to process
     if isinstance(ld_doc, dict) and "@graph" in ld_doc:
@@ -128,7 +128,7 @@ def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
     statistics["filtered"].sort()  # type: ignore
     # Assemble final result
     framed: JsonLD = {
-        "@context": frame.get("@context", {}),
+        "@context": frame.context,
         "@graph": all_framed_items,
     }
     framed["statistics"] = statistics  # type: ignore
@@ -177,39 +177,3 @@ def select_fields(framed: JsonLD, selected_fields: list[str]) -> None:
         for f in item_fields:
             if f not in selected_fields:
                 del item[f]
-
-
-def frame_context_fields(frame) -> list:
-    """
-    Extract field names from a JSON-LD frame,
-
-    Including:
-    - '@context' fields
-    - '@default' fields
-    - detached fields (i.e., fields with value `null` in the frame).
-
-    Excluding:
-    - Namespace declarations (i.e., fields whose value is a URI string)
-    - `@-`prefixed JSON-LD keywords (e.g., `@id`, `@type`, etc.)
-    """
-
-    def is_field(k, v):
-        if k.startswith("@"):
-            return False
-        if isinstance(v, str) and v.startswith("http"):
-            return False
-        return True
-
-    context_fields = [
-        k for k, v in frame.get("@context", {}).items() if is_field(k, v)
-    ]
-
-    default_fields = [
-        k for k, v in frame.items() if isinstance(v, dict) and "@default" in v
-    ]
-
-    detached_fields = [
-        k for k, v in frame.items() if isinstance(v, dict) and v is None
-    ]
-
-    return list(set(context_fields + default_fields + detached_fields))
