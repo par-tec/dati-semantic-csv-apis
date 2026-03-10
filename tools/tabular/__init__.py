@@ -243,6 +243,9 @@ class Tabular(Vocabulary):
             dict: Data resource dictionary
 
         """
+        if not resource_name:
+            raise ValueError("resource_name is required")
+
         if not resource_path:
             raise ValueError("resource_path is required")
 
