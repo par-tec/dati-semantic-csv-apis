@@ -89,7 +89,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -q "git+https://github.com/${{ github.repository }}.git@${{ env.SOURCE_REF }}#egg=dati-semantic-apis"
+        pip install -q "git+https://github.com/${{ github.repository }}.git@ioggstream-63#egg=dati-semantic-apis"
     - name: Create datapackage metadata
       working-directory: >-
         assets/controlled-vocabularies/${{ matrix.asset }}
