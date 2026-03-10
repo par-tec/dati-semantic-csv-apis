@@ -29,6 +29,7 @@ on:
 env:
   CI: true
   PYTHON_VERSION: '3.14'
+  SOURCE_REF: ${{ github.event.pull_request.head.sha || github.sha }}
 
 jobs:
   # Detect which assets changed in this push
@@ -77,7 +78,7 @@ jobs:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       with:
         persist-credentials: true
-        ref: main
+        ref: assets
 
     - name: Set up Python
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
@@ -88,7 +89,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e . -q
+        pip install -q "git+https://github.com/${{ github.repository }}.git@${{ env.SOURCE_REF }}#egg=dati-semantic-apis"
 
     - name: Create datapackage metadata
       working-directory: >-
@@ -161,7 +162,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e . -q
+        pip install -q "git+https://github.com/${{ github.repository }}.git@${{ env.SOURCE_REF }}#egg=dati-semantic-apis"
 
     - name: Generate and validate CSV
       working-directory: assets/controlled-vocabularies/${{ matrix.asset
