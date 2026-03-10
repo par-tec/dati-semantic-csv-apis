@@ -11,6 +11,11 @@
 # Jobs:
 #  1. ci-pre-tabular: Creates Frictionless Data Package metadata from RDF vocabularies
 #  2. ci-tabular: Generates CSV files and creates pull requests with the results
+#
+# Run this workflow manually with:
+#
+# $ gh workflow run --ref assets
+#
 name: Asset CSV Generation
 permissions: {}
 on:
@@ -57,10 +62,13 @@ jobs:
           ASSETS=$(find assets/controlled-vocabularies -maxdepth 1 -type d ! -name controlled-vocabularies -exec basename {} \; | sort -u | jq -R -s -c 'split("\n")[:-1]')
           echo "Detected assets for manual dispatch: ${ASSETS}"
         else
+          true # XXX: uncomment
           # For push events, detect changed assets
-          CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD | grep '^assets/controlled-vocabularies/')
-          ASSETS=$(echo "$CHANGED_FILES" | cut -d/ -f3 | sort -u | jq -R -s -c 'split("\n")[:-1] | map(select(length > 0))')
+          # CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD | grep '^assets/controlled-vocabularies/')
+          # ASSETS=$(echo "$CHANGED_FILES" | cut -d/ -f3 | sort -u | jq -R -s -c 'split("\n")[:-1] | map(select(length > 0))')
         fi
+
+        ASSETS=$(find assets/controlled-vocabularies -maxdepth 1 -type d ! -name controlled-vocabularies -exec basename {} \; | sort -u | jq -R -s -c 'split("\n")[:-1]')
 
         echo "assets=${ASSETS}" >> "$GITHUB_OUTPUT"
         echo "Detected assets: ${ASSETS}"
@@ -85,7 +93,6 @@ jobs:
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-        cache: 'pip'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
