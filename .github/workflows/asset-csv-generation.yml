@@ -29,7 +29,8 @@ on:
 env:
   CI: true
   PYTHON_VERSION: '3.14'
-  SOURCE_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+  SOURCE_REF: ${{ github.event.pull_request.head.sha || github.sha
+    }}
 
 jobs:
   # Detect which assets changed in this push
