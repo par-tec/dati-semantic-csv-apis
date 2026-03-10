@@ -3,37 +3,28 @@ from pathlib import Path
 
 import yaml
 from jsonschema import validate
-from rdflib import DCAT, DCTERMS, OWL, SKOS, Graph, Namespace, URIRef
+from rdflib import DCAT, DCTERMS
+
+from tools.base import DATADIR
+from tools.vocabulary import VocabularyMetadata
 
 log = logging.getLogger(__name__)
 
 # Define namespaces
-NDC = Namespace("https://w3id.org/italia/onto/NDC/")
-DATADIR = Path(__file__).parent.parent / "data"
 
 DATAPACKAGE_SCHEMA_YAML = DATADIR / "datapackage.schema.json"
 DATAPACKAGE_SCHEMA = yaml.safe_load(DATAPACKAGE_SCHEMA_YAML.read_text())
 
 
-class LangTag:
-    pass
-
-
-LANG_ANY = LangTag()
-LANG_NONE = LangTag()
-
-
 def create_datapackage(
-    vocabulary: Graph,
-    vocabulary_uri: URIRef,
+    vocabulary: VocabularyMetadata,
     resources: list,
 ) -> dict:
     """
     Create a frictionless datapackage from JSON-LD RDF data.
 
     Args:
-        vocabulary: RDF graph containing the data
-        vocabulary_uri: URI of the vocabulary (concept scheme) to extract metadata for
+        vocabulary: VocabularyMetadata object containing the data
         resources: List of data resources to include in the datapackage
             (e.g., from a CSV file)
             by default, uses SKOS vocabulary terms, otherwise use others (e.g., DCTERMS, DCAT, OWL)
@@ -42,89 +33,21 @@ def create_datapackage(
     """
 
     if not vocabulary:
-        raise ValueError(f"No triples found for {vocabulary_uri} in RDF data")
+        raise ValueError("Empty RDF graph")
 
+    vocabulary_uri = vocabulary.identifier
     # XXX: Should we use conformsTo?
     # conformsTo = vocabulary.value(vocabulary_uri, DCTERMS.conformsTo)
-    language = vocabulary.value(vocabulary_uri, DCTERMS.language)
-    if str(language).lower().endswith(("/it", "/ita")):
-        lang = "it"
-    elif str(language).lower().endswith(("/en", "/eng")):
-        lang = "en"
-    else:
-        raise NotImplementedError(
-            f"Unsupported language '{language}' for vocabulary {vocabulary_uri}"
-        )
-        lang = None
 
-    # Check if vocabulary conforms to any ofdswith
-
-    def get_identifier(predicate, unique=True, required=True):
-        values = {
-            str(obj) for obj in vocabulary.objects(vocabulary_uri, predicate)
-        }
-        if unique and len(values) > 1:
-            raise ValueError(
-                f"Expected exactly one value for {predicate}, found {len(values)}: {values}"
-            )
-        # If the identifier has a language-tagged literal,
-        #  raise an error.
-        if any(
-            hasattr(obj, "language") and obj.language
-            for obj in vocabulary.objects(vocabulary_uri, predicate)
-        ):
-            raise ValueError(
-                f"Expected a non-language-tagged literal for {predicate}, but found language-tagged literals: {values}"
-            )
-        if required and not values:
-            raise ValueError(
-                f"Expected a value for {predicate}, but found none"
-            )
-        return next(iter(values)) if values else None
-
-    # Helper function to get literal value
-    def get_value(predicate, lang: str | LangTag = LANG_ANY):
-        for obj in vocabulary.objects(vocabulary_uri, predicate):
-            if not _language_matches(obj, lang):
-                continue
-            return str(obj)
-        return None
-
-    def _language_matches(obj, lang: str | LangTag):
-        if lang is LANG_ANY:
-            return True
-        if lang is LANG_NONE:
-            return not (hasattr(obj, "language") and obj.language)
-        return hasattr(obj, "language") and obj.language == lang
-
-    # Helper function to get all values as list
-    def get_values(predicate, lang: str | LangTag = LANG_ANY):
-        values = []
-        for obj in vocabulary.objects(vocabulary_uri, predicate):
-            if _language_matches(obj, lang):
-                values.append(str(obj))
-            else:
-                log.info(
-                    f"Skipping value '{obj}' for predicate '{predicate}' due to language mismatch (expected: {lang})"
-                )
-        return values if values else None
-
-    def get_first_value(predicates, lang: str | LangTag = LANG_ANY):
-        for predicate in predicates:
-            value = get_value(predicate, lang=lang)
-            if value:
-                return value
-        return None
-
+    dcterms_identifier = vocabulary.get_identifier(
+        DCTERMS.identifier, unique=True, required=True
+    )
     # Map RDF properties to Frictionless datapackage fields
     datapackage = {
         "$schema": "https://datapackage.org/profiles/2.0/datapackage.json",
-        "name": get_value(NDC.keyConcept) or "",
-        "id": get_identifier(DCTERMS.identifier, unique=True, required=False)
-        or str(vocabulary_uri),
-        "title": get_first_value([DCTERMS.title, SKOS.prefLabel], lang=lang)
-        or get_first_value([DCTERMS.title, SKOS.prefLabel], lang=LANG_NONE)
-        or "",
+        "name": vocabulary.name,
+        "id": dcterms_identifier or str(vocabulary_uri),
+        "title": vocabulary.title or "",
         "sources": [
             {
                 "path": str(vocabulary_uri),
@@ -134,34 +57,32 @@ def create_datapackage(
     }
 
     # Add optional fields if present
-    version = get_value(OWL.versionInfo)
+    version = vocabulary.version
     if version:
         datapackage["version"] = version
 
-    description = get_first_value(
-        [DCTERMS.description, SKOS.definition], lang=lang
-    ) or get_first_value([DCTERMS.description, SKOS.definition], lang=LANG_NONE)
-
+    description = vocabulary.description
     if description:
         datapackage["description"] = description
 
-    homepage = get_value(DCAT.accessURL)
+    homepage = vocabulary.get_value(DCAT.accessURL)
     if homepage:
         datapackage["homepage"] = homepage
 
-    created = get_value(DCTERMS.issued)
+    created = vocabulary.get_value(DCTERMS.issued)
     if created:
+        created = str(created)
         # Add time component if missing (datapackage spec requires date-time format).
         if len(created) == 10:
             created += "T00:00:00Z"
         datapackage["created"] = created
 
-    keywords = get_values(DCAT.keyword)
+    keywords = vocabulary.get_values(DCAT.keyword)
     if keywords:
         keywords.sort()
         datapackage["keywords"] = keywords
 
-    licenses = get_values(DCTERMS.license)
+    licenses = vocabulary.get_values(DCTERMS.license)
     if licenses:
         datapackage["licenses"] = licenses
 

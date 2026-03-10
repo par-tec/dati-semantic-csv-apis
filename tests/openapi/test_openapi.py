@@ -9,18 +9,20 @@ from deepdiff import DeepDiff
 # from rdflib.plugins.serializers.jsonld import from_rdf
 # from rdflib.plugins.parsers.jsonld import to_rdf
 from tests.constants import ASSETS, TESTCASES
-from tools.base import JsonLDFrame
+from tests.harness import compare_data
+from tools.base import JsonLDFrame, RDFText
 from tools.openapi.openapi_generator import (
     Apiable,
-    create_schema_from_frame_and_data,
+    OpenAPI,
 )
 from tools.utils import QuotedStringDumper
+from tools.vocabulary import UnsupportedVocabularyError
 
 vocabularies = list(ASSETS.glob("**/*.data.yaml"))
 
 
 @pytest.mark.parametrize(
-    "expected_payload,frame,expected_jsonschema",
+    "data,frame,expected_jsonschema",
     argvalues=[
         itemgetter("expected_payload", "frame", "expected_jsonschema")(x)
         for x in TESTCASES
@@ -29,7 +31,7 @@ vocabularies = list(ASSETS.glob("**/*.data.yaml"))
     ids=[x["name"] for x in TESTCASES if "expected_jsonschema" in x],
 )
 def test_openapi_minimal(
-    expected_payload: dict,
+    data: dict,
     frame: JsonLDFrame,
     expected_jsonschema: dict,
     snapshot_dir: Path,
@@ -56,7 +58,7 @@ def test_openapi_minimal(
     # json_schema = apiable.json_schema()
     frame = JsonLDFrame(frame)
     apiable = Apiable(
-        {"@graph": expected_payload, "@context": frame.context},
+        {"@graph": data, "@context": frame.context},
         frame,
     )
 
@@ -73,6 +75,57 @@ def test_openapi_minimal(
         "x-jsonld-context",
     ):
         assert expected_equals not in delta
+
+    assert_schema(json_schema, frame)
+
+
+@pytest.mark.parametrize(
+    "turtle,frame,expected_jsonschema",
+    argvalues=[
+        itemgetter("data", "frame", "expected_jsonschema")(x)
+        for x in TESTCASES
+        if "expected_jsonschema" in x
+    ],
+    ids=[x["name"] for x in TESTCASES if "expected_jsonschema" in x],
+)
+def test_openapi_metadata(
+    turtle: RDFText,
+    frame: JsonLDFrame,
+    expected_jsonschema: dict,
+    snapshot_dir: Path,
+):
+    """
+    Test the OpenAPI schema generation from JSON-LD frames and data.
+
+    Given:
+    - RDF vocabulary data in JSON-LD format
+    - A JSON-LD frame with @context definitions
+
+    When:
+    - I create an instance of the Apiable class with the RDF data and frame
+    - I generate the complete OpenAPI stub
+
+    Then:
+    - The OpenAPI schema should be created successfully
+    - The schema should include the expected properties and constraints
+    - The schema should be valid according to the OpenAPI specification
+    """
+    oas3_yaml = snapshot_dir / "oas3.yaml"
+
+    # apiable = Apiable(data, frame)
+    # json_schema = apiable.json_schema()
+    frame = JsonLDFrame(frame)
+    apiable = Apiable(turtle, frame)
+
+    try:
+        openapi: OpenAPI = apiable.openapi()
+    except UnsupportedVocabularyError as e:
+        pytest.skip(f"Unsupported vocabulary: {e}")
+    oas3_yaml.write_text(
+        yaml.dump(openapi, Dumper=QuotedStringDumper, sort_keys=True)
+    )
+
+    compare_data(oas3_yaml, oas3_yaml)
 
 
 @pytest.mark.skip(reason="TODO: Add data.")
@@ -109,9 +162,10 @@ def test_schema_with_constraints_and_validation(vocabulary_data_yaml: Path):
     with vocabulary_data_yaml.open() as f:
         data = yaml.safe_load(f)
 
-    # Generate schema with constraints and validation
-    schema = create_schema_from_frame_and_data(
-        frame, data, add_constraints=True, validate_output=True
+    apiable = Apiable({"@graph": data, "@context": frame.context}, frame)
+
+    json_schema = apiable.json_schema(
+        add_constraints=True, validate_output=True
     )
 
     oas_yaml = vocabulary_data_yaml.with_suffix("").with_suffix(".oas3.yaml")
@@ -120,23 +174,25 @@ def test_schema_with_constraints_and_validation(vocabulary_data_yaml: Path):
             {
                 "openapi": "3.0.3",
                 "paths": {},
-                "components": {"schemas": {"Item": schema}},
+                "components": {"schemas": {"Item": json_schema}},
             },
             Dumper=QuotedStringDumper,
             sort_keys=True,
         )
     )
-    schema_copy = schema.copy()
-    schema_copy.pop("x-validation", None)  # Remove validation for comparison
-    schema_copy.pop("x-jsonld-type", None)
-    schema_copy.pop("x-jsonld-context", None)
+    schema_copy = json_schema.copy()
+    assert_schema(schema_copy, frame)
 
+
+def assert_schema(schema_copy: OpenAPI, frame: JsonLDFrame) -> None:
+    """ """
+    validation = schema_copy.pop("x-validation", None)
+    x_jsonld_type = schema_copy.pop("x-jsonld-type", None)
+    assert x_jsonld_type
+    x_jsonld_context = schema_copy.pop("x-jsonld-context", None)
+    assert x_jsonld_context
     # Check that schema was generated
-    assert "properties" in schema, "Schema should have properties"
-    assert "x-validation" in schema, "Schema should include validation results"
-
-    # Get validation results
-    validation = schema["x-validation"]
+    assert validation is not None, "Schema should include x-validation results"
 
     # Log validation results for inspection
     logging.info("Validation results for %s:", frame.get("@type"))
@@ -150,7 +206,8 @@ def test_schema_with_constraints_and_validation(vocabulary_data_yaml: Path):
             )
 
     # Check that constraints were added where expected
-    properties = schema.get("properties", {})
+    properties = schema_copy.get("properties", {})
+    assert properties, "Schema should have properties"
 
     # Check for integer constraints (e.g., level field with xsd:integer)
     for field_name, prop_schema in properties.items():

@@ -1,17 +1,23 @@
+import json
 import logging
 from pathlib import Path
 from typing import Any, cast
 
 from genson import SchemaBuilder
 from jsonschema import ValidationError, validate
+from rdflib import DCTERMS
 from rdflib.plugins.parsers.jsonld import to_rdf
 
-from tools.base import JsonLD, JsonLDFrame, JSONLDText, RDFText
-from tools.vocabulary import Vocabulary
+from tools.base import DATADIR, JsonLD, JsonLDFrame, JSONLDText, RDFText
+from tools.vocabulary import LANG_NONE, Vocabulary, VocabularyMetadata
 
 log = logging.getLogger(__name__)
 
 type OpenAPI = dict[str, Any]
+OPENAPI_30_SCHEMA_JSON = DATADIR / "openapi_30.schema.json"
+OAS30_SCHEMA = json.loads(OPENAPI_30_SCHEMA_JSON.read_text())
+
+URI = "url"
 
 
 class Apiable(Vocabulary):
@@ -82,6 +88,41 @@ class Apiable(Vocabulary):
             add_constraints=add_constraints,
             validate_output=validate_output,
         )
+
+    def openapi(self, **kwargs) -> OpenAPI:
+        """
+        Return an OAS 3.0 document which includes the Vocabulary metadata
+        together with the generated OpenAPI schema.
+        """
+        metadata: VocabularyMetadata = self.metadata()
+        openapi = {
+            "openapi": "3.0.0",
+            "info": {
+                "title": metadata.title,
+                "version": metadata.version or "1.0.0",
+                "description": metadata.description or "",
+                "x-summary": metadata.get_first_value(
+                    [
+                        DCTERMS.abstract,
+                    ],
+                    lang=LANG_NONE,
+                )
+                or "",
+                "contact": {
+                    "name": "Fake Name",
+                    "email": "fake@example.com",
+                    "url": "https://example.com/contact",
+                },
+            },
+            "paths": {},
+            "servers": [],
+            "components": {"schemas": {"Item": self.json_schema(**kwargs)}},
+        }
+
+        validate(instance=openapi, schema=OAS30_SCHEMA)
+        return cast(OpenAPI, openapi)
+
+    # self.json_schema(**kwargs)
 
 
 def create_schema_from_frame_and_data(
@@ -248,10 +289,12 @@ def validate_data_against_schema(data, schema):
 
 def add_url_format_recursively(schema):
     """
-    Recursively add format: uri to all 'url' fields in schema.
+    Recursively add format: uri-reference to all 'url' fields in schema.
 
     Args:
         schema: JSON Schema (or sub-schema) to process
+
+    FIXME: Use `uri` (absolute) instead of `uri-reference` (relative)
     """
     if not isinstance(schema, dict):
         return
@@ -259,8 +302,8 @@ def add_url_format_recursively(schema):
     # Process properties at current level
     if "properties" in schema:
         for field_name, prop_schema in schema["properties"].items():
-            if field_name == "url" and prop_schema.get("type") == "string":
-                prop_schema["format"] = "uri"
+            if field_name == URI and prop_schema.get("type") == "string":
+                prop_schema["format"] = "uri-reference"
             # Recurse into nested objects
             if prop_schema.get("type") == "object":
                 add_url_format_recursively(prop_schema)

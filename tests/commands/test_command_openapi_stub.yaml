@@ -1,0 +1,132 @@
+---
+- id: create_validate_openapi_ateco_2025
+  marks:
+  - asset
+  description: |-
+    Given:
+    - a TTL file in assets/
+    - a JSON-LD frame in assets/
+
+    When:
+    - I run `openapi create`
+
+    Then:
+    - the command exits successfully
+    - a openapi stub YAML file is created
+    - logs show the openapi stub was created
+  steps:
+  - description: |-
+      When:
+      - I run `openapi create`
+
+      Then:
+      - the command exits successfully
+      - a openapi stub YAML file is created
+      - logs show the openapi stub was created
+    command:
+    - openapi
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
+    - --frame
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - --output
+    - tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+    - --force
+    expected:
+      files:
+      - path: tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+        snapshot: tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+        compare: data
+      logs:
+      - >-
+        openapi stub created: .*tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+      stdout:
+      - >-
+        Creating openapi metadata for https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+      - >-
+        ✓ Created: .*tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+  - description: |-
+      When:
+      - I run `openapi validate` on the created openapi stub
+
+      Then:
+      - the command exits successfully
+      - validation passes
+    command:
+    - openapi
+    - validate
+    - --openapi
+    - tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+    expected:
+      stdout:
+      - >-
+        ✓ openapi validation passed
+
+- id: create_validate_openapi_agente_causale
+  marks:
+  - asset
+  description: |-
+    Given:
+    - a TTL file in assets/
+    - a JSON-LD frame in assets/
+
+    When:
+    - I run `openapi create`
+
+    Then:
+    - the command exits successfully
+    - a openapi stub YAML file is created
+    - logs show the openapi stub was created
+  steps:
+  - description: |-
+      When:
+      - I run `openapi create`
+
+      Then:
+      - the command exits successfully
+      - a openapi stub YAML file is created
+      - logs show the openapi stub was created
+    command:
+    - openapi
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl
+    - --frame
+    - assets/controlled-vocabularies/agente_causale/latest/agente_causale.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+    - --output
+    - tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+    - --force
+    expected:
+      files:
+      - path: tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+        snapshot: tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+        compare: data
+      logs:
+      - >-
+        openapi stub created: .*tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+      stdout:
+      - >-
+        Creating openapi metadata for https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+      - >-
+        ✓ Created: .*tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+  - description: |-
+      When:
+      - I run `openapi validate` on the created openapi stub
+
+      Then:
+      - the command exits successfully
+      - validation passes
+    command:
+    - openapi
+    - validate
+    - --openapi
+    - tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+    expected:
+      stdout:
+      - >-
+        ✓ openapi validation passed
