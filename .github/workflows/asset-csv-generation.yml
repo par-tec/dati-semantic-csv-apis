@@ -22,9 +22,14 @@ on:
   push:
     branches:
     - main
+    - assets
     paths:
     - 'assets/controlled-vocabularies/**'
     - '.github/workflows/asset-csv-generation.yml'
+
+  pull_request:
+    branches:
+    - main
 
 env:
   CI: true
