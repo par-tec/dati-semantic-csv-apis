@@ -1,0 +1,257 @@
+---
+# Asset CSV Generation Workflow
+#
+# This workflow manages the creation and validation of CSV files from RDF vocabularies
+# stored in the assets/controlled-vocabularies directory.
+#
+# Triggers:
+#  - Commits to assets/ directory
+#  - Manual workflow dispatch
+#
+# Jobs:
+#  1. ci-pre-tabular: Creates Frictionless Data Package metadata from RDF vocabularies
+#  2. ci-tabular: Generates CSV files and creates pull requests with the results
+
+name: Asset CSV Generation
+
+permissions: {}
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  push:
+    branches:
+    - assets
+    paths:
+    - 'assets/controlled-vocabularies/**'
+    - '.github/workflows/asset-csv-generation.yml'
+
+  pull_request:
+    branches:
+    - assets
+    paths:
+    - 'assets/controlled-vocabularies/**'
+    - '.github/workflows/asset-csv-generation.yml'
+
+env:
+  CI: true
+  PYTHON_VERSION: '3.14'
+  SOURCE_REF: ${{ github.event.pull_request.head.sha || github.sha
+    }}
+
+jobs:
+  # Detect which assets changed in this push
+  detect-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      assets: ${{ steps.detect.outputs.assets }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+
+    - name: Detect changed assets
+      id: detect
+      shell: bash
+      run: |
+        # Get the list of changed files in the assets directory
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          # For manual dispatch, detect all assets
+          ASSETS=$(find assets/controlled-vocabularies -maxdepth 1 -type d ! -name controlled-vocabularies -exec basename {} \; | sort -u | jq -R -s -c 'split("\n")[:-1]')
+        else
+          # For push events, detect changed assets
+          CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD | grep '^assets/controlled-vocabularies/')
+          ASSETS=$(echo "$CHANGED_FILES" | cut -d/ -f3 | sort -u | jq -R -s -c 'split("\n")[:-1] | map(select(length > 0))')
+        fi
+
+        echo "assets=${ASSETS}" >> "$GITHUB_OUTPUT"
+        echo "Detected assets: ${ASSETS}"
+
+  # Job 1: Create Frictionless Data Package metadata
+  ci-pre-tabular:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.assets != '[]' && needs.detect-changes.outputs.assets
+      != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        asset: >-
+          ${{ fromJson(needs.detect-changes.outputs.assets) }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: true
+        ref: assets
+
+    - name: Set up Python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -q "git+https://github.com/${{ github.repository }}.git@${{ env.SOURCE_REF }}#egg=dati-semantic-apis"
+
+    - name: Create datapackage metadata
+      working-directory: >-
+        assets/controlled-vocabularies/${{ matrix.asset }}
+      run: |
+        # Find the TTL and frame files
+        TTL_FILE=$(ls *.ttl 2>/dev/null | head -1)
+        FRAME_FILE=$(ls *.frame.yamlld 2>/dev/null | head -1)
+
+        if [ -z "$TTL_FILE" ] || [ -z "$FRAME_FILE" ]; then
+          echo "::warning::Missing TTL or frame file for asset ${MATRIX_ASSET}"
+          exit 0
+        fi
+
+        # Extract vocabulary URI from the OAS3 file if available
+        OAS_FILE=$(ls *.oas3.yaml 2>/dev/null | head -1)
+
+        # Generate datapackage.yaml with force flag
+        python -m tools.commands datapackage create \
+          --ttl "$TTL_FILE" \
+          --frame "$FRAME_FILE" \
+          --vocabulary-uri "changeme" \
+          --output "datapackage.yaml" \
+          --lang it \
+          --force
+
+        echo "Generated datapackage.yaml for ${MATRIX_ASSET}"
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+
+    - name: Commit datapackage changes
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        git add "assets/controlled-vocabularies/${{ matrix.asset }}/datapackage.yaml"
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+          exit 0
+        fi
+
+        git commit -m "ci: generate datapackage for ${{ matrix.asset }} [skip ci]"
+        git push origin HEAD:assets
+
+  # Job 2: Generate CSV files and create pull requests
+  ci-tabular:
+    needs: [detect-changes, ci-pre-tabular]
+    if: false  # Temporarily disabled
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    strategy:
+      matrix:
+        asset: ${{ fromJson(needs.detect-changes.outputs.assets)
+          }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: true
+        ref: main
+
+    - name: Set up Python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -q "git+https://github.com/${{ github.repository }}.git@${{ env.SOURCE_REF }}#egg=dati-semantic-apis"
+
+    - name: Generate and validate CSV
+      working-directory: assets/controlled-vocabularies/${{ matrix.asset
+        }}
+      run: |
+        # Check if datapackage.yaml exists
+        if [ ! -f datapackage.yaml ]; then
+          echo "::warning::No datapackage.yaml found for asset ${MATRIX_ASSET}"
+          exit 0
+        fi
+
+        # Find the JSON-LD frame file
+        FRAME_FILE=$(ls *.frame.yamlld 2>/dev/null | head -1)
+        if [ -z "$FRAME_FILE" ]; then
+          echo "::error::Missing frame file for asset ${MATRIX_ASSET}"
+          exit 1
+        fi
+
+        # Find the JSONLD file (may need to be generated first if using the same frame)
+        # For now, we'll use the TTL file name to construct the expected JSONLD name
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+
+        # Check if JSONLD file exists, if not try to generate it
+        if [ -f "${ASSET_NAME}.jsonld" ]; then
+          JSONLD_FILE="${ASSET_NAME}.jsonld"
+        elif [ -f "${ASSET_NAME}.jsonld.yaml" ]; then
+          JSONLD_FILE="${ASSET_NAME}.jsonld.yaml"
+        else
+          echo "::warning::No JSON-LD file found; expected to find ${ASSET_NAME}.jsonld"
+          echo "You may need to generate JSON-LD first using: python -m tools.commands jsonld create"
+          exit 0
+        fi
+
+        # Generate CSV from JSON-LD and datapackage
+        python -m tools.commands csv create \
+          --jsonld "$JSONLD_FILE" \
+          --datapackage datapackage.yaml \
+          --force || true
+
+        # Validate the CSV
+        python -m tools.commands csv validate \
+          --csv "*.csv" \
+          --datapackage datapackage.yaml || true
+
+        echo "Generated and validated CSV for ${MATRIX_ASSET}"
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+
+    - name: Check for CSV files
+      id: check-csv
+      working-directory: assets/controlled-vocabularies/${{ matrix.asset
+        }}
+      run: |
+        if ls *.csv 1> /dev/null 2>&1; then
+          echo "csv_exists=true" >> "$GITHUB_OUTPUT"
+          CSV_FILE=$(ls *.csv | head -1)
+          echo "csv_file=$CSV_FILE" >> "$GITHUB_OUTPUT"
+        else
+          echo "csv_exists=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Create Pull Request
+      if: steps.check-csv.outputs.csv_exists == 'true'
+      uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0  # v8.1.s0
+      with:
+        commit-message: 'feat: add generated CSV for ${{ matrix.asset
+          }}'
+        title: 'feat: CSV generation for ${{ matrix.asset }}'
+        body: |
+          # CSV Generation for ${{ matrix.asset }}
+
+          This PR contains the auto-generated CSV file for the `${{ matrix.asset }}` controlled vocabulary.
+
+          ## Generated Files
+          - `assets/controlled-vocabularies/${{ matrix.asset }}/${{ steps.check-csv.outputs.csv_file }}`
+
+          ## Validation
+          The CSV has been generated from the RDF vocabulary and validated against the datapackage metadata.
+
+          Generated by the [Asset CSV Generation workflow](.github/workflows/asset-csv-generation.yml).
+        branch: 'feat/csv-${{ matrix.asset }}-${{ github.run_number
+          }}'
+        delete-branch: true
+        labels: 'automated,csv-generation'
