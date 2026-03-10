@@ -1,4 +1,6 @@
+import importlib
 import logging
+from importlib.resources.abc import Traversable
 from pathlib import Path
 from typing import Any, TypedDict, cast
 
@@ -11,7 +13,7 @@ log = logging.getLogger(__name__)
 TEXT_TURTLE = "text/turtle"
 OX_TURTLE = "ox-turtle"
 APPLICATION_LD_JSON = "application/ld+json"
-DATADIR = Path(__file__).parent / "data"
+DATADIR: Traversable = importlib.resources.files(__name__) / "data"
 
 
 JsonLD = TypedDict("JsonLD", {"@context": dict, "@graph": list}, total=False)

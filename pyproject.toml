@@ -43,8 +43,8 @@ Repository = "https://github.com/par-tec/dati-semantic-csv-apis"
 Issues = "https://github.com/par-tec/dati-semantic-csv-apis/issues"
 
 [tool.setuptools.packages.find]
-include = ["tools", "tools.commands", "tools.openapi", "tools.vocabulary", "tools.tabular"]
-excude = ["docs*", "tests*", "assets*", "apiv1*"]
+include = ["tools", "tools.commands", "tools.data", "tools.openapi", "tools.vocabulary", "tools.tabular"]
+exclude = ["docs*", "tests*", "assets*", "apiv1*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml", "*.yml", "*.csv", "*.json", "*.ttl", "*.yamlld"]
