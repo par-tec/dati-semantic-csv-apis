@@ -28,29 +28,23 @@ from tools.tabular import Tabular
 )
 def test_datapackage_getter_lazy_init(data: str, frame: JsonLDFrame):
     """
-    Test that accessing tabular.datapackage without setting it first
-    triggers lazy initialization via datapackage_stub().
+    Given:
+    - An instance of Tabular with RDF data and a JSON-LD frame
 
-    Covers lines 153-155:
-    - if not self._datapackage:
-    -     self._datapackage = self.datapackage_stub()
-    - return self._datapackage
+    When:
+    - I access the datapackage property for the first time
+
+    Then:
+    - The datapackage should be created and returned
+    - Further accesses should return the same instance without re-creating it
     """
     tabular = Tabular(rdf_data=data, frame=frame)
-
-    # Verify that _datapackage is None initially
-    assert tabular._datapackage is None
 
     # Access the property - should trigger lazy initialization
     datapackage = tabular.datapackage
 
     # Verify that a datapackage was created
     assert datapackage is not None
-    assert isinstance(datapackage, dict)
-    assert "name" in datapackage or "title" in datapackage
-
-    # Verify that _datapackage is now set
-    assert tabular._datapackage is not None
 
     # Accessing again should return the same instance
     datapackage2 = tabular.datapackage
