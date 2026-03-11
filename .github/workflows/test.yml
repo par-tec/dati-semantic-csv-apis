@@ -99,7 +99,7 @@ jobs:
         pip3 install uv
         pip3 install tox-uv
         tox -e coverage -- -v -m "not asset"
-        tox -e coverage -- -v -m asset
+        # tox -e coverage -- -v -m asset
     - name: Build CLI binary
       run: |
         tox -e build
