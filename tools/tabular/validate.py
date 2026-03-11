@@ -6,7 +6,7 @@ import json
 import logging
 from pathlib import Path
 
-from frictionless import Package, Resource
+from frictionless import FrictionlessException, Package, Resource
 from rdflib.compare import IsomorphicGraph
 
 from tools.base import APPLICATION_LD_JSON, JsonLD
@@ -19,9 +19,15 @@ class TabularValidator:
     def __init__(self, datapackage: dict, basepath: Path):
         self.datapackage = datapackage
         self.basepath = basepath
-        self.package: Package = Package(
-            self.datapackage, basepath=str(self.basepath)
-        )
+        try:
+            self.package: Package = Package(
+                self.datapackage, basepath=str(self.basepath)
+            )
+        except FrictionlessException as e:
+            raise ValueError(
+                "Run 'load()' to load and validate the datapackage before accessing the JSON-LD context."
+            ) from e
+
         self.csv_graph: IsomorphicGraph | None = None
         self.stats: dict = {
             "csv_triples": -1,
@@ -64,10 +70,10 @@ class TabularValidator:
         and load it.
         """
         log.debug("Extracting JSON-LD context from datapackage...")
-        if not self.package:
-            raise ValueError(
-                "Run 'load()' to load and validate the datapackage before accessing the JSON-LD context."
-            )
+        # if not self.package:
+        #     raise ValueError(
+        #         "Run 'load()' to load and validate the datapackage before accessing the JSON-LD context."
+        #     )
 
         if not self.package.resources:
             raise ValueError("Datapackage must contain a 'resources' field.")
