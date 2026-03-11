@@ -4,8 +4,6 @@ Test coverage for tools/tabular/__init__.py uncovered lines.
 This module contains parametrized tests to cover specific edge cases
 and error handling paths that are not covered by existing tests.
 
-Target lines: 153-155, 203-204, 253, 260->265, 267, 268->276, 270,
-              278-286, 331, 355, 357, 360, 378, 383, 398->400
 """
 
 from operator import itemgetter
