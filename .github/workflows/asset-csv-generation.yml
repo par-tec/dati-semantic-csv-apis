@@ -74,7 +74,9 @@ jobs:
 
         echo "assets=${ASSETS}" >> "$GITHUB_OUTPUT"
         echo "Detected assets: ${ASSETS}"
+  #
   # Job 1: Create Frictionless Data Package metadata
+  #
   ci-pre-tabular:
     needs: detect-changes
     if: needs.detect-changes.outputs.assets != '[]' && needs.detect-changes.outputs.assets
@@ -137,18 +139,20 @@ jobs:
         git push origin HEAD:assets
   #
   # Job 2: Generate CSV files and create pull requests
+  #   whenever a datapackage.yaml is in place.
   #
   ci-tabular:
-    needs: [detect-changes, ci-pre-tabular]
-    if: false  # Temporarily disabled
+    needs: [detect-changes]
+    # if: false  # Temporarily disabled
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     strategy:
+      fail-fast: false
       matrix:
-        asset: ${{ fromJson(needs.detect-changes.outputs.assets)
-          }}
+        asset: >-
+          ${{ fromJson(needs.detect-changes.outputs.assets) }}
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       with:
@@ -159,52 +163,47 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
-    - name: Install dependencies
+    - name: Download binary artifact
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        python -m pip install --upgrade pip
-        pip install -q "git+https://github.com/${{ github.repository }}.git@${{ env.SOURCE_REF }}#egg=dati-semantic-apis"
+        # https://github.com/par-tec/dati-semantic-csv-apis/actions/runs/22950537905/artifacts/5868964513
+        curl -fsSL \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/repos/par-tec/dati-semantic-csv-apis/actions/artifacts/5868964513/zip" \
+          -o /tmp/artifact.zip
+        unzip /tmp/artifact.zip -d /usr/local/bin/
+        chmod +x /usr/local/bin/schema_gov_it_tools.bin
+        /usr/local/bin/schema_gov_it_tools.bin --version
     - name: Generate and validate CSV
-      working-directory: assets/controlled-vocabularies/${{ matrix.asset
-        }}
+      working-directory: >-
+        ${{ matrix.asset }}
       run: |
-        # Check if datapackage.yaml exists
-        if [ ! -f datapackage.yaml ]; then
-          echo "::warning::No datapackage.yaml found for asset ${MATRIX_ASSET}"
-          exit 0
-        fi
-
-        # Find the JSON-LD frame file
-        FRAME_FILE=$(ls *.frame.yamlld 2>/dev/null | head -1)
-        if [ -z "$FRAME_FILE" ]; then
-          echo "::error::Missing frame file for asset ${MATRIX_ASSET}"
-          exit 1
-        fi
-
-        # Find the JSONLD file (may need to be generated first if using the same frame)
-        # For now, we'll use the TTL file name to construct the expected JSONLD name
         ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
 
-        # Check if JSONLD file exists, if not try to generate it
-        if [ -f "${ASSET_NAME}.jsonld" ]; then
-          JSONLD_FILE="${ASSET_NAME}.jsonld"
-        elif [ -f "${ASSET_NAME}.jsonld.yaml" ]; then
-          JSONLD_FILE="${ASSET_NAME}.jsonld.yaml"
-        else
-          echo "::warning::No JSON-LD file found; expected to find ${ASSET_NAME}.jsonld"
-          echo "You may need to generate JSON-LD first using: python -m tools.commands jsonld create"
-          exit 0
-        fi
-
         # Generate CSV from JSON-LD and datapackage
-        python -m tools.commands csv create \
-          --jsonld "$JSONLD_FILE" \
+        /usr/local/bin/schema_gov_it_tools.bin \
+          jsonld create \
+          --ttl "${ASSET_NAME}.ttl" \
+          --frame "${ASSET_NAME}.frame.yamlld" \
+          --vocabulary-uri changeme \
+          --frame-only \
+          --output "${ASSET_NAME}.data.yamlld" --force
+
+        /usr/local/bin/schema_gov_it_tools.bin \
+           csv create \
+          --jsonld "${ASSET_NAME}.data.yamlld" \
           --datapackage datapackage.yaml \
-          --force || true
+          --force
 
         # Validate the CSV
-        python -m tools.commands csv validate \
-          --csv "*.csv" \
-          --datapackage datapackage.yaml || true
+        /usr/local/bin/schema_gov_it_tools.bin \
+          csv validate \
+          --ttl "${ASSET_NAME}.ttl" \
+          --datapackage datapackage.yaml \
+          --vocabulary-uri changeme
 
         echo "Generated and validated CSV for ${MATRIX_ASSET}"
       env:
@@ -223,11 +222,12 @@ jobs:
         fi
     - name: Create Pull Request
       if: steps.check-csv.outputs.csv_exists == 'true'
-      uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0  # v8.1.s0
+      uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0  # v8.1.0
       with:
-        commit-message: 'feat: add generated CSV for ${{ matrix.asset
-          }}'
-        title: 'feat: CSV generation for ${{ matrix.asset }}'
+        commit-message: >-
+          feat: add generated CSV for ${{ matrix.asset }}
+        title: >-
+          feat: CSV generation for ${{ matrix.asset }}
         body: |
           # CSV Generation for ${{ matrix.asset }}
 
@@ -240,7 +240,7 @@ jobs:
           The CSV has been generated from the RDF vocabulary and validated against the datapackage metadata.
 
           Generated by the [Asset CSV Generation workflow](.github/workflows/asset-csv-generation.yml).
-        branch: 'feat/csv-${{ matrix.asset }}-${{ github.run_number
-          }}'
+        branch: >-
+          feat/csv-${{ matrix.asset }}-${{ github.run_number }}
         delete-branch: true
         labels: 'automated,csv-generation'
