@@ -11,11 +11,51 @@ Responses:
 
 import logging
 
-from connexion.exceptions import BadRequestProblem
+from connexion.exceptions import BadRequestProblem, ProblemException
 from connexion.lifecycle import ConnexionRequest, ConnexionResponse
 from connexion.problem import problem
 
 logger = logging.getLogger(__name__)
+
+
+PROBLEM_MAX_DETAIL = 1024
+PROBLEM_MAX_TITLE = 256
+PROBLEM_MAX_INSTANCE = 1024
+
+
+def safe_problem(
+    status: int,
+    title: str,
+    detail: str | None = None,
+    type: str | None = None,
+    instance: str | None = None,
+    headers: dict | None = None,
+    **kwargs,
+) -> ConnexionResponse:
+    """
+    Build a size-constrained application/problem+json response.
+
+    All string fields are truncated to their configured maximums so
+    that callers never need to apply manual slicing.
+    """
+    if detail and (len(detail) > PROBLEM_MAX_DETAIL):
+        detail = detail[: PROBLEM_MAX_DETAIL - 10] + "..."
+
+    if title and (len(title) > PROBLEM_MAX_TITLE):
+        title = title[: PROBLEM_MAX_TITLE - 10] + "..."
+
+    if instance and (len(instance) > PROBLEM_MAX_INSTANCE):
+        instance = instance[: PROBLEM_MAX_INSTANCE - 10] + "..."
+
+    return problem(
+        status=status,
+        title=title,
+        detail=detail,
+        type=type,
+        instance=instance,
+        headers=headers,
+        **kwargs,
+    )
 
 
 def bad_request(
@@ -29,10 +69,34 @@ def bad_request(
     Returns:
         A ConnexionResponse object representing the error response.
     """
-    return problem(
+    return safe_problem(
         status=400,
         title="Bad Request",
-        detail=str(error)[:1024],
+        detail=str(error),
+    )
+
+
+def handle_problem_safe(
+    request: ConnexionRequest, error: ProblemException
+) -> ConnexionResponse:
+    """
+    Handle generic exceptions and return problem+json response.
+
+    The actual error details are logged but not exposed to the client.
+
+    Args:
+        error: The exception that was raised.
+
+    Returns:
+        A ConnexionResponse object representing the error response.
+    """
+    return safe_problem(
+        status=error.status,
+        title=error.title,
+        detail=error.detail,
+        type=error.type,
+        instance=error.instance,
+        headers=error.headers,
     )
 
 
@@ -51,8 +115,7 @@ def handle_exception(
         A ConnexionResponse object representing the error response.
     """
     logger.exception("Unhandled exception", exc_info=error)
-
-    return problem(
+    return safe_problem(
         status=500,
         title="Internal Server Error",
         detail="An unexpected error occurred",
@@ -73,10 +136,10 @@ def handle_not_implemented(
     """
     logger.exception("NotImplementedError: %s", str(error), exc_info=error)
 
-    return problem(
+    return safe_problem(
         status=501,
         title="Not Implemented",
-        detail=str(error)[:1024],
-        instance=str(request.url)[:1024],
+        detail=str(error),
+        instance=str(request.url),
         headers={"Content-Type": "application/problem+json"},
     )

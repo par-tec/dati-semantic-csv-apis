@@ -11,9 +11,14 @@ from pathlib import Path
 from typing import Any, TypedDict
 
 from connexion import AsyncApp, ConnexionMiddleware
+from connexion.exceptions import ProblemException
 
 from .download import load_vocabulary_items
-from .errors import handle_exception, handle_not_implemented
+from .errors import (
+    handle_exception,
+    handle_not_implemented,
+    handle_problem_safe,
+)
 
 
 class Config(TypedDict):
@@ -96,5 +101,6 @@ def create_app(config: Config | None = None) -> AsyncApp:
     app.add_error_handler(501, handle_not_implemented)
     app.add_error_handler(500, handle_exception)
     app.add_error_handler(Exception, handle_exception)
+    app.add_error_handler(ProblemException, handle_problem_safe)
 
     return app
