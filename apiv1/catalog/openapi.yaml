@@ -244,7 +244,7 @@ components:
       schema:
         type: string
         maxLength: 64
-        pattern: '[A-Za-z0-9._-]{0,64}'
+        pattern: '[A-Za-z0-9/\._-]{0,64}'
       example: https://w3id.org/italia/data/public-organization/ISTAT
     hreflang:
       name: hreflang
