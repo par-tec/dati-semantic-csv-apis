@@ -9,9 +9,11 @@ Organized by artifact type:
 """
 
 import logging
+from importlib.metadata import PackageNotFoundError, version
 
 import click
 
+from tools._build_info import BUILD_COMMIT
 from tools.commands.csv import csv
 from tools.commands.datapackage import datapackage
 from tools.commands.jsonld import jsonld
@@ -21,7 +23,21 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
-@click.group()
+def _cli_version_string() -> str:
+    """Return CLI version string including build commit if available."""
+    try:
+        pkg_version = version("dati-semantic-apis")
+    except PackageNotFoundError:
+        pkg_version = "0+unknown"
+
+    if BUILD_COMMIT and BUILD_COMMIT != "unknown":
+        return f"{pkg_version}+{BUILD_COMMIT}"
+
+    return pkg_version
+
+
+@click.group(epilog=f"Version: {_cli_version_string()}")
+@click.version_option(version=_cli_version_string())
 def cli():
     """CLI for creating and validating vocabulary artifacts."""
     pass
