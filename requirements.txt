@@ -6,8 +6,8 @@ pandas
 #
 # The pyld version is pinned to a specific commit containing
 #   a fix for JSON-LD framing issues.
-#
-git+https://github.com/digitalbazaar/pyld.git@598dd0a7b1614d86926aec5f3e61210caeaf17e0#egg=pyld
+#   See https://packaging.python.org/en/latest/specifications/dependency-specifiers/#dependency-specifiers
+pyld @ git+https://github.com/digitalbazaar/pyld.git@598dd0a7b1614d86926aec5f3e61210caeaf17e0
 pyyaml
 rdflib>=7.4
 #

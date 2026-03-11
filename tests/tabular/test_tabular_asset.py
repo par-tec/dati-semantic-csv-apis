@@ -34,9 +34,7 @@ def test_tabular_metadata(
     """
     datapackage_yaml = snapshot / request.node.name / "datapackage.yaml"
 
-    tabular = Tabular(
-        rdf_data=vocabulary_ttl, frame={"@context": {}}
-    )  # Placeholder frame, replace with actual frame if needed
+    tabular = Tabular(rdf_data=vocabulary_ttl, frame={"@context": {}})
     try:
         tabular.uri()
     except UnsupportedVocabularyError:

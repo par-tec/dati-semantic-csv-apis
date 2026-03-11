@@ -47,20 +47,19 @@ def _language_matches(obj, lang: str | LangTag):
 
 class VocabularyMetadata(Graph):
     def language(self) -> str:
-        language = self.value(self.identifier, DCTERMS.language)
-        if not language:
+        language_uris = list(self.objects(self.identifier, DCTERMS.language))
+        if not language_uris:
             raise ValueError(
                 f"Vocabulary {self.identifier} is missing required DCTERMS:language"
             )
-        uri = str(language).lower()
 
-        # Infer language from URI.
-        if uri.endswith(("/it", "/ita")):
+        # Infer language from URI, preferring Italian if both are present.
+        if any(uri.lower().endswith(("/it", "/ita")) for uri in language_uris):
             return "it"
-        if uri.endswith(("/en", "/eng")):
+        if any(uri.lower().endswith(("/en", "/eng")) for uri in language_uris):
             return "en"
         raise NotImplementedError(
-            f"Unsupported language '{language}' for vocabulary {self.identifier}"
+            f"Unsupported language '{language_uris}' for vocabulary {self.identifier}"
         )
 
     def get_first_value(self, predicates: list, lang: str | LangTag = LANG_ANY):
