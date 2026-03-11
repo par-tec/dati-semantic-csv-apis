@@ -15,7 +15,7 @@ from collections.abc import Collection
 from pathlib import Path
 
 import pandas as pd
-from frictionless import Package
+from frictionless import FrictionlessException, Package
 from rdflib import Graph
 
 from tools.base import TEXT_TURTLE
@@ -165,8 +165,10 @@ class Tabular(Vocabulary):
         Args:
             datapackage (dict): Frictionless datapackage descriptor
         """
-        if not Package(datapackage):
-            raise ValueError(f"Invalid datapackage: {datapackage}")
+        try:
+            Package(datapackage)
+        except FrictionlessException as e:
+            raise ValueError(f"Invalid datapackage: {datapackage}") from e
         self._datapackage = datapackage
 
     def datapackage_stub(
@@ -192,9 +194,14 @@ class Tabular(Vocabulary):
         # If the package is not valid, __init__ will raise an error.
         # at this point we can't fully validate the package because
         # this is just a stub.
-        package = Package(_datapackage)
-        if not package:
-            raise ValueError(f"Invalid datapackage: {_datapackage}")
+        # package = Package(_datapackage)
+        # if not package:
+        #     raise ValueError(f"Invalid datapackage: {_datapackage}")
+
+        try:
+            Package(_datapackage)
+        except FrictionlessException as e:
+            raise ValueError(f"Invalid datapackage: {_datapackage}") from e
 
         if resource_path:
             resource_name = (
@@ -236,6 +243,9 @@ class Tabular(Vocabulary):
             dict: Data resource dictionary
 
         """
+        if not resource_name:
+            raise ValueError("resource_name is required")
+
         if not resource_path:
             raise ValueError("resource_path is required")
 
