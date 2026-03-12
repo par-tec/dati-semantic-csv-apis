@@ -13,7 +13,6 @@ from typing import Any, TypedDict
 from connexion import AsyncApp, ConnexionMiddleware
 from connexion.exceptions import ProblemException
 from connexion.middleware.main import MiddlewarePosition
-from printable_parameters_middleware import PrintableParametersMiddleware
 
 from .download import load_vocabulary_items
 from .errors import (
@@ -21,6 +20,7 @@ from .errors import (
     handle_not_implemented,
     handle_problem_safe,
 )
+from .printable_parameters_middleware import PrintableParametersMiddleware
 
 
 class Config(TypedDict):
