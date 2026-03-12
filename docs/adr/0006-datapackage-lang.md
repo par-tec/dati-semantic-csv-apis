@@ -36,8 +36,9 @@ we need to select a single value for each property.
 
 Use the following heuristics to select the appropriate language value for properties:
 
-- [x] Only consider `it` and `en` language tags
-- [x] Select the first value defined in `dcterms:language`
+- [x] Only consider `it` and `en` language tags.
+- [x] Select the languages defined in `dcterms:language`, first in Italian, then in English.
+  If none is available, raise an error.
 - [x] if a property does not have a value with the selected language tag, use the first untagged value
 
 ## Consequences
