@@ -10,7 +10,7 @@ import pytest
 import schemathesis
 from data.app import Config, create_app
 from httpx import Response
-from hypothesis import Verbosity, settings
+from hypothesis import settings
 from schemathesis.specs.openapi.schemas import OpenApiSchema
 
 from tests.harness import client_harness
@@ -25,7 +25,10 @@ oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
 
 
 @oas_schema.parametrize()
-@settings(max_examples=10, verbosity=Verbosity.debug)
+@settings(
+    # max_examples=50,
+    # verbosity=Verbosity.debug
+)
 def test_openapi_compliance(case):
     """Test that the /status endpoint complies with OAS schema."""
 
@@ -61,3 +64,21 @@ def test_openapi_compliance(case):
 
             # .. otherwise the response should comply with the OAS schema.
             case.validate_response(response)
+
+
+def test_latin_header():
+    """Test that the API can handle latin1 headers."""
+    with client_harness(
+        create_app,
+        Config(
+            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
+            VOCABULARY_DATAFILE=str(
+                TESTDIR / "api" / "agente_causale.short.yaml"
+            ),
+        ),
+    ) as (client, logs):
+        response: Response = client.get(
+            "/status",
+            headers={"X-Test-Header": "Café\x80"},
+        )
+        assert response.status_code == 200

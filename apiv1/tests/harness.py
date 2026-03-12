@@ -1,5 +1,9 @@
 import contextlib
 import logging
+from unittest.mock import patch
+
+import httpx
+from starlette.testclient import TestClient
 
 
 @contextlib.contextmanager
@@ -19,12 +23,23 @@ def log_records():
     logger.removeHandler(handler)
 
 
+class Latin1Headers(httpx.Headers):
+    """Header container that defaults to latin1 for RFC9110 compatibility tests."""
+
+    def __init__(self, headers=None, encoding="latin1"):
+        if not isinstance(headers, (dict, list)):
+            headers.encoding = "latin1"
+        super().__init__(headers=headers, encoding="latin1")
+
+
 @contextlib.contextmanager
 def client_harness(creator, config):
     """Fixture to create and yield the ASGI app with the given config."""
     with log_records() as logs:
         app = creator(config)
-        with app.test_client() as client:
-            # Allow test clients to send latin1 headers: See RFC9110.
-            client._headers.encoding = "latin1"
-            yield client, logs
+        # Patch it in this scope so all request header merges use latin1.
+        with patch("httpx._models.Headers", Latin1Headers):
+            with app.test_client() as client:
+                client: TestClient
+                client._headers.encoding = "latin1"
+                yield client, logs
