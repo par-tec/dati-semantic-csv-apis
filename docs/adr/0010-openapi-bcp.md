@@ -29,8 +29,8 @@ providers to use additional filters in front of the application service.
   published in <https://github.com/italia/api-oas-checker-rules>.
 - [x] ModI ruleset have been added to the repository.
 - [x] To avoid duplicate validation, some API checks (e.g. Checkov) have been disabled.
-- [ ] Query parameters do not accept lists by default (i.e. set `explode: false`).
-- [ ] Separate JSON Schemas between input request and response, allowing only ascii
+- [x] Query parameters do not accept lists by default (i.e. set `explode: false`).
+- [x] Separate JSON Schemas between input request and response, allowing only ascii
   characters in request parameters.
 
 ## Consequences
