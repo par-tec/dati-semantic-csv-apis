@@ -288,6 +288,8 @@ components:
         in the previous page.
       schema:
         type: string
+        pattern: '^[A-Za-z0-9._-]{1,128}$'
+        maxLength: 128
       example: "11160204"
     label:
       name: label
