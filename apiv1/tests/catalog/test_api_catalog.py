@@ -1,5 +1,8 @@
 """
 Tests for the Vocabularies API ASGI app.
+
+All data validation must be performed by connexion
+and not implemented manually in the handlers.
 """
 
 import contextlib
