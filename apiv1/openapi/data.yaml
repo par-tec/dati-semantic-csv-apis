@@ -201,6 +201,8 @@ paths:
           required: true
           schema:
             type: string
+            pattern: ^[A-Za-z0-9._-]{1,128}$
+            maxLength: 128
           description: The unique identifier of the vocabulary item.
       responses:
         '200':
