@@ -232,6 +232,7 @@ components:
     author:
       name: author
       in: query
+      explode: false
       description: >-
         Filter by a substring of the author URI.
 
@@ -244,6 +245,7 @@ components:
     hreflang:
       name: hreflang
       in: query
+      explode: false
       description: >-
         Filter by language code (ISO 639-1).
 
@@ -265,6 +267,7 @@ components:
     concept:
       name: concept
       in: query
+      explode: false
       description: Filter by concept identifier
       schema:
         $ref: '#/components/schemas/TextFilter'
@@ -275,6 +278,7 @@ components:
     title:
       name: title
       in: query
+      explode: false
       description: >-
         Filter by vocabulary title.
 
@@ -289,6 +293,7 @@ components:
     description:
       name: description
       in: query
+      explode: false
       description: >-
         Filter by vocabulary description.
 

@@ -46,7 +46,7 @@ def log_records():
 
 @oas_schema.parametrize()
 @settings()
-def test_status_endpoint_schema_compliance(case):
+def test_openapi_compliance(case):
     """Test that the /status endpoint complies with OAS schema."""
 
     with log_records() as logs:
@@ -86,3 +86,55 @@ def test_status_endpoint_schema_compliance(case):
 
             # .. otherwise the response should comply with the OAS schema.
             case.validate_response(response)
+
+
+@pytest.mark.parametrize(
+    "params,expected_status",
+    [
+        ({"limit": 5, "offset": 10, "author": "invalid"}, 200),
+        # ({"limit": 0, "offset": 0}, 200),
+        (
+            {
+                "limit": [1, 2, 3],
+                "offset": 1000,
+                "author": "https://w3id.org/italia/data/public-organization/ISTAT",
+            },
+            200,
+        ),
+        ({"limit": 1, "offset": [0, 1]}, 200),
+        ({"limit": "1", "offset": [0, 1]}, 200),
+        ({"limit": "1,2,3", "offset": [0, 1]}, 400),
+    ],
+)
+def test_list_vocabularies_rejects_invalid_concept_query(
+    params, expected_status
+) -> None:
+    """Malformed concept values should be rejected with a client error."""
+    app = create_app(
+        Config(
+            SPARQL_URL="https://example.com/sparql",
+            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
+            VOCABULARIES_DATAFILE=str(
+                TESTDIR / "api" / "vocabularies.linkset.yaml"
+            ),
+        )
+    )
+
+    with app.test_client() as client:
+        response: Response = client.get(
+            "/vocabularies",
+            params=params,
+        )
+
+    assert response.status_code == expected_status, response.request.url
+    if response.status_code == 200:
+        assert (
+            response.json()["linkset"][0]["limit"] == params["limit"][-1]
+            if isinstance(params["limit"], list)
+            else params["limit"]
+        )
+        assert (
+            response.json()["linkset"][0]["offset"] == params["offset"][-1]
+            if isinstance(params["offset"], list)
+            else params["offset"]
+        )

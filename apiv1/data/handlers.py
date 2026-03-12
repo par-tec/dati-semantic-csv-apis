@@ -50,6 +50,8 @@ async def show_items(
         A tuple containing the paginated response dictionary, HTTP status code 200,
         and response headers.
     """
+    assert isinstance(limit, int)
+
     log.debug("Extra query parameters: %s", kwargs)
     # Access dataset from request state (set by lifespan handler)
     vocabulary_items = request.state.vocabulary_items

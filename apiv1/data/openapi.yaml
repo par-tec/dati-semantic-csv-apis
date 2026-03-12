@@ -281,6 +281,7 @@ components:
     cursor:
       name: cursor
       in: query
+      explode: false
       description: |-
         Cursor for pagination.
         It is the `id` of the last item
@@ -291,12 +292,23 @@ components:
     label:
       name: label
       in: query
+      explode: false
       description: |-
         Filter items by label.
       schema:
-        type: string
+        $ref: '#/components/schemas/TextFilter'
       example: Idrogeno solforato
   schemas:
+    TextFilter:
+      description: |-
+        A text filter that constrains
+        the length and characters of the input.
+
+        This is a substring match on the corresponding field of
+        the vocabulary metadata.
+      type: string
+      maxLength: 128
+      pattern: '^[A-Za-z0-9\s\._:/-]{1,128}$'
     DumpResponse:
       type: string
       format: binary
