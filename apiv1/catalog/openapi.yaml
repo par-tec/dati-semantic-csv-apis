@@ -227,14 +227,12 @@ components:
         `istat` is a valid agencyIdPath.
       required: true
       schema:
-        type: string
-        pattern: '^[a-z0-9\-]{1,64}$'
-        maxLength: 64
-        minLength: 1
+        $ref: '#/components/schemas/TextFilter'
       example: istat
     author:
       name: author
       in: query
+      explode: false
       description: >-
         Filter by a substring of the author URI.
 
@@ -242,13 +240,12 @@ components:
         `https://w3id.org/italia/data/public-organization/ISTAT`,
         `istat` is a valid author filter.
       schema:
-        type: string
-        maxLength: 64
-        pattern: '[A-Za-z0-9._-]{0,64}'
+        $ref: '#/components/schemas/TextFilter'
       example: https://w3id.org/italia/data/public-organization/ISTAT
     hreflang:
       name: hreflang
       in: query
+      explode: false
       description: >-
         Filter by language code (ISO 639-1).
 
@@ -270,9 +267,10 @@ components:
     concept:
       name: concept
       in: query
+      explode: false
       description: Filter by concept identifier
       schema:
-        $ref: '#/components/schemas/TitleString'
+        $ref: '#/components/schemas/TextFilter'
       example: ateco-2007
     #
     # Text filters
@@ -280,6 +278,7 @@ components:
     title:
       name: title
       in: query
+      explode: false
       description: >-
         Filter by vocabulary title.
 
@@ -289,11 +288,12 @@ components:
         TODO: As a request parameter, we can further
         constrain the maximum length.
       schema:
-        $ref: '#/components/schemas/TitleString'
+        $ref: '#/components/schemas/TextFilter'
       example: ateco
     description:
       name: description
       in: query
+      explode: false
       description: >-
         Filter by vocabulary description.
 
@@ -306,9 +306,19 @@ components:
         TODO: As a request parameter, we can further
         constrain the maximum length.
       schema:
-        $ref: '#/components/schemas/TitleString'
+        $ref: '#/components/schemas/TextFilter'
       example: registro imprese
   schemas:
+    TextFilter:
+      description: |-
+        A text filter that constrains
+        the length and characters of the input.
+
+        This is a substring match on the corresponding field of
+        the vocabulary metadata.
+      type: string
+      maxLength: 128
+      pattern: '^[A-Za-z0-9 ._:/-]{1,128}$'
     URI:
       $ref: 'components.oas3.yaml#/components/schemas/URI'
     LanguageTagShort:
@@ -318,7 +328,12 @@ components:
       maxLength: 2
       minLength: 2
     TitleString: &TitleString
-      description: Title string
+      description: >-
+        A short string used for titles and similar fields. The
+        underlying regexp allows for newlines and other whitespace
+        characters.
+
+        It is defined to accept all characters used in RDF vocabularies.
       type: string
       maxLength: 200
       pattern: '^[\s\S]{1,200}$'

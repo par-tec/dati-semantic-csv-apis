@@ -2,8 +2,6 @@
 Tests for the Vocabularies API ASGI app.
 """
 
-import contextlib
-import logging
 from pathlib import Path
 
 import pytest
@@ -12,8 +10,10 @@ import pytest
 import schemathesis
 from data.app import Config, create_app
 from httpx import Response
-from hypothesis import Verbosity, settings
+from hypothesis import settings
 from schemathesis.specs.openapi.schemas import OpenApiSchema
+
+from tests.harness import client_harness
 
 TESTDIR = Path(__file__).parent.parent
 APIDIR: Path = TESTDIR.parent / "data"
@@ -24,49 +24,31 @@ oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
 )
 
 
-@contextlib.contextmanager
-def log_records():
-    """Fixture to capture log records during tests."""
-    records = []
-
-    class ListHandler(logging.Handler):
-        def emit(self, record):
-            records.append(record.getMessage())
-
-    handler = ListHandler()
-    logger = logging.getLogger()  # Root logger captures all logs
-    logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
-    yield records
-    logger.removeHandler(handler)
-
-
 @oas_schema.parametrize()
-@settings(max_examples=1, verbosity=Verbosity.debug)
-def test_status_endpoint_schema_compliance(case):
+@settings(
+    max_examples=50,
+    # verbosity=Verbosity.debug
+)
+def test_openapi_compliance(case):
     """Test that the /status endpoint complies with OAS schema."""
 
-    with log_records() as logs:
-        # Given the ASGI app...
-        app = create_app(
-            Config(
-                API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-                VOCABULARY_DATAFILE=str(
-                    TESTDIR / "api" / "agente_causale.short.yaml"
-                ),
+    with client_harness(
+        create_app,
+        Config(
+            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
+            VOCABULARY_DATAFILE=str(
+                TESTDIR / "api" / "agente_causale.short.yaml"
+            ),
+        ),
+    ) as (client, logs):
+        # .. the logs should indicate that the vocabularies dataset is being loaded.
+        for expected_log in [
+            # "Loaded 2922 vocabulary items",
+            "Application startup complete",
+        ]:
+            assert any(expected_log in log for log in logs), (
+                f"Expected log message not found: {expected_log}"
             )
-        )
-        # When the app is initialized ...
-        with app.test_client() as client:
-            # .. the logs should indicate that the vocabularies dataset is being loaded.
-            for expected_log in [
-                # "Loaded 2922 vocabulary items",
-                "Application startup complete",
-            ]:
-                assert any(expected_log in log for log in logs), (
-                    f"Expected log message not found: {expected_log}"
-                )
-
             # When I make a request ..
             response: Response = client.request(
                 method=case.method,
@@ -82,3 +64,39 @@ def test_status_endpoint_schema_compliance(case):
 
             # .. otherwise the response should comply with the OAS schema.
             case.validate_response(response)
+
+
+def test_latin_header():
+    """Test that the API can handle latin1 headers."""
+    with client_harness(
+        create_app,
+        Config(
+            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
+            VOCABULARY_DATAFILE=str(
+                TESTDIR / "api" / "agente_causale.short.yaml"
+            ),
+        ),
+    ) as (client, logs):
+        response: Response = client.get(
+            "/status",
+            headers={"X-Test-Header": "Café\x80"},
+        )
+        assert response.status_code == 200
+
+
+def test_rejects_non_printable_query_parameter() -> None:
+    """Non-printable query parameter values should be rejected."""
+    with client_harness(
+        create_app,
+        Config(
+            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
+            VOCABULARY_DATAFILE=str(
+                TESTDIR / "api" / "agente_causale.short.yaml"
+            ),
+        ),
+    ) as (client, logs):
+        response: Response = client.get(
+            "/",
+            params={"label": "\u2008invalid"},
+        )
+        assert response.status_code == 400

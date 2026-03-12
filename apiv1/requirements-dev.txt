@@ -1,2 +1,3 @@
 pytest>=8.4
-schemathesis>=4.11.0
+schemathesis>=4.12.0
+pytest-xdist>=3.0.0

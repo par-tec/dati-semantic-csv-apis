@@ -11,9 +11,16 @@ from pathlib import Path
 from typing import Any, TypedDict
 
 from connexion import AsyncApp, ConnexionMiddleware
+from connexion.exceptions import ProblemException
+from connexion.middleware.main import MiddlewarePosition
 
 from .download import load_vocabulary_items
-from .errors import handle_exception, handle_not_implemented
+from .errors import (
+    handle_exception,
+    handle_not_implemented,
+    handle_problem_safe,
+)
+from .printable_parameters_middleware import PrintableParametersMiddleware
 
 
 class Config(TypedDict):
@@ -22,7 +29,7 @@ class Config(TypedDict):
 
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -90,11 +97,16 @@ def create_app(config: Config | None = None) -> AsyncApp:
         "openapi.yaml",
         strict_validation=True,
     )
+    app.add_middleware(
+        PrintableParametersMiddleware,
+        position=MiddlewarePosition.BEFORE_CONTEXT,
+    )
 
     # Register exception handler for generic exceptions
     app.add_error_handler(NotImplementedError, handle_not_implemented)
     app.add_error_handler(501, handle_not_implemented)
     app.add_error_handler(500, handle_exception)
     app.add_error_handler(Exception, handle_exception)
+    app.add_error_handler(ProblemException, handle_problem_safe)
 
     return app

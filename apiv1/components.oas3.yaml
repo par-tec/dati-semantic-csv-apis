@@ -18,6 +18,7 @@ components:
     limit:
       name: limit
       in: query
+      explode: false
       description: Maximum number of items to return. If unset,
         used default value 10.
       schema:
@@ -26,11 +27,22 @@ components:
     offset:
       name: offset
       in: query
+      explode: false
       description: Offset for pagination
       schema:
         $ref: '#/components/schemas/Offset'
       example: 0
   schemas:
+    TextFilter:
+      description: |-
+        A text filter that constrains
+        the length and characters of the input.
+
+        This is a substring match on the corresponding field of
+        the vocabulary metadata.
+      type: string
+      maxLength: 128
+      pattern: '^[A-Za-z0-9 ._:/-]{1,128}$'
     Link:
       description: |-
         A link to a resource.
