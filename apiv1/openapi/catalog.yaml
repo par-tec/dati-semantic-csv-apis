@@ -327,7 +327,7 @@ components:
         the vocabulary metadata.
       type: string
       maxLength: 128
-      pattern: ^[A-Za-z0-9\s\._:/-]{1,128}$
+      pattern: ^[A-Za-z0-9 ._:/-]{1,128}$
     URI:
       description: An absolute URI.
       type: string

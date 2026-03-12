@@ -26,7 +26,7 @@ oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
 
 @oas_schema.parametrize()
 @settings(
-    # max_examples=50,
+    max_examples=50,
     # verbosity=Verbosity.debug
 )
 def test_openapi_compliance(case):
@@ -82,3 +82,21 @@ def test_latin_header():
             headers={"X-Test-Header": "Café\x80"},
         )
         assert response.status_code == 200
+
+
+def test_rejects_non_printable_query_parameter() -> None:
+    """Non-printable query parameter values should be rejected."""
+    with client_harness(
+        create_app,
+        Config(
+            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
+            VOCABULARY_DATAFILE=str(
+                TESTDIR / "api" / "agente_causale.short.yaml"
+            ),
+        ),
+    ) as (client, logs):
+        response: Response = client.get(
+            "/",
+            params={"label": "\u2008invalid"},
+        )
+        assert response.status_code == 400

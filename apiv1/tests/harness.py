@@ -27,7 +27,7 @@ class Latin1Headers(httpx.Headers):
     """Header container that defaults to latin1 for RFC9110 compatibility tests."""
 
     def __init__(self, headers=None, encoding="latin1"):
-        if not isinstance(headers, (dict, list)):
+        if not isinstance(headers, (dict, list, type(None))):
             headers.encoding = "latin1"
         super().__init__(headers=headers, encoding="latin1")
 

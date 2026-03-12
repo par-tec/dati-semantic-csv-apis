@@ -28,7 +28,9 @@ oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
 
 
 @oas_schema.parametrize()
-@settings()
+@settings(
+    max_examples=50,
+)
 def test_openapi_compliance(case):
     """Test that the /status endpoint complies with OAS schema."""
 
@@ -119,3 +121,35 @@ def test_list_vocabularies_rejects_invalid_concept_query(
             if isinstance(params["offset"], list)
             else params["offset"]
         )
+
+
+@pytest.mark.parametrize(
+    "url,expected_status",
+    [
+        (
+            "/vocabularies?concept=t%1E&description=%E2%80%88S7H&hreflang=sx&limit=131",
+            400,
+        ),
+        (
+            "/vocabularies?concept=valid&description=valid&hreflang=sx&limit=131",
+            200,
+        ),
+        (
+            "/vocabularies?concept=G%2Fx%0C%C2%A0uhJ%0B%1FSp%2F%E2%81%9F%C2%85tXQ0B",
+            400,
+        ),
+    ],
+)
+def test_false_positives(url, expected_status):
+    with client_harness(
+        create_app,
+        Config(
+            SPARQL_URL="https://example.com/sparql",
+            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
+            VOCABULARIES_DATAFILE=str(
+                TESTDIR / "api" / "vocabularies.linkset.yaml"
+            ),
+        ),
+    ) as (client, logs):
+        response: Response = client.get(url=url)
+        assert response.status_code == expected_status

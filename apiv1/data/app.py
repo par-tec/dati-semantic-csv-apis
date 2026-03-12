@@ -12,6 +12,8 @@ from typing import Any, TypedDict
 
 from connexion import AsyncApp, ConnexionMiddleware
 from connexion.exceptions import ProblemException
+from connexion.middleware.main import MiddlewarePosition
+from printable_parameters_middleware import PrintableParametersMiddleware
 
 from .download import load_vocabulary_items
 from .errors import (
@@ -27,7 +29,7 @@ class Config(TypedDict):
 
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -94,6 +96,10 @@ def create_app(config: Config | None = None) -> AsyncApp:
     app.add_api(
         "openapi.yaml",
         strict_validation=True,
+    )
+    app.add_middleware(
+        PrintableParametersMiddleware,
+        position=MiddlewarePosition.BEFORE_CONTEXT,
     )
 
     # Register exception handler for generic exceptions

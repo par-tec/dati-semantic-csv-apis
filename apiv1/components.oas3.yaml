@@ -42,7 +42,7 @@ components:
         the vocabulary metadata.
       type: string
       maxLength: 128
-      pattern: '^[A-Za-z0-9\s\._:/-]{1,128}$'
+      pattern: '^[A-Za-z0-9 ._:/-]{1,128}$'
     Link:
       description: |-
         A link to a resource.
