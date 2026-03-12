@@ -3,7 +3,6 @@ Test coverage for tools/tabular/__init__.py uncovered lines.
 
 This module contains parametrized tests to cover specific edge cases
 and error handling paths that are not covered by existing tests.
-
 """
 
 from operator import itemgetter
