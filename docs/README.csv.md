@@ -56,6 +56,11 @@ Il meccanismo di metadatazione ha questi obiettivi:
    attraverso la generazione di proiezioni JSON annotate
    semanticamente
 
+Durante la generazione dei Frictionless Data Package,
+vengono applicate euristiche per la selezione delle lingue:
+si considerano solo i tag `it` ed `en` definiti in `dcterms:language`
+dando priorità ai metadati in italiano.
+
 Ad oggi gli Erogatori pubblicano vocabolari controllati in
 formato RDF (Turtle) JSON e CSV. Spesso questi CSV sono
 generati manualmente, tramite query SparQL o script ad-hoc.
@@ -330,10 +335,13 @@ La specifica:
   separatori, ecc.) per i file con un datapackage
   associato.
 
-La PoC implementa queste funzionalità in Python, utilizzando
-librerie open source e può essere usata come riferimento per
-la generazione automatica dei CSV e YAML-LD a partire dai
-vocabolari controllati RDF.
+La PoC:
+
+- implementa le funzionalità della specifica in Python;
+- è basata su librerie open source
+- può essere usata come riferimento per
+  la generazione automatica dei CSV e YAML-LD a partire dai
+  vocabolari controllati RDF.
 
 ### Requisiti opzionali
 
@@ -357,6 +365,15 @@ basato sulle seguenti specifiche:
   dal grafo RDF alla rappresentazione JSON-LD;
 - Frictionless Data Package: per la metadatazione e la
   proiezione in formato CSV.
+
+Le principali decisioni architetturali vengono tracciate
+nella forma di Architecture Decision Records (ADR)
+e sono presenti in [docs/adr](../adr/).
+
+Il processo di sviluppo è test driven
+Ogni commit è accompagnato da test automatici che verificano
+la correttezza del codice e la conformità alle specifiche.
+(Vedi [Test](#test)).
 
 ### Processo di validazione
 
@@ -826,11 +843,53 @@ dcat:created 2026-01-01^^xsd:date ;
 Non è compatible col JSON Schema di Frictionless Datapackage
 che richiede un valore di tipo `string` con formato `date-time` (e.g., `2026-01-01T00:00:00Z`).
 
+### Github Workflow
+
+La PoC include una CI di workflow che automatizza
+la generazione e validazione dei CSV a partire dai file RDF e di framing
+presenti in `assets/controlled-vocabularies/*`.
+Questo workflow può essere adattato dagli Erogatori
+ed integrato nei propri processi di build e pubblicazione dei dataset.
+
+Il workflow CI puo essere avviato in due modi:
+
+1. con una `push` su un branch dedicato (ad esempio `#asset`)
+1. manualmente
+
+Quando il workflow parte, per ogni cartella in
+`assets/controlled-vocabularies/*`:
+
+1. installa la CLI;
+1. genera il CSV dal `datapackage.yaml` (se i file richiesti sono presenti);
+1. valida il CSV rispetto al `datapackage.yaml`;
+1. crea o aggiorna una PR verso il branch definito (e.g., `#asset`).
+
+E' compito degli Erogatori:
+
+- revisionare i CSV generati e validati, verificando che siano conformi alla specifica e che rappresentino correttamente il vocabolario RDF originale;
+- approvare le PR generate dal workflow per pubblicare i CSV.
+- adattare il workflow alle proprie esigenze,
+  evitando sovrascritture accidentali e loop infiniti di commit e PR.
+
 ### Test
 
 La PoC viene sviluppata seguendo un approccio di test-driven development (TDD),
 basandosi su un set di vocabolari controllati di riferimento
 presenti in [assets/controlled-vocabularies](assets/controlled-vocabularies).
+
+Inoltre il progetto adotta strumenti di testing statico, pre-commit hooks
+e pipeline CI/CD (GitHub Actions) che eseguono controlli automatici ad ogni push e pull request.
+I contributori sono guidati da template per PR e Issue,
+assicurando il rispetto delle linee guida di contribuzione
+definite in [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+I test sono gestiti tramite pytest,
+con l'uso di test parametrici e casi di test definiti in YAML
+per migliorare la leggibilità e la manutenzione.
+Il progetto utilizza anche snapshot testing
+per verificare automaticamente l'output delle funzioni di elaborazione.
+I file di snapshot sono organizzati in una directory dedicata (snapshots),
+facilitando la gestione e la revisione degli output attesi.
 
 ## Processo di proiezione
 
@@ -884,6 +943,12 @@ python -m tools.cli jsonld create  ...
 # Validare un file.
 python -m tools.cli jsonld validate ...
 ```
+
+### Distribuzione
+
+La CLI verrà distribuita come eseguibile Python per Linux x86_64
+tramite GitHub artifacts.
+Ad ogni rilascio, la CI crea una nuova versione della CLI.
 
 ### CLI jsonld
 
