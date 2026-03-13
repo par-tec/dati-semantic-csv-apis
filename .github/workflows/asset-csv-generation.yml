@@ -134,13 +134,30 @@ jobs:
         echo "Generated datapackage.yaml for ${MATRIX_ASSET}"
       env:
         MATRIX_ASSET: ${{ matrix.asset }}
-    - name: Commit datapackage changes
+    - name: Create OAS metadata
+      working-directory: >-
+        ${{ matrix.asset }}
+      run: |
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+
+        /usr/local/bin/schema_gov_it_tools.bin openapi create \
+        --ttl "${ASSET_NAME}.ttl" \
+        --frame "${ASSET_NAME}.frame.yamlld" \
+        --vocabulary-uri "changeme" \
+        --output "openapi.yaml" \
+        --force
+
+        echo "Generated openapi.yaml for ${MATRIX_ASSET}"
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+    - name: Commit datapackage & OAS changes
       shell: bash
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
         git add "${{ matrix.asset }}/datapackage.yaml"
+        git add "${{ matrix.asset }}/openapi.yaml"
         if git diff --cached --quiet; then
           echo "No changes to commit"
           exit 0
@@ -161,6 +178,7 @@ jobs:
       pull-requests: write
     strategy:
       fail-fast: false
+      max-parallel: 6
       matrix:
         asset: >-
           ${{ fromJson(needs.detect-changes.outputs.assets) }}
