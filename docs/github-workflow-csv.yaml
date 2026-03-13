@@ -1,0 +1,275 @@
+---
+# Asset CSV Generation Workflow
+#
+# This workflow manages the creation and validation of CSV files from RDF vocabularies
+# stored in the assets/controlled-vocabularies directory.
+#
+# Triggers:
+#  - Commits to assets/ directory
+#  - Manual workflow dispatch
+#
+# Jobs:
+#  1. ci-pre-tabular: Creates Frictionless Data Package metadata from RDF vocabularies
+#  2. ci-tabular: Generates CSV files and creates pull requests with the results
+#
+# Run this workflow manually with:
+#
+# $ gh workflow run --ref assets
+#
+name: Asset CSV Generation
+permissions: {}
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  push:
+    branches:
+    - assets
+    paths:
+    - 'assets/controlled-vocabularies/**'
+    - '.github/workflows/asset-csv-generation.yml'
+  pull_request:
+    branches:
+    - assets
+    paths:
+    - 'assets/controlled-vocabularies/**'
+    - '.github/workflows/asset-csv-generation.yml'
+env:
+  CI: true
+  PYTHON_VERSION: '3.14'
+  SOURCE_REF: ${{ github.event.pull_request.head.sha || github.sha
+    }}
+  CHECKOUT_REF: assets
+jobs:
+  # Detect which assets changed in this push
+  detect-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      assets: ${{ steps.detect.outputs.assets }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+    - name: Detect changed assets
+      id: detect
+      shell: bash
+      run: |
+        set -x
+        # Get the list of changed files in the assets directory
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          # For manual dispatch, detect all assets
+          ASSETS=$(find assets/controlled-vocabularies -maxdepth 1 -type f -name \*.ttl -exec basename {} \; | sort -u | jq -R -s -c 'split("\n")[:-1]')
+          echo "Detected assets for manual dispatch: ${ASSETS}"
+        else
+          true # XXX: uncomment
+          # For push events, detect changed assets
+          # CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD | grep '^assets/controlled-vocabularies/')
+          # ASSETS=$(echo "$CHANGED_FILES" | cut -d/ -f3 | sort -u | jq -R -s -c 'split("\n")[:-1] | map(select(length > 0))')
+        fi
+
+        ASSETS=$(find assets/controlled-vocabularies  \
+          -type f -name \*.ttl  -exec dirname {} \; | \
+          sort -u | jq -R -s -c 'split("\n")[:-1]')
+
+        echo "assets=${ASSETS}" >> "$GITHUB_OUTPUT"
+        echo "Detected assets: ${ASSETS}"
+  #
+  # Job 1: Create Frictionless Data Package metadata
+  #   only if it is not already present.
+  #   This is just a test workflow to create datapackage
+  #   stubs.
+  #
+  ci-pre-tabular:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.assets != '[]' && needs.detect-changes.outputs.assets
+      != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        asset: >-
+          ${{ fromJson(needs.detect-changes.outputs.assets) }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: true
+        ref: ${{ env.CHECKOUT_REF }}
+    - name: Set up Python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Download binary artifact
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # https://github.com/par-tec/dati-semantic-csv-apis/actions/runs/22950537905/artifacts/5868964513
+        curl -fsSL \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/repos/par-tec/dati-semantic-csv-apis/actions/artifacts/5868964513/zip" \
+          -o /tmp/artifact.zip
+        unzip /tmp/artifact.zip -d /usr/local/bin/
+        chmod +x /usr/local/bin/schema_gov_it_tools.bin
+        /usr/local/bin/schema_gov_it_tools.bin --version
+    - name: Create datapackage metadata
+      working-directory: >-
+        ${{ matrix.asset }}
+      run: |
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+
+        /usr/local/bin/schema_gov_it_tools.bin datapackage create \
+        --ttl "${ASSET_NAME}.ttl" \
+        --frame "${ASSET_NAME}.frame.yamlld" \
+        --vocabulary-uri "changeme" \
+        --output "datapackage.yaml" \
+        --lang it \
+        --force
+
+        echo "Generated datapackage.yaml for ${MATRIX_ASSET}"
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+    - name: Create OAS metadata
+      working-directory: >-
+        ${{ matrix.asset }}
+      run: |
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+
+        /usr/local/bin/schema_gov_it_tools.bin openapi create \
+        --ttl "${ASSET_NAME}.ttl" \
+        --frame "${ASSET_NAME}.frame.yamlld" \
+        --vocabulary-uri "changeme" \
+        --output "openapi.yaml" \
+        --force
+
+        echo "Generated openapi.yaml for ${MATRIX_ASSET}"
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+    - name: Commit datapackage & OAS changes
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        git add "${{ matrix.asset }}/datapackage.yaml"
+        git add "${{ matrix.asset }}/openapi.yaml"
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+          exit 0
+        fi
+
+        git commit -m "ci: generate datapackage for ${{ matrix.asset }} [skip ci]"
+        git push origin HEAD:assets
+  #
+  # Job 2: Generate CSV files and create pull requests
+  #   whenever a datapackage.yaml is in place.
+  #
+  ci-tabular:
+    needs: [detect-changes]
+    # if: false  # Temporarily disabled
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        asset: >-
+          ${{ fromJson(needs.detect-changes.outputs.assets) }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: true
+        ref: ${{ env.CHECKOUT_REF }}
+    - name: Set up Python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Download binary artifact
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # https://github.com/par-tec/dati-semantic-csv-apis/actions/runs/22950537905/artifacts/5868964513
+        curl -fsSL \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/repos/par-tec/dati-semantic-csv-apis/actions/artifacts/5868964513/zip" \
+          -o /tmp/artifact.zip
+        unzip /tmp/artifact.zip -d /usr/local/bin/
+        chmod +x /usr/local/bin/schema_gov_it_tools.bin
+        /usr/local/bin/schema_gov_it_tools.bin --version
+    - name: Generate and validate CSV
+      working-directory: >-
+        ${{ matrix.asset }}
+      run: |
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+
+        # Generate CSV from JSON-LD and datapackage
+        /usr/local/bin/schema_gov_it_tools.bin \
+          jsonld create \
+          --ttl "${ASSET_NAME}.ttl" \
+          --frame "${ASSET_NAME}.frame.yamlld" \
+          --vocabulary-uri changeme \
+          --frame-only \
+          --output "${ASSET_NAME}.data.yamlld" --force
+
+        /usr/local/bin/schema_gov_it_tools.bin \
+           csv create \
+          --jsonld "${ASSET_NAME}.data.yamlld" \
+          --datapackage datapackage.yaml \
+          --force
+
+        # Validate the CSV
+        /usr/local/bin/schema_gov_it_tools.bin \
+          csv validate \
+          --ttl "${ASSET_NAME}.ttl" \
+          --datapackage datapackage.yaml \
+          --vocabulary-uri changeme
+
+        echo "Generated and validated CSV for ${MATRIX_ASSET}"
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+    - name: Check for CSV files
+      id: check-csv
+      working-directory: >-
+        ${{ matrix.asset }}
+      run: |
+        if ls *.csv 1> /dev/null 2>&1; then
+          echo "csv_exists=true" >> "$GITHUB_OUTPUT"
+          CSV_FILE=$(ls *.csv | head -1)
+          echo "csv_file=$CSV_FILE" >> "$GITHUB_OUTPUT"
+        else
+          echo "csv_exists=false" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Create Pull Request
+      if: steps.check-csv.outputs.csv_exists == 'true'
+      uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0  # v8.1.0
+      with:
+        base: ${{ env.CHECKOUT_REF }}
+        commit-message: >-
+          feat: add generated CSV for ${{ matrix.asset }}
+        title: >-
+          feat: CSV generation for ${{ matrix.asset }}
+        body: |
+          # CSV Generation for ${{ matrix.asset }}
+
+          This PR contains the auto-generated CSV file for the `${{ matrix.asset }}` controlled vocabulary.
+
+          ## Generated Files
+          - `assets/controlled-vocabularies/${{ matrix.asset }}/${{ steps.check-csv.outputs.csv_file }}`
+
+          ## Validation
+          The CSV has been generated from the RDF vocabulary and validated against the datapackage metadata.
+
+          Generated by the [Asset CSV Generation workflow](.github/workflows/asset-csv-generation.yml).
+        branch: >-
+          feat/csv-${{ matrix.asset }}
+        delete-branch: true
+        labels: 'automated,csv-generation'
