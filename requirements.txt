@@ -14,3 +14,5 @@ rdflib>=7.4
 # A faster alternative to json library, used under the hood by rdflib.
 #
 orjson
+sqlalchemy==2.0.48
+# sqlite3==3.14.3
