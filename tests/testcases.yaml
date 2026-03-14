@@ -679,7 +679,7 @@ testcases:
       "@embed": "@always"
       "@explicit": true
       "@requireAll": false
-
+  expected_payload: data/snapshots/base/ateco-2025-skos.data.yaml
 - name: language-eu-skos
   data: &language_eu_ttl |-
     @prefix : <http://publications.europa.eu/resource/authority/language/> .
