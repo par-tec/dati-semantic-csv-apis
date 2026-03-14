@@ -506,6 +506,180 @@ testcases:
     - level
     - url
 
+- name: ateco-2025-skos
+  data: |-
+    @prefix gsim: <http://www.datiopen.istat.it/Ontologie/meta/gsim/> .
+    @prefix : <https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025/> .
+    @prefix adms: <http://www.w3.org/ns/adms#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
+    @prefix clvapit: <https://w3id.org/italia/onto/CLV/> .
+    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+    @prefix ndc: <https://w3id.org/italia/onto/NDC/> .
+    @prefix xkos: <http://purl.org/linked-data/xkos#> .
+    @prefix dct: <http://purl.org/dc/terms/> .
+    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    @prefix xml: <http://www.w3.org/XML/1998/namespace> .
+    @prefix dcatapit: <http://dati.gov.it/onto/dcatapit#> .
+    @prefix covapit: <https://w3id.org/italia/onto/COV/> .
+    @prefix dcat: <http://www.w3.org/ns/dcat#> .
+    @prefix prov: <http://www.w3.org/ns/prov#> .
+    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+    <https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025>
+      a skos:ConceptScheme , skos:Collection , adms:Asset , prov:Entity , dcatapit:Dataset ;
+      rdfs:label "Classificazione Ateco 2025"  ;
+      skos:notation "Ateco 2025" ;
+      skos:prefLabel "Classificazione Ateco 2025" ;
+      dct:issued "2025-01-01"^^xsd:date ;
+      dct:description """Classificazione statistica delle attività economiche finalizzata all’elaborazione di statistiche ufficiali, aventi per oggetto i fenomeni relativi alla partecipazione delle unità produttive ai processi economici. La classificazione è direttamente derivata da NACE Rev. 2.1 (Regolamento delegato (Ue) 2023/137 della Commissione che modifica il Regolamento (CE) n. 1893/2006 del Parlamento europeo e del Consiglio; rettifica n. 2024/90720). La classificazione Ateco 2025 comprende 1.290 sottocategorie, 920 categorie, raggruppate in 651 classi, 272 gruppi, 87 divisioni, 22 sezioni.
+        La struttura delle versioni precedenti è:
+        - Ateco 2007 1° rilascio: 996 categorie, raggruppate in 615 classi, 272 gruppi, 88 divisioni, 21 sezioni; negli anni la classificazione ha subito due aggiornamenti, uno nel 2021 l'altro nel 2022;
+        - Ateco 2002: 883 categorie, raggruppate in 514 classi, 224 gruppi, 62 divisioni, 17 sezioni, 16 sottosezioni;
+        - Ateco 1991: 874 categorie, raggruppate in 512 classi, 222 gruppi, 60 divisioni, 17 sezioni, 16 sottosezioni.""" ;
+      rdfs:comment  "Classificazione delle attività economiche ISTAT Ateco 2025." ;
+      dct:language <http://publications.europa.eu/resource/authority/language/ITA> ;
+      dct:accrualPeriodicity <http://publications.europa.eu/resource/authority/frequency/IRREG> ;
+      xkos:belongsTo <https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2007-2022> ;
+      dct:title "Ateco 2025 - Classificazione delle attività economiche" ;
+      rdfs:isDefinedBy <https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025> ;
+      dct:identifier "ISTAT:D.7" ;
+      ndc:keyConcept "ateco-2025" ;
+      dct:publisher <https://w3id.org/italia/data/public-organization/ISTAT> ;
+      dcat:distribution <https://w3id.org/italia/data/distribution/Ateco2025-RDF-Turtle> ,  <https://w3id.org/italia/data/distribution/Ateco2025-CSV> ,
+      <https://w3id.org/italia/data/distribution/Ateco2025-XLSX>  ;
+      dct:modified "2025-09-29"^^xsd:date ;
+      prov:wasDerivedFrom <https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2007-2022/ateco> ;
+      adms:representationTechnique <http://purl.org/adms/representationtechnique/SKOS> ;
+      dcat:keyword "Ateco" , "Attività Economica" , "classificazione" , "Ateco2025" ;
+      dct:type <http://purl.org/adms/assettype/Taxonomy> ;
+      dcat:theme <http://publications.europa.eu/resource/authority/data-theme/ECON> ;
+      dct:creator <https://w3id.org/italia/data/public-organization/ISTAT> ;
+      dct:rightsHolder <https://w3id.org/italia/data/public-organization/ISTAT> ;
+      dct:conformsTo <https://w3id.org/italia/data/standard/SKOS> ;
+      dcat:contactPoint <https://w3id.org/italia/data/contact-point/ISTAT-NDC> ;
+      owl:versionInfo "versione 2025" ;
+
+      ##xkos:levels rdf:Node1 ;
+        xkos:numberOfLevels "6" ;
+      prov:wasGeneratedBy <https://w3id.org/italia/data/activity/GenerationAteco2025> ;
+      xkos:supersedes <https://w3id.org/italia/controlled-vocabulary/classifications-for-organizations/ateco-2007-2022>.
+
+    :A a skos:Concept, covapit:PrivateOrgActivityType;
+      skos:prefLabel "AGRICULTURE, FORESTRY AND FISHING"@en, "LAND- UND FORSTWIRTSCHAFT, FISCHEREI"@de, "AGRICOLTURA, SILVICOLTURA E PESCA"@it;
+      skos:inScheme <https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025>;
+      skos:notation "A";
+      clvapit:hasRankOrder "1"^^xsd:int;
+      skos:note """Sono escluse le seguenti attività:
+    - produzione di beni indifferenziati per uso proprio da parte di famiglie e convivenze, cfr. 98.10""";
+      skos:definition "This section includes the exploitation of vegetal and animal natural resources, comprising the activities of growing of crops, raising and breeding of animals, harvesting of timber and other plants, and the production of animal products from a farm or natural habitats. This section also includes organic agriculture, aquaculture, the growing of genetically modified crops and the raising of genetically modified animals."@en, "In questa sezione sono incluse le attività produttive che utilizzano le risorse di origine vegetale e animale. La sezione include attività di coltivazione (agricoltura), di allevamento di animali (zootecnia), di raccolta di legname e altre piante (silvicoltura), di produzione di prodotti animali in aree di allevamento o nei loro habitat naturali. Questa sezione include anche l'agricoltura biologica, l'acquacoltura, la coltivazione di colture geneticamente modificate e l'allevamento di animali geneticamente modificati."@it;
+      skos:narrower :01, :02, :03 .
+    :01 a skos:Concept, covapit:PrivateOrgActivityType;
+      skos:prefLabel "Crop and animal production, hunting and related service activities"@en, "Landwirtschaft, Jagd und damit verbundene Tätigkeiten"@de, "Produzioni vegetali e animali, caccia e servizi connessi"@it;
+      skos:inScheme <https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025>;
+      skos:broader :A;
+      skos:notation "01";
+      clvapit:hasRankOrder "2"^^xsd:int .
+
+    :012 a skos:Concept, covapit:PrivateOrgActivityType;
+      skos:prefLabel "Growing of perennial crops"@en, "Anbau mehrjähriger Pflanzen"@de, "Coltivazione di colture agricole permanenti"@it;
+      skos:inScheme <https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025>;
+      skos:broader :01;
+      skos:notation "01.2";
+      clvapit:hasRankOrder "3"^^xsd:int;
+      skos:note """Sono escluse le seguenti attività:
+    - coltivazione di fiori permanenti e altre piante ornamentali, cfr. 01.19""" .
+
+  frame:
+    #
+    # Content-Type: application/ld+yaml; profile="http://www.w3.org/ns/json-ld#frame"
+    #
+
+    # Use context.
+    "@context": &jsonld_context
+      "@base": "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025/"
+      "@vocab": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/"
+
+      dct: http://purl.org/dc/terms/
+      skos: http://www.w3.org/2004/02/skos/core#
+      xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+      clvapit: https://w3id.org/italia/onto/CLV/
+      xsd: "http://www.w3.org/2001/XMLSchema#"
+      covapit: https://w3id.org/italia/onto/COV/
+      # Fields.
+      url: "@id"
+      id:
+        "@id": skos:notation
+        # "@type": "@value"
+
+      #Localize labels. Order is relevant.
+      label:
+        "@id": skos:prefLabel
+        "@language": it
+      label_it:
+        "@id": skos:prefLabel
+        "@language": it
+      label_en:
+        "@id": skos:prefLabel
+        "@language": en
+      label_de:
+        "@id": skos:prefLabel
+        "@language": de
+
+      # When mapping to a list, use @container: @set
+      #   to ensure that JSON-LD framing handles it as an array.
+      parent:
+        "@id": skos:broader
+        "@container": "@set"
+        "@context":
+          url: "@id"
+
+      vocab:
+        "@id": skos:inScheme
+        "@container": "@set"
+        "@context":
+          url: "@id"
+
+      level:
+        # Use type coercion to ensure that level is a JSON Number.
+        "@id": clvapit:hasRankOrder
+        "@type": xsd:int
+
+    # Only show fields listed in @context.
+    "@explicit": true
+
+    # Always embed external references.
+    "@embed": "@never"
+    "@omitDefault": true
+
+    "@requireAll": true
+    # Matching on type works.
+    "@type":
+    - &jsonld_type "covapit:PrivateOrgActivityType"
+    url: {}
+    id: {}
+    label_de: {}
+    label_en: {}
+    label_it: {}
+    label:
+      "@language": ["it", "en", "de"]
+      "@value": {}
+    level: {}
+
+    vocab:
+    - url: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+      "@explicit": true
+      "@embed": "@never"
+    parent:
+    - url: {}
+      id: {}
+      "@default": "@null"
+      "@embed": "@always"
+      "@explicit": true
+      "@requireAll": false
+
 - name: language-eu-skos
   data: &language_eu_ttl |-
     @prefix : <http://publications.europa.eu/resource/authority/language/> .

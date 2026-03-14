@@ -69,7 +69,7 @@ URI = "url"
 
 
 @pytest.mark.asset
-def test_create_payload():
+def test_create_payload(snapshot):
     """
     Given the ateco sqlite dataset, create a payload to be served by APIs.
 
@@ -128,6 +128,10 @@ def test_create_payload():
                     parent[i]["href"] = f"{api_base_url}/{p['id']}"
 
         payload.append(item_data)
+
+    ateco_2025_api_yaml = snapshot / "ateco-2025" / "ateco-2025.api.yaml"
+    with ateco_2025_api_yaml.open(mode="w") as fh:
+        yaml.safe_dump(payload, stream=fh)
 
     print(payload[:3])
     raise NotImplementedError
