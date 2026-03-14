@@ -11,7 +11,7 @@ from deepdiff import DeepDiff
 from tests.constants import ASSETS, TESTCASES
 from tests.harness import compare_data
 from tools.base import JsonLDFrame, RDFText
-from tools.openapi.openapi_generator import (
+from tools.openapi import (
     Apiable,
     OpenAPI,
 )

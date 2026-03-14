@@ -21,9 +21,6 @@ from sqlalchemy import create_engine, text
 
 from tests.constants import DATADIR, TESTDIR
 
-sqlite_url = "sqlite:///test_ateco.db"
-sqlite_engine = create_engine(sqlite_url)
-
 
 def _filter(item):
     # Remove @type.
@@ -37,19 +34,7 @@ def _filter(item):
     }
 
 
-@pytest.mark.skip
-def test_store_ateco():
-    ateco_data_yaml = (
-        DATADIR / "snapshots" / "ateco-2025" / "ateco-2025.data.yamlld"
-    )
-    with open(ateco_data_yaml) as f:
-        data = yaml.safe_load(f)
-    data = data["@graph"][:10]
-    json.dump(data, open(TESTDIR / "ateco-2025.data.json", "w"), indent=2)
-
-
-@pytest.mark.asset
-def test_load_ateco():
+def test_create_db(snapshot):
     data = json.load(open(TESTDIR / "ateco-2025.data.json"))
     ateco_data_yaml = (
         DATADIR / "snapshots" / "ateco-2025" / "ateco-2025.data.yamlld"
@@ -59,8 +44,9 @@ def test_load_ateco():
 
     data = (_filter(item) for item in data["@graph"])
     df = pd.DataFrame(data)
+    sqlite_url = f"sqlite:///{snapshot}/data/ateco-2025/ateco-2025.db"
 
-    df.to_sql("ateco", sqlite_engine, if_exists="replace", index=False)
+    df.to_sql("ateco", sqlite_url, if_exists="replace", index=False)
 
     raise NotImplementedError
 
@@ -98,6 +84,10 @@ def test_create_payload(snapshot):
       uri: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110103
       href: https://schema.gov.it/vocabularies/v1/vocabularies/inail/agente_causale/11110103
     """
+
+    sqlite_url = f"sqlite:///{snapshot}/data/ateco-2025/ateco-2025.db"
+    sqlite_engine = create_engine(sqlite_url)
+
     db = sqlite_engine
     api_base_url = (
         "https://api.schema.gov.it/catalog/vocabularies/istat/ateco-2025"
