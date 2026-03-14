@@ -5,7 +5,11 @@
   label_it: Idrogeno
   level: 3
   parent:
-  - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '1.1'
+    url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
   url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110101
   vocab:
   - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
@@ -16,7 +20,11 @@
   label_it: Tritio
   level: 3
   parent:
-  - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '1.1'
+    url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
   url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110102
   vocab:
   - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
@@ -28,5 +36,20 @@
   level: 1
   parent: []
   url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/grande_gruppo/1
+  vocab:
+  - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+- '@type':
+  - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+  - skos:Concept
+  id: '1.1'
+  label_it: Agenti chimici inorganici gruppo a
+  level: 2
+  parent:
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '1'
+    url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/grande_gruppo/1
+  url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
   vocab:
   - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale

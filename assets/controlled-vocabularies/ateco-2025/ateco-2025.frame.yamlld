@@ -2,12 +2,6 @@
 #
 # Content-Type: application/ld+yaml; profile="http://www.w3.org/ns/json-ld#frame"
 #
-# Only show fields listed in @context.
-"@explicit": true
-
-# Always embed external references.
-"@embed": "@never"
-"@omitDefault": true
 
 # Use context.
 "@context": &jsonld_context
@@ -59,6 +53,13 @@
     "@id": clvapit:hasRankOrder
     "@type": xsd:int
 
+# Only show fields listed in @context.
+"@explicit": true
+
+# Always embed external references.
+"@embed": "@never"
+"@omitDefault": true
+
 "@requireAll": true
 # Matching on type works.
 "@type":
@@ -79,6 +80,7 @@ vocab:
   "@embed": "@never"
 parent:
 - url: {}
+  id: {}
   "@default": "@null"
   "@embed": "@never"
   "@explicit": true
