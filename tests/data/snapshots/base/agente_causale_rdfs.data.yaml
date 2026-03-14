@@ -22,3 +22,10 @@
   label_it: Agenti chimici inorganici
   level: '1'
   url: grande_gruppo/1
+- '@type':
+  - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+  - skos:Concept
+  id: '1.1'
+  label_it: Agenti chimici inorganici gruppo a
+  level: '2'
+  url: gruppo/1.1
