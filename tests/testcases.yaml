@@ -232,57 +232,7 @@ testcases:
       "@explicit": true
       "@requireAll": false
       "@embed": "@always"
-  expected_payload:
-  - '@type':
-    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-    - skos:Concept
-    id: '11110101'
-    level: 3
-    label_it: Idrogeno
-    parent:
-    - url: gruppo/1.1
-      id: '1.1'
-    url: agente/11110101
-    vocab:
-    - url: ../agente_causale
-  - '@type':
-    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-    - skos:Concept
-    id: '11110102'
-    label_it: Tritio
-    level: 3
-    parent:
-    - url: gruppo/1.1
-      id: '1.1'
-    url: agente/11110102
-    vocab:
-    - url: ../agente_causale
-  - '@type':
-    - 'https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL'
-    - 'skos:Concept'
-    id: '1'
-    label_it: 'Agenti chimici inorganici'
-    level: 1
-    parent: []
-    url: 'grande_gruppo/1'
-    vocab:
-    - url: '../agente_causale'
-  - '@type':
-    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-    - skos:Concept
-    id: '1.1'
-    label_it: Agenti chimici inorganici gruppo a
-    level: 2
-    parent:
-    - '@type':
-      - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-      - skos:Concept
-      id: '1'
-      url: grande_gruppo/1
-    url: gruppo/1.1
-    vocab:
-    - url: ../agente_causale
-
+  expected_payload: agente_causale_skos.data.yaml
   expected_jsonschema: &agente_causale_skos_jsonschema
     x-jsonld-context: *agente_causale_skos_context
     type: object
@@ -375,40 +325,7 @@ testcases:
       # When a frame context does not have a @base,
       #   all @id fields are serialized as full URIs.
       "@base": null
-  expected_payload:
-  - '@type':
-    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-    - skos:Concept
-    id: '11110101'
-    label_it: Idrogeno
-    level: 3
-    parent:
-    - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
-    url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110101
-    vocab:
-    - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
-  - '@type':
-    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-    - skos:Concept
-    id: '11110102'
-    label_it: Tritio
-    level: 3
-    parent:
-    - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
-    url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110102
-    vocab:
-    - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
-  - '@type':
-    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-    - skos:Concept
-    id: '1'
-    label_it: Agenti chimici inorganici
-    level: 1
-    parent: []
-    url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/grande_gruppo/1
-    vocab:
-    - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
-
+  expected_payload: agente_causale_skos_uri.data.yaml
   expected_jsonschema: *agente_causale_skos_jsonschema
 - name: agente_causale_rdfs
   data: *agente_causale_ttl
@@ -463,31 +380,7 @@ testcases:
     label_it:
       "@language": ["it", "en"]
       "@value": {}
-  expected_payload:
-  - '@type':
-    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-    - skos:Concept
-    id: '11110101'
-    # JSON-LD 1.1 only converts xsd:integer to JSON Number:
-    #   other derived datatypes (xsd:int, xsd:long) are left as strings
-    #   and need to be post-processed if needed.
-    level: "3"
-    label_it: Idrogeno
-    url: agente/11110101
-  - '@type':
-    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-    - skos:Concept
-    id: '11110102'
-    label_it: Tritio
-    level: "3"
-    url: agente/11110102
-  - '@type':
-    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-    - skos:Concept
-    id: '1'
-    label_it: Agenti chimici inorganici
-    level: '1'
-    url: grande_gruppo/1
+  expected_payload: agente_causale_rdfs.data.yaml
   expected_jsonschema:
     x-jsonld-context: *agente_causale_rdfs_context
     type: object
@@ -818,27 +711,7 @@ testcases:
     #   we do not need them.
     # level:
     #   "@default": 1
-  expected_payload:
-  - '@type': skos:Concept
-    id: 'eng'
-    label: English
-    label_it: inglese
-    label_de: Englisch
-    label_sl: angleščina
-    deprecated: 'false'
-    url: http://publications.europa.eu/resource/authority/language/ENG
-    vocab:
-    - url: "http://publications.europa.eu/resource/authority/language/0001"
-    - url: "http://publications.europa.eu/resource/authority/language/0002"
-    - url: 'http://publications.europa.eu/resource/authority/language'
-  - '@type': skos:Concept
-    id: 'spn'
-    label: Sanapaná
-    deprecated: 'false'
-    url: http://publications.europa.eu/resource/authority/language/SPN
-    vocab:
-    - url: "http://publications.europa.eu/resource/authority/language/0003"
-    - url: 'http://publications.europa.eu/resource/authority/language'
+  expected_payload: language-eu-skos.data.yaml
   expected_jsonschema:
     type: object
     properties:
@@ -905,15 +778,4 @@ testcases:
     label_it: {}
     label_de: {}
     label_sl: {}
-  expected_payload:
-  - '@type': skos:Concept
-    id: 'eng'
-    label: English
-    label_it: inglese
-    label_de: Englisch
-    label_sl: angleščina
-    url: http://publications.europa.eu/resource/authority/language/ENG
-  - '@type': skos:Concept
-    id: 'spn'
-    label: Sanapaná
-    url: http://publications.europa.eu/resource/authority/language/SPN
+  expected_payload: language-eu-skos-strip.data.yaml
