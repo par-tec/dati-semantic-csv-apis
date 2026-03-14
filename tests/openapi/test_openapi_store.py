@@ -17,10 +17,12 @@ import json
 import pandas as pd
 import pytest
 import yaml
+from sqlalchemy import create_engine, text
 
 from tests.constants import DATADIR, TESTDIR
 
-sqlite_engine = "sqlite:///test_ateco.db"
+sqlite_url = "sqlite:///test_ateco.db"
+sqlite_engine = create_engine(sqlite_url)
 
 
 def _filter(item):
@@ -46,6 +48,7 @@ def test_store_ateco():
     json.dump(data, open(TESTDIR / "ateco-2025.data.json", "w"), indent=2)
 
 
+@pytest.mark.asset
 def test_load_ateco():
     data = json.load(open(TESTDIR / "ateco-2025.data.json"))
     ateco_data_yaml = (
@@ -62,9 +65,13 @@ def test_load_ateco():
     raise NotImplementedError
 
 
+URI = "url"
+
+
+@pytest.mark.asset
 def test_create_payload():
     """
-    Given the ateco dataset, create a payload to be served by APIs.
+    Given the ateco sqlite dataset, create a payload to be served by APIs.
 
     - uri: the resource URI
     - id: the resource skos:identifier, that should be used to query the resource.
@@ -91,6 +98,39 @@ def test_create_payload():
       uri: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110103
       href: https://schema.gov.it/vocabularies/v1/vocabularies/inail/agente_causale/11110103
     """
+    db = sqlite_engine
+    api_base_url = (
+        "https://api.schema.gov.it/catalog/vocabularies/istat/ateco-2025"
+    )
+
+    with db.connect() as conn:
+        rows = conn.execute(text("SELECT * FROM ateco")).mappings().all()
+
+    payload = []
+    for row in rows:
+        item_data = json.loads(row["_text"])
+
+        item_data.update(
+            {
+                "id": str(row["id"]),
+                "uri": item_data.pop(URI),
+                "href": f"{api_base_url}/{row['id']}",
+            }
+        )
+        parent = item_data.get("parent")
+        if isinstance(parent, (list,)):
+            for i, p in enumerate(parent):
+                parent[i] = {
+                    "uri": p.pop(URI),
+                }
+                if p.get("id") is not None:
+                    parent[i]["id"] = p["id"]
+                    parent[i]["href"] = f"{api_base_url}/{p['id']}"
+
+        payload.append(item_data)
+
+    print(payload[:3])
+    raise NotImplementedError
 
 
 def test_create_uuid():

@@ -164,8 +164,11 @@ def create_schema_from_frame_and_data(
             "Framed data must be a JSON-LD dictionary or a single object with @type."
         )
 
-    # Infer schema from samples
-    schema = infer_schema_from_samples(samples)
+    # Remove nested JSON-LD typing from sample payloads before schema inference.
+    clean_samples = [remove_jsonld_key(sample, "@type") for sample in samples]
+
+    # Infer schema from normalized samples
+    schema = infer_schema_from_samples(clean_samples)
 
     # Add constraints from JSON-LD context
     if add_constraints:
@@ -183,12 +186,11 @@ def create_schema_from_frame_and_data(
     # Add an example entry, that can be used
     #   inside the Schema Editor, eventually
     #   removing @type.
-    schema["example"] = samples[0]
-    schema["example"].pop("@type", None)
+    schema["example"] = clean_samples[0]
 
     # Validate the framed data against the schema
     if validate_output:
-        is_valid, errors = validate_data_against_schema(samples, schema)
+        is_valid, errors = validate_data_against_schema(clean_samples, schema)
         schema["x-validation"] = {
             "valid": is_valid,
             "error_count": len(errors),
@@ -209,9 +211,22 @@ def create_schema_from_frame_and_data(
     return cast(OpenAPI, schema)
 
 
+def remove_jsonld_key(obj: Any, key: str) -> Any:
+    """Return a deep copy of `obj` removing `key` recursively from objects."""
+    if isinstance(obj, dict):
+        return {
+            k: remove_jsonld_key(v, key) for k, v in obj.items() if k != key
+        }
+    if isinstance(obj, list):
+        return [remove_jsonld_key(item, key) for item in obj]
+    return obj
+
+
 def infer_schema_from_samples(samples):
     """
     Generate JSON Schema from sample data using genson.
+
+    Idea: Consider subsampling to speed it up.
 
     Args:
         samples: A list of sample objects or a single sample object
