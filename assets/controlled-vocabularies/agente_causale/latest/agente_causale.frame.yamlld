@@ -69,8 +69,8 @@ vocab:
   "@embed": "@never"
 parent:
 - url: {}
-  "@type": INAILService:AgenteCausaleINAIL
   id: {}
+  "@type": INAILService:AgenteCausaleINAIL
   "@default": "@null"
   "@embed": "@always"
   "@explicit": true

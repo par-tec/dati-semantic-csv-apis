@@ -81,7 +81,12 @@ vocab:
 parent:
 - url: {}
   id: {}
-  "@default": "@null"
-  "@embed": "@never"
+  # To show further properties, you must
+  #   use "@embed": "@always".
+  "@embed": "@always"
   "@explicit": true
+  # If @requireAll is true, you must
+  #   @default @null to avoid filtering out items
+  #   missing the field.
+  "@default": "@null"
   "@requireAll": false

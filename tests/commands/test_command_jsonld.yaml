@@ -28,8 +28,6 @@
     - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
     - --vocabulary-uri
     - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
-    - --batch-size
-    - "1000"
     - --frame-only
     - --output
     - tests/data/snapshots/ateco-2025/ateco-2025.data.yamlld
@@ -41,8 +39,8 @@
         compare: data
       logs:
       - >-
-        Dataset contains 3345 items, processing in batches of
-        1000
+        Dataset contains 3345 items
+      #, processing in batches of 1000
       - >-
         Batched framing completed, total items: 3257
 - id: create_jsonld_agente_causale
