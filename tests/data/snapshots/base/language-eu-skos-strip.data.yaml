@@ -1,0 +1,11 @@
+- '@type': skos:Concept
+  id: 'eng'
+  label: English
+  label_it: inglese
+  label_de: Englisch
+  label_sl: angleščina
+  url: http://publications.europa.eu/resource/authority/language/ENG
+- '@type': skos:Concept
+  id: 'spn'
+  label: Sanapaná
+  url: http://publications.europa.eu/resource/authority/language/SPN

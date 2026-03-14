@@ -1,0 +1,24 @@
+- '@type':
+  - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+  - skos:Concept
+  id: '11110101'
+  # JSON-LD 1.1 only converts xsd:integer to JSON Number:
+  #   other derived datatypes (xsd:int, xsd:long) are left as strings
+  #   and need to be post-processed if needed.
+  level: "3"
+  label_it: Idrogeno
+  url: agente/11110101
+- '@type':
+  - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+  - skos:Concept
+  id: '11110102'
+  label_it: Tritio
+  level: "3"
+  url: agente/11110102
+- '@type':
+  - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+  - skos:Concept
+  id: '1'
+  label_it: Agenti chimici inorganici
+  level: '1'
+  url: grande_gruppo/1
