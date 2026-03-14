@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import yaml
 from deepdiff import DeepDiff
@@ -32,13 +33,19 @@ def assert_snapshot(fileinfo: dict):
     compare_f(snapshot_file, path)
 
 
-def compare_data(snapshot_file: Path, current_file: Path):
+def compare_data(
+    snapshot_file: Path,
+    current_file: Path = None,
+    current_data: Any = None,
+    update=False,
+):
     """
     Compare the data content of two files,
     eventually retrieving the last committed version
     from git.
     """
-    current_data = yaml.safe_load(current_file.read_text())
+    if current_data is None:
+        current_data = yaml.safe_load(current_file.read_text())
 
     if snapshot_file == current_file:
         snapshot_raw: str = git_show_head(current_file)
@@ -48,12 +55,18 @@ def compare_data(snapshot_file: Path, current_file: Path):
 
     delta = DeepDiff(snapshot_data, current_data, ignore_order=True)
 
-    assert not delta, (
-        f"File {current_file} differs from {snapshot_file}."
-        f" Either {current_file} is wrong,"
-        f" or {snapshot_file} has uncommitted changes."
-        f"\ndiff:\n{delta}"  # limit diff output to 500 chars
-    )
+    if delta:
+        if update:
+            snapshot_file.write_text(
+                yaml.safe_dump(current_data, sort_keys=True), encoding="utf-8"
+            )
+            print(f"Updated snapshot file: {snapshot_file}")
+        assert delta, (
+            f"File {current_file} differs from {snapshot_file}."
+            f" Either {current_file} is wrong,"
+            f" or {snapshot_file} has uncommitted changes."
+            f"\ndiff:\n{delta}"  # limit diff output to 500 chars
+        )
 
 
 def compare_content(snapshot_file: Path, current_file: Path):

@@ -6,6 +6,7 @@ import yaml
 from rdflib.compare import IsomorphicGraph
 
 from tests.constants import ASSETS, TESTCASES
+from tests.harness import compare_data
 from tools.base import TEXT_TURTLE, JsonLDFrame
 from tools.projector import select_fields
 from tools.utils import IGraph
@@ -19,11 +20,13 @@ vocabularies = list(ASSETS.glob("**/*.ttl"))
 
 
 @pytest.mark.parametrize(
-    "data,frame,expected_payload",
-    [itemgetter("data", "frame", "expected_payload")(x) for x in TESTCASES],
+    "data,frame",
+    [itemgetter("data", "frame")(x) for x in TESTCASES],
     ids=[x["name"] for x in TESTCASES],
 )
-def test_can_project_data(data, frame, expected_payload):
+def test_can_project_data(
+    data, frame, snapshot, request: pytest.FixtureRequest
+):
     """
     Given:
     - A framing context
@@ -51,17 +54,18 @@ def test_can_project_data(data, frame, expected_payload):
             f"Item fields {item_fields} are not a subset of selected fields {selected_fields}"
         )
 
-    assert graph == expected_payload, (
-        "Projected data does not match expected payload"
-    )
+    base = snapshot / "base"
+    snapshot_path = base / f"{request.node.callspec.id}.data.yaml"
+
+    compare_data(snapshot_path, current_data=graph, update=True)
 
 
 @pytest.mark.parametrize(
-    "data,frame,expected_payload",
-    [itemgetter("data", "frame", "expected_payload")(x) for x in TESTCASES],
+    "data,frame",
+    [itemgetter("data", "frame")(x) for x in TESTCASES],
     ids=[x["name"] for x in TESTCASES],
 )
-def test_can_validate_data(data, frame, expected_payload):
+def test_can_validate_data(data, frame):
     """
     Given:
 

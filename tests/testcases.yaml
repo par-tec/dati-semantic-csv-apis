@@ -121,6 +121,17 @@ testcases:
         skos:notation "11110102" ;
         xkos:depth 3 .
 
+    grupagentecaus:1.1 a INAILService:AgenteCausaleINAIL,
+            skos:Concept ;
+        rdfs:label "Agenti chimici inorganici gruppo a"@it ;
+        skos:prefLabel "Agenti chimici inorganici gruppo a"@it ;
+        clvapit:hasRankOrder "2" ;
+        dct:identifier "1.1" ;
+        skos:broader ggroupagentcaus:1 ;
+        skos:inScheme <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale> ;
+        skos:notation "1.1" ;
+        xkos:depth 2 .
+
     ggroupagentcaus:1 a INAILService:AgenteCausaleINAIL,
           skos:Concept ;
       rdfs:label "Agenti chimici inorganici"@it ;
@@ -143,12 +154,6 @@ testcases:
     #   to a JSON structure. It relies only on skos and xkos vocabularies
     #   and not on the rdfs model.
     #
-    # Only show fields and identifiers listed in @context.
-    "@explicit": true
-
-    # Always embed external references.
-    "@embed": "@never"
-    "@omitDefault": true
 
     # Use context.
     "@context": &agente_causale_skos_context
@@ -178,6 +183,8 @@ testcases:
         "@container": "@set"
         "@context":
           url: "@id"
+          id:
+            "@id": "skos:notation"
 
       vocab:
         "@id": skos:inScheme
@@ -189,6 +196,13 @@ testcases:
         # Use type coercion to ensure that level is a JSON Number.
         "@id": xkos:depth
         "@type": xsd:integer
+
+    # Only show fields and identifiers listed in @context.
+    "@explicit": true
+
+    # Always embed external references.
+    "@embed": "@never"
+    "@omitDefault": true
 
     "@requireAll": true
     #
@@ -213,10 +227,11 @@ testcases:
     # If no parent, return an empty list (e.g., when level=1).
     parent:
     - url: {}
+      id: {}
       "@default": "@null"
       "@explicit": true
       "@requireAll": false
-      "@embed": "@never"
+      "@embed": "@always"
   expected_payload:
   - '@type':
     - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
@@ -226,6 +241,7 @@ testcases:
     label_it: Idrogeno
     parent:
     - url: gruppo/1.1
+      id: '1.1'
     url: agente/11110101
     vocab:
     - url: ../agente_causale
@@ -237,6 +253,7 @@ testcases:
     level: 3
     parent:
     - url: gruppo/1.1
+      id: '1.1'
     url: agente/11110102
     vocab:
     - url: ../agente_causale
@@ -250,6 +267,22 @@ testcases:
     url: 'grande_gruppo/1'
     vocab:
     - url: '../agente_causale'
+  - '@type':
+    - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+    - skos:Concept
+    id: '1.1'
+    label_it: Agenti chimici inorganici gruppo a
+    level: 2
+    parent:
+    - '@type':
+      - https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+      - skos:Concept
+      id: '1'
+      url: grande_gruppo/1
+    url: gruppo/1.1
+    vocab:
+    - url: ../agente_causale
+
   expected_jsonschema: &agente_causale_skos_jsonschema
     x-jsonld-context: *agente_causale_skos_context
     type: object
