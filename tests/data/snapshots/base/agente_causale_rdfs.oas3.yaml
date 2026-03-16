@@ -9,35 +9,15 @@ properties:
     minLength: 1
     type: string
   level:
-    maximum: 10
-    minimum: 0
-    type: integer
-  parent:
-    items:
-      properties:
-        url: &id001
-          format: uri
-          type: string
-      required:
-      - url
-      type: object
-    type: array
-  url: *id001
-  vocab:
-    items:
-      properties:
-        url: *id001
-      required:
-      - url
-      type: object
-    type: array
+    type: string
+  url:
+    format: uri
+    type: string
 required:
 - id
 - label_it
 - level
-- parent
 - url
-- vocab
 type: object
 "x-jsonld-context":
   '@base': >-
@@ -48,28 +28,19 @@ type: object
     https://w3id.org/italia/onto/CLV/
   dct: >-
     http://purl.org/dc/terms/
-  id: &id002
-    '@id': skos:notation
+  id:
+    '@id': dct:identifier
   label_it:
-    '@id': skos:prefLabel
+    '@id': rdfs:label
     '@language': it
   level:
-    '@id': xkos:depth
-    '@type': xsd:integer
-  parent:
-    '@container': '@set'
-    '@context':
-      id: *id002
-      url: '@id'
-    '@id': skos:broader
+    '@id': >-
+      clvapit:hasRankOrder
+  rdfs: >-
+    http://www.w3.org/2000/01/rdf-schema#
   skos: >-
     http://www.w3.org/2004/02/skos/core#
   url: '@id'
-  vocab:
-    '@container': '@set'
-    '@context':
-      url: '@id'
-    '@id': skos:inScheme
   xkos: >-
     http://rdf-vocabulary.ddialliance.org/xkos#
   xsd: >-
