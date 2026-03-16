@@ -27,6 +27,11 @@ Providers need to modify the stub file to validate it and ensure its correctness
 - [ ] The generated file will include a comment with provider instructions.
 - [ ] The OAS file will not include `servers` or `paths` sections: these will be
   dynamically provided by the Data API implementation.
+- [ ] Schema array fields will be constrained using maxItems and minItems.
+- [ ] Schema numeric fields will not be constrained because this depends
+  on Provider needs (Q: use `format` int64?).
+- [ ] Schema labels and URIs will be constrained to suitable values.
+- [ ] Item identifiers should be \<= 64 characters.
 
 ## Consequences
 

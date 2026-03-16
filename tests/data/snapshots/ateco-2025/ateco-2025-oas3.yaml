@@ -8,7 +8,8 @@ components:
         label_en: Crop and animal production, hunting and related service activities
         level: '2'
         parent:
-        - url: A
+        - id: A
+          url: A
         url: '01'
         vocab:
         - url: ../ateco-2025
@@ -34,10 +35,13 @@ components:
         parent:
           items:
             properties:
+              id:
+                type: string
               url:
                 format: uri-reference
                 type: string
             required:
+            - id
             - url
             type: object
           type: array
