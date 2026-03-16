@@ -155,8 +155,8 @@ def test_openapi_datastore(
 
     Then:
     - The datastore should be created successfully
-    - The datastore content respects the JSON Schema
     - I can query the datastore
+    - The datastore content respects the JSON Schema
     """
     oas3_yaml = SNAPSHOTS / "base" / f"{request.node.callspec.id}.oas3.yaml"
     validator = Draft7Validator(expected_jsonschema)
@@ -167,7 +167,6 @@ def test_openapi_datastore(
     apiable = Apiable(turtle, frame)
 
     try:
-        apiable.uri()
         # .. and generate the iterable API payload...
         data: JsonLD = apiable.create_api_data()
         assert data
@@ -180,6 +179,7 @@ def test_openapi_datastore(
     except UnsupportedVocabularyError as e:
         pytest.skip(f"Unsupported vocabulary: {e}")
 
+    # Then I can query the datastore ...
     with create_engine(
         f"sqlite:///{snapshot_dir / 'data.db'}"
     ).connect() as conn:
@@ -188,7 +188,7 @@ def test_openapi_datastore(
             .mappings()
             .all()
         )
-
+    # ... and the content should be valid according to the JSON Schema
     errors = [
         f"{e.json_path}: {e.message}"
         for r in rows
