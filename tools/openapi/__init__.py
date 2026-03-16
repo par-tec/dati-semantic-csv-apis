@@ -1,7 +1,8 @@
+import itertools
 import json
 import logging
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, cast
 
@@ -17,6 +18,7 @@ from tools.base import (
     TEXT_TURTLE,
     JsonLD,
     JsonLDFrame,
+    JsonLDFunction,
     JSONLDText,
     RDFText,
 )
@@ -24,7 +26,6 @@ from tools.vocabulary import LANG_NONE, Vocabulary, VocabularyMetadata
 
 log = logging.getLogger(__name__)
 
-type JsonLDFunction = Callable[[JsonLD], JsonLD | None]
 type OpenAPI = dict[str, Any]
 OPENAPI_30_SCHEMA_JSON = DATADIR / "openapi_30.schema.json"
 OAS30_SCHEMA = json.loads(OPENAPI_30_SCHEMA_JSON.read_text())
@@ -159,13 +160,30 @@ class Apiable(Vocabulary):
         import pandas as pd
 
         assert data
-        rows = (_filter(item) for item in data["@graph"])
+        rows = itertools.chain(
+            [{"id": "_metadata", "url": self.uri()}],
+            (_filter(item) for item in data["@graph"]),
+        )
         df = pd.DataFrame(rows)
         if force and datafile.exists():
             datafile.unlink()
         sqlite_con = f"sqlite:///{datafile.as_posix()}"
 
         df.to_sql(self.uri_uuid(), sqlite_con, if_exists="replace", index=False)
+
+    def from_db(self, datafile: Path) -> JsonLD:
+        import pandas as pd
+
+        sqlite_con = f"sqlite:///{datafile.as_posix()}"
+        df = pd.read_sql(
+            f"SELECT _text FROM {self.uri_uuid()} WHERE id != '_metadata'",
+            sqlite_con,
+        )
+        items = df["_text"].apply(json.loads).tolist()
+        return {
+            "@context": self.frame.context,
+            "@graph": items,
+        }
 
     def json_schema(
         self,
@@ -255,7 +273,7 @@ def create_schema_from_frame_and_data(
 
     Args:
         frame: JSON-LD frame specification
-        framed: Framed JSON-LD data (output of create_api_data)
+        framed: Framed JSON-LD data
 
     Returns:
         OpenAPI: OpenAPI schema inferred from framed samples

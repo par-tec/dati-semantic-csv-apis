@@ -1,4 +1,3 @@
-import json
 from operator import itemgetter
 from pathlib import Path
 
@@ -6,7 +5,6 @@ import pytest
 import yaml
 from deepdiff import DeepDiff
 from jsonschema import Draft7Validator
-from sqlalchemy import create_engine, text
 
 # from rdflib.plugins.serializers.jsonld import from_rdf
 # from rdflib.plugins.parsers.jsonld import to_rdf
@@ -162,6 +160,7 @@ def test_openapi_datastore(
     """
     oas3_yaml = SNAPSHOTS / "base" / f"{request.node.callspec.id}.oas3.yaml"
     validator = Draft7Validator(expected_jsonschema)
+    datafile_db = snapshot_dir / "data.db"
     # Given an RDF vocabulary and a frame...
     frame = JsonLDFrame(frame)
 
@@ -175,26 +174,19 @@ def test_openapi_datastore(
         # ... and serialize it to a SQLite database
         apiable.to_db(
             data=data,
-            datafile=snapshot_dir / "data.db",
+            datafile=datafile_db,
             force=True,
         )
     except UnsupportedVocabularyError as e:
         pytest.skip(f"Unsupported vocabulary: {e}")
 
     # Then I can query the datastore ...
-    with create_engine(
-        f"sqlite:///{snapshot_dir / 'data.db'}"
-    ).connect() as conn:
-        rows = (
-            conn.execute(text(f"SELECT _text FROM {apiable.uri_uuid()}"))
-            .mappings()
-            .all()
-        )
+    rows = apiable.from_db(datafile_db)["@graph"]
     # ... and the content should be valid according to the JSON Schema
     errors = [
         f"{e.json_path}: {e.message}"
         for r in rows
-        for e in validator.iter_errors(json.loads(r["_text"]))
+        for e in validator.iter_errors(r)
     ]
     assert not errors, "Invalid db._text JSON:\n" + "\n".join(errors[:5])
     compare_data(
