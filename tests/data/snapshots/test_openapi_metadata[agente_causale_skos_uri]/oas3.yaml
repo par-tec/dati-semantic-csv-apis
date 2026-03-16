@@ -6,7 +6,8 @@ components:
         label_it: Idrogeno
         level: 3
         parent:
-        - url: >-
+        - id: '1.1'
+          url: >-
             https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
         url: >-
           https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110101
@@ -30,10 +31,13 @@ components:
         parent:
           items:
             properties:
+              id:
+                type: string
               url:
                 format: uri-reference
                 type: string
             required:
+            - id
             - url
             type: object
           type: array
@@ -66,7 +70,7 @@ components:
           https://w3id.org/italia/onto/CLV/
         dct: >-
           http://purl.org/dc/terms/
-        id:
+        id: &id001
           '@id': skos:notation
         label_it:
           '@id': skos:prefLabel
@@ -77,6 +81,7 @@ components:
         parent:
           '@container': '@set'
           '@context':
+            id: *id001
             url: '@id'
           '@id': skos:broader
         skos: >-

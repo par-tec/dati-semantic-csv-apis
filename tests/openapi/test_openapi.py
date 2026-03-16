@@ -1,24 +1,23 @@
-import logging
 from operator import itemgetter
 from pathlib import Path
 
 import pytest
 import yaml
 from deepdiff import DeepDiff
+from jsonschema import Draft7Validator
 
 # from rdflib.plugins.serializers.jsonld import from_rdf
 # from rdflib.plugins.parsers.jsonld import to_rdf
-from tests.constants import ASSETS, TESTCASES
-from tests.harness import compare_data
-from tools.base import JsonLDFrame, RDFText
-from tools.openapi.openapi_generator import (
+from tests.constants import ASSETS, SNAPSHOTS, TESTCASES
+from tests.harness import assert_schema, compare_data
+from tools.base import APPLICATION_LD_JSON_FRAMED, JsonLD, JsonLDFrame, RDFText
+from tools.openapi import (
     Apiable,
     OpenAPI,
 )
-from tools.utils import QuotedStringDumper
-from tools.vocabulary import UnsupportedVocabularyError
+from tools.utils import SafeQuotedStringDumper
 
-vocabularies = list(ASSETS.glob("**/*.data.yaml"))
+vocabularies: list[Path] = list(ASSETS.glob("**/*.data.yaml"))
 
 
 @pytest.mark.parametrize(
@@ -54,19 +53,22 @@ def test_openapi_minimal(
     """
     jsonschema_oas3_yaml = snapshot_dir / "oas3_schema.yaml"
 
-    # apiable = Apiable(data, frame)
-    # json_schema = apiable.json_schema()
     frame = JsonLDFrame(frame)
     apiable = Apiable(
         {"@graph": data, "@context": frame.context},
         frame,
+        format=APPLICATION_LD_JSON_FRAMED,
     )
 
+    schema_instances: JsonLD = apiable.create_api_data()
+    assert schema_instances, "Expected non-empty schema instances"
     json_schema = apiable.json_schema(
-        add_constraints=True, validate_output=True
+        schema_instances=schema_instances,
+        add_constraints=True,
+        validate_output=True,
     )
     jsonschema_oas3_yaml.write_text(
-        yaml.dump(json_schema, Dumper=QuotedStringDumper, sort_keys=True)
+        yaml.dump(json_schema, Dumper=SafeQuotedStringDumper, sort_keys=True)
     )
     delta = DeepDiff(json_schema, expected_jsonschema, ignore_order=True)
 
@@ -76,7 +78,7 @@ def test_openapi_minimal(
     ):
         assert expected_equals not in delta
 
-    assert_schema(json_schema, frame)
+    assert_schema(schema_copy=json_schema, frame=frame)
 
 
 @pytest.mark.parametrize(
@@ -93,6 +95,7 @@ def test_openapi_metadata(
     frame: JsonLDFrame,
     expected_jsonschema: dict,
     snapshot_dir: Path,
+    request: pytest.FixtureRequest,
 ):
     """
     Test the OpenAPI schema generation from JSON-LD frames and data.
@@ -110,155 +113,84 @@ def test_openapi_metadata(
     - The schema should include the expected properties and constraints
     - The schema should be valid according to the OpenAPI specification
     """
+    if "-eu-" in request.node.callspec.id:
+        pytest.skip("EU vocabularies are not supported yet")
+
     oas3_yaml = snapshot_dir / "oas3.yaml"
 
-    # apiable = Apiable(data, frame)
-    # json_schema = apiable.json_schema()
     frame = JsonLDFrame(frame)
     apiable = Apiable(turtle, frame)
 
-    try:
-        openapi: OpenAPI = apiable.openapi()
-    except UnsupportedVocabularyError as e:
-        pytest.skip(f"Unsupported vocabulary: {e}")
-    oas3_yaml.write_text(
-        yaml.dump(openapi, Dumper=QuotedStringDumper, sort_keys=True)
-    )
-
-    compare_data(oas3_yaml, oas3_yaml)
+    openapi: OpenAPI = apiable.openapi()
+    compare_data(oas3_yaml, current_data=openapi, update=True)
 
 
-@pytest.mark.skip(reason="TODO: Add data.")
-@pytest.mark.asset
 @pytest.mark.parametrize(
-    "vocabulary_data_yaml", vocabularies, ids=[x.name for x in vocabularies]
+    "turtle,frame,expected_jsonschema",
+    argvalues=[
+        itemgetter("data", "frame", "expected_jsonschema")(x)
+        for x in TESTCASES
+        if "expected_jsonschema" in x
+    ],
+    ids=[x["name"] for x in TESTCASES if "expected_jsonschema" in x],
 )
-def test_schema_with_constraints_and_validation(vocabulary_data_yaml: Path):
+def test_openapi_datastore(
+    turtle: RDFText,
+    frame: JsonLDFrame,
+    expected_jsonschema: dict,
+    snapshot_dir: Path,
+    request: pytest.FixtureRequest,
+):
     """
-    Test that JSON Schema is enhanced with constraints from context
-    and validates the actual vocabulary data.
+    Test the OpenAPI schema generation from JSON-LD frames and data.
 
     Given:
-    - RDF vocabulary data
+    - RDF vocabulary data in JSON-LD format
     - A JSON-LD frame with @context definitions
 
     When:
-    - I generate a schema with constraints from the frame
-    - I validate the framed data against the schema
+    - I create an instance of the Apiable class with the RDF data and frame
+    - Generate the API payload
+    - I create a datastore with the above payload
 
     Then:
-    - The schema should include appropriate constraints (minimum, pattern, etc.)
-    - The validation should pass or report specific errors
-    - The schema should include validation results in x-validation
+    - The datastore should be created successfully
+    - I can query the datastore
+    - The datastore content respects the JSON Schema
     """
-    frame_yamlld = vocabulary_data_yaml.with_suffix("").with_suffix(
-        ".frame.yamlld"
+    if "-eu-" in request.node.callspec.id:
+        pytest.skip("EU vocabularies are not supported yet")
+
+    oas3_yaml = SNAPSHOTS / "base" / f"{request.node.callspec.id}.oas3.yaml"
+    validator = Draft7Validator(expected_jsonschema)
+    datafile_db = snapshot_dir / "data.db"
+    # Given an RDF vocabulary and a frame...
+    frame = JsonLDFrame(frame)
+
+    # When I create an Apiable instance...
+    apiable = Apiable(turtle, frame)
+
+    # .. and generate the iterable API payload...
+    data: JsonLD = apiable.create_api_data()
+    assert data
+    # ... and serialize it to a SQLite database
+    apiable.to_db(
+        data=data,
+        datafile=datafile_db,
+        force=True,
     )
-    if not frame_yamlld.exists():
-        raise pytest.skip(frame_yamlld.name)
 
-    frame = JsonLDFrame.load(frame_yamlld)
-
-    with vocabulary_data_yaml.open() as f:
-        data = yaml.safe_load(f)
-
-    apiable = Apiable({"@graph": data, "@context": frame.context}, frame)
-
-    json_schema = apiable.json_schema(
-        add_constraints=True, validate_output=True
+    # Then I can query the datastore ...
+    rows = apiable.from_db(datafile_db)["@graph"]
+    # ... and the content should be valid according to the JSON Schema
+    errors = [
+        f"{e.json_path}: {e.message}"
+        for r in rows
+        for e in validator.iter_errors(r)
+    ]
+    assert not errors, "Invalid db._text JSON:\n" + "\n".join(errors[:5])
+    compare_data(
+        snapshot_file=oas3_yaml,
+        current_data=expected_jsonschema,
+        update=True,
     )
-
-    oas_yaml = vocabulary_data_yaml.with_suffix("").with_suffix(".oas3.yaml")
-    oas_yaml.write_text(
-        yaml.dump(
-            {
-                "openapi": "3.0.3",
-                "paths": {},
-                "components": {"schemas": {"Item": json_schema}},
-            },
-            Dumper=QuotedStringDumper,
-            sort_keys=True,
-        )
-    )
-    schema_copy = json_schema.copy()
-    assert_schema(schema_copy, frame)
-
-
-def assert_schema(schema_copy: OpenAPI, frame: JsonLDFrame) -> None:
-    """ """
-    validation = schema_copy.pop("x-validation", None)
-    x_jsonld_type = schema_copy.pop("x-jsonld-type", None)
-    assert x_jsonld_type
-    x_jsonld_context = schema_copy.pop("x-jsonld-context", None)
-    assert x_jsonld_context
-    # Check that schema was generated
-    assert validation is not None, "Schema should include x-validation results"
-
-    # Log validation results for inspection
-    logging.info("Validation results for %s:", frame.get("@type"))
-    logging.info("  Valid: %s", validation["valid"])
-    logging.info("  Errors: %d", validation["error_count"])
-
-    if validation["errors"]:
-        for error in validation["errors"][:5]:  # Log first 5 errors
-            logging.warning(
-                "  - %s at path %s", error["message"], error["path"]
-            )
-
-    # Check that constraints were added where expected
-    properties = schema_copy.get("properties", {})
-    assert properties, "Schema should have properties"
-
-    # Check for integer constraints (e.g., level field with xsd:integer)
-    for field_name, prop_schema in properties.items():
-        if prop_schema.get("type") in ["integer", "number"]:
-            # Should have minimum constraint from xsd:integer
-            if field_name == "level":
-                assert "minimum" in prop_schema, (
-                    f"Integer field '{field_name}' should have minimum constraint"
-                )
-                assert "maximum" in prop_schema, (
-                    "Level field should have maximum constraint"
-                )
-                logging.info(
-                    "Field '%s' has constraints: minimum=%s, maximum=%s",
-                    field_name,
-                    prop_schema.get("minimum"),
-                    prop_schema.get("maximum"),
-                )
-
-    # Check for string constraints (e.g., SKOS notation)
-    context = frame.context
-    for field_name, field_def in context.items():
-        if isinstance(field_def, dict) and "@id" in field_def:
-            predicate = field_def["@id"]
-            if "notation" in predicate and field_name in properties:
-                prop_schema = properties[field_name]
-                if prop_schema.get("type") == "string":
-                    assert "pattern" in prop_schema, (
-                        f"Notation field '{field_name}' should have pattern constraint"
-                    )
-                    assert "minLength" in prop_schema, (
-                        f"Notation field '{field_name}' should have minLength constraint"
-                    )
-                    logging.info(
-                        "Field '%s' (notation) has pattern: %s",
-                        field_name,
-                        prop_schema.get("pattern"),
-                    )
-
-    # The validation should ideally pass, but if there are errors,
-    # they should be specific and actionable
-    if not validation["valid"]:
-        logging.warning(
-            "Validation failed with %d errors", validation["error_count"]
-        )
-        assert validation["error_count"] > 0, "If not valid, should have errors"
-        # Errors should have proper structure
-        for error in validation["errors"]:
-            assert "message" in error, "Error should have message"
-            assert "path" in error, "Error should have path"
-    else:
-        logging.info(
-            "✓ All framed vocabulary data validates against the enhanced schema"
-        )

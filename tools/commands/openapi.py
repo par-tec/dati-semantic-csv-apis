@@ -11,7 +11,7 @@ import click
 import yaml
 
 from tools.base import JsonLDFrame
-from tools.openapi.openapi_generator import Apiable
+from tools.openapi import Apiable
 
 log = logging.getLogger(__name__)
 
@@ -191,7 +191,7 @@ def validate_openapi_spec(openapi_path: Path) -> None:
     """
     from jsonschema import ValidationError, validate
 
-    from tools.openapi.openapi_generator import OAS30_SCHEMA
+    from tools.openapi import OAS30_SCHEMA
 
     if not openapi_path.exists():
         raise FileNotFoundError(f"OpenAPI file not found: {openapi_path}")

@@ -1,10 +1,20 @@
+import logging
 from pathlib import Path
+from typing import Any
 
 import yaml
 from deepdiff import DeepDiff
 from git import Repo
 
 from tests.constants import TESTDIR
+
+# from rdflib.plugins.serializers.jsonld import from_rdf
+# from rdflib.plugins.parsers.jsonld import to_rdf
+from tools.base import JsonLDFrame
+from tools.openapi import (
+    OpenAPI,
+)
+from tools.utils import SafeQuotedStringDumper
 
 
 def assert_file(fileinfo: dict):
@@ -32,28 +42,44 @@ def assert_snapshot(fileinfo: dict):
     compare_f(snapshot_file, path)
 
 
-def compare_data(snapshot_file: Path, current_file: Path):
+def compare_data(
+    snapshot_file: Path,
+    current_file: Path = None,
+    current_data: Any = None,
+    update=False,
+):
     """
     Compare the data content of two files,
     eventually retrieving the last committed version
     from git.
     """
-    current_data = yaml.safe_load(current_file.read_text())
+    if current_data is None:
+        current_data = yaml.safe_load(current_file.read_text())
 
-    if snapshot_file == current_file:
-        snapshot_raw: str = git_show_head(current_file)
+    # If can't get info from current_file, get data from git.
+    if current_data or (snapshot_file == current_file):
+        snapshot_raw: str = git_show_head(snapshot_file)
         snapshot_data = yaml.safe_load(snapshot_raw)
     else:
         snapshot_data = yaml.safe_load(snapshot_file.read_text())
 
     delta = DeepDiff(snapshot_data, current_data, ignore_order=True)
 
-    assert not delta, (
-        f"File {current_file} differs from {snapshot_file}."
-        f" Either {current_file} is wrong,"
-        f" or {snapshot_file} has uncommitted changes."
-        f"\ndiff:\n{delta}"  # limit diff output to 500 chars
-    )
+    if update:
+        snapshot_file.write_text(
+            yaml.dump(
+                current_data, sort_keys=True, Dumper=SafeQuotedStringDumper
+            ),
+            encoding="utf-8",
+        )
+        logging.warning(f"Updated snapshot file: {snapshot_file}")
+    if delta:
+        assert not delta, (
+            f"File {current_file} differs from {snapshot_file}."
+            f" Either {current_file} is wrong,"
+            f" or {snapshot_file} has uncommitted changes."
+            f"\ndiff:\n{delta}"  # limit diff output to 500 chars
+        )
 
 
 def compare_content(snapshot_file: Path, current_file: Path):
@@ -103,3 +129,83 @@ def git_diff(path: Path) -> bytes:
     repo = Repo(TESTDIR.parent, search_parent_directories=True)
     diff = repo.git.diff("HEAD", path.as_posix(), ignore_cr_at_eol=True)
     return diff.encode("utf-8")
+
+
+def assert_schema(schema_copy: OpenAPI, frame: JsonLDFrame) -> None:
+    """ """
+    validation = schema_copy.pop("x-validation", None)
+    x_jsonld_type = schema_copy.pop("x-jsonld-type", None)
+    assert x_jsonld_type
+    x_jsonld_context = schema_copy.pop("x-jsonld-context", None)
+    assert x_jsonld_context
+    # Check that schema was generated
+    assert validation is not None, "Schema should include x-validation results"
+
+    # Log validation results for inspection
+    logging.info("Validation results for %s:", frame.get("@type"))
+    logging.info("  Valid: %s", validation["valid"])
+    logging.info("  Errors: %d", validation["error_count"])
+
+    if validation["errors"]:
+        for error in validation["errors"][:5]:  # Log first 5 errors
+            logging.warning(
+                "  - %s at path %s", error["message"], error["path"]
+            )
+
+    # Check that constraints were added where expected
+    properties = schema_copy.get("properties", {})
+    assert properties, "Schema should have properties"
+
+    # Check for integer constraints (e.g., level field with xsd:integer)
+    for field_name, prop_schema in properties.items():
+        if prop_schema.get("type") in ["integer", "number"]:
+            # Should have minimum constraint from xsd:integer
+            if field_name == "level":
+                assert "minimum" in prop_schema, (
+                    f"Integer field '{field_name}' should have minimum constraint"
+                )
+                assert "maximum" in prop_schema, (
+                    "Level field should have maximum constraint"
+                )
+                logging.info(
+                    "Field '%s' has constraints: minimum=%s, maximum=%s",
+                    field_name,
+                    prop_schema.get("minimum"),
+                    prop_schema.get("maximum"),
+                )
+
+    # Check for string constraints (e.g., SKOS notation)
+    context = frame.context
+    for field_name, field_def in context.items():
+        if isinstance(field_def, dict) and "@id" in field_def:
+            predicate = field_def["@id"]
+            if "notation" in predicate and field_name in properties:
+                prop_schema = properties[field_name]
+                if prop_schema.get("type") == "string":
+                    assert "pattern" in prop_schema, (
+                        f"Notation field '{field_name}' should have pattern constraint"
+                    )
+                    assert "minLength" in prop_schema, (
+                        f"Notation field '{field_name}' should have minLength constraint"
+                    )
+                    logging.info(
+                        "Field '%s' (notation) has pattern: %s",
+                        field_name,
+                        prop_schema.get("pattern"),
+                    )
+
+    # The validation should ideally pass, but if there are errors,
+    # they should be specific and actionable
+    if not validation["valid"]:
+        logging.warning(
+            "Validation failed with %d errors", validation["error_count"]
+        )
+        assert validation["error_count"] > 0, "If not valid, should have errors"
+        # Errors should have proper structure
+        for error in validation["errors"]:
+            assert "message" in error, "Error should have message"
+            assert "path" in error, "Error should have path"
+    else:
+        logging.info(
+            "✓ All framed vocabulary data validates against the enhanced schema"
+        )

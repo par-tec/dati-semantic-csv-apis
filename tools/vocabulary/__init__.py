@@ -1,7 +1,7 @@
 import json
 import logging
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, cast
 
@@ -13,6 +13,7 @@ from tools.base import (
     TEXT_TURTLE,
     JsonLD,
     JsonLDFrame,
+    JsonLDFunction,
     JSONLDText,
     RDFText,
 )
@@ -226,6 +227,8 @@ class Vocabulary:
         Returns:
             JsonLD: JSON-LD representation of the RDF data
         """
+        if self._jsonld is not None:
+            return self._jsonld
         if self.graph:
             # data = from_rdf(self.graph, auto_compact=True) # .json_ld()
             data = json.loads(self.serialize(format=APPLICATION_LD_JSON))
@@ -240,8 +243,6 @@ class Vocabulary:
             raise ValueError(
                 "Expected JSON-LD serialization to be a JSON object"
             )
-        if self._jsonld is not None:
-            return self._jsonld
         raise ValueError("No RDF graph loaded and no JSON-LD data available")
 
     @json_ld.setter
@@ -303,7 +304,7 @@ class Vocabulary:
         self,
         frame: JsonLDFrame | dict,
         batch_size: int = 0,
-        callbacks: Iterable[Callable] = (),
+        callbacks: Iterable[JsonLDFunction] = (),
     ) -> JsonLD:
         """
         Apply the frame to the RDF data and then project the result to only include fields in the frame context.
@@ -319,10 +320,16 @@ class Vocabulary:
         if isinstance(frame, dict):
             frame = JsonLDFrame(frame)
             frame.validate(strict=True)
-        framed = framer(ld_doc, frame, batch_size)
+        framed: JsonLD = framer(ld_doc, frame, batch_size)
 
         for callback in callbacks or []:
             log.debug(f"Applying callbacks to framed data: {callback.__name__}")
-            callback(framed)
+            #
+            # XXX: This flexibility allows callbacks to modify the framed data in-place or return a new modified version,
+            #   but might be too flexible. Consider only allowing stateless callbacks only.
+            #
+            result = callback(framed)
+            if result is not None:
+                framed = result
             log.info(f"Callback applied successfully: {callback.__name__}")
         return framed

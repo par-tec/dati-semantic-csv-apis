@@ -31,7 +31,7 @@ class IGraph:
             raise e
 
 
-class QuotedStringDumper(yaml.SafeDumper):
+class SafeQuotedStringDumper(yaml.SafeDumper):
     """Custom YAML dumper that quotes all string values."""
 
     pass
@@ -50,7 +50,7 @@ def quoted_string_representer(dumper, data):
         return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
 
 
-QuotedStringDumper.add_representer(str, quoted_string_representer)
+SafeQuotedStringDumper.add_representer(str, quoted_string_representer)
 
 
 def expand_context_to_absolute_uris(context: dict) -> dict:

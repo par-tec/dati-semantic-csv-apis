@@ -14,7 +14,7 @@ import yaml
 from rdflib.compare import IsomorphicGraph
 
 from tools.base import JsonLDFrame
-from tools.projector import select_fields
+from tools.projector import select_fields_inplace
 from tools.utils import IGraph
 from tools.vocabulary import Vocabulary
 
@@ -181,7 +181,9 @@ def create_jsonld_framed(
         )
 
         def filter_fields_cb(framed):
-            return select_fields(framed, {"@type", *frame_data.get_fields()})
+            return select_fields_inplace(
+                framed, {"@type", *frame_data.get_fields()}
+            )
 
         callbacks.append(filter_fields_cb)
     log.debug(

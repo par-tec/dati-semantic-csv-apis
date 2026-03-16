@@ -1,5 +1,8 @@
+import datetime
 import importlib
 import logging
+from collections.abc import Callable
+from decimal import Decimal
 from importlib.resources.abc import Traversable
 from pathlib import Path
 from typing import Any, TypedDict, cast
@@ -13,12 +16,35 @@ log = logging.getLogger(__name__)
 TEXT_TURTLE = "text/turtle"
 OX_TURTLE = "ox-turtle"
 APPLICATION_LD_JSON = "application/ld+json"
+APPLICATION_LD_JSON_FRAME = (
+    APPLICATION_LD_JSON + '; profile="http://www.w3.org/ns/json-ld#frame"'
+)
+APPLICATION_LD_JSON_CONTEXT = (
+    APPLICATION_LD_JSON + '; profile="http://www.w3.org/ns/json-ld#context"'
+)
+APPLICATION_LD_JSON_FRAMED = (
+    APPLICATION_LD_JSON + '; profile="http://www.w3.org/ns/json-ld#framed"'
+)
 DATADIR: Traversable = importlib.resources.files(__name__) / "data"
 
 
-JsonLD = TypedDict("JsonLD", {"@context": dict, "@graph": list}, total=False)
+JsonScalar = (int, float, bool, str, type(None))
+DbScalar = JsonScalar + (bytes,)  # SQLite-compatible
+FullScalar = JsonScalar + (
+    datetime.date,
+    datetime.datetime,
+    Decimal,
+)  # Extended scalar types for JSON-LD data
+
+JsonLD = TypedDict(
+    "JsonLD",
+    {"@context": dict, "@graph": list, "statistics": dict},
+    total=False,
+)
 type RDFText = str
 type JSONLDText = str
+
+type JsonLDFunction = Callable[[JsonLD], JsonLD | None]
 
 
 class JsonLDFrame(dict):

@@ -163,7 +163,7 @@ def update_frame_with_key_field(framed: JsonLD, base_uri: str) -> None:
         entry["key"] = entry[URI][base_uri_len:]
 
 
-def select_fields(framed: JsonLD, selected_fields: list[str]) -> None:
+def select_fields_inplace(framed: JsonLD, selected_fields: list[str]) -> None:
     """
     Slice the give data retaining only the
     fields explicitly mentioned in the frame,
@@ -177,3 +177,21 @@ def select_fields(framed: JsonLD, selected_fields: list[str]) -> None:
         for f in item_fields:
             if f not in selected_fields:
                 del item[f]
+
+
+def select_fields(framed: JsonLD, selected_fields: list[str]) -> JsonLD:
+    """
+    Slice the give data retaining only the
+    fields explicitly mentioned in the frame,
+    and discarding the others, (e.g., the remnants
+    of an rdf:Property that have an unmentioned
+    `@language` or `@type` field).
+    """
+    _, graph = framed["@context"], framed["@graph"]
+    return {
+        "@context": framed["@context"],
+        "@graph": [
+            {f: item[f] for f in selected_fields if f in item} for item in graph
+        ],
+        "statistics": framed.get("statistics", {}),
+    }
