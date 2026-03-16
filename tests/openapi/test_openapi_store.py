@@ -13,40 +13,43 @@ ON ateco (json_extract(_text, '$.level'))
 """
 
 import json
+from pathlib import Path
 
 import pandas as pd
 import pytest
 import yaml
 from sqlalchemy import create_engine, text
 
-from tests.constants import DATADIR, TESTDIR
-
-
-def _filter(item):
-    # Remove @type.
-    item.pop("@type", None)
-    _text: str = json.dumps(item)
-    item["_text"] = _text
-    return {
-        k: v
-        for k, v in item.items()
-        if isinstance(v, (int, float, bool, str, type(None)))
-    }
+from tests.constants import ASSETS, DATADIR
+from tools.base import (
+    APPLICATION_LD_JSON_FRAMED,
+    JsonLD,
+    JsonLDFrame,
+)
+from tools.openapi import Apiable
 
 
 def test_create_db(snapshot):
-    data = json.load(open(TESTDIR / "ateco-2025.data.json"))
+    breakpoint()
     ateco_data_yaml = (
         DATADIR / "snapshots" / "ateco-2025" / "ateco-2025.data.yamlld"
     )
     with open(ateco_data_yaml) as f:
         data = yaml.safe_load(f)
 
-    data = (_filter(item) for item in data["@graph"])
-    df = pd.DataFrame(data)
-    sqlite_url = f"sqlite:///{snapshot}/data/ateco-2025/ateco-2025.db"
-
-    df.to_sql("ateco", sqlite_url, if_exists="replace", index=False)
+    frame: JsonLDFrame = JsonLDFrame.load(
+        fpath=ASSETS / "ateco-2025" / "ateco-2025.frame.yamlld"
+    )
+    assert "@graph" in data
+    assert "@context" in data
+    apiable = Apiable(data, frame=frame, format=APPLICATION_LD_JSON_FRAMED)
+    data: JsonLD = apiable.create_api_data()
+    df = pd.DataFrame(data["@graph"])
+    sqlite_url = Path(f"{snapshot}/ateco-2025/ateco-2025.db")
+    if sqlite_url.exists():
+        sqlite_url.unlink()
+    sqlite_con = f"sqlite:///{sqlite_url.as_posix()}"
+    df.to_sql("ateco", sqlite_con, if_exists="replace", index=False)
 
     raise NotImplementedError
 
@@ -85,7 +88,7 @@ def test_create_payload(snapshot):
       href: https://schema.gov.it/vocabularies/v1/vocabularies/inail/agente_causale/11110103
     """
 
-    sqlite_url = f"sqlite:///{snapshot}/data/ateco-2025/ateco-2025.db"
+    sqlite_url = f"sqlite:///{snapshot}/ateco-2025/ateco-2025.db"
     sqlite_engine = create_engine(sqlite_url)
 
     db = sqlite_engine
@@ -99,10 +102,8 @@ def test_create_payload(snapshot):
     payload = []
     for row in rows:
         item_data = json.loads(row["_text"])
-
         item_data.update(
             {
-                "id": str(row["id"]),
                 "uri": item_data.pop(URI),
                 "href": f"{api_base_url}/{row['id']}",
             }

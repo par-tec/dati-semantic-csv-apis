@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from pathlib import Path
 from typing import Any, cast
 
@@ -8,7 +9,16 @@ from jsonschema import ValidationError, validate
 from rdflib import DCTERMS
 from rdflib.plugins.parsers.jsonld import to_rdf
 
-from tools.base import DATADIR, JsonLD, JsonLDFrame, JSONLDText, RDFText
+from tools.base import (
+    APPLICATION_LD_JSON,
+    APPLICATION_LD_JSON_FRAMED,
+    DATADIR,
+    TEXT_TURTLE,
+    JsonLD,
+    JsonLDFrame,
+    JSONLDText,
+    RDFText,
+)
 from tools.vocabulary import LANG_NONE, Vocabulary, VocabularyMetadata
 
 log = logging.getLogger(__name__)
@@ -18,6 +28,42 @@ OPENAPI_30_SCHEMA_JSON = DATADIR / "openapi_30.schema.json"
 OAS30_SCHEMA = json.loads(OPENAPI_30_SCHEMA_JSON.read_text())
 
 URI = "url"
+
+
+def _remove_jsonld_keys(obj: Any) -> Any:
+    """Return a deep copy of `obj` without keys starting with '@'."""
+    if isinstance(obj, dict):
+        return {
+            k: _remove_jsonld_keys(v)
+            for k, v in obj.items()
+            if not k.startswith("@")
+        }
+    if isinstance(obj, list):
+        return [_remove_jsonld_keys(item) for item in obj]
+    return obj
+
+
+def _filter(item: dict):
+    """
+    Cleanup item before storing in DB:
+    - Remove JSON-LD specific keys (starting with '@')
+    - Ensure 'id' and 'url' fields are present and of type string
+    - Add a '_text' field with the JSON string representation of the item
+    - Return a dict with only primitive values (for DB storage)
+    """
+    # Work on a sanitized copy so callers do not observe side effects.
+    sanitized_item = _remove_jsonld_keys(item)
+
+    assert isinstance(sanitized_item.get("id"), str)
+    assert isinstance(sanitized_item.get(URI), str)
+
+    _text: str = json.dumps(sanitized_item)
+    enriched_item = {**sanitized_item, "_text": _text}
+    return {
+        k: v
+        for k, v in enriched_item.items()
+        if isinstance(v, (int, float, bool, str, type(None)))
+    }
 
 
 class Apiable(Vocabulary):
@@ -37,11 +83,16 @@ class Apiable(Vocabulary):
         self,
         rdf_data: RDFText | JSONLDText | JsonLD | Path,
         frame: JsonLDFrame,
-        format="text/turtle",
+        format=TEXT_TURTLE,
+        already_framed=False,
     ):
         if isinstance(rdf_data, (str, Path)):
             super().__init__(rdf_data, format=format)
         elif isinstance(rdf_data, dict):
+            if not format.startswith(APPLICATION_LD_JSON):
+                raise ValueError(
+                    f"Expected format {APPLICATION_LD_JSON} for dict input, got {format}"
+                )
             #
             # I just want to get the dict, with an empty graph.
             #
@@ -55,18 +106,55 @@ class Apiable(Vocabulary):
             raise ValueError(f"Invalid frame: {frame}")
 
         self.frame = frame
+        self._already_framed = bool(format == APPLICATION_LD_JSON_FRAMED)
 
-    def create_api_data(self) -> JsonLD:
+    def create_api_data(self, sample=False) -> JsonLD:
         """
         Frame the RDF data according to the provided JSON-LD frame.
 
         Returns:
             dict: Framed JSON-LD data ready for API output
         """
-        framed: JsonLD = self.project(self.frame)
-        assert "@graph" in framed
-        assert "@context" in framed
-        return framed
+        callbacks = [
+            lambda framed: {
+                "@context": framed["@context"],
+                "@graph": [_filter(item) for item in framed.get("@graph", [])],
+            },
+        ]
+        if not self._already_framed:
+            data: JsonLD = self.project(
+                self.frame,
+            )
+        else:
+            log.info("Data is already framed, skipping framing step")
+            data = self.json_ld
+
+        for callback in callbacks:
+            ts = time.time()
+            log.debug("Applying callback %s to framed data", callback)
+            data = callback(data)
+            log.debug(
+                "Callback %s took %.2f seconds", callback, time.time() - ts
+            )
+
+        assert "@graph" in data
+        assert "@context" in data
+        return data
+
+    def uri_uuid(self) -> str:
+        from hashlib import sha256
+
+        return sha256(self.uri().encode()).hexdigest()
+
+    def to_db(self, data: list[dict], datafile: Path, force: bool = False):
+        import pandas as pd
+
+        df = pd.DataFrame(data)
+        if force and datafile.exists():
+            datafile.unlink()
+        sqlite_con = f"sqlite:///{datafile.as_posix()}"
+
+        df.to_sql(self.uri_uuid(), sqlite_con, if_exists="replace", index=False)
 
     def json_schema(
         self, add_constraints=True, validate_output=True
