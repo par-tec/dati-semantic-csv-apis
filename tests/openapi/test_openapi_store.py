@@ -28,6 +28,7 @@ from tools.base import (
 from tools.openapi import Apiable
 
 
+@pytest.mark.asset
 def test_create_db(snapshot):
     ateco_data_yaml = (
         DATADIR / "snapshots" / "ateco-2025" / "ateco-2025.data.yamlld"

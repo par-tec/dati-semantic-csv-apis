@@ -24,6 +24,7 @@ from tools.vocabulary import LANG_NONE, Vocabulary, VocabularyMetadata
 
 log = logging.getLogger(__name__)
 
+type JsonLDFunction = Callable[[JsonLD], JsonLD | None]
 type OpenAPI = dict[str, Any]
 OPENAPI_30_SCHEMA_JSON = DATADIR / "openapi_30.schema.json"
 OAS30_SCHEMA = json.loads(OPENAPI_30_SCHEMA_JSON.read_text())
@@ -118,7 +119,7 @@ class Apiable(Vocabulary):
         Returns:
             dict: Framed JSON-LD data ready for API output
         """
-        callbacks: Iterable[Callable[[JsonLD], JsonLD | None]] = [
+        callbacks: Iterable[JsonLDFunction] = [
             lambda framed: {
                 "@context": framed["@context"],
                 "@graph": [

@@ -1,6 +1,7 @@
 import datetime
 import importlib
 import logging
+from collections.abc import Callable
 from decimal import Decimal
 from importlib.resources.abc import Traversable
 from pathlib import Path
@@ -42,6 +43,8 @@ JsonLD = TypedDict(
 )
 type RDFText = str
 type JSONLDText = str
+
+type JsonLDFunction = Callable[[JsonLD], JsonLD | None]
 
 
 class JsonLDFrame(dict):

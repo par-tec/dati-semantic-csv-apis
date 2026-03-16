@@ -1,7 +1,7 @@
 import json
 import logging
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, cast
 
@@ -13,6 +13,7 @@ from tools.base import (
     TEXT_TURTLE,
     JsonLD,
     JsonLDFrame,
+    JsonLDFunction,
     JSONLDText,
     RDFText,
 )
@@ -303,7 +304,7 @@ class Vocabulary:
         self,
         frame: JsonLDFrame | dict,
         batch_size: int = 0,
-        callbacks: Iterable[Callable[[JsonLD], JsonLD | None]] = (),
+        callbacks: Iterable[JsonLDFunction] = (),
     ) -> JsonLD:
         """
         Apply the frame to the RDF data and then project the result to only include fields in the frame context.
