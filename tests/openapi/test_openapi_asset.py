@@ -5,7 +5,7 @@ import yaml
 
 from tests.constants import ASSETS
 from tests.harness import assert_schema
-from tools.base import APPLICATION_LD_JSON_FRAMED, JsonLD, JsonLDFrame
+from tools.base import APPLICATION_LD_JSON_FRAMED, JsonLDFrame
 from tools.openapi import Apiable
 from tools.utils import SafeQuotedStringDumper
 
@@ -48,19 +48,21 @@ def test_schema_with_constraints_and_validation(vocabulary_data_yaml: Path):
     with vocabulary_data_yaml.open() as f:
         data = yaml.safe_load(f)
 
-    _data: JsonLD = {"@graph": data["@graph"], "@context": frame.context}
+    assert data["@context"] == frame.context, (
+        "Data context should match frame context"
+    )
     apiable = Apiable(
-        _data,
+        data,
         frame,
         format=APPLICATION_LD_JSON_FRAMED,
     )
 
     json_schema = apiable.json_schema(
-        schema_instances=_data, add_constraints=True, validate_output=True
+        schema_instances=data, add_constraints=True, validate_output=True
     )
 
     apiable.to_db(
-        data=_data,
+        data=data,
         datafile=datafile_db,
         force=True,
     )

@@ -161,7 +161,7 @@ class Apiable(Vocabulary):
 
         assert data
         rows = itertools.chain(
-            [{"id": "_metadata", "url": self.uri()}],
+            #        [{"id": "_metadata", "url": self.uri()}],
             (_filter(item) for item in data["@graph"]),
         )
         df = pd.DataFrame(rows)
