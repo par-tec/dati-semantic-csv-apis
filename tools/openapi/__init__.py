@@ -31,7 +31,10 @@ URI = "url"
 
 
 def _remove_jsonld_keys(obj: Any) -> Any:
-    """Return a deep copy of `obj` without keys starting with '@'."""
+    """Return a deep copy of `obj` without keys starting with '@'.
+
+    TODO: this is used by Tabular and Apiable: move to a common utils module.
+    """
     if isinstance(obj, dict):
         return {
             k: _remove_jsonld_keys(v)
@@ -118,7 +121,10 @@ class Apiable(Vocabulary):
         callbacks = [
             lambda framed: {
                 "@context": framed["@context"],
-                "@graph": [_filter(item) for item in framed.get("@graph", [])],
+                "@graph": [
+                    _remove_jsonld_keys(item)
+                    for item in framed.get("@graph", [])
+                ],
             },
         ]
         if not self._already_framed:
@@ -149,6 +155,7 @@ class Apiable(Vocabulary):
     def to_db(self, data: list[dict], datafile: Path, force: bool = False):
         import pandas as pd
 
+        data = (_filter(item) for item in data)
         df = pd.DataFrame(data)
         if force and datafile.exists():
             datafile.unlink()
@@ -157,7 +164,10 @@ class Apiable(Vocabulary):
         df.to_sql(self.uri_uuid(), sqlite_con, if_exists="replace", index=False)
 
     def json_schema(
-        self, add_constraints=True, validate_output=True
+        self,
+        schema_instances: JsonLD = None,
+        add_constraints=True,
+        validate_output=True,
     ) -> OpenAPI:
         """
         Generate an OpenAPI schema from the framed RDF data.
@@ -169,7 +179,11 @@ class Apiable(Vocabulary):
         Returns:
             OpenAPI: OpenAPI schema inferred from framed samples
         """
-        ld: JsonLD = self.create_api_data()
+        ld = (
+            schema_instances
+            if schema_instances is not None
+            else self.create_api_data()
+        )
         return create_schema_from_frame_and_data(
             self.frame,
             ld,

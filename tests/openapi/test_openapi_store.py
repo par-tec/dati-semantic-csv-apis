@@ -15,7 +15,6 @@ ON ateco (json_extract(_text, '$.level'))
 import json
 from pathlib import Path
 
-import pandas as pd
 import pytest
 import yaml
 from sqlalchemy import create_engine, text
@@ -30,7 +29,6 @@ from tools.openapi import Apiable
 
 
 def test_create_db(snapshot):
-    breakpoint()
     ateco_data_yaml = (
         DATADIR / "snapshots" / "ateco-2025" / "ateco-2025.data.yamlld"
     )
@@ -44,14 +42,24 @@ def test_create_db(snapshot):
     assert "@context" in data
     apiable = Apiable(data, frame=frame, format=APPLICATION_LD_JSON_FRAMED)
     data: JsonLD = apiable.create_api_data()
-    df = pd.DataFrame(data["@graph"])
     sqlite_url = Path(f"{snapshot}/ateco-2025/ateco-2025.db")
-    if sqlite_url.exists():
-        sqlite_url.unlink()
-    sqlite_con = f"sqlite:///{sqlite_url.as_posix()}"
-    df.to_sql("ateco", sqlite_con, if_exists="replace", index=False)
+    apiable.to_db(data=data["@graph"], datafile=sqlite_url, force=True)
 
-    raise NotImplementedError
+    sqlite_con = f"sqlite:///{sqlite_url.as_posix()}"
+    with create_engine(sqlite_con).connect() as conn:
+        rows = conn.execute(text("SELECT _text FROM ateco")).mappings().all()
+
+    from jsonschema import Draft7Validator
+
+    schema = DATADIR / "snapshots" / "ateco-2025" / "ateco-2025.oas3.yaml"
+    validator = Draft7Validator(yaml.safe_load(schema.read_text()))
+
+    errors = [
+        f"{e.json_path}: {e.message}"
+        for r in rows
+        for e in validator.iter_errors(json.loads(r["_text"]))
+    ]
+    assert not errors, "Invalid db._text JSON:\n" + "\n".join(errors[:5])
 
 
 URI = "url"

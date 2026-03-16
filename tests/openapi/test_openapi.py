@@ -10,12 +10,12 @@ from deepdiff import DeepDiff
 # from rdflib.plugins.parsers.jsonld import to_rdf
 from tests.constants import ASSETS, TESTCASES
 from tests.harness import compare_data
-from tools.base import JsonLDFrame, RDFText
+from tools.base import APPLICATION_LD_JSON_FRAMED, JsonLDFrame, RDFText
 from tools.openapi import (
     Apiable,
     OpenAPI,
 )
-from tools.utils import QuotedStringDumper
+from tools.utils import SafeQuotedStringDumper
 from tools.vocabulary import UnsupportedVocabularyError
 
 vocabularies = list(ASSETS.glob("**/*.data.yaml"))
@@ -60,13 +60,14 @@ def test_openapi_minimal(
     apiable = Apiable(
         {"@graph": data, "@context": frame.context},
         frame,
+        format=APPLICATION_LD_JSON_FRAMED,
     )
 
     json_schema = apiable.json_schema(
         add_constraints=True, validate_output=True
     )
     jsonschema_oas3_yaml.write_text(
-        yaml.dump(json_schema, Dumper=QuotedStringDumper, sort_keys=True)
+        yaml.dump(json_schema, Dumper=SafeQuotedStringDumper, sort_keys=True)
     )
     delta = DeepDiff(json_schema, expected_jsonschema, ignore_order=True)
 
@@ -112,8 +113,6 @@ def test_openapi_metadata(
     """
     oas3_yaml = snapshot_dir / "oas3.yaml"
 
-    # apiable = Apiable(data, frame)
-    # json_schema = apiable.json_schema()
     frame = JsonLDFrame(frame)
     apiable = Apiable(turtle, frame)
 
@@ -121,11 +120,7 @@ def test_openapi_metadata(
         openapi: OpenAPI = apiable.openapi()
     except UnsupportedVocabularyError as e:
         pytest.skip(f"Unsupported vocabulary: {e}")
-    oas3_yaml.write_text(
-        yaml.dump(openapi, Dumper=QuotedStringDumper, sort_keys=True)
-    )
-
-    compare_data(oas3_yaml, oas3_yaml)
+    compare_data(oas3_yaml, current_data=openapi, update=True)
 
 
 @pytest.mark.skip(reason="TODO: Add data.")
@@ -176,7 +171,7 @@ def test_schema_with_constraints_and_validation(vocabulary_data_yaml: Path):
                 "paths": {},
                 "components": {"schemas": {"Item": json_schema}},
             },
-            Dumper=QuotedStringDumper,
+            Dumper=SafeQuotedStringDumper,
             sort_keys=True,
         )
     )

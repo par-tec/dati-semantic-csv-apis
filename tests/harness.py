@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -6,6 +7,7 @@ from deepdiff import DeepDiff
 from git import Repo
 
 from tests.constants import TESTDIR
+from tools.utils import SafeQuotedStringDumper
 
 
 def assert_file(fileinfo: dict):
@@ -47,21 +49,25 @@ def compare_data(
     if current_data is None:
         current_data = yaml.safe_load(current_file.read_text())
 
-    if snapshot_file == current_file:
-        snapshot_raw: str = git_show_head(current_file)
+    # If can't get info from current_file, get data from git.
+    if current_data or (snapshot_file == current_file):
+        snapshot_raw: str = git_show_head(snapshot_file)
         snapshot_data = yaml.safe_load(snapshot_raw)
     else:
         snapshot_data = yaml.safe_load(snapshot_file.read_text())
 
     delta = DeepDiff(snapshot_data, current_data, ignore_order=True)
 
+    if update:
+        snapshot_file.write_text(
+            yaml.dump(
+                current_data, sort_keys=True, Dumper=SafeQuotedStringDumper
+            ),
+            encoding="utf-8",
+        )
+        logging.warning(f"Updated snapshot file: {snapshot_file}")
     if delta:
-        if update:
-            snapshot_file.write_text(
-                yaml.safe_dump(current_data, sort_keys=True), encoding="utf-8"
-            )
-            print(f"Updated snapshot file: {snapshot_file}")
-        assert delta, (
+        assert not delta, (
             f"File {current_file} differs from {snapshot_file}."
             f" Either {current_file} is wrong,"
             f" or {snapshot_file} has uncommitted changes."
