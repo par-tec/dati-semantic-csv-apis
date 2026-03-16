@@ -1,20 +1,27 @@
 - '@type': skos:Concept
-  id: 'eng'
+  deprecated: 'false'
+  id: eng
   label: English
-  label_it: inglese
   label_de: Englisch
-  label_sl: angleščina
-  deprecated: 'false'
-  url: http://publications.europa.eu/resource/authority/language/ENG
+  label_it: inglese
+  label_sl: "angle\u0161\u010Dina"
+  url: >-
+    http://publications.europa.eu/resource/authority/language/ENG
   vocab:
-  - url: "http://publications.europa.eu/resource/authority/language/0001"
-  - url: "http://publications.europa.eu/resource/authority/language/0002"
-  - url: 'http://publications.europa.eu/resource/authority/language'
+  - url: >-
+      http://publications.europa.eu/resource/authority/language/0001
+  - url: >-
+      http://publications.europa.eu/resource/authority/language/0002
+  - url: >-
+      http://publications.europa.eu/resource/authority/language
 - '@type': skos:Concept
-  id: 'spn'
-  label: Sanapaná
   deprecated: 'false'
-  url: http://publications.europa.eu/resource/authority/language/SPN
+  id: spn
+  label: "Sanapan\xE1"
+  url: >-
+    http://publications.europa.eu/resource/authority/language/SPN
   vocab:
-  - url: "http://publications.europa.eu/resource/authority/language/0003"
-  - url: 'http://publications.europa.eu/resource/authority/language'
+  - url: >-
+      http://publications.europa.eu/resource/authority/language/0003
+  - url: >-
+      http://publications.europa.eu/resource/authority/language

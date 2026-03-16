@@ -5,7 +5,7 @@ import yaml
 TESTDIR = Path(__file__).parent
 DATADIR = TESTDIR / "data"
 ASSETS = TESTDIR.parent / "assets" / "controlled-vocabularies"
-
+SNAPSHOTS = DATADIR / "snapshots"
 TESTCASES_YAML = TESTDIR / "testcases.yaml"
 
 
@@ -18,8 +18,8 @@ def _resolve_yaml_path(path_like: str) -> Path:
     candidates = (
         TESTDIR / path_like,
         DATADIR / path_like,
-        DATADIR / "snapshots" / path_like,
-        DATADIR / "snapshots" / "base" / path_like,
+        SNAPSHOTS / path_like,
+        SNAPSHOTS / "base" / path_like,
     )
     for c in candidates:
         if c.exists():

@@ -152,10 +152,11 @@ class Apiable(Vocabulary):
 
         return sha256(self.uri().encode()).hexdigest()
 
-    def to_db(self, data: list[dict], datafile: Path, force: bool = False):
+    def to_db(self, data: JsonLD, datafile: Path, force: bool = False):
         import pandas as pd
 
-        data = (_filter(item) for item in data)
+        assert data
+        data = (_filter(item) for item in data["@graph"])
         df = pd.DataFrame(data)
         if force and datafile.exists():
             datafile.unlink()
