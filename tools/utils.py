@@ -85,7 +85,7 @@ def expand_context_to_absolute_uris(context: dict) -> dict:
         if not isinstance(value, str):
             return False
         # Prefix declarations are typically absolute URIs
-        return value.startswith(("http://", "https://", "urn:"))
+        return value.startswith(("http://", "https://", "urn:", "mailto:"))
 
     for key, value in context.items():
         # Skip special JSON-LD keywords
