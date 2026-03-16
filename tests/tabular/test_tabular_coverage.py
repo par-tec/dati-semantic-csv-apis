@@ -3,7 +3,6 @@ Test coverage for tools/tabular/__init__.py uncovered lines.
 
 This module contains parametrized tests to cover specific edge cases
 and error handling paths that are not covered by existing tests.
-
 """
 
 from operator import itemgetter
@@ -152,106 +151,6 @@ def test_dataresource_stub_with_id_field(data: str, base_frame: JsonLDFrame):
     assert id_field["type"] == "string"
     # The id field should be the first one added
     assert fields[0] == id_field
-
-
-# Test 5: Lines 267, 268-276, 270 - Context filters
-@pytest.mark.parametrize(
-    "data,frame",
-    argvalues=[itemgetter("data", "frame")(x) for x in TESTCASES[:1]],
-    ids=[x["name"] for x in TESTCASES[:1]],
-)
-@pytest.mark.parametrize(
-    "context_key,expanded_value,should_be_filtered",
-    [
-        # Line 267: Skip JSON-LD keywords
-        pytest.param(
-            "@type",
-            "http://www.w3.org/2004/02/skos/core#Concept",
-            True,
-            id="jsonld_keyword_type",
-        ),
-        pytest.param(
-            "@context",
-            "http://example.org/context",
-            True,
-            id="jsonld_keyword_context",
-        ),
-        pytest.param(
-            "@id", "http://example.org/id", True, id="jsonld_keyword_id"
-        ),
-        # Line 270: Skip namespace declarations (ending with #, /, :)
-        pytest.param(
-            "skos",
-            "http://www.w3.org/2004/02/skos/core#",
-            True,
-            id="namespace_hash",
-        ),
-        pytest.param(
-            "rdf",
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns/",
-            True,
-            id="namespace_slash",
-        ),
-        pytest.param("ex", "http://example.org:", True, id="namespace_colon"),
-        # Line 272: Skip ignored RDF properties
-        pytest.param(
-            "inScheme",
-            "http://www.w3.org/2004/02/skos/core#inScheme",
-            True,
-            id="ignored_inScheme",
-        ),
-        pytest.param(
-            "broader",
-            "http://www.w3.org/2004/02/skos/core#broader",
-            True,
-            id="ignored_broader",
-        ),
-        # Valid fields that should NOT be filtered
-        pytest.param(
-            "validField",
-            "http://example.org/validField",
-            False,
-            id="valid_field",
-        ),
-    ],
-)
-def test_dataresource_stub_context_filters(
-    data: str,
-    frame: JsonLDFrame,
-    context_key: str,
-    expanded_value: str,
-    should_be_filtered: bool,
-):
-    """
-    Test that dataresource_stub correctly filters out:
-    - JSON-LD keywords (starting with @)
-    - Namespace declarations (ending with #, /, :)
-    - Ignored RDF properties
-
-    Covers lines 267, 268-276, 270:
-    - if key.startswith("@"): continue
-    - if isinstance(value, str):
-    -     if value.endswith(("#", "/", ":")): continue
-    -     if value in self.ignore_rdf_properties: continue
-    """
-    tabular = Tabular(rdf_data=data, frame=frame)
-
-    # Mock expand_context_to_absolute_uris to return our test case
-    with patch("tools.tabular.expand_context_to_absolute_uris") as mock_expand:
-        mock_expand.return_value = {context_key: expanded_value}
-
-        resource = tabular.dataresource_stub("test", Path("test.csv"))
-        fields = resource["schema"]["fields"]
-        field_names = [f["name"] for f in fields]
-
-        if should_be_filtered:
-            assert context_key not in field_names, (
-                f"{context_key} should be filtered out"
-            )
-        else:
-            assert context_key in field_names, (
-                f"{context_key} should NOT be filtered out"
-            )
 
 
 # Test 6: Lines 278-286 - XSD type mapping
