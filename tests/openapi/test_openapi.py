@@ -16,7 +16,6 @@ from tools.openapi import (
     OpenAPI,
 )
 from tools.utils import SafeQuotedStringDumper
-from tools.vocabulary import UnsupportedVocabularyError
 
 vocabularies: list[Path] = list(ASSETS.glob("**/*.data.yaml"))
 
@@ -96,6 +95,7 @@ def test_openapi_metadata(
     frame: JsonLDFrame,
     expected_jsonschema: dict,
     snapshot_dir: Path,
+    request: pytest.FixtureRequest,
 ):
     """
     Test the OpenAPI schema generation from JSON-LD frames and data.
@@ -113,15 +113,15 @@ def test_openapi_metadata(
     - The schema should include the expected properties and constraints
     - The schema should be valid according to the OpenAPI specification
     """
+    if "-eu-" in request.node.callspec.id:
+        pytest.skip("EU vocabularies are not supported yet")
+
     oas3_yaml = snapshot_dir / "oas3.yaml"
 
     frame = JsonLDFrame(frame)
     apiable = Apiable(turtle, frame)
 
-    try:
-        openapi: OpenAPI = apiable.openapi()
-    except UnsupportedVocabularyError as e:
-        pytest.skip(f"Unsupported vocabulary: {e}")
+    openapi: OpenAPI = apiable.openapi()
     compare_data(oas3_yaml, current_data=openapi, update=True)
 
 
@@ -158,6 +158,9 @@ def test_openapi_datastore(
     - I can query the datastore
     - The datastore content respects the JSON Schema
     """
+    if "-eu-" in request.node.callspec.id:
+        pytest.skip("EU vocabularies are not supported yet")
+
     oas3_yaml = SNAPSHOTS / "base" / f"{request.node.callspec.id}.oas3.yaml"
     validator = Draft7Validator(expected_jsonschema)
     datafile_db = snapshot_dir / "data.db"
@@ -167,18 +170,15 @@ def test_openapi_datastore(
     # When I create an Apiable instance...
     apiable = Apiable(turtle, frame)
 
-    try:
-        # .. and generate the iterable API payload...
-        data: JsonLD = apiable.create_api_data()
-        assert data
-        # ... and serialize it to a SQLite database
-        apiable.to_db(
-            data=data,
-            datafile=datafile_db,
-            force=True,
-        )
-    except UnsupportedVocabularyError as e:
-        pytest.skip(f"Unsupported vocabulary: {e}")
+    # .. and generate the iterable API payload...
+    data: JsonLD = apiable.create_api_data()
+    assert data
+    # ... and serialize it to a SQLite database
+    apiable.to_db(
+        data=data,
+        datafile=datafile_db,
+        force=True,
+    )
 
     # Then I can query the datastore ...
     rows = apiable.from_db(datafile_db)["@graph"]
