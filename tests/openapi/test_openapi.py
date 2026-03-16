@@ -56,8 +56,6 @@ def test_openapi_minimal(
     """
     jsonschema_oas3_yaml = snapshot_dir / "oas3_schema.yaml"
 
-    # apiable = Apiable(data, frame)
-    # json_schema = apiable.json_schema()
     frame = JsonLDFrame(frame)
     apiable = Apiable(
         {"@graph": data, "@context": frame.context},
@@ -65,8 +63,12 @@ def test_openapi_minimal(
         format=APPLICATION_LD_JSON_FRAMED,
     )
 
+    schema_instances: JsonLD = apiable.create_api_data()
+    assert schema_instances, "Expected non-empty schema instances"
     json_schema = apiable.json_schema(
-        add_constraints=True, validate_output=True
+        schema_instances=schema_instances,
+        add_constraints=True,
+        validate_output=True,
     )
     jsonschema_oas3_yaml.write_text(
         yaml.dump(json_schema, Dumper=SafeQuotedStringDumper, sort_keys=True)

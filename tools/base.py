@@ -35,7 +35,11 @@ FullScalar = JsonScalar + (
     Decimal,
 )  # Extended scalar types for JSON-LD data
 
-JsonLD = TypedDict("JsonLD", {"@context": dict, "@graph": list}, total=False)
+JsonLD = TypedDict(
+    "JsonLD",
+    {"@context": dict, "@graph": list, "statistics": dict},
+    total=False,
+)
 type RDFText = str
 type JSONLDText = str
 

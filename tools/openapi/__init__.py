@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Any, cast
 
@@ -87,7 +88,6 @@ class Apiable(Vocabulary):
         rdf_data: RDFText | JSONLDText | JsonLD | Path,
         frame: JsonLDFrame,
         format=TEXT_TURTLE,
-        already_framed=False,
     ):
         if isinstance(rdf_data, (str, Path)):
             super().__init__(rdf_data, format=format)
@@ -118,7 +118,7 @@ class Apiable(Vocabulary):
         Returns:
             dict: Framed JSON-LD data ready for API output
         """
-        callbacks = [
+        callbacks: Iterable[Callable[[JsonLD], JsonLD | None]] = [
             lambda framed: {
                 "@context": framed["@context"],
                 "@graph": [
@@ -138,7 +138,9 @@ class Apiable(Vocabulary):
         for callback in callbacks:
             ts = time.time()
             log.debug("Applying callback %s to framed data", callback)
-            data = callback(data)
+            _data: JsonLD | None = callback(data)
+            if _data is not None:
+                data = _data
             log.debug(
                 "Callback %s took %.2f seconds", callback, time.time() - ts
             )
@@ -156,8 +158,8 @@ class Apiable(Vocabulary):
         import pandas as pd
 
         assert data
-        data = (_filter(item) for item in data["@graph"])
-        df = pd.DataFrame(data)
+        rows = (_filter(item) for item in data["@graph"])
+        df = pd.DataFrame(rows)
         if force and datafile.exists():
             datafile.unlink()
         sqlite_con = f"sqlite:///{datafile.as_posix()}"
@@ -166,7 +168,7 @@ class Apiable(Vocabulary):
 
     def json_schema(
         self,
-        schema_instances: JsonLD = None,
+        schema_instances: JsonLD,
         add_constraints=True,
         validate_output=True,
     ) -> OpenAPI:
@@ -177,17 +179,18 @@ class Apiable(Vocabulary):
         then infers a JSON Schema from the framed data, and finally enhances
         the schema with constraints derived from the JSON-LD context.
 
+        Args:
+        - schema_instances: The framed JSON-LD data to use as samples for schema inference
+        - add_constraints: Whether to add validation constraints from the JSON-LD context
+        - validate_output: Whether to validate the framed data against the generated schema and include results in
+            x-validation.
         Returns:
             OpenAPI: OpenAPI schema inferred from framed samples
         """
-        ld = (
-            schema_instances
-            if schema_instances is not None
-            else self.create_api_data()
-        )
+        assert schema_instances
         return create_schema_from_frame_and_data(
             self.frame,
-            ld,
+            schema_instances,
             add_constraints=add_constraints,
             validate_output=validate_output,
         )
@@ -198,6 +201,12 @@ class Apiable(Vocabulary):
         together with the generated OpenAPI schema.
         """
         metadata: VocabularyMetadata = self.metadata()
+        schema_instances: JsonLD = self.create_api_data()
+        assert schema_instances, "Expected non-empty schema instances"
+        schema = self.json_schema(
+            schema_instances=schema_instances,
+            **kwargs,
+        )
         openapi = {
             "openapi": "3.0.0",
             "info": {
@@ -219,7 +228,7 @@ class Apiable(Vocabulary):
             },
             "paths": {},
             "servers": [],
-            "components": {"schemas": {"Item": self.json_schema(**kwargs)}},
+            "components": {"schemas": {"Item": schema}},
         }
 
         validate(instance=openapi, schema=OAS30_SCHEMA)
