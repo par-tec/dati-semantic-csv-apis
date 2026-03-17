@@ -7,6 +7,7 @@ import logging
 import sqlite3
 import urllib.parse
 import urllib.request
+from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 
@@ -35,6 +36,23 @@ SELECT DISTINCT * WHERE {
 }
 """
 SQLITE_URL = "sqlite:///harvest.db"
+
+
+@dataclass(frozen=True)
+class VocabularyRepository:
+    download_url: str
+    distribution: str
+    key_concept: str
+    rights_holder: str
+    vocabulary_uri: str
+
+    @property
+    def vocabulary_uuid(self) -> str:
+        return sha256(self.vocabulary_uri.encode("utf-8")).hexdigest()
+
+    @property
+    def agency_id(self) -> str:
+        return Path(self.rights_holder).name.lower()
 
 
 def harvest_vocabularies(sparql_endpoint: str) -> list[dict[str, str]]:
@@ -76,7 +94,7 @@ def test_harvest_vocabularies():
         assert "key_concept" in vocab, "Key concept missing in result"
 
 
-def collect_data(repository: dict[str, str], destination_folder: Path):
+def collect_data(repository: VocabularyRepository, destination_folder: Path):
     """
     Collect datasets from a repository URL, including:
     - *.data.yamlld files with the data to be published by the API
@@ -85,9 +103,9 @@ def collect_data(repository: dict[str, str], destination_folder: Path):
     """
     destination_folder.mkdir(parents=True, exist_ok=True)
 
-    source_url: str = repository["download_url"]
+    source_url: str = repository.download_url
     source_stem: str = source_url.removesuffix(".ttl")
-    key_concept: str = repository["key_concept"]
+    key_concept: str = repository.key_concept
 
     remote_to_local = {
         source_url: destination_folder / f"{key_concept}.ttl",
@@ -109,31 +127,30 @@ def collect_data(repository: dict[str, str], destination_folder: Path):
             )
     return {
         "path": destination_folder.as_posix(),
-        "vocabulary_ttl": destination_folder
-        / f"{repository['key_concept']}.ttl",
-        **repository,
+        "vocabulary_ttl": destination_folder / f"{repository.key_concept}.ttl",
+        **repository.__dict__,
     }
 
 
-ATECO = {
-    # "download_url": "https://github.com/istat/ndc-ontologie-vocabolari-controllati/tree/main/assets/controlled-vocabularies/economy/ateco-2025/ateco-2025.ttl",
-    "download_url": "https://raw.githubusercontent.com/par-tec/dati-semantic-csv-apis/refs/heads/assets/assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl",
-    "distribution": "https://w3id.org/italia/data/distribution/Ateco2025-RDF-Turtle",
-    "key_concept": "ateco-2025",
-    "rights_holder": "https://w3id.org/italia/data/public-organization/ISTAT",
-    "vocabulary_uri": "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
-}
-AGENTE_CAUSALE = {
-    "distribution": "https://w3id.org/italia/work-accident/data/adm_serv/distribution/AC_RDF_TURTLE",
-    "download_url": "https://raw.githubusercontent.com/par-tec/dati-semantic-csv-apis/refs/heads/assets/assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl",
-    "key_concept": "agente_causale",
-    "rights_holder": "https://w3id.org/italia/work-accident/data/organization/inail",
-    "vocabulary_uri": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale",
-}
+ATECO = VocabularyRepository(
+    # "download_url"="https://github.com/istat/ndc-ontologie-vocabolari-controllati/tree/main/assets/controlled-vocabularies/economy/ateco-2025/ateco-2025.ttl",
+    download_url="https://raw.githubusercontent.com/par-tec/dati-semantic-csv-apis/refs/heads/assets/assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl",
+    distribution="https://w3id.org/italia/data/distribution/Ateco2025-RDF-Turtle",
+    key_concept="ateco-2025",
+    rights_holder="https://w3id.org/italia/data/public-organization/ISTAT",
+    vocabulary_uri="https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
+)
+AGENTE_CAUSALE = VocabularyRepository(
+    distribution="https://w3id.org/italia/work-accident/data/adm_serv/distribution/AC_RDF_TURTLE",
+    download_url="https://raw.githubusercontent.com/par-tec/dati-semantic-csv-apis/refs/heads/assets/assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl",
+    key_concept="agente_causale",
+    rights_holder="https://w3id.org/italia/work-accident/data/organization/inail",
+    vocabulary_uri="https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale",
+)
 
 SNAPSHOT_REPOSITORIES = {
-    ATECO["key_concept"]: ATECO,
-    AGENTE_CAUSALE["key_concept"]: AGENTE_CAUSALE,
+    ATECO.key_concept: ATECO,
+    AGENTE_CAUSALE.key_concept: AGENTE_CAUSALE,
 }
 
 
@@ -176,31 +193,78 @@ def _db_row(item: dict) -> dict:
     return row
 
 
-def _quoted_identifier(identifier: str) -> str:
-    return '"' + identifier.replace('"', '""') + '"'
+class HarvestDatabaseManager:
+    def __init__(self, db_url: str):
+        self.db_url = db_url
+        self.sqlite_path = _sqlite_path(db_url)
 
+    @staticmethod
+    def _quoted_identifier(identifier: str) -> str:
+        return '"' + identifier.replace('"', '""') + '"'
 
-def _write_rows_to_table(
-    conn: sqlite3.Connection, table_name: str, rows: list[dict]
-) -> None:
-    quoted_table_name = _quoted_identifier(table_name)
-    conn.execute(f"DROP TABLE IF EXISTS {quoted_table_name}")
+    def upsert_metadata(
+        self, repository: VocabularyRepository, openapi_json: str
+    ) -> None:
+        with sqlite3.connect(self.sqlite_path) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS _metadata (
+                    vocabulary_uuid TEXT PRIMARY KEY,
+                    vocabulary_uri TEXT NOT NULL,
+                    agency_id TEXT,
+                    key_concept TEXT NOT NULL,
+                    openapi TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                INSERT INTO _metadata (
+                    vocabulary_uuid,
+                    vocabulary_uri,
+                    agency_id,
+                    key_concept,
+                    openapi
+                ) VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(vocabulary_uuid) DO UPDATE SET
+                    vocabulary_uri = excluded.vocabulary_uri,
+                    agency_id = excluded.agency_id,
+                    key_concept = excluded.key_concept,
+                    openapi = excluded.openapi
+                """,
+                (
+                    repository.vocabulary_uuid,
+                    repository.vocabulary_uri,
+                    repository.agency_id,
+                    repository.key_concept,
+                    openapi_json,
+                ),
+            )
 
-    if not rows:
-        conn.execute(f"CREATE TABLE {quoted_table_name} (_text TEXT)")
-        return
+    def replace_rows_table(self, table_name: str, rows: list[dict]) -> None:
+        quoted_table_name = self._quoted_identifier(table_name)
+        with sqlite3.connect(self.sqlite_path) as conn:
+            conn.execute(f"DROP TABLE IF EXISTS {quoted_table_name}")
 
-    columns = list(rows[0].keys())
-    quoted_columns = [_quoted_identifier(column) for column in columns]
-    column_defs = ", ".join(f"{column} TEXT" for column in quoted_columns)
-    placeholders = ", ".join("?" for _ in columns)
-    insert_columns = ", ".join(quoted_columns)
+            if not rows:
+                conn.execute(f"CREATE TABLE {quoted_table_name} (_text TEXT)")
+                return
 
-    conn.execute(f"CREATE TABLE {quoted_table_name} ({column_defs})")
-    conn.executemany(
-        f"INSERT INTO {quoted_table_name} ({insert_columns}) VALUES ({placeholders})",
-        [tuple(row.get(column) for column in columns) for row in rows],
-    )
+            columns = list(rows[0].keys())
+            quoted_columns = [
+                self._quoted_identifier(column) for column in columns
+            ]
+            column_defs = ", ".join(
+                f"{column} TEXT" for column in quoted_columns
+            )
+            placeholders = ", ".join("?" for _ in columns)
+            insert_columns = ", ".join(quoted_columns)
+
+            conn.execute(f"CREATE TABLE {quoted_table_name} ({column_defs})")
+            conn.executemany(
+                f"INSERT INTO {quoted_table_name} ({insert_columns}) VALUES ({placeholders})",
+                [tuple(row.get(column) for column in columns) for row in rows],
+            )
 
 
 def _openapi_path(folder: Path, key_concept: str) -> Path:
@@ -216,7 +280,7 @@ def _openapi_path(folder: Path, key_concept: str) -> Path:
     )
 
 
-def add_data_to_db(folder: Path, db_url: str, data: dict[str, str]):
+def add_data_to_db(folder: Path, db_url: str, repository: VocabularyRepository):
     """
     Add data from the given folder to the database at the given URL.
     The db_url is a sqlite URL where every vocabulary
@@ -232,11 +296,7 @@ def add_data_to_db(folder: Path, db_url: str, data: dict[str, str]):
     - *.frame.yamlld files with the framing context to be used for the API
     - openapi.yaml files with the OpenAPI specification to be used for the API
     """
-    key_concept = data["key_concept"]
-    vocabulary_uri = data["vocabulary_uri"]
-    vocabulary_uuid = sha256(vocabulary_uri.encode("utf-8")).hexdigest()
-    rights_holder = data["rights_holder"]
-    agency_id = Path(rights_holder).name.lower()
+    key_concept = repository.key_concept
 
     openapi_path = _openapi_path(folder, key_concept)
     data_path = folder / f"{key_concept}.data.yamlld"
@@ -245,57 +305,24 @@ def add_data_to_db(folder: Path, db_url: str, data: dict[str, str]):
     openapi_json = json.dumps(openapi)
     rows = [_db_row(item) for item in data_payload.get("@graph", [])]
 
-    sqlite_path = _sqlite_path(db_url)
-    with sqlite3.connect(sqlite_path) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS _metadata (
-                vocabulary_uuid TEXT PRIMARY KEY,
-                vocabulary_uri TEXT NOT NULL,
-                agency_id TEXT,
-                key_concept TEXT NOT NULL,
-                openapi TEXT NOT NULL
-            )
-            """
-        )
-        conn.execute(
-            """
-            INSERT INTO _metadata (
-                vocabulary_uuid,
-                vocabulary_uri,
-                agency_id,
-                key_concept,
-                openapi
-            ) VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(vocabulary_uuid) DO UPDATE SET
-                vocabulary_uri = excluded.vocabulary_uri,
-                agency_id = excluded.agency_id,
-                key_concept = excluded.key_concept,
-                openapi = excluded.openapi
-            """,
-            (
-                vocabulary_uuid,
-                vocabulary_uri,
-                agency_id,
-                key_concept,
-                openapi_json,
-            ),
-        )
-        _write_rows_to_table(conn, vocabulary_uuid, rows)
+    db = HarvestDatabaseManager(db_url)
+    db.upsert_metadata(repository=repository, openapi_json=openapi_json)
+    db.replace_rows_table(table_name=repository.vocabulary_uuid, rows=rows)
 
 
 def test_add_data_to_db(tmp_path: Path):
-    data = ATECO
-    collect_data(data, tmp_path)
+    repository = ATECO
+    collect_data(repository, tmp_path)
 
-    add_data_to_db(folder=tmp_path, db_url=SQLITE_URL, data=data)
-    with sqlite3.connect(_sqlite_path(SQLITE_URL)) as conn:
+    db_url = f"sqlite:///{(tmp_path / 'harvest.db').as_posix()}"
+    add_data_to_db(folder=tmp_path, db_url=db_url, repository=repository)
+    with sqlite3.connect(_sqlite_path(db_url)) as conn:
         metadata_df: pd.DataFrame = pd.read_sql(
             "SELECT vocabulary_uuid, vocabulary_uri, agency_id, key_concept, openapi FROM _metadata",
             conn,
         )
         vocabulary_df: pd.DataFrame = pd.read_sql(
-            f'SELECT id, url, _text FROM "{sha256(data["vocabulary_uri"].encode("utf-8")).hexdigest()}" LIMIT 5',
+            f'SELECT id, url, _text FROM "{repository.vocabulary_uuid}" LIMIT 5',
             conn,
         )
 
@@ -321,7 +348,7 @@ def test_add_data_to_db(tmp_path: Path):
             )
 
 
-def test_harvest_path():
+def test_harvest_path(tmp_path: Path):
     """
     Iterate through the SNAPSHOTS directory
     and add all the vocabularies to the database.
@@ -329,7 +356,7 @@ def test_harvest_path():
     Don't use the sparql query to get data.
     Openapi files are not openapi.yaml but oas3.yaml.
     """
-    db_url = SQLITE_URL
+    db_url = f"sqlite:///{(tmp_path / 'harvest.db').as_posix()}"
     snapshot_dirs = sorted(
         directory
         for directory in SNAPSHOTS.iterdir()
@@ -340,7 +367,9 @@ def test_harvest_path():
 
     for snapshot_dir in snapshot_dirs:
         repository = SNAPSHOT_REPOSITORIES[snapshot_dir.name]
-        add_data_to_db(folder=snapshot_dir, db_url=db_url, data=repository)
+        add_data_to_db(
+            folder=snapshot_dir, db_url=db_url, repository=repository
+        )
 
     with sqlite3.connect(_sqlite_path(db_url)) as conn:
         metadata_df: pd.DataFrame = pd.read_sql(
@@ -355,9 +384,7 @@ def test_harvest_path():
 
         for snapshot_dir in snapshot_dirs:
             repository = SNAPSHOT_REPOSITORIES[snapshot_dir.name]
-            table_name = sha256(
-                repository["vocabulary_uri"].encode("utf-8")
-            ).hexdigest()
+            table_name = repository.vocabulary_uuid
             row_count = conn.execute(
                 f'SELECT COUNT(*) FROM "{table_name}"'
             ).fetchone()[0]
