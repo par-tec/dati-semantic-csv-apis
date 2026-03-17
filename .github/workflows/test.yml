@@ -21,21 +21,22 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Scarica l'artifact reale da GitHub Actions
-          ARTIFACT_URL="https://api.github.com/repos/par-tec/dati-semantic-csv-apis/actions/artifacts/5951733517/zip"
-          curl -L -H "Authorization: Bearer ${GH_TOKEN}" \
-            "$ARTIFACT_URL" -o /tmp/artifact.zip
-          
-          # Estrai il binario
+         # ID dell'ultimo run reale della workflow "Test"
+         RUN_ID=$(curl -s -H "Authorization: Bearer ${GH_TOKEN}" \
+          https://api.github.com/repos/par-tec/dati-semantic-csv-apis/actions/runs \
+          | jq -r '.workflow_runs[] | select(.name=="Test") | select(.conclusion=="success") | .id' | head -n1)
+
+          # Ottieni l'URL dell'artifact chiamato "cli-binary"
+          ARTIFACT_URL=$(curl -s -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/par-tec/dati-semantic-csv-apis/actions/runs/$RUN_ID/artifacts" \
+          | jq -r '.artifacts[] | select(.name=="cli-binary") | .archive_download_url')
+
+          # Scarica e estrai il binario
+          curl -L -H "Authorization: Bearer ${GH_TOKEN}" "$ARTIFACT_URL" -o /tmp/artifact.zip
           mkdir -p dist
           unzip -o /tmp/artifact.zip -d dist
-          
-          # Rendi eseguibile
           chmod +x dist/schema_gov_it_tools.bin
-          
-          # Controllo contenuto
           ls -l dist
-
       - name: Upload CLI binary artifact
         uses: actions/upload-artifact@v7
         with:
