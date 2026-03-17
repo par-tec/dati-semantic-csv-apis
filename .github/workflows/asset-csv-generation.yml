@@ -103,6 +103,13 @@ jobs:
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+    - name: Debug workflow names
+      run: |
+        REPO="par-tec/dati-semantic-csv-apis"
+        curl -s \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          https://api.github.com/repos/${REPO}/actions/runs \
+          | jq -r '.workflow_runs[].name' | sort -u
     - name: Download binary artifact
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -114,13 +121,19 @@ jobs:
         RUN_ID=$(curl -s \
           -H "Authorization: Bearer ${GH_TOKEN}" \
           https://api.github.com/repos/${REPO}/actions/runs \
-          | jq -r '.workflow_runs[]
-            | select(.name=="test-cli")
-            | select(.conclusion=="success")
-            | .id' \
-            | head -n 1)
-
+          | jq -r '
+            .workflow_runs
+            | map(select(.name=="test-cli"))
+            | first
+            | .id
+          ')
+  
         echo "Latest run ID: ${RUN_ID}"
+
+        if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+          echo "No run found for workflow test-cli"
+          exit 1
+        fi
 
         echo "Fetching artifacts..."
 
@@ -133,6 +146,12 @@ jobs:
             | .archive_download_url')
 
         echo "Artifact URL: ${ARTIFACT_URL}"
+
+        if [ -z "$ARTIFACT_URL" ] || [ "$ARTIFACT_URL" = "null" ]; then
+          echo "No artifact found in run ${RUN_ID}"
+          exit 1
+        fi
+
         curl -L \
           -H "Authorization: Bearer ${GH_TOKEN}" \
           "${ARTIFACT_URL}" \
@@ -231,13 +250,19 @@ jobs:
         RUN_ID=$(curl -s \
           -H "Authorization: Bearer ${GH_TOKEN}" \
           https://api.github.com/repos/${REPO}/actions/runs \
-          | jq -r '.workflow_runs[]
-            | select(.name=="test-cli")
-            | select(.conclusion=="success")
-            | .id' \
-            | head -n 1)
+          | jq -r '
+            .workflow_runs
+            | map(select(.name=="test-cli"))
+            | first
+            | .id
+          ')
 
         echo "Latest run ID: ${RUN_ID}"
+
+        if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+          echo "No run found for workflow test-cli"
+          exit 1
+        fi        
 
         echo "Fetching artifacts..."
 
@@ -250,6 +275,11 @@ jobs:
             | .archive_download_url')
 
         echo "Artifact URL: ${ARTIFACT_URL}"
+
+        if [ -z "$ARTIFACT_URL" ] || [ "$ARTIFACT_URL" = "null" ]; then
+          echo "No artifact found in run ${RUN_ID}"
+          exit 1
+        fi
         curl -L \
           -H "Authorization: Bearer ${GH_TOKEN}" \
           "${ARTIFACT_URL}" \
