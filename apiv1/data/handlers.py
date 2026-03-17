@@ -186,7 +186,6 @@ async def show_vocabulary_spec(
     """
     # Open the sqlite database and retrieve the OAS spec from the _metadata table.
     query = """SELECT openapi FROM _metadata WHERE agency_id = ? AND key_concept = ?"""
-    breakpoint()
     db_connection = request.state.db_connection
     if db_connection is None:
         raise NotImplementedError("Harvest DB not configured")

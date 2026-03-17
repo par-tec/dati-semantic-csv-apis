@@ -2,6 +2,7 @@
 Tests for the show_vocabulary_spec endpoint.
 """
 
+import json
 import sqlite3
 from pathlib import Path
 
@@ -13,25 +14,8 @@ from tests.harness import client_harness
 
 TESTDIR = Path(__file__).parent.parent
 
-_VOCAB_OAS = {
-    "info": {
-        "title": "Test Vocabulary",
-        "version": "1.0.0",
-        "description": "A test controlled vocabulary",
-    },
-    "components": {
-        "schemas": {
-            "Item": {
-                "type": "object",
-                "properties": {
-                    "id": {"type": "string"},
-                    "label_it": {"type": "string"},
-                },
-                "required": ["id", "label_it"],
-            }
-        }
-    },
-}
+ATECO_OAS = TESTDIR / "api" / "ateco-2025.oas3.yaml"
+ATECO_SPEC = yaml.safe_load(ATECO_OAS.read_text())
 
 
 @pytest.fixture
@@ -44,7 +28,7 @@ def harvest_db(tmp_path):
     )
     conn.execute(
         "INSERT INTO _metadata VALUES (?, ?, ?)",
-        ("istat", "test-vocab", yaml.dump(_VOCAB_OAS)),
+        ("istat", "ateco-2025", json.dumps(ATECO_SPEC)),
     )
     conn.commit()
     conn.close()
@@ -56,16 +40,14 @@ def sample_db():
     return (Path(__file__).parent.parent / "harvest.db").as_posix()
 
 
-def test_show_vocabulary_spec(sample_db):
+def test_show_vocabulary_spec(harvest_db):
     """Returns 200 with merged OAS spec in application/openapi+yaml."""
     with client_harness(
         create_app,
         Config(
             API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-            VOCABULARY_DATAFILE=str(
-                TESTDIR / "api" / "agente_causale.short.yaml"
-            ),
-            HARVEST_DB=sample_db,
+            VOCABULARY_DATAFILE="",
+            HARVEST_DB=harvest_db,
         ),
     ) as (client, _logs):
         response = client.get("/istat/ateco-2025/openapi.yaml")
@@ -74,8 +56,11 @@ def test_show_vocabulary_spec(sample_db):
         assert "application/openapi+yaml" in response.headers["content-type"]
 
         spec = yaml.safe_load(response.text)
-        assert spec["info"]["title"] == "Test Vocabulary"
-        assert "Item" in spec["components"]["schemas"]
+        assert spec["info"]["title"] == ATECO_SPEC["info"]["title"]
+        assert (
+            spec["components"]["schemas"]["Item"]
+            == ATECO_SPEC["components"]["schemas"]["Item"]
+        )
         # The vocabulary-specific server URL should have been appended.
         server_urls = [s["url"] for s in spec.get("servers", [])]
         assert any("istat/ateco-2025" in url for url in server_urls)

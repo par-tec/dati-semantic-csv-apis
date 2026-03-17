@@ -16,7 +16,6 @@ from connexion import AsyncApp, ConnexionMiddleware
 from connexion.exceptions import ProblemException
 from connexion.middleware.main import MiddlewarePosition
 
-from .download import load_vocabulary_items
 from .errors import (
     handle_exception,
     handle_not_implemented,
@@ -57,9 +56,10 @@ async def load_dataset_handler(
         Dictionary containing the application state (vocabulary_items).
     """
     logger.info("Application startup: loading vocabulary dataset")
-    vocabulary_items = load_vocabulary_items(
-        datafile=datafile, api_base_url=api_base_url
-    )
+    vocabulary_items = None
+    # load_vocabulary_items(
+    #     datafile=datafile, api_base_url=api_base_url
+    # )
 
     # Load base OAS spec once for use in show_vocabulary_spec
     with open(Path(__file__).parent / "openapi.yaml") as f:
