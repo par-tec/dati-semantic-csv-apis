@@ -131,7 +131,8 @@ paths:
   #
   # Data endpoints.
   #
-  /dump:
+  /{agencyId}/{keyConcept}/dump:
+
     get:
       operationId: data.handlers.dump_vocabulary_dataset
       description: |-
@@ -145,6 +146,9 @@ paths:
         may return a 300 Redirect response
         to static files containing the whole dataset
         according to the vocabulary serialization format.
+      parameters:
+      - $ref: '#/components/parameters/agencyIdPath'
+      - $ref: '#/components/parameters/keyConceptPath'
       security:
       - {}
       - high-volume: []
@@ -171,7 +175,7 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         'default':
           $ref: '#/components/responses/GenericError'
-  /:
+  /{agencyId}/{keyConcept}:
     get:
       summary: List all vocabulary items.
       description: |-
@@ -187,6 +191,8 @@ paths:
       tags:
       - retrieve-data
       parameters:
+      - $ref: '#/components/parameters/agencyIdPath'
+      - $ref: '#/components/parameters/keyConceptPath'
       # Pagination.
       - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/offset'
@@ -210,7 +216,7 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         'default':
           $ref: '#/components/responses/GenericError'
-  /{id}:
+  /{agencyId}/{keyConcept}/{id}:
     get:
       summary: Retrieve a single vocabulary item by its ID.
       description: |-
@@ -275,6 +281,8 @@ paths:
       tags:
       - retrieve-data
       parameters:
+      - $ref: '#/components/parameters/agencyIdPath'
+      - $ref: '#/components/parameters/keyConceptPath'
       - name: id
         in: path
         required: true
@@ -381,10 +389,7 @@ components:
           "@id": l0:hasMember
       properties:
         totalResults:
-          type: integer
-          format: int32
-          minimum: 0
-          maximum: 100
+          $ref: "#/components/schemas/Offset"
         limit:
           $ref: "#/components/schemas/Limit"
         offset:
@@ -398,7 +403,7 @@ components:
     Item:
       example:
         id: "11160204"
-        label_it: Idrogeno solforato
+        label: Idrogeno solforato
         level: 3
         parent:
         - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
@@ -410,7 +415,7 @@ components:
           minLength: 1
           pattern: ^[A-Za-z0-9._-]+$
           type: string
-        label_it:
+        label:
           maxLength: 500
           minLength: 1
           type: string
@@ -444,11 +449,11 @@ components:
           type: array
       required:
       - id
-      - label_it
+      - label
       - level
       - parent
       - url
-      - vocab
+      # - vocab  # vocab is not required because some items may not have the skos:inScheme property.
       type: object
       x-jsonld-context:
         "@vocab": https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/
@@ -457,7 +462,7 @@ components:
         dct: http://purl.org/dc/terms/
         id:
           "@id": skos:notation
-        label_it:
+        label:
           "@id": skos:prefLabel
           "@language": it
         label_de:

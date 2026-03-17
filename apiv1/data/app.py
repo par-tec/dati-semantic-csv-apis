@@ -35,6 +35,76 @@ class Config(TypedDict):
 logger = logging.getLogger(__name__)
 
 
+def _validate_db(harvest_db: str) -> None:
+    """Validate that the harvest.db file exists and has the expected structure."""
+    from jsonschema import Draft7Validator, validate
+
+    conn: sqlite3.Connection | None = None
+
+    def _has_unique_index_on_metadata(cursor: sqlite3.Cursor) -> bool:
+        indexes = list(
+            cursor.execute(
+                "select name from sqlite_master where type = 'index' and tbl_name = '_metadata'"
+            ).fetchall()
+        )
+        assert len(indexes) == 2
+        assert indexes[0][0] == "sqlite_autoindex__metadata_1"
+        assert indexes[1][0] == "agency_id_key_concept_unique"
+        return True
+
+    try:
+        conn = sqlite3.connect(harvest_db, check_same_thread=False)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='_metadata'"
+        )
+        if not cursor.fetchone():
+            raise ValueError("harvest.db is missing required _metadata table")
+
+        cursor.execute("PRAGMA table_info(_metadata)")
+        table_info = {row[1]: row for row in cursor.fetchall()}
+        required_columns = {
+            "vocabulary_uuid",
+            "agency_id",
+            "key_concept",
+            "openapi",
+        }
+        missing_columns = required_columns.difference(table_info)
+        if missing_columns:
+            raise ValueError(
+                "harvest.db _metadata table is missing required columns: "
+                + ", ".join(sorted(missing_columns))
+            )
+
+        if table_info["vocabulary_uuid"][5] != 1:
+            raise ValueError(
+                "harvest.db _metadata.vocabulary_uuid must be a primary key"
+            )
+
+        # _has_unique_index_on_metadata( cursor )
+        cursor.execute(
+            "SELECT COUNT(*) FROM _metadata WHERE agency_id IS NULL OR key_concept IS NULL"
+        )
+        if cursor.fetchone()[0] > 0:
+            raise ValueError(
+                "harvest.db _metadata table has null values in agency_id or key_concept columns"
+            )
+
+        # _metadata.openapi should be valid OAS3 spec
+        for row in cursor.execute("SELECT openapi FROM _metadata"):
+            yaml.safe_load(row[0])
+            validate(
+                instance=yaml.safe_load(row[0]),
+                schema=Draft7Validator.META_SCHEMA,
+            )
+    except Exception as e:
+        logger.error("Error validating harvest.db: %s", e)
+        raise ValueError(f"Invalid harvest.db: {e}") from e
+    finally:
+        if conn is not None:
+            conn.close()
+
+
 @contextlib.asynccontextmanager
 async def load_dataset_handler(
     datafile: str,
@@ -68,9 +138,11 @@ async def load_dataset_handler(
     # Open a single read-only connection that is reused across all requests
     db_conn: sqlite3.Connection | None = None
     if harvest_db:
+        _validate_db(harvest_db)
         db_conn = sqlite3.connect(harvest_db, check_same_thread=False)
         db_conn.row_factory = sqlite3.Row
         logger.info("Opened harvest DB connection: %s", harvest_db)
+        # Validate the _metadata table exists and is accessible
 
     logger.info("Application startup complete")
 
@@ -103,7 +175,8 @@ def create_app(config: Config | None = None) -> AsyncApp:
     if config is None:
         config = Config(
             API_BASE_URL="http://localhost:8080",
-            VOCABULARY_DATAFILE="assets/controlled-vocabularies/agente_causale/latest/agente_causale.data.yaml",
+            VOCABULARY_DATAFILE="",
+            HARVEST_DB="harvest.db",
         )
     assert config is not None, "Config must be provided to create_app"
 

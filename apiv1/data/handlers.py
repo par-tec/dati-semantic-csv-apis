@@ -9,15 +9,124 @@ import copy
 import gzip
 import json
 import logging
+import sqlite3
 from typing import Any
 
 import yaml
-from connexion import request
+from connexion import ProblemException, request
 from connexion.lifecycle import ConnexionResponse
 
-from .errors import safe_problem
-
 log = logging.getLogger(__name__)
+
+
+def _get_metadata_or_fail(
+    db_connection: sqlite3.Connection,
+    agency_id: str,
+    key_concept: str,
+    require_vocabulary_uuid: bool = True,
+) -> sqlite3.Row:
+    """Return the _metadata row for (agency_id, key_concept), or None."""
+    cursor = db_connection.execute(
+        "SELECT * FROM _metadata WHERE agency_id = ? AND key_concept = ?",
+        (agency_id, key_concept),
+    )
+    row: sqlite3.Row | None = cursor.fetchone()
+    if not row:
+        raise ProblemException(
+            title="Not Found",
+            status=404,
+            instance=str(request.url),
+        )
+    if require_vocabulary_uuid:
+        vocabulary_uuid = row["vocabulary_uuid"]
+        if not vocabulary_uuid:
+            log.error(
+                "Vocabulary UUID not found for agency_id=%s and key_concept=%s",
+                agency_id,
+                key_concept,
+            )
+            raise ProblemException(
+                title="Server Error",
+                status=500,
+                instance=str(request.url),
+            )
+    assert row, "Row should be present since we checked for it above"
+    return row
+
+
+def _get_default_metadata_or_fail(
+    db_connection: sqlite3.Connection,
+) -> sqlite3.Row:
+    """Return the first available metadata row from harvest DB."""
+    row = db_connection.execute(
+        "SELECT * FROM _metadata ORDER BY rowid LIMIT 1"
+    ).fetchone()
+    if not row:
+        raise ProblemException(
+            title="Not Found",
+            status=404,
+            detail="No vocabulary metadata available",
+            instance=str(request.url),
+        )
+    return row
+
+
+def _get_vocabulary_items_or_fail(
+    db_connection: sqlite3.Connection, vocabulary_uuid: str
+) -> list[dict[str, Any]]:
+    """Return the list of vocabulary items for the given vocabulary UUID."""
+    try:
+        query = f"""SELECT _text FROM \"{vocabulary_uuid}\""""
+        rows = db_connection.execute(query).fetchall()
+        return [json.loads(row["_text"]) for row in rows]
+    except sqlite3.OperationalError as e:
+        log.error(
+            "Operational error while fetching vocabulary items for UUID %s: %s",
+            vocabulary_uuid,
+            str(e),
+        )
+        raise ProblemException(
+            title="Server Error",
+            status=500,
+            detail="Error fetching vocabulary items from database",
+            instance=str(request.url),
+        )
+    except Exception as e:
+        log.exception("Database error while fetching vocabulary items")
+        raise e
+
+
+def _query_vocabulary_items_or_fail(
+    db_connection: sqlite3.Connection,
+    vocabulary_uuid: str,
+    limit: int = 10,
+    offset: int = 0,
+    cursor: str | None = None,
+    label: str | None = None,
+) -> list[dict[str, Any]]:
+    """Return paginated vocabulary items with an optional label filter."""
+    items = _get_vocabulary_items_or_fail(db_connection, vocabulary_uuid)
+
+    if label:
+        label_lower = str(label).lower()
+        items = [
+            item
+            for item in items
+            if label_lower
+            in item.get("label", item.get("label_it", "")).lower()
+        ]
+
+    if cursor:
+        cursor_index = next(
+            (i for i, item in enumerate(items) if item.get("id") == cursor),
+            -1,
+        )
+        if cursor_index >= 0:
+            items = items[cursor_index + 1 :]
+    else:
+        items = items[offset:]
+
+    return items[:limit]
 
 
 async def status() -> ConnexionResponse:
@@ -35,6 +144,8 @@ async def status() -> ConnexionResponse:
 
 
 async def show_items(
+    agencyId: str | None = None,
+    keyConcept: str | None = None,
     limit: int = 20,
     offset: int = 0,
     cursor: str | None = None,
@@ -55,37 +166,29 @@ async def show_items(
         and response headers.
     """
     assert isinstance(limit, int)
+    db_connection = request.state.db_connection
+    if db_connection is None:
+        raise ValueError("Harvest DB not configured")
 
     log.debug("Extra query parameters: %s", kwargs)
-    # Access dataset from request state (set by lifespan handler)
-    vocabulary_items = request.state.vocabulary_items
-    items = vocabulary_items.copy()
-
-    # Apply label filter if provided
-    if label:
-        items = [
-            item
-            for item in items
-            if label.lower() in item.get("label", item["label_it"]).lower()
-        ]
-
-    # Apply cursor-based pagination if cursor is provided
-    if cursor:
-        # Find the index of the cursor item
-        cursor_index = next(
-            (i for i, item in enumerate(items) if item["id"] == cursor), -1
-        )
-        if cursor_index >= 0:
-            items = items[cursor_index + 1 :]
+    if agencyId and keyConcept:
+        metadata = _get_metadata_or_fail(db_connection, agencyId, keyConcept)
     else:
-        # Apply offset-based pagination
-        items = items[offset:]
+        metadata = _get_default_metadata_or_fail(db_connection)
 
-    # Apply limit
-    items = items[:limit]
+    vocabulary_uuid: str = metadata["vocabulary_uuid"]
+    all_items = _get_vocabulary_items_or_fail(db_connection, vocabulary_uuid)
+    items = _query_vocabulary_items_or_fail(
+        db_connection,
+        vocabulary_uuid,
+        limit=limit,
+        offset=offset,
+        cursor=cursor,
+        label=label,
+    )
 
     response = {
-        "totalResults": len(vocabulary_items),
+        "totalResults": len(all_items),
         "limit": limit,
         "offset": offset,
         "items": items,
@@ -97,7 +200,11 @@ async def show_items(
     )
 
 
-async def get_item(id: str) -> ConnexionResponse:
+async def get_item(
+    id: str,
+    agencyId: str | None = None,
+    keyConcept: str | None = None,
+) -> ConnexionResponse:
     """
     Retrieve a single vocabulary item by its ID.
 
@@ -108,8 +215,19 @@ async def get_item(id: str) -> ConnexionResponse:
         A ConnexionResponse containing the item dictionary and HTTP status code,
         or a problem details object with 404 if not found.
     """
-    # Access dataset from request state (set by lifespan handler)
-    vocabulary_items = request.state.vocabulary_items
+    db_connection = request.state.db_connection
+    if db_connection is None:
+        raise ValueError("Harvest DB not configured")
+
+    if agencyId and keyConcept:
+        metadata = _get_metadata_or_fail(db_connection, agencyId, keyConcept)
+    else:
+        metadata = _get_default_metadata_or_fail(db_connection)
+
+    vocabulary_uuid: str = metadata["vocabulary_uuid"]
+    vocabulary_items = _get_vocabulary_items_or_fail(
+        db_connection, vocabulary_uuid
+    )
 
     # Find item by ID
     item = next((item for item in vocabulary_items if item["id"] == id), None)
@@ -133,7 +251,9 @@ async def get_item(id: str) -> ConnexionResponse:
     )
 
 
-async def dump_vocabulary_dataset() -> ConnexionResponse:
+async def dump_vocabulary_dataset(
+    agencyId: str, keyConcept: str
+) -> ConnexionResponse:
     """
     Dump the whole dataset for the vocabulary.
 
@@ -141,10 +261,19 @@ async def dump_vocabulary_dataset() -> ConnexionResponse:
         A ConnexionResponse containing the binary dump data, HTTP status code 200,
         and response headers.
     """
-    keyConcept = "agente_causale"
-    # raise NotImplementedError("Dump endpoint not implemented yet")
     # Access dataset from request state (set by lifespan handler)
-    vocabulary_items = request.state.vocabulary_items
+    db_connection = request.state.db_connection
+    if db_connection is None:
+        raise ValueError("Harvest DB not configured")
+
+    row: sqlite3.Row = _get_metadata_or_fail(
+        db_connection, agencyId, keyConcept
+    )
+    vocabulary_uuid: str = row["vocabulary_uuid"]
+
+    vocabulary_items = _get_vocabulary_items_or_fail(
+        db_connection, vocabulary_uuid
+    )
 
     # Create a compressed dump of the dataset
     data = {
@@ -156,7 +285,7 @@ async def dump_vocabulary_dataset() -> ConnexionResponse:
     }
 
     # Compress the JSON data
-    json_data = json.dumps(data, indent=2).encode("utf-8")
+    json_data = json.dumps(data).encode("utf-8")
     compressed_data = gzip.compress(json_data)
 
     headers = {
@@ -185,20 +314,16 @@ async def show_vocabulary_spec(
         HTTP status code 200, and response headers.
     """
     # Open the sqlite database and retrieve the OAS spec from the _metadata table.
-    query = """SELECT openapi FROM _metadata WHERE agency_id = ? AND key_concept = ?"""
     db_connection = request.state.db_connection
     if db_connection is None:
-        raise NotImplementedError("Harvest DB not configured")
+        raise ValueError("Harvest DB not configured")
 
-    cursor = db_connection.execute(query, (agencyId, keyConcept))
-    row = cursor.fetchone()
-
-    if row is None:
-        return safe_problem(
-            title="Not Found",
-            status=404,
-            instance=str(request.url),
-        )
+    row = _get_metadata_or_fail(
+        db_connection,
+        agencyId,
+        keyConcept,
+        require_vocabulary_uuid=False,
+    )
 
     vocabulary_oas: dict = json.loads(row["openapi"])
     spec = copy.deepcopy(request.state.base_spec)

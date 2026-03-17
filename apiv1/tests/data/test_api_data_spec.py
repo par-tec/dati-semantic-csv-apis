@@ -24,20 +24,35 @@ def harvest_db(tmp_path):
     db_path = tmp_path / "harvest.db"
     conn = sqlite3.connect(db_path)
     conn.execute(
-        "CREATE TABLE _metadata (agency_id TEXT, key_concept TEXT, openapi TEXT)"
+        """
+        CREATE TABLE _metadata (
+            vocabulary_uuid TEXT PRIMARY KEY,
+            vocabulary_uri TEXT NOT NULL,
+            agency_id TEXT NOT NULL,
+            key_concept TEXT NOT NULL,
+            openapi TEXT NOT NULL
+        )
+        """
     )
     conn.execute(
-        "INSERT INTO _metadata VALUES (?, ?, ?)",
-        ("istat", "ateco-2025", json.dumps(ATECO_SPEC)),
+        """
+        CREATE UNIQUE INDEX agency_id_key_concept_unique
+        ON _metadata (agency_id, key_concept)
+        """
+    )
+    conn.execute(
+        "INSERT INTO _metadata VALUES (?, ?, ?, ?, ?)",
+        (
+            "ateco-2025-uuid",
+            "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
+            "istat",
+            "ateco-2025",
+            json.dumps(ATECO_SPEC),
+        ),
     )
     conn.commit()
     conn.close()
     return str(db_path)
-
-
-@pytest.fixture
-def sample_db():
-    return (Path(__file__).parent.parent / "harvest.db").as_posix()
 
 
 def test_show_vocabulary_spec(harvest_db):

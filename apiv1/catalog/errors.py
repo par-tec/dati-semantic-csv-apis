@@ -38,23 +38,36 @@ def safe_problem(
     All string fields are truncated to their configured maximums so
     that callers never need to apply manual slicing.
     """
-    if detail and (len(detail) > PROBLEM_MAX_DETAIL):
-        detail = detail[: PROBLEM_MAX_DETAIL - 10] + "..."
-
     if title and (len(title) > PROBLEM_MAX_TITLE):
         title = title[: PROBLEM_MAX_TITLE - 10] + "..."
 
+    if status > 599 or status < 100:
+        status = 500
+
+    response = {
+        "status": status,
+        "title": title,
+    }
+
+    if type and (len(type) > 2048):
+        type = type[:2038] + "..."
+    response["type"] = type
+
+    if detail and (len(detail) > PROBLEM_MAX_DETAIL):
+        detail = detail[: PROBLEM_MAX_DETAIL - 10] + "..."
+    response["detail"] = detail or ""
+
     if instance and (len(instance) > PROBLEM_MAX_INSTANCE):
         instance = instance[: PROBLEM_MAX_INSTANCE - 10] + "..."
+    response["instance"] = instance or ""
 
     return problem(
-        status=status,
-        title=title,
-        detail=detail,
-        type=type,
-        instance=instance,
+        **response,
         headers=headers,
-        **kwargs,
+        #
+        # Safely ignore additional kwargs.
+        #
+        # **kwargs,
     )
 
 

@@ -213,10 +213,16 @@ class HarvestDatabaseManager:
                 CREATE TABLE IF NOT EXISTS _metadata (
                     vocabulary_uuid TEXT PRIMARY KEY,
                     vocabulary_uri TEXT NOT NULL,
-                    agency_id TEXT,
+                    agency_id TEXT NOT NULL,
                     key_concept TEXT NOT NULL,
                     openapi TEXT NOT NULL
                 )
+                """
+            )
+            conn.execute(
+                """
+                CREATE UNIQUE INDEX IF NOT EXISTS agency_id_key_concept_unique
+                ON _metadata (agency_id, key_concept)
                 """
             )
             conn.execute(
