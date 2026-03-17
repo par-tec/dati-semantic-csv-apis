@@ -123,7 +123,7 @@ jobs:
           https://api.github.com/repos/${REPO}/actions/runs \
           | jq -r '
             .workflow_runs
-            | map(select(.name=="test-cli"))
+            | map(select(.name=="Test"))
             | first
             | .id
           ')
@@ -131,7 +131,7 @@ jobs:
         echo "Latest run ID: ${RUN_ID}"
 
         if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-          echo "No run found for workflow test-cli"
+          echo "No run found for workflow Test"
           exit 1
         fi
 
@@ -252,7 +252,7 @@ jobs:
           https://api.github.com/repos/${REPO}/actions/runs \
           | jq -r '
             .workflow_runs
-            | map(select(.name=="test-cli"))
+            | map(select(.name=="Test"))
             | first
             | .id
           ')
@@ -260,7 +260,7 @@ jobs:
         echo "Latest run ID: ${RUN_ID}"
 
         if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-          echo "No run found for workflow test-cli"
+          echo "No run found for workflow Test"
           exit 1
         fi        
 
