@@ -36,8 +36,14 @@ def test_expand_complex_context():
 
     # Check that compact IRIs are expanded
     assert result["id"] == "http://www.w3.org/2004/02/skos/core#notation"
-    assert result["label"] == "http://www.w3.org/2004/02/skos/core#prefLabel"
-    assert result["parent"] == "http://www.w3.org/2004/02/skos/core#broader"
+    assert result["label"] == {
+        "@id": "http://www.w3.org/2004/02/skos/core#prefLabel",
+        "@language": "it",
+    }
+    assert result["parent"] == {
+        "@id": "http://www.w3.org/2004/02/skos/core#broader",
+        "@container": "@set",
+    }
 
     # @id mappings should not appear in output
     assert "url" not in result

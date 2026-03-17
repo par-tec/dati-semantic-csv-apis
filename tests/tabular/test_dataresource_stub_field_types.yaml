@@ -14,8 +14,8 @@ description: |-
   - Namespace declarations (ending with #, /, :)
   - Ignored RDF properties
 testcases:
-- name: agente_causale_skos
-  data: &agente_causale_ttl |-
+- name: xsd_integer
+  data: &xsd_integer_ttl |-
     @prefix adms: <http://www.w3.org/ns/adms#> .
     @prefix agentcaus: <https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/> .
     @prefix clvapit: <https://w3id.org/italia/onto/CLV/> .
@@ -132,7 +132,7 @@ testcases:
           grupagentecaus:1.9 ;
       skos:notation "1" ;
       xkos:depth 1 .
-  frame: &agente_causale_skos_frame
+  frame: &xsd_integer_frame
     #
     # This frame project a vocabulary compliant with the SKOS model
     #   to a JSON structure. It relies only on skos and xkos vocabularies
@@ -146,7 +146,7 @@ testcases:
     "@omitDefault": true
 
     # Use context.
-    "@context": &agente_causale_skos_context
+    "@context": &xsd_integer_context
       "@base": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/"
       "@vocab": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/"
 
@@ -185,6 +185,50 @@ testcases:
         "@id": "http://rdf-vocabulary.ddialliance.org/xkos#depth"
         "@type": http://www.w3.org/2001/XMLSchema#integer
 
+      "integerField":
+        "@id": "http://example.org/integerField"
+        "@type": http://www.w3.org/2001/XMLSchema#integer
+
+      "intField":
+        "@id": "http://example.org/intField"
+        "@type": http://www.w3.org/2001/XMLSchema#int
+
+      "prefixedIntegerField":
+        "@id": "http://example.org/prefixedIntegerField"
+        "@type": "xsd:integer"
+
+      "dateField":
+        "@id": "http://example.org/dateField"
+        "@type": http://www.w3.org/2001/XMLSchema#date
+
+      "prefixedDateField":
+        "@id": "http://example.org/prefixedDateField"
+        "@type": "xsd:date"
+
+      "booleanField":
+        "@id": "http://example.org/booleanField"
+        "@type": http://www.w3.org/2001/XMLSchema#boolean
+
+      "prefixedBooleanField":
+        "@id": "http://example.org/prefixedBooleanField"
+        "@type": "xsd:boolean"
+
+      "decimalField":
+        "@id": "http://example.org/decimalField"
+        "@type": http://www.w3.org/2001/XMLSchema#decimal
+
+      "numberField":
+        "@id": "http://example.org/numberField"
+        "@type": http://www.w3.org/2001/XMLSchema#number
+
+      "prefixedDecimalField":
+        "@id": "http://example.org/prefixedDecimalField"
+        "@type": "xsd:decimal"
+
+      "stringField":
+        "@id": "http://example.org/stringField"
+        "@type": http://www.w3.org/2001/XMLSchema#string
+
     "@requireAll": true
     #
     # Filter entries.
@@ -197,6 +241,17 @@ testcases:
       "@language": ["it"]
       "@value": {}
     level: {}
+    integerField: {}
+    intField: {}
+    prefixedIntegerField: {}
+    dateField: {}
+    prefixedDateField: {}
+    booleanField: {}
+    prefixedBooleanField: {}
+    decimalField: {}
+    numberField: {}
+    prefixedDecimalField: {}
+    stringField: {}
 
     # Only pick entries in the specified vocabulary.
     vocab:

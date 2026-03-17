@@ -265,10 +265,18 @@ class Tabular(Vocabulary):
         for key, value in expanded_context.items():
             if key.startswith("@"):
                 continue  # Skip JSON-LD keywords
-            if isinstance(value, str):
-                if value.endswith(("#", "/", ":")):
+
+            # Extract the actual IRI whether value is a string or dict with @id
+            actual_iri = (
+                value["@id"]
+                if isinstance(value, dict) and "@id" in value
+                else value
+            )
+
+            if isinstance(actual_iri, str):
+                if actual_iri.endswith(("#", "/", ":")):
                     continue  # Skip namespace declarations
-                if value in self.ignore_rdf_properties:
+                if actual_iri in self.ignore_rdf_properties:
                     continue  # Skip ignored RDF properties
 
             # breakpoint()  # Debugging: check field extraction logic
