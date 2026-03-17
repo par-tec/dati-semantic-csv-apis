@@ -32,6 +32,27 @@ components:
       schema:
         $ref: '#/components/schemas/Offset'
       example: 0
+      # Common schemas.
+    agencyIdPath:
+      name: agencyId
+      in: path
+      description: |-
+        Agency identifier matched via the latest path segment of the agency URI.
+        For example, for the agency URI `https://w3id.org/italia/data/public-organization/ISTAT`, `istat` is a valid agencyIdPath.
+      required: true
+      schema:
+        $ref: '#/components/schemas/TextFilter'
+      example: istat
+    keyConceptPath:
+      name: keyConcept
+      in: path
+      description: |-
+        Key concept identifier matched via the latest path segment of the key concept URI.
+        For example, for the key concept URI `https://w3id.org/italia/data/public-organization/ISTAT/ente`, `ente` is a valid keyConceptPath.
+      required: true
+      schema:
+        $ref: '#/components/schemas/TextFilter'
+      example: ateco-2025
   schemas:
     TextFilter:
       description: |-

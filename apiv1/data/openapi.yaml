@@ -32,8 +32,11 @@ servers:
 - url: http://localhost:8080
   description: Local development server
   x-sandbox: true
-- url: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
-  description: Example API server
+#
+# - url: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
+#   description: |-
+#     This is commented because the service will provide a customized
+#     openapi.yaml
 paths:
   # This API does not define the /status endpoint because it is
   # automatically provided by the API infrastructure.
@@ -63,12 +66,47 @@ paths:
   #           application/openapi+yaml:
   #             schema:
   #               type: object
+  /{agencyId}/{keyConcept}/openapi.yaml:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/agencyIdPath'
+      - $ref: '#/components/parameters/keyConceptPath'
+      operationId: data.handlers.show_vocabulary_spec
+      description: |-
+        Retrieve the OpenAPI specification
+        for a given vocabulary API identified by `agencyId` and `keyConcept`.
+        The URL must be one of those
+        retrieved from the `/vocabularies` endpoint.
+
+        This OpenAPI resource includes
+        the x-jsonld-context and x-jsonld-type extensions
+        that enables the client to understand
+        how to interpret the vocabulary data.
+      security:
+      - {}
+      tags:
+      - discover-vocabularies
+      responses:
+        '200':
+          description: |-
+            A successful response returns the OpenAPI specification
+            for the vocabulary identified by `agencyId` and `keyConcept`.
+          content:
+            application/openapi+yaml:
+              schema:
+                type: object
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
   /status:
     get:
       operationId: data.handlers.status
       description: |-
         Retrieve the status of the API for the vocabulary
-        identified by `agencyId` and `vocabularyId`.
+        identified by `agencyId` and `keyConcept`.
         The URL must be one of those
         retrieved from the `/vocabularies` endpoint.
       security:
@@ -79,7 +117,7 @@ paths:
         '200':
           description: |-
             A successful response returns the status of the API
-            for the vocabulary identified by `agencyId`.
+            for the vocabulary identified by `agencyId` and `keyConcept`.
           content:
             application/json:
               schema:
@@ -99,7 +137,7 @@ paths:
       description: |-
         Dump the whole dataset
         for the vocabulary
-        identified by `agencyId` and `vocabularyId`.
+        identified by `agencyId` and `keyConcept`.
         The URL must be one of those
         retrieved from the `/vocabularies` endpoint.
 
@@ -116,7 +154,7 @@ paths:
         '200':
           description: |-
             A successful response returns the whole dataset
-            from the vocabulary identified by `agencyId`.
+            from the vocabulary identified by `agencyId` and `keyConcept`.
 
             The response should be a compressed stream of
             all the dataset.
@@ -161,7 +199,7 @@ paths:
         '200':
           description: |-
             A successful response returns the data
-            from the vocabulary identified by `agencyId`.
+            from the vocabulary identified by `agencyId` and `keyConcept`.
           content:
             application/json:
               schema:
@@ -293,6 +331,10 @@ components:
         pattern: '^[A-Za-z0-9._-]{1,128}$'
         maxLength: 128
       example: "11160204"
+    agencyIdPath:
+      $ref: 'components.oas3.yaml#/components/parameters/agencyIdPath'
+    keyConceptPath:
+      $ref: 'components.oas3.yaml#/components/parameters/keyConceptPath'
     label:
       name: label
       in: query

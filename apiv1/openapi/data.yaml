@@ -17,11 +17,9 @@ info:
   termsOfService: https://schema.gov.it
   x-api-id: a68b0d9e-0445-4f98-bd6e-269a97268d8b
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:8080/vocabularies/v1
     description: Local development server
     x-sandbox: true
-  - url: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
-    description: Example API server
 tags:
   - name: health-check
     description: Endpoints for checking the health of the API.
@@ -30,12 +28,47 @@ tags:
   - name: dump-dataset
     description: Endpoints for dumping the whole dataset.
 paths:
+  /{agencyId}/{keyConcept}/openapi.yaml:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/agencyIdPath'
+        - $ref: '#/components/parameters/keyConceptPath'
+      operationId: data.handlers.show_vocabulary_spec
+      description: |-
+        Retrieve the OpenAPI specification
+        for a given vocabulary API identified by `agencyId` and `keyConcept`.
+        The URL must be one of those
+        retrieved from the `/vocabularies` endpoint.
+
+        This OpenAPI resource includes
+        the x-jsonld-context and x-jsonld-type extensions
+        that enables the client to understand
+        how to interpret the vocabulary data.
+      security:
+        - {}
+      tags:
+        - discover-vocabularies
+      responses:
+        '200':
+          description: |-
+            A successful response returns the OpenAPI specification
+            for the vocabulary identified by `agencyId` and `keyConcept`.
+          content:
+            application/openapi+yaml:
+              schema:
+                type: object
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/GenericError'
   /status:
     get:
       operationId: data.handlers.status
       description: |-
         Retrieve the status of the API for the vocabulary
-        identified by `agencyId` and `vocabularyId`.
+        identified by `agencyId` and `keyConcept`.
         The URL must be one of those
         retrieved from the `/vocabularies` endpoint.
       security:
@@ -46,7 +79,7 @@ paths:
         '200':
           description: |-
             A successful response returns the status of the API
-            for the vocabulary identified by `agencyId`.
+            for the vocabulary identified by `agencyId` and `keyConcept`.
           content:
             application/json:
               schema:
@@ -63,7 +96,7 @@ paths:
       description: |-
         Dump the whole dataset
         for the vocabulary
-        identified by `agencyId` and `vocabularyId`.
+        identified by `agencyId` and `keyConcept`.
         The URL must be one of those
         retrieved from the `/vocabularies` endpoint.
 
@@ -80,7 +113,7 @@ paths:
         '200':
           description: |-
             A successful response returns the whole dataset
-            from the vocabulary identified by `agencyId`.
+            from the vocabulary identified by `agencyId` and `keyConcept`.
 
             The response should be a compressed stream of
             all the dataset.
@@ -121,7 +154,7 @@ paths:
         '200':
           description: |-
             A successful response returns the data
-            from the vocabulary identified by `agencyId`.
+            from the vocabulary identified by `agencyId` and `keyConcept`.
           content:
             application/json:
               schema:
@@ -289,6 +322,26 @@ components:
         pattern: ^[A-Za-z0-9._-]{1,128}$
         maxLength: 128
       example: '11160204'
+    agencyIdPath:
+      name: agencyId
+      in: path
+      description: |-
+        Agency identifier matched via the latest path segment of the agency URI.
+        For example, for the agency URI `https://w3id.org/italia/data/public-organization/ISTAT`, `istat` is a valid agencyIdPath.
+      required: true
+      schema:
+        $ref: '#/components/schemas/TextFilter'
+      example: istat
+    keyConceptPath:
+      name: keyConcept
+      in: path
+      description: |-
+        Key concept identifier matched via the latest path segment of the key concept URI.
+        For example, for the key concept URI `https://w3id.org/italia/data/public-organization/ISTAT/ente`, `ente` is a valid keyConceptPath.
+      required: true
+      schema:
+        $ref: '#/components/schemas/TextFilter'
+      example: ateco-2025
     label:
       name: label
       in: query

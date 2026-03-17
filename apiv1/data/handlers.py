@@ -5,13 +5,17 @@ This module provides implementations of the API endpoints
 defined in openapi.yaml for serving vocabulary data items.
 """
 
+import copy
 import gzip
 import json
 import logging
 from typing import Any
 
+import yaml
 from connexion import request
 from connexion.lifecycle import ConnexionResponse
+
+from .errors import safe_problem
 
 log = logging.getLogger(__name__)
 
@@ -163,4 +167,52 @@ async def dump_vocabulary_dataset() -> ConnexionResponse:
 
     return ConnexionResponse(
         status_code=200, headers=headers, body=compressed_data
+    )
+
+
+async def show_vocabulary_spec(
+    agencyId: str, keyConcept: str
+) -> ConnexionResponse:
+    """
+    Retrieve the OpenAPI specification for the vocabulary API
+    identified by `agencyId` and `keyConcept`.
+
+    It is obtained by merging the base OpenAPI spec with the vocabulary-specific details
+    that are retrieved from a sqlite database file.
+
+    Returns:
+        A ConnexionResponse containing the OpenAPI specification in YAML format,
+        HTTP status code 200, and response headers.
+    """
+    # Open the sqlite database and retrieve the OAS spec from the _metadata table.
+    query = """SELECT openapi FROM _metadata WHERE agency_id = ? AND key_concept = ?"""
+    breakpoint()
+    db_connection = request.state.db_connection
+    if db_connection is None:
+        raise NotImplementedError("Harvest DB not configured")
+
+    cursor = db_connection.execute(query, (agencyId, keyConcept))
+    row = cursor.fetchone()
+
+    if row is None:
+        return safe_problem(
+            title="Not Found",
+            status=404,
+            instance=str(request.url),
+        )
+
+    vocabulary_oas: dict = json.loads(row["openapi"])
+    spec = copy.deepcopy(request.state.base_spec)
+    spec["info"] = vocabulary_oas["info"]
+    spec["components"]["schemas"]["Item"] = vocabulary_oas["components"][
+        "schemas"
+    ]["Item"]
+    spec.setdefault("servers", []).append(
+        {"url": f"{request.state.api_base_url}{agencyId}/{keyConcept}/"}
+    )
+
+    return ConnexionResponse(
+        status_code=200,
+        content_type="application/openapi+yaml",
+        body=yaml.dump(spec),
     )

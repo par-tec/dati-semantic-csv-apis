@@ -33,21 +33,21 @@
     - --vocabulary-uri
     - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
     - --output
-    - tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+    - tests/data/snapshots/ateco-2025/ateco-2025.oas3.yaml
     - --force
     expected:
       files:
-      - path: tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
-        snapshot: tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+      - path: tests/data/snapshots/ateco-2025/ateco-2025.oas3.yaml
+        snapshot: tests/data/snapshots/ateco-2025/ateco-2025.oas3.yaml
         compare: data
       logs:
       - >-
-        openapi stub created: .*tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+        openapi stub created: .*tests/data/snapshots/ateco-2025/ateco-2025.oas3.yaml
       stdout:
       - >-
         Creating openapi metadata for https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
       - >-
-        ✓ Created: .*tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+        ✓ Created: .*tests/data/snapshots/ateco-2025/ateco-2025.oas3.yaml
   - description: |-
       When:
       - I run `openapi validate` on the created openapi stub
@@ -59,7 +59,7 @@
     - openapi
     - validate
     - --openapi
-    - tests/data/snapshots/ateco-2025/ateco-2025-oas3.yaml
+    - tests/data/snapshots/ateco-2025/ateco-2025.oas3.yaml
     expected:
       stdout:
       - >-
@@ -99,21 +99,21 @@
     - --vocabulary-uri
     - https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
     - --output
-    - tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+    - tests/data/snapshots/agente_causale/agente_causale.oas3.yaml
     - --force
     expected:
       files:
-      - path: tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
-        snapshot: tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+      - path: tests/data/snapshots/agente_causale/agente_causale.oas3.yaml
+        snapshot: tests/data/snapshots/agente_causale/agente_causale.oas3.yaml
         compare: data
       logs:
       - >-
-        openapi stub created: .*tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+        openapi stub created: .*tests/data/snapshots/agente_causale/agente_causale.oas3.yaml
       stdout:
       - >-
         Creating openapi metadata for https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
       - >-
-        ✓ Created: .*tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+        ✓ Created: .*tests/data/snapshots/agente_causale/agente_causale.oas3.yaml
   - description: |-
       When:
       - I run `openapi validate` on the created openapi stub
@@ -125,7 +125,7 @@
     - openapi
     - validate
     - --openapi
-    - tests/data/snapshots/agente_causale/agente_causale-oas3.yaml
+    - tests/data/snapshots/agente_causale/agente_causale.oas3.yaml
     expected:
       stdout:
       - >-
