@@ -1,11 +1,11 @@
-name: Test
+name: Test Artifact
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-      - EricaCandido-86 
+      - EricaCandido-86
   pull_request:
     branches:
       - main
@@ -17,10 +17,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Create dummy artifact
+      - name: Download real CLI artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Scarica l'artifact reale da GitHub Actions
+          ARTIFACT_URL="https://api.github.com/repos/par-tec/dati-semantic-csv-apis/actions/artifacts/5951733517/zip"
+          curl -L -H "Authorization: Bearer ${GH_TOKEN}" \
+            "$ARTIFACT_URL" -o /tmp/artifact.zip
+          
+          # Estrai il binario
           mkdir -p dist
-          echo "This is a test artifact" > dist/schema_gov_it_tools.bin
+          unzip -o /tmp/artifact.zip -d dist
+          
+          # Rendi eseguibile
+          chmod +x dist/schema_gov_it_tools.bin
+          
+          # Controllo contenuto
           ls -l dist
 
       - name: Upload CLI binary artifact
