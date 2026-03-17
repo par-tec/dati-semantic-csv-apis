@@ -244,6 +244,11 @@ class Apiable(Vocabulary):
                     "email": "fake@example.com",
                     "url": metadata.rights_holder,
                 },
+                #
+                # Backward compatibility with API v0.
+                #
+                "x-keyConcept": metadata.name,
+                "x-agencyId": metadata.agency_id,
             },
             "paths": {},
             "servers": [],

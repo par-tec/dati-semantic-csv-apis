@@ -114,6 +114,8 @@ info:
   title: >-
     Vocabolario Controllato sulla classificazione degli agenti causali adottata dall'INAIL
   version: '0.5'
+  x-agencyId: inail
+  x-keyConcept: agente_causale
   x-summary: ''
 openapi: 3.0.0
 paths: {}
