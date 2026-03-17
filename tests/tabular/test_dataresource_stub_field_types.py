@@ -41,17 +41,6 @@ def test_dataresource_stub_field_types(data: str, frame: JsonLDFrame):
           - XSD types containing "number" or "decimal" → "number" field type (lines 285-286)
           - All other XSD types → "string" field type (default, line 276)
 
-    Covers lines 277-286 of tools/tabular/__init__.py:
-    - if isinstance(value, dict):
-    -     xsd_type = value.get("@type", "")
-    -     if "integer" in xsd_type or "int" in xsd_type:
-    -         field_type = "integer"
-    -     elif "date" in xsd_type:
-    -         field_type = "date"
-    -     elif "boolean" in xsd_type:
-    -         field_type = "boolean"
-    -     elif "number" in xsd_type or "decimal" in xsd_type:
-    -         field_type = "number"
     """
     tabular = Tabular(rdf_data=data, frame=frame)
     resource = tabular.dataresource_stub("test", Path("test.csv"))
