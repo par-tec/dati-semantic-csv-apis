@@ -242,7 +242,7 @@ class Apiable(Vocabulary):
                 "contact": {
                     "name": "Fake Name",
                     "email": "fake@example.com",
-                    "url": "https://example.com/contact",
+                    "url": metadata.rights_holder,
                 },
             },
             "paths": {},

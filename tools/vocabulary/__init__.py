@@ -157,6 +157,23 @@ class VocabularyMetadata(Graph):
         return str(version) if version else None
 
     @property
+    def rights_holder(self) -> str | None:
+        rights_holder = self.get_value(DCTERMS.rightsHolder)
+        return str(rights_holder) if rights_holder else None
+
+    @property
+    def agency_id(self) -> str | None:
+        """
+        This property is used for backward-compatibility
+        with the existing implementation of the API,
+        and is derived from dcterms:rightsHolder.
+
+        See https://github.com/teamdigitale/dati-semantic-backend/blob/9d3cb05a5fc3e41cb4a39e923a11f4312341d160/src/test/java/it/gov/innovazione/ndc/harvester/model/ControlledVocabularyModelTest.java#L232
+        """
+        agency_id = self.rights_holder
+        return Path(agency_id).name.lower() if agency_id else None
+
+    @property
     def description(self) -> str:
         description = self.get_first_value(
             [DCTERMS.description, SKOS.definition], lang=self.language()
