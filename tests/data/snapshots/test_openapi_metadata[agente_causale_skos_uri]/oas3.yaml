@@ -108,13 +108,15 @@ info:
       fake@example.com
     name: Fake Name
     url: >-
-      https://example.com/contact
+      https://w3id.org/italia/work-accident/data/organization/inail
   description: >-
     Decodifica dell'agente, lavorazione, o esposizione che puo' essere causa o concausa
     di malattia
   title: >-
     Vocabolario Controllato sulla classificazione degli agenti causali adottata dall'INAIL
   version: '0.5'
+  x-agencyId: inail
+  x-keyConcept: agente_causale
   x-summary: ''
 openapi: 3.0.0
 paths: {}

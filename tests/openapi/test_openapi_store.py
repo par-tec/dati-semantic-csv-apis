@@ -28,6 +28,7 @@ from tools.base import (
 from tools.openapi import Apiable
 
 
+@pytest.mark.skip(reason="Implemented in test_openapi_asset.")
 @pytest.mark.asset
 def test_create_db(snapshot):
     ateco_data_yaml = (
@@ -66,6 +67,7 @@ def test_create_db(snapshot):
 URI = "url"
 
 
+@pytest.mark.skip(reason="TODO: Move to Data API.")
 @pytest.mark.asset
 def test_create_payload(snapshot):
     """

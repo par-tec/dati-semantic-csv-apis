@@ -5,7 +5,7 @@ import yaml
 
 from tests.constants import ASSETS
 from tests.harness import assert_schema
-from tools.base import APPLICATION_LD_JSON_FRAMED, JsonLD, JsonLDFrame
+from tools.base import JsonLDFrame
 from tools.openapi import Apiable
 from tools.utils import SafeQuotedStringDumper
 
@@ -42,25 +42,30 @@ def test_schema_with_constraints_and_validation(vocabulary_data_yaml: Path):
         raise pytest.skip(frame_yamlld.name)
 
     datafile_db = vocabulary_data_yaml.with_suffix("").with_suffix(".db")
+    datafile_ttl = vocabulary_data_yaml.with_suffix("").with_suffix(".ttl")
+    if not datafile_ttl.exists():
+        raise pytest.skip(datafile_ttl.name)
 
     frame = JsonLDFrame.load(frame_yamlld)
 
     with vocabulary_data_yaml.open() as f:
         data = yaml.safe_load(f)
 
-    _data: JsonLD = {"@graph": data["@graph"], "@context": frame.context}
-    apiable = Apiable(
-        _data,
-        frame,
-        format=APPLICATION_LD_JSON_FRAMED,
+    assert data["@context"] == frame.context, (
+        "Data context should match frame context"
     )
-
+    apiable = Apiable(
+        datafile_ttl,
+        frame,
+    )
+    # apiable.json_ld = data
+    # apiable._already_framed = True  # XXX: Use media-type profiling for that.
     json_schema = apiable.json_schema(
-        schema_instances=_data, add_constraints=True, validate_output=True
+        schema_instances=data, add_constraints=True, validate_output=True
     )
 
     apiable.to_db(
-        data=_data,
+        data=data,
         datafile=datafile_db,
         force=True,
     )

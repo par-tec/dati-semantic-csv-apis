@@ -161,7 +161,7 @@ class Apiable(Vocabulary):
 
         assert data
         rows = itertools.chain(
-            [{"id": "_metadata", "url": self.uri()}],
+            #        [{"id": "_metadata", "url": self.uri()}],
             (_filter(item) for item in data["@graph"]),
         )
         df = pd.DataFrame(rows)
@@ -242,8 +242,13 @@ class Apiable(Vocabulary):
                 "contact": {
                     "name": "Fake Name",
                     "email": "fake@example.com",
-                    "url": "https://example.com/contact",
+                    "url": metadata.rights_holder,
                 },
+                #
+                # Backward compatibility with API v0.
+                #
+                "x-keyConcept": metadata.name,
+                "x-agencyId": metadata.agency_id,
             },
             "paths": {},
             "servers": [],
