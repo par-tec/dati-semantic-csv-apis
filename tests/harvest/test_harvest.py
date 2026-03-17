@@ -15,6 +15,8 @@ import pandas as pd
 import yaml
 
 from tests.constants import SNAPSHOTS
+from tools.base import JsonLD
+from tools.openapi import OpenAPI
 
 SPARQL_ENDPOINT = "https://schema.gov.it/sparql"
 SPARQL_QUERY = """
@@ -203,7 +205,7 @@ class HarvestDatabaseManager:
         return '"' + identifier.replace('"', '""') + '"'
 
     def upsert_metadata(
-        self, repository: VocabularyRepository, openapi_json: str
+        self, repository: VocabularyRepository, openapi_json: OpenAPI
     ) -> None:
         with sqlite3.connect(self.sqlite_path) as conn:
             conn.execute(
@@ -237,11 +239,11 @@ class HarvestDatabaseManager:
                     repository.vocabulary_uri,
                     repository.agency_id,
                     repository.key_concept,
-                    openapi_json,
+                    json.dumps(openapi_json),
                 ),
             )
 
-    def replace_rows_table(self, table_name: str, rows: list[dict]) -> None:
+    def replace_table(self, table_name: str, rows: list[dict]) -> None:
         quoted_table_name = self._quoted_identifier(table_name)
         with sqlite3.connect(self.sqlite_path) as conn:
             conn.execute(f"DROP TABLE IF EXISTS {quoted_table_name}")
@@ -250,7 +252,7 @@ class HarvestDatabaseManager:
                 conn.execute(f"CREATE TABLE {quoted_table_name} (_text TEXT)")
                 return
 
-            columns = list(rows[0].keys())
+            columns = ["id", "url", "label", "level", "_text"]
             quoted_columns = [
                 self._quoted_identifier(column) for column in columns
             ]
@@ -301,13 +303,12 @@ def add_data_to_db(folder: Path, db_url: str, repository: VocabularyRepository):
     openapi_path = _openapi_path(folder, key_concept)
     data_path = folder / f"{key_concept}.data.yamlld"
     openapi = yaml.safe_load(openapi_path.read_text(encoding="utf-8"))
-    data_payload = yaml.safe_load(data_path.read_text(encoding="utf-8"))
-    openapi_json = json.dumps(openapi)
-    rows = [_db_row(item) for item in data_payload.get("@graph", [])]
+    data_payload: JsonLD = yaml.safe_load(data_path.read_text(encoding="utf-8"))
+    rows = (_db_row(item) for item in data_payload.get("@graph", []))
 
     db = HarvestDatabaseManager(db_url)
-    db.upsert_metadata(repository=repository, openapi_json=openapi_json)
-    db.replace_rows_table(table_name=repository.vocabulary_uuid, rows=rows)
+    db.upsert_metadata(repository=repository, openapi_json=openapi)
+    db.replace_table(table_name=repository.vocabulary_uuid, rows=rows)
 
 
 def test_add_data_to_db(tmp_path: Path):
