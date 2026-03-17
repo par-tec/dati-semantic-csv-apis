@@ -2,10 +2,13 @@ from operator import itemgetter
 from pathlib import Path
 
 import pytest
+import yaml
 
-from tests.constants import TESTCASES
 from tools.base import JsonLDFrame
 from tools.tabular import Tabular
+
+TESTCASES_YAML = Path(__file__).with_suffix(".yaml")
+TESTCASES = yaml.safe_load(TESTCASES_YAML.read_text())["testcases"]
 
 
 @pytest.mark.parametrize(

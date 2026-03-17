@@ -63,13 +63,15 @@ def expand_context_to_absolute_uris(context: dict) -> dict:
                 "skos": "https://example.org/skos#",
                 "@vocab": "https://w3id.org/italia/onto/CPV/",
                 "p": "Person",
-                "id": "skos:notation"
+                "id": "skos:notation",
+                "label": {"@id": "skos:prefLabel", "@language": "it"}
             }
 
         Output:
             {
                 "p": "https://w3id.org/italia/onto/CPV/Person",
-                "id": "https://example.org/skos#notation"
+                "id": "https://example.org/skos#notation",
+                "label": {"@id": "https://example.org/skos#prefLabel", "@language": "it"}
             }
 
     Args:
@@ -98,6 +100,32 @@ def expand_context_to_absolute_uris(context: dict) -> dict:
 
         # Skip @id mappings (e.g., "url": "@id")
         if value == "@id":
+            continue
+
+        # Handle dictionary values with @id and other properties
+        if isinstance(value, dict) and "@id" in value:
+            # Create a minimal document to expand just the @id
+            doc = {"@context": context, key: "dummy"}
+            expanded_doc = jsonld.expand(doc)
+
+            # Extract the expanded property IRI
+            if (
+                expanded_doc
+                and isinstance(expanded_doc, list)
+                and len(expanded_doc) > 0
+            ):
+                expanded_props = expanded_doc[0]
+                # Get the first (and should be only) expanded property key
+                for prop_iri in expanded_props.keys():
+                    if not prop_iri.startswith("@"):
+                        # If the dict only has @id, return just the expanded URI
+                        if len(value) == 1:
+                            expanded[key] = prop_iri
+                        else:
+                            # Otherwise preserve the dictionary structure with expanded @id
+                            expanded[key] = value.copy()
+                            expanded[key]["@id"] = prop_iri
+                        break
             continue
 
         # Create a minimal document to expand

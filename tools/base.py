@@ -129,10 +129,18 @@ class JsonLDFrame(dict):
                 if field not in ALLOWED_VALUES:
                     continue
                 expected_iris = ALLOWED_VALUES[field]
-                if definition not in expected_iris:
+
+                # Extract @id from dict if definition is a dict (e.g., {"@id": "...", "@container": "@set"})
+                actual_iri = (
+                    definition["@id"]
+                    if isinstance(definition, dict)
+                    else definition
+                )
+
+                if actual_iri not in expected_iris:
                     raise ValueError(
                         f"Field '{field}' must be one of {expected_iris}, "
-                        f"got {definition}"
+                        f"got {actual_iri}"
                     )
 
         return True

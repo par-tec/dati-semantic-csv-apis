@@ -1,12 +1,14 @@
 from operator import itemgetter
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
+import yaml
 
-from tests.constants import TESTCASES
 from tools.base import JsonLDFrame
 from tools.tabular import Tabular
+
+TESTCASES_YAML = Path(__file__).with_suffix(".yaml")
+TESTCASES = yaml.safe_load(TESTCASES_YAML.read_text())["testcases"]
 
 
 # Test 6: Lines 278-286 - XSD type mapping
@@ -15,50 +17,7 @@ from tools.tabular import Tabular
     argvalues=[itemgetter("data", "frame")(x) for x in TESTCASES[:1]],
     ids=[x["name"] for x in TESTCASES[:1]],
 )
-@pytest.mark.parametrize(
-    "xsd_type,expected_field_type",
-    [
-        # Line 279-280: integer/int types
-        pytest.param(
-            "http://www.w3.org/2001/XMLSchema#integer",
-            "integer",
-            id="xsd_integer",
-        ),
-        pytest.param(
-            "http://www.w3.org/2001/XMLSchema#int", "integer", id="xsd_int"
-        ),
-        pytest.param("xsd:integer", "integer", id="prefixed_integer"),
-        # Line 281-282: date type
-        pytest.param(
-            "http://www.w3.org/2001/XMLSchema#date", "date", id="xsd_date"
-        ),
-        pytest.param("xsd:date", "date", id="prefixed_date"),
-        # Line 283-284: boolean type
-        pytest.param(
-            "http://www.w3.org/2001/XMLSchema#boolean",
-            "boolean",
-            id="xsd_boolean",
-        ),
-        pytest.param("xsd:boolean", "boolean", id="prefixed_boolean"),
-        # Line 285-286: number/decimal types
-        pytest.param(
-            "http://www.w3.org/2001/XMLSchema#decimal",
-            "number",
-            id="xsd_decimal",
-        ),
-        pytest.param(
-            "http://www.w3.org/2001/XMLSchema#number", "number", id="xsd_number"
-        ),
-        pytest.param("xsd:decimal", "number", id="prefixed_decimal"),
-        # Default: string type (lines 268, 276)
-        pytest.param(
-            "http://www.w3.org/2001/XMLSchema#string", "string", id="xsd_string"
-        ),
-    ],
-)
-def test_dataresource_stub_field_types(
-    data: str, frame: JsonLDFrame, xsd_type: str, expected_field_type: str
-):
+def test_dataresource_stub_field_types(data: str, frame: JsonLDFrame):
     """
     Given: A Tabular instance initialized with RDF data and a JSON-LD frame
            AND expand_context_to_absolute_uris is mocked to return a dictionary
@@ -95,27 +54,25 @@ def test_dataresource_stub_field_types(
     -         field_type = "number"
     """
     tabular = Tabular(rdf_data=data, frame=frame)
-    # resource = tabular.dataresource_stub("test", Path("test.csv"))
-    # fields = resource["schema"]["fields"]
-    #
-    # test_field = next((f for f in fields if f["name"] == "testField"), None)
-    # assert test_field is not None
-    # assert test_field["type"] == expected_field_type
-    # return
+    resource = tabular.dataresource_stub("test", Path("test.csv"))
+    fields = resource["schema"]["fields"]
 
-    # Mock expand_context_to_absolute_uris to return a dict with @type
-    # This is needed because normally it returns strings, making lines 277-286 unreachable
-    with patch("tools.tabular.expand_context_to_absolute_uris") as mock_expand:
-        mock_expand.return_value = {
-            "testField": {
-                "@id": "http://example.org/testField",
-                "@type": xsd_type,
-            }
-        }
+    expected_fields = [
+        {"name": "url", "type": "string"},
+        {"name": "id", "type": "string"},
+        {"name": "label_it", "type": "string"},
+        {"name": "level", "type": "integer"},
+        {"name": "integerField", "type": "integer"},
+        {"name": "intField", "type": "integer"},
+        {"name": "prefixedIntegerField", "type": "integer"},
+        {"name": "dateField", "type": "date"},
+        {"name": "prefixedDateField", "type": "date"},
+        {"name": "booleanField", "type": "boolean"},
+        {"name": "prefixedBooleanField", "type": "boolean"},
+        {"name": "decimalField", "type": "number"},
+        {"name": "numberField", "type": "number"},
+        {"name": "prefixedDecimalField", "type": "number"},
+        {"name": "stringField", "type": "string"},
+    ]
 
-        resource = tabular.dataresource_stub("test", Path("test.csv"))
-        fields = resource["schema"]["fields"]
-
-        test_field = next((f for f in fields if f["name"] == "testField"), None)
-        assert test_field is not None
-        assert test_field["type"] == expected_field_type
+    assert fields == expected_fields

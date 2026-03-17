@@ -185,8 +185,6 @@ testcases:
         "@id": "http://rdf-vocabulary.ddialliance.org/xkos#depth"
         "@type": http://www.w3.org/2001/XMLSchema#integer
 
-      "@type": "http://www.w3.org/2004/02/skos/core#Concept"
-
     "@requireAll": true
     #
     # Filter entries.
