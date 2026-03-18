@@ -168,7 +168,7 @@ jobs:
         else
           echo "exists=false" >> "$GITHUB_OUTPUT"
           echo "Frame file not found for ${{ matrix.asset }}, skipping datapackage creation"
-
+        fi
     - name: Create datapackage metadata
       if: steps.check-frame.outputs.exists == 'true'
       working-directory: >-
