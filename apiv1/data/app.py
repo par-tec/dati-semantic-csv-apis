@@ -16,6 +16,8 @@ from connexion import AsyncApp, ConnexionMiddleware
 from connexion.exceptions import ProblemException
 from connexion.middleware.main import MiddlewarePosition
 
+from harvest_db_schema import APIDatabase
+
 from .errors import (
     handle_exception,
     handle_not_implemented,
@@ -37,72 +39,13 @@ logger = logging.getLogger(__name__)
 
 def _validate_db(harvest_db: str) -> None:
     """Validate that the harvest.db file exists and has the expected structure."""
-    from jsonschema import Draft7Validator, validate
-
-    conn: sqlite3.Connection | None = None
-
-    def _has_unique_index_on_metadata(cursor: sqlite3.Cursor) -> bool:
-        indexes = list(
-            cursor.execute(
-                "select name from sqlite_master where type = 'index' and tbl_name = '_metadata'"
-            ).fetchall()
-        )
-        assert len(indexes) == 2
-        assert indexes[0][0] == "sqlite_autoindex__metadata_1"
-        assert indexes[1][0] == "agency_id_key_concept_unique"
-        return True
-
     try:
-        conn = sqlite3.connect(harvest_db, check_same_thread=False)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='_metadata'"
-        )
-        if not cursor.fetchone():
-            raise ValueError("harvest.db is missing required _metadata table")
-
-        cursor.execute("PRAGMA table_info(_metadata)")
-        table_info = {row[1]: row for row in cursor.fetchall()}
-        required_columns = {
-            "vocabulary_uuid",
-            "agency_id",
-            "key_concept",
-            "openapi",
-        }
-        missing_columns = required_columns.difference(table_info)
-        if missing_columns:
-            raise ValueError(
-                "harvest.db _metadata table is missing required columns: "
-                + ", ".join(sorted(missing_columns))
-            )
-
-        if table_info["vocabulary_uuid"][5] != 1:
-            raise ValueError(
-                "harvest.db _metadata.vocabulary_uuid must be a primary key"
-            )
-
-        # _has_unique_index_on_metadata( cursor )
-        cursor.execute(
-            "SELECT COUNT(*) FROM _metadata WHERE agency_id IS NULL OR key_concept IS NULL"
-        )
-        if cursor.fetchone()[0] > 0:
-            raise ValueError(
-                "harvest.db _metadata table has null values in agency_id or key_concept columns"
-            )
-
-        # _metadata.openapi should be valid OAS3 spec
-        for row in cursor.execute("SELECT openapi FROM _metadata"):
-            yaml.safe_load(row[0])
-            validate(
-                instance=yaml.safe_load(row[0]),
-                schema=Draft7Validator.META_SCHEMA,
-            )
+        with APIDatabase(harvest_db, read_only=True) as db:
+            db.validate_metadata_schema()
+            db.validate_metadata_content()
     except Exception as e:
         logger.error("Error validating harvest.db: %s", e)
         raise ValueError(f"Invalid harvest.db: {e}") from e
-    finally:
-        if conn is not None:
-            conn.close()
 
 
 @contextlib.asynccontextmanager
@@ -135,27 +78,30 @@ async def load_dataset_handler(
     with open(Path(__file__).parent / "openapi.yaml") as f:
         base_spec = yaml.safe_load(f)
 
-    # Open a single read-only connection that is reused across all requests
-    db_conn: sqlite3.Connection | None = None
+    # Open a single read-only APIDatabase instance reused across requests.
+    harvest_database: APIDatabase | None = None
     if harvest_db:
         _validate_db(harvest_db)
-        db_conn = sqlite3.connect(harvest_db, check_same_thread=False)
-        db_conn.row_factory = sqlite3.Row
+        harvest_database = APIDatabase(
+            harvest_db,
+            read_only=True,
+            check_same_thread=False,
+        )
+        harvest_database.connect()
         logger.info("Opened harvest DB connection: %s", harvest_db)
-        # Validate the _metadata table exists and is accessible
 
     logger.info("Application startup complete")
 
     yield {
         "vocabulary_items": vocabulary_items,
-        "db_connection": db_conn,
+        "harvest_db": harvest_database,
         "base_spec": base_spec,
         "api_base_url": api_base_url,
     }
 
     logger.info("Application shutdown")
-    if db_conn:
-        db_conn.close()
+    if harvest_database:
+        harvest_database.close()
 
 
 def create_app(config: Config | None = None) -> AsyncApp:
@@ -205,6 +151,8 @@ def create_app(config: Config | None = None) -> AsyncApp:
     # Register exception handler for generic exceptions
     app.add_error_handler(NotImplementedError, handle_not_implemented)
     app.add_error_handler(501, handle_not_implemented)
+    app.add_error_handler(sqlite3.OperationalError, handle_exception)
+    app.add_error_handler(sqlite3.DatabaseError, handle_exception)
     app.add_error_handler(500, handle_exception)
     app.add_error_handler(Exception, handle_exception)
     app.add_error_handler(ProblemException, handle_problem_safe)

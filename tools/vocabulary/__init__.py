@@ -266,7 +266,7 @@ class Vocabulary:
     def json_ld(self, value: JsonLD) -> None:
         self._jsonld = value
 
-    def metadata(self) -> Graph:
+    def metadata(self) -> VocabularyMetadata:
         """
         Extract a subgraph representing a vocabulary (concept scheme) from the RDF graph.
 
@@ -274,7 +274,7 @@ class Vocabulary:
             uri: URI of the vocabulary (concept scheme) to extract
             key_concept: Optional URI of the key concept to filter by
         Returns:
-            Graph: RDF graph representing the extracted vocabulary
+            VocabularyMetadata: Metadata of the extracted vocabulary
         """
         query = """
             PREFIX NDC: <https://w3id.org/italia/onto/NDC/>

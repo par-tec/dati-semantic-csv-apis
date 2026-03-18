@@ -151,10 +151,15 @@ class Apiable(Vocabulary):
         assert "@context" in data
         return data
 
-    def uri_uuid(self) -> str:
+    def api_uuid(self) -> str:
         from hashlib import sha256
 
-        return sha256(self.uri().encode()).hexdigest()
+        metadata: VocabularyMetadata = self.metadata()
+        if metadata.agency_id and metadata.name:
+            _base = f"{metadata.agency_id}|{metadata.name}"
+        else:
+            _base = self.uri()
+        return sha256(_base.encode()).hexdigest()
 
     def to_db(self, data: JsonLD, datafile: Path, force: bool = False):
         import pandas as pd
@@ -169,14 +174,14 @@ class Apiable(Vocabulary):
             datafile.unlink()
         sqlite_con = f"sqlite:///{datafile.as_posix()}"
 
-        df.to_sql(self.uri_uuid(), sqlite_con, if_exists="replace", index=False)
+        df.to_sql(self.api_uuid(), sqlite_con, if_exists="replace", index=False)
 
     def from_db(self, datafile: Path) -> JsonLD:
         import pandas as pd
 
         sqlite_con = f"sqlite:///{datafile.as_posix()}"
         df = pd.read_sql(
-            f"SELECT _text FROM {self.uri_uuid()} WHERE id != '_metadata'",
+            f"SELECT _text FROM {self.api_uuid()} WHERE id != '_metadata'",
             sqlite_con,
         )
         items = df["_text"].apply(json.loads).tolist()

@@ -10,6 +10,10 @@ import pytest
 import yaml
 from data.app import Config, create_app
 
+from harvest_db_schema import (
+    CREATE_METADATA_TABLE_SQL,
+    CREATE_METADATA_UNIQUE_INDEX_SQL,
+)
 from tests.harness import client_harness
 
 TESTDIR = Path(__file__).parent.parent
@@ -23,23 +27,8 @@ def harvest_db(tmp_path):
     """Create a minimal harvest.db with one vocabulary entry."""
     db_path = tmp_path / "harvest.db"
     conn = sqlite3.connect(db_path)
-    conn.execute(
-        """
-        CREATE TABLE _metadata (
-            vocabulary_uuid TEXT PRIMARY KEY,
-            vocabulary_uri TEXT NOT NULL,
-            agency_id TEXT NOT NULL,
-            key_concept TEXT NOT NULL,
-            openapi TEXT NOT NULL
-        )
-        """
-    )
-    conn.execute(
-        """
-        CREATE UNIQUE INDEX agency_id_key_concept_unique
-        ON _metadata (agency_id, key_concept)
-        """
-    )
+    conn.execute(CREATE_METADATA_TABLE_SQL)
+    conn.execute(CREATE_METADATA_UNIQUE_INDEX_SQL)
     conn.execute(
         "INSERT INTO _metadata VALUES (?, ?, ?, ?, ?)",
         (

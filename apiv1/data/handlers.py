@@ -10,27 +10,40 @@ import gzip
 import json
 import logging
 import sqlite3
-from typing import Any
+from typing import Any, cast
 
 import yaml
 from connexion import ProblemException, request
 from connexion.lifecycle import ConnexionResponse
 
+from harvest_db_schema import APIDatabase
+
 log = logging.getLogger(__name__)
 
 
 def _get_metadata_or_fail(
-    db_connection: sqlite3.Connection,
+    harvest_db: APIDatabase,
     agency_id: str,
     key_concept: str,
     require_vocabulary_uuid: bool = True,
 ) -> sqlite3.Row:
     """Return the _metadata row for (agency_id, key_concept), or None."""
-    cursor = db_connection.execute(
-        "SELECT * FROM _metadata WHERE agency_id = ? AND key_concept = ?",
-        (agency_id, key_concept),
-    )
-    row: sqlite3.Row | None = cursor.fetchone()
+    try:
+        row = harvest_db.get_metadata(agency_id, key_concept)
+    except sqlite3.OperationalError:
+        log.exception(
+            "Operational error while fetching metadata for agency_id=%s and key_concept=%s",
+            agency_id,
+            key_concept,
+        )
+        raise
+    except sqlite3.DatabaseError:
+        log.exception(
+            "Database error while fetching metadata for agency_id=%s and key_concept=%s",
+            agency_id,
+            key_concept,
+        )
+        raise
     if not row:
         raise ProblemException(
             title="Not Found",
@@ -55,12 +68,17 @@ def _get_metadata_or_fail(
 
 
 def _get_default_metadata_or_fail(
-    db_connection: sqlite3.Connection,
+    harvest_db: APIDatabase,
 ) -> sqlite3.Row:
     """Return the first available metadata row from harvest DB."""
-    row = db_connection.execute(
-        "SELECT * FROM _metadata ORDER BY rowid LIMIT 1"
-    ).fetchone()
+    try:
+        row = harvest_db.get_default_metadata()
+    except sqlite3.OperationalError:
+        log.exception("Operational error while fetching default metadata")
+        raise
+    except sqlite3.DatabaseError:
+        log.exception("Database error while fetching default metadata")
+        raise
     if not row:
         raise ProblemException(
             title="Not Found",
@@ -72,41 +90,30 @@ def _get_default_metadata_or_fail(
 
 
 def _get_vocabulary_items_or_fail(
-    db_connection: sqlite3.Connection, vocabulary_uuid: str
+    harvest_db: APIDatabase, vocabulary_uuid: str
 ) -> list[dict[str, Any]]:
     """Return the list of vocabulary items for the given vocabulary UUID."""
     try:
-        query = f"""SELECT _text FROM \"{vocabulary_uuid}\""""
-        rows = db_connection.execute(query).fetchall()
-        return [json.loads(row["_text"]) for row in rows]
-    except sqlite3.OperationalError as e:
-        log.error(
-            "Operational error while fetching vocabulary items for UUID %s: %s",
+        return harvest_db.get_vocabulary_dataset(vocabulary_uuid)
+    except sqlite3.OperationalError:
+        log.exception(
+            "Operational error while fetching vocabulary items for UUID %s",
             vocabulary_uuid,
-            str(e),
         )
-        raise ProblemException(
-            title="Server Error",
-            status=500,
-            detail="Error fetching vocabulary items from database",
-            instance=str(request.url),
-        )
-    except Exception as e:
+        raise
+    except sqlite3.DatabaseError:
         log.exception("Database error while fetching vocabulary items")
-        raise e
+        raise
 
 
 def _query_vocabulary_items_or_fail(
-    db_connection: sqlite3.Connection,
-    vocabulary_uuid: str,
+    items: list[dict[str, Any]],
     limit: int = 10,
     offset: int = 0,
     cursor: str | None = None,
     label: str | None = None,
 ) -> list[dict[str, Any]]:
     """Return paginated vocabulary items with an optional label filter."""
-    items = _get_vocabulary_items_or_fail(db_connection, vocabulary_uuid)
-
     if label:
         label_lower = str(label).lower()
         items = [
@@ -129,6 +136,17 @@ def _query_vocabulary_items_or_fail(
     return items[:limit]
 
 
+def _get_database_or_fail() -> APIDatabase:
+    """Return the configured read-only APIDatabase instance."""
+    harvest_db = cast(
+        APIDatabase | None,
+        getattr(request.state, "harvest_db", None),
+    )
+    if harvest_db is None:
+        raise ValueError("Harvest DB not configured")
+    return harvest_db
+
+
 async def status() -> ConnexionResponse:
     """
     Health check endpoint to verify that the API is running.
@@ -144,8 +162,8 @@ async def status() -> ConnexionResponse:
 
 
 async def show_items(
-    agencyId: str | None = None,
-    keyConcept: str | None = None,
+    agencyId: str,
+    keyConcept: str,
     limit: int = 20,
     offset: int = 0,
     cursor: str | None = None,
@@ -166,21 +184,18 @@ async def show_items(
         and response headers.
     """
     assert isinstance(limit, int)
-    db_connection = request.state.db_connection
-    if db_connection is None:
-        raise ValueError("Harvest DB not configured")
+    harvest_db = _get_database_or_fail()
 
     log.debug("Extra query parameters: %s", kwargs)
     if agencyId and keyConcept:
-        metadata = _get_metadata_or_fail(db_connection, agencyId, keyConcept)
+        metadata = _get_metadata_or_fail(harvest_db, agencyId, keyConcept)
     else:
-        metadata = _get_default_metadata_or_fail(db_connection)
+        metadata = _get_default_metadata_or_fail(harvest_db)
 
     vocabulary_uuid: str = metadata["vocabulary_uuid"]
-    all_items = _get_vocabulary_items_or_fail(db_connection, vocabulary_uuid)
+    all_items = _get_vocabulary_items_or_fail(harvest_db, vocabulary_uuid)
     items = _query_vocabulary_items_or_fail(
-        db_connection,
-        vocabulary_uuid,
+        all_items,
         limit=limit,
         offset=offset,
         cursor=cursor,
@@ -202,8 +217,8 @@ async def show_items(
 
 async def get_item(
     id: str,
-    agencyId: str | None = None,
-    keyConcept: str | None = None,
+    agencyId: str,
+    keyConcept: str,
 ) -> ConnexionResponse:
     """
     Retrieve a single vocabulary item by its ID.
@@ -215,22 +230,15 @@ async def get_item(
         A ConnexionResponse containing the item dictionary and HTTP status code,
         or a problem details object with 404 if not found.
     """
-    db_connection = request.state.db_connection
-    if db_connection is None:
-        raise ValueError("Harvest DB not configured")
+    harvest_db = _get_database_or_fail()
 
     if agencyId and keyConcept:
-        metadata = _get_metadata_or_fail(db_connection, agencyId, keyConcept)
+        metadata = _get_metadata_or_fail(harvest_db, agencyId, keyConcept)
     else:
-        metadata = _get_default_metadata_or_fail(db_connection)
+        metadata = _get_default_metadata_or_fail(harvest_db)
 
     vocabulary_uuid: str = metadata["vocabulary_uuid"]
-    vocabulary_items = _get_vocabulary_items_or_fail(
-        db_connection, vocabulary_uuid
-    )
-
-    # Find item by ID
-    item = next((item for item in vocabulary_items if item["id"] == id), None)
+    item = harvest_db.get_vocabulary_item_by_id(vocabulary_uuid, id)
 
     if item is None:
         # Return RFC 9457 Problem Details
@@ -261,18 +269,13 @@ async def dump_vocabulary_dataset(
         A ConnexionResponse containing the binary dump data, HTTP status code 200,
         and response headers.
     """
-    # Access dataset from request state (set by lifespan handler)
-    db_connection = request.state.db_connection
-    if db_connection is None:
-        raise ValueError("Harvest DB not configured")
+    harvest_db = _get_database_or_fail()
 
-    row: sqlite3.Row = _get_metadata_or_fail(
-        db_connection, agencyId, keyConcept
-    )
+    row: sqlite3.Row = _get_metadata_or_fail(harvest_db, agencyId, keyConcept)
     vocabulary_uuid: str = row["vocabulary_uuid"]
 
     vocabulary_items = _get_vocabulary_items_or_fail(
-        db_connection, vocabulary_uuid
+        harvest_db, vocabulary_uuid
     )
 
     # Create a compressed dump of the dataset
@@ -313,13 +316,10 @@ async def show_vocabulary_spec(
         A ConnexionResponse containing the OpenAPI specification in YAML format,
         HTTP status code 200, and response headers.
     """
-    # Open the sqlite database and retrieve the OAS spec from the _metadata table.
-    db_connection = request.state.db_connection
-    if db_connection is None:
-        raise ValueError("Harvest DB not configured")
+    harvest_db = _get_database_or_fail()
 
     row = _get_metadata_or_fail(
-        db_connection,
+        harvest_db,
         agencyId,
         keyConcept,
         require_vocabulary_uuid=False,
