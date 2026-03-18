@@ -24,7 +24,6 @@ on:
   push:
     branches:
     - assets
-    - EricaCandido-86
     paths:
     - 'assets/controlled-vocabularies/**'
     - '.github/workflows/asset-csv-generation.yml'
@@ -159,7 +158,19 @@ jobs:
         unzip /tmp/artifact.zip -d /usr/local/bin/
         chmod +x /usr/local/bin/schema_gov_it_tools.bin
         /usr/local/bin/schema_gov_it_tools.bin --version
+    - name: Check frame file exists
+      id: check-frame
+      working-directory: ${{ matrix.asset }}
+      run: |
+        FRAME_FILE="${{ matrix.asset }}.frame.yamlld"
+        if [ -f "$FRAME_FILE" ]; then
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+          echo "Frame file not found for ${{ matrix.asset }}, skipping datapackage creation"
+
     - name: Create datapackage metadata
+      if: steps.check-frame.outputs.exists == 'true'
       working-directory: >-
         ${{ matrix.asset }}
       run: |
