@@ -302,7 +302,7 @@ jobs:
       id: check-datapackage
       working-directory: ${{ matrix.asset }}
       run: |
-        if [ -f datapackage.yaml ]; then
+        if [ -f "datapackage.yaml" ]; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
         else
           echo "exists=false" >> "$GITHUB_OUTPUT"
