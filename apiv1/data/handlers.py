@@ -67,32 +67,19 @@ def _get_metadata_or_fail(
     return row
 
 
-def _get_default_metadata_or_fail(
+def _get_vocabulary_items_or_fail(
     harvest_db: APIDatabase,
-) -> sqlite3.Row:
-    """Return the first available metadata row from harvest DB."""
-    try:
-        row = harvest_db.get_default_metadata()
-    except sqlite3.OperationalError:
-        log.exception("Operational error while fetching default metadata")
-        raise
-    except sqlite3.DatabaseError:
-        log.exception("Database error while fetching default metadata")
-        raise
-    if not row:
+    agency_id: str,
+    key_concept: str,
+) -> list[dict[str, Any]]:
+    """Return the list of vocabulary items for the given vocabulary UUID."""
+    vocabulary_uuid = harvest_db.build_vocabulary_uuid(agency_id, key_concept)
+    if not vocabulary_uuid:
         raise ProblemException(
             title="Not Found",
             status=404,
-            detail="No vocabulary metadata available",
             instance=str(request.url),
         )
-    return row
-
-
-def _get_vocabulary_items_or_fail(
-    harvest_db: APIDatabase, vocabulary_uuid: str
-) -> list[dict[str, Any]]:
-    """Return the list of vocabulary items for the given vocabulary UUID."""
     try:
         return harvest_db.get_vocabulary_dataset(vocabulary_uuid)
     except sqlite3.OperationalError:
@@ -183,17 +170,14 @@ async def show_items(
         A tuple containing the paginated response dictionary, HTTP status code 200,
         and response headers.
     """
+    assert agencyId
+    assert keyConcept
     assert isinstance(limit, int)
     harvest_db = _get_database_or_fail()
 
     log.debug("Extra query parameters: %s", kwargs)
-    if agencyId and keyConcept:
-        metadata = _get_metadata_or_fail(harvest_db, agencyId, keyConcept)
-    else:
-        metadata = _get_default_metadata_or_fail(harvest_db)
+    all_items = _get_vocabulary_items_or_fail(harvest_db, agencyId, keyConcept)
 
-    vocabulary_uuid: str = metadata["vocabulary_uuid"]
-    all_items = _get_vocabulary_items_or_fail(harvest_db, vocabulary_uuid)
     items = _query_vocabulary_items_or_fail(
         all_items,
         limit=limit,
@@ -232,13 +216,7 @@ async def get_item(
     """
     harvest_db = _get_database_or_fail()
 
-    if agencyId and keyConcept:
-        metadata = _get_metadata_or_fail(harvest_db, agencyId, keyConcept)
-    else:
-        metadata = _get_default_metadata_or_fail(harvest_db)
-
-    vocabulary_uuid: str = metadata["vocabulary_uuid"]
-    item = harvest_db.get_vocabulary_item_by_id(vocabulary_uuid, id)
+    item = harvest_db.get_vocabulary_item_by_id(agencyId, keyConcept, id)
 
     if item is None:
         # Return RFC 9457 Problem Details
@@ -270,12 +248,8 @@ async def dump_vocabulary_dataset(
         and response headers.
     """
     harvest_db = _get_database_or_fail()
-
-    row: sqlite3.Row = _get_metadata_or_fail(harvest_db, agencyId, keyConcept)
-    vocabulary_uuid: str = row["vocabulary_uuid"]
-
     vocabulary_items = _get_vocabulary_items_or_fail(
-        harvest_db, vocabulary_uuid
+        harvest_db, agencyId, keyConcept
     )
 
     # Create a compressed dump of the dataset

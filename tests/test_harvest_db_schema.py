@@ -73,24 +73,55 @@ def test_get_vocabulary_dataset_returns_items(sample_harvest_db):
     ]
 
 
-def test_build_vocabulary_uuid_prefers_agency_and_key_concept():
-    assert (
-        build_vocabulary_uuid(
-            agency_id="ISTAT",
-            key_concept="ateco-2025",
-            vocabulary_uri="https://example.com/vocabularies/ignored",
+@pytest.mark.parametrize("key_concept", ["test-vocab", None, ""])
+@pytest.mark.parametrize("agencyId", ["agid", "missing", None, ""])
+def test_build_vocabulary_uuid(agencyId, key_concept):
+    if agencyId in (None, "") or key_concept in (None, ""):
+        with pytest.raises(ValueError):
+            build_vocabulary_uuid(agencyId, key_concept)
+    else:
+        assert (
+            build_vocabulary_uuid(
+                agency_id="ISTAT",
+                key_concept="ateco-2025",
+            )
+            == sha256(b"istat|ateco-2025").hexdigest()
         )
-        == sha256(b"istat|ateco-2025").hexdigest()
-    )
 
 
-def test_build_vocabulary_uuid_falls_back_to_uri_hash():
-    uri = "https://example.com/vocabularies/fallback"
-    assert (
-        build_vocabulary_uuid(
-            agency_id="",
-            key_concept="ateco-2025",
-            vocabulary_uri=uri,
-        )
-        == sha256(uri.encode("utf-8")).hexdigest()
-    )
+def test_apidatabase_jsonld_graph_roundtrip(tmp_path):
+    """Storing a JSON-LD graph and reading it back must preserve items and context.
+
+    @-prefixed keys must be stripped in DB rows; non-ASCII labels must be
+    preserved; the returned JsonLD dict must include the original @context.
+    """
+    db_path = tmp_path / "v.db"
+    vocabulary_uuid = "test-uuid-rt"
+    context = {"url": "@id", "id": "dct:identifier", "label": "skos:prefLabel"}
+    graph = [
+        {
+            "@type": "skos:Concept",
+            "id": "A",
+            "url": "https://example.com/A",
+            "label": "Àgenti",
+            "nested": {
+                "child": "value"
+            },  # non-primitive — must not appear as column
+        },
+        {"id": "B", "url": "https://example.com/B", "label": "Beta"},
+    ]
+
+    with APIDatabase(db_path.as_posix()) as db:
+        db.update_vocabulary_from_jsonld(vocabulary_uuid, graph)
+        result = db.get_vocabulary_jsonld(vocabulary_uuid, context)
+
+    assert result["@context"] == context
+    items = result["@graph"]
+    assert len(items) == 2
+    ids = {item["id"] for item in items}
+    assert ids == {"A", "B"}
+    item_a = next(i for i in items if i["id"] == "A")
+    assert item_a["label"] == "Àgenti", "Non-ASCII label must be preserved"
+    assert "@type" not in item_a, "JSON-LD @-keys must be stripped"
+    # Nested dicts are preserved in _text (the API serves them); only
+    # the dedicated SQLite columns (id, url, label, …) are primitives-only.

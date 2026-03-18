@@ -14,6 +14,21 @@ import yaml
 log = logging.getLogger(__name__)
 
 
+def sparql_query(
+    sparql_url: str, query: str, format: str = "application/ld+json"
+) -> str:
+    params = {"query": query, "format": format}
+    headers = {"Accept": format}
+
+    # Build URL with query parameters
+    url = f"{sparql_url}?{urllib.parse.urlencode(params)}"
+    request = urllib.request.Request(url, headers=headers)
+
+    with urllib.request.urlopen(request) as response:
+        response_data = response.read()
+        return response_data
+
+
 def sparql_query_vocabularies(sparql_url: str) -> dict:
     """
     Query vocabularies from SPARQL endpoint using CONSTRUCT query.
@@ -36,30 +51,47 @@ def sparql_query_vocabularies(sparql_url: str) -> dict:
     """
 
     query = """
-        PREFIX ndc: <https://w3id.org/italia/onto/NDC/>
-        PREFIX dct: <http://purl.org/dc/terms/>
-        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        PREFIX dcat: <http://www.w3.org/ns/dcat#>
         PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        PREFIX at: <http://publications.europa.eu/resource/authority/file-type/>
+        PREFIX : <http://github.com/par-tec/dati-semantic-csv-apis#>
+
 
         CONSTRUCT {
-            ?scheme ndc:keyConcept ?concept .
-            ?scheme skos:prefLabel ?title .
-            ?scheme dct:language ?languages .
-            ?scheme dct:description ?description .
-            ?scheme dcterms:type ?type .
-            ?scheme owl:versionInfo ?version .
-            ?scheme dct:rightsHolder ?publisher .
+            # Required properties for API endpoint:
+            ?scheme NDC:keyConcept ?concept
+            ; dcterms:rightsHolder ?publisher
+
+            # Catalog properties for linkset:
+            ; skos:prefLabel ?title
+            ; dcterms:language ?languages
+            ; dcterms:description ?description
+            ; dcterms:type ?type
+            ; owl:versionInfo ?version
+
+            # Relation with the turtle download URL:
+            ; :turtleDownloadUrl ?download_url
+            .
         }
         WHERE {
-            ?scheme ndc:keyConcept ?concept .
-            ?scheme skos:prefLabel ?title .
+            ?scheme
+            NDC:keyConcept ?concept
+            ; dcterms:rightsHolder ?publisher
+            ; skos:prefLabel ?title
+            ; dcat:distribution ?distribution
+            .
+            ?distribution
+                dcat:downloadURL ?download_url ;
+                dcterms:format at:RDF_TURTLE .
 
             OPTIONAL {
-                ?scheme dct:language ?languages .
+                ?scheme dcterms:language ?languages .
             }
             OPTIONAL {
-                ?scheme dct:description ?description .
+                ?scheme dcterms:description ?description .
             }
             OPTIONAL {
                 ?scheme dcterms:type ?type .
@@ -67,21 +99,14 @@ def sparql_query_vocabularies(sparql_url: str) -> dict:
             OPTIONAL {
                 ?scheme owl:versionInfo ?version .
             }
-            OPTIONAL {
-                ?scheme dct:rightsHolder ?publisher .
-            }
+
         }
         """
-    params = {"query": query, "format": "application/ld+json"}
-    headers = {"Accept": "application/ld+json"}
-
-    # Build URL with query parameters
-    url = f"{sparql_url}?{urllib.parse.urlencode(params)}"
-    request = urllib.request.Request(url, headers=headers)
-
-    with urllib.request.urlopen(request) as response:
-        response_data = response.read().decode("utf-8")
-        return cast(dict[Any, Any], json.loads(response_data))
+    response_data = sparql_query(
+        sparql_url, query, format="application/ld+json"
+    )
+    response_data = response_data.decode("utf-8")
+    return cast(dict[Any, Any], json.loads(response_data))
 
 
 ANY = object()

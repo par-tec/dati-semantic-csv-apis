@@ -300,7 +300,7 @@ La nuova API si compone di due endpoint principali:
 
 1. Analogamente al modello di erogazione attuale, le API
    vengono rese disponibili da un URL centralizzato
-   <https://schema.gov.it/api/vocabularies/v1/> che funge
+   e.g. <https://schema.gov.it/api/vocabularies/v1/> che funge
    da catalogo e restituisce un linkset RFC 9727 con le
    distribuzioni API dei vocabolari controllati.
 

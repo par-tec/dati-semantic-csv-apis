@@ -19,7 +19,7 @@ import pytest
 import yaml
 from sqlalchemy import create_engine, text
 
-from tests.constants import ASSETS, DATADIR
+from tests.constants import ASSETS, DATADIR, TESTCASES
 from tools.base import (
     APPLICATION_LD_JSON_FRAMED,
     JsonLD,
@@ -139,5 +139,31 @@ def test_create_payload(snapshot):
     raise NotImplementedError
 
 
-def test_create_uuid():
-    pass
+@pytest.fixture
+def apiable_from_testcase():
+    """Return an Apiable built from the first TESTCASE that has turtle + frame."""
+    from operator import itemgetter
+
+    tc = next(tc for tc in TESTCASES if "data" in tc and "frame" in tc)
+    turtle, frame_dict = itemgetter("data", "frame")(tc)
+    return Apiable(turtle, JsonLDFrame(frame_dict))
+
+
+def test_apiable_persistence_roundtrip(apiable_from_testcase, tmp_path):
+    """to_db / from_db round-trip: data readable both via from_db and directly
+    through APIDatabase, with identical items and correct @context."""
+    from harvest_db_schema import APIDatabase
+
+    apiable = apiable_from_testcase
+    db_path = tmp_path / "data.db"
+    data: JsonLD = apiable.create_api_data()
+
+    apiable.to_db(data=data, datafile=db_path, force=True)
+
+    jsonld_result = apiable.from_db(db_path)
+    with APIDatabase(db_path.as_posix()) as db:
+        dataset = db.get_vocabulary_dataset(apiable.api_uuid())
+
+    assert len(jsonld_result["@graph"]) > 0
+    assert jsonld_result["@graph"] == dataset
+    assert jsonld_result["@context"] == apiable.frame.context

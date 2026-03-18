@@ -44,14 +44,11 @@ ON _metadata (agency_id, key_concept)
 def build_vocabulary_uuid(
     agency_id: str | None,
     key_concept: str | None,
-    vocabulary_uri: str,
 ) -> str:
     """Build a stable vocabulary UUID.
 
-    Prefer hashing ``agency_id|key_concept`` when both values are available.
-    Fallback to hashing the vocabulary URI for legacy or incomplete inputs.
+    Hash ``agency_id|key_concept`` after normalization.
     """
-
     normalized_agency_id = (agency_id or "").strip().lower()
     normalized_key_concept = (key_concept or "").strip()
     if normalized_agency_id and normalized_key_concept:
@@ -59,7 +56,7 @@ def build_vocabulary_uuid(
             f"{normalized_agency_id}|{normalized_key_concept}".encode()
         ).hexdigest()
 
-    return sha256(vocabulary_uri.encode("utf-8")).hexdigest()
+    raise ValueError("Both agency_id and key_concept must be non-empty strings")
 
 
 def has_unique_index_on_agency_key(cursor: sqlite3.Cursor) -> bool:
@@ -216,6 +213,11 @@ class APIDatabase:
         )
         conn.commit()
 
+    def build_vocabulary_uuid(
+        self, agency_id: str, key_concept: str
+    ) -> str | None:
+        return build_vocabulary_uuid(agency_id, key_concept)
+
     def get_vocabulary_uuid(
         self, agency_id: str, key_concept: str
     ) -> str | None:
@@ -278,9 +280,26 @@ class APIDatabase:
         )
         conn.commit()
 
-    def get_vocabulary_item_by_id(
-        self, vocabulary_uuid: str, item_id: str
-    ) -> dict[str, Any] | None:
+    def get_vocabulary_item_by_id(self, *args: str) -> dict[str, Any] | None:
+        """Get an item by ID.
+
+        Supported signatures:
+        - get_vocabulary_item_by_id(vocabulary_uuid, item_id)
+        - get_vocabulary_item_by_id(agency_id, key_concept, item_id)
+        """
+        if len(args) == 2:
+            vocabulary_uuid, item_id = args
+        elif len(args) == 3:
+            agency_id, key_concept, item_id = args
+            vocabulary_uuid = self.build_vocabulary_uuid(agency_id, key_concept)
+            if not vocabulary_uuid:
+                return None
+        else:
+            raise TypeError(
+                "get_vocabulary_item_by_id expects (vocabulary_uuid, item_id) "
+                "or (agency_id, key_concept, item_id)"
+            )
+
         conn = self.connect()
         quoted_table_name = self._quoted_identifier(vocabulary_uuid)
         row = cast(
@@ -307,5 +326,48 @@ class APIDatabase:
         ).fetchall()
         return [json.loads(row["_text"]) for row in rows]
 
+    @staticmethod
+    def _remove_jsonld_keys(obj: Any) -> Any:
+        if isinstance(obj, dict):
+            return {
+                k: APIDatabase._remove_jsonld_keys(v)
+                for k, v in obj.items()
+                if not k.startswith("@")
+            }
+        if isinstance(obj, list):
+            return [APIDatabase._remove_jsonld_keys(item) for item in obj]
+        return obj
 
-HarvestDatabase = APIDatabase
+    @staticmethod
+    def jsonld_item_to_row(item: dict[str, Any]) -> dict[str, Any]:
+        """Convert a JSON-LD item to a DB row dict.
+
+        - Strips keys starting with ``@`` recursively.
+        - Adds ``_text`` with the JSON serialisation of the cleaned item
+          (``ensure_ascii=False`` to preserve non-ASCII labels).
+        - Drops any value that is not a JSON primitive (int, float, bool,
+          str, None) so the row can be inserted directly into SQLite columns.
+        """
+        sanitized = APIDatabase._remove_jsonld_keys(item)
+        _text = json.dumps(sanitized, ensure_ascii=False)
+        return {
+            k: v
+            for k, v in {**sanitized, "_text": _text}.items()
+            if isinstance(v, (int, float, bool, str, type(None)))
+        }
+
+    def update_vocabulary_from_jsonld(
+        self, vocabulary_uuid: str, graph: list[dict[str, Any]]
+    ) -> None:
+        """Serialize *graph* items to DB rows and write the vocabulary table."""
+        rows = [self.jsonld_item_to_row(item) for item in graph]
+        self.update_vocabulary_table(vocabulary_uuid, rows)
+
+    def get_vocabulary_jsonld(
+        self, vocabulary_uuid: str, context: dict[str, Any]
+    ) -> dict[str, Any]:  # type: ignore
+        """Return a JsonLD dict ``{"@context": context, "@graph": [...]}``."""
+        return {
+            "@context": context,
+            "@graph": self.get_vocabulary_dataset(vocabulary_uuid),
+        }

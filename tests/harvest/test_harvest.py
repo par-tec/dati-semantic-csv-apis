@@ -52,7 +52,6 @@ class VocabularyRepository:
         return build_vocabulary_uuid(
             agency_id=self.agency_id,
             key_concept=self.key_concept,
-            vocabulary_uri=self.vocabulary_uri,
         )
 
     @property
@@ -216,8 +215,7 @@ def add_data_to_db(folder: Path, db_url: str, repository: VocabularyRepository):
     Add data from the given folder to the database at the given URL.
     The db_url is a sqlite URL where every vocabulary
     is stored in a different table named after the vocabulary UUID hash.
-    The UUID is the sha256 hash of ``agency_id|key_concept``, with
-    vocabulary URI hash as fallback.
+    The UUID is the sha256 hash of ``agency_id|key_concept``.
     The _metadata table contains the full openapi specification
     as a text field containing a JSON String.
     When adding a vocabulary in the _metadata table, the

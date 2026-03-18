@@ -1,4 +1,3 @@
-import itertools
 import json
 import logging
 import time
@@ -50,26 +49,10 @@ def _remove_jsonld_keys(obj: Any) -> Any:
 
 
 def _filter(item: dict):
-    """
-    Cleanup item before storing in DB:
-    - Remove JSON-LD specific keys (starting with '@')
-    - Ensure 'id' and 'url' fields are present and of type string
-    - Add a '_text' field with the JSON string representation of the item
-    - Return a dict with only primitive values (for DB storage)
-    """
-    # Work on a sanitized copy so callers do not observe side effects.
-    sanitized_item = _remove_jsonld_keys(item)
+    """Compatibility shim — delegates to APIDatabase.jsonld_item_to_row."""
+    from harvest_db_schema import APIDatabase
 
-    assert isinstance(sanitized_item.get("id"), str)
-    assert isinstance(sanitized_item.get(URI), str)
-
-    _text: str = json.dumps(sanitized_item)
-    enriched_item = {**sanitized_item, "_text": _text}
-    return {
-        k: v
-        for k, v in enriched_item.items()
-        if isinstance(v, (int, float, bool, str, type(None)))
-    }
+    return APIDatabase.jsonld_item_to_row(item)
 
 
 class Apiable(Vocabulary):
@@ -152,43 +135,38 @@ class Apiable(Vocabulary):
         return data
 
     def api_uuid(self) -> str:
-        from hashlib import sha256
+        """
+        API require agencyId and keyConcept.
+        """
+        from harvest_db_schema import build_vocabulary_uuid
 
         metadata: VocabularyMetadata = self.metadata()
-        if metadata.agency_id and metadata.name:
-            _base = f"{metadata.agency_id}|{metadata.name}"
-        else:
-            _base = self.uri()
-        return sha256(_base.encode()).hexdigest()
+        if metadata.name is None or metadata.agency_id is None:
+            raise ValueError(
+                "Vocabulary metadata must include non-empty 'name' and 'agency_id' for API UUID generation"
+            )
+        return build_vocabulary_uuid(
+            agency_id=metadata.agency_id,
+            key_concept=metadata.name,
+        )
 
     def to_db(self, data: JsonLD, datafile: Path, force: bool = False):
-        import pandas as pd
+        from harvest_db_schema import APIDatabase
 
         assert data
-        rows = itertools.chain(
-            #        [{"id": "_metadata", "url": self.uri()}],
-            (_filter(item) for item in data["@graph"]),
-        )
-        df = pd.DataFrame(rows)
         if force and datafile.exists():
             datafile.unlink()
-        sqlite_con = f"sqlite:///{datafile.as_posix()}"
-
-        df.to_sql(self.api_uuid(), sqlite_con, if_exists="replace", index=False)
+        with APIDatabase(str(datafile)) as db:
+            db.update_vocabulary_from_jsonld(self.api_uuid(), data["@graph"])
 
     def from_db(self, datafile: Path) -> JsonLD:
-        import pandas as pd
+        from harvest_db_schema import APIDatabase
 
-        sqlite_con = f"sqlite:///{datafile.as_posix()}"
-        df = pd.read_sql(
-            f"SELECT _text FROM {self.api_uuid()} WHERE id != '_metadata'",
-            sqlite_con,
-        )
-        items = df["_text"].apply(json.loads).tolist()
-        return {
-            "@context": self.frame.context,
-            "@graph": items,
-        }
+        with APIDatabase(str(datafile)) as db:
+            return cast(
+                JsonLD,
+                db.get_vocabulary_jsonld(self.api_uuid(), self.frame.context),
+            )
 
     def json_schema(
         self,
