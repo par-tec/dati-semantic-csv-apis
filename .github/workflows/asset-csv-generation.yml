@@ -269,7 +269,6 @@ jobs:
           echo "No run found for workflow Test"
           exit 1
         fi        
-
         echo "Fetching artifacts..."
 
         ARTIFACT_URL=$(curl -s \
