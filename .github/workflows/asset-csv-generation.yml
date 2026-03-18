@@ -24,6 +24,7 @@ on:
   push:
     branches:
     - assets
+    - EricaCandido-86
     paths:
     - 'assets/controlled-vocabularies/**'
     - '.github/workflows/asset-csv-generation.yml'
