@@ -151,10 +151,14 @@ jobs:
     strategy:
       matrix:
         include:
-        - target: catalog
+        - target: catalog-api
           image_suffix: "-catalog"
           tag_pattern: "^refs/tags/catalog@(.+)$"
           force_push_label: push-container:catalog  # Label prefix to force push the image in pull request
+        - target: data-api
+          image_suffix: "-data"
+          tag_pattern: "^refs/tags/data@(.+)$"
+          force_push_label: push-container:data  # Label prefix to force push the image in pull request
     name: Docker Build ${{ matrix.target }}
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -215,9 +219,9 @@ jobs:
       if: steps.should_build.outputs.build == 'true'
       uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83  # v6.18.0
       with:
-        context: apiv1
-        file: apiv1/${{ matrix.target }}.dockerfile
-        # target: ${{ matrix.target }}
+        context: .
+        file: apiv1/Dockerfile
+        target: ${{ matrix.target }}
         push: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name,
           matrix.force_push_label) }}
         tags: ${{ steps.meta.outputs.tags }}
@@ -233,8 +237,10 @@ jobs:
     strategy:
       matrix:
         include:
-        - target: catalog
+        - target: catalog-api
           image_suffix: "-catalog"
+        - target: data-api
+          image_suffix: "-data"
     name: Cleanup Docker Images ${{ matrix.target }}
     steps:
     - name: Cleanup Docker Images
