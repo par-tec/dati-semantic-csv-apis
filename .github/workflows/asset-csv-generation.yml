@@ -188,6 +188,7 @@ jobs:
       env:
         MATRIX_ASSET: ${{ matrix.asset }}
     - name: Create OAS metadata
+      if: steps.check-frame.outputs.exists == 'true'
       working-directory: >-
         ${{ matrix.asset }}
       run: |
