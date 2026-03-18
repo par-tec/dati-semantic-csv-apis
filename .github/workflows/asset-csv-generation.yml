@@ -169,6 +169,11 @@ jobs:
           echo "exists=false" >> "$GITHUB_OUTPUT"
           echo "Frame file not found for ${{ matrix.asset }}, skipping datapackage creation"
         fi
+    - name: Warn missing frame
+      if: steps.check-frame.outputs.exists == 'false'
+      run: |
+        echo "::warning title=Missing frame file::No frame file found for asset '${{ matrix.asset }}'. This asset will be skipped."
+
     - name: Create datapackage metadata
       if: steps.check-frame.outputs.exists == 'true'
       working-directory: >-
@@ -205,6 +210,7 @@ jobs:
       env:
         MATRIX_ASSET: ${{ matrix.asset }}
     - name: Commit datapackage & OAS changes
+      if: steps.check-frame.outputs.exists == 'true'
       shell: bash
       run: |
         git config user.name "github-actions[bot]"
@@ -269,6 +275,7 @@ jobs:
           echo "No run found for workflow Test"
           exit 1
         fi        
+
         echo "Fetching artifacts..."
 
         ARTIFACT_URL=$(curl -s \
