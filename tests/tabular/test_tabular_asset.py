@@ -19,6 +19,7 @@ def test_tabular_metadata(
     vocabulary_ttl, snapshot, request: pytest.FixtureRequest
 ):
     """
+
     Test the metadata extraction from RDF data and creation of a datapackage descriptor.
 
     Given:
