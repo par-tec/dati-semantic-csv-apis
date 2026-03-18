@@ -154,18 +154,37 @@ class Apiable(Vocabulary):
         from harvest_db_schema import APIDatabase
 
         assert data
+        metadata: VocabularyMetadata = self.metadata()
+        if metadata.name is None or metadata.agency_id is None:
+            raise ValueError(
+                "Vocabulary metadata must include non-empty 'name' and 'agency_id'"
+            )
         if force and datafile.exists():
             datafile.unlink()
         with APIDatabase(str(datafile)) as db:
-            db.update_vocabulary_from_jsonld(self.api_uuid(), data["@graph"])
+            db.update_vocabulary_from_jsonld(
+                metadata.agency_id,
+                metadata.name,
+                data["@graph"],
+            )
 
     def from_db(self, datafile: Path) -> JsonLD:
         from harvest_db_schema import APIDatabase
 
+        metadata: VocabularyMetadata = self.metadata()
+        if metadata.name is None or metadata.agency_id is None:
+            raise ValueError(
+                "Vocabulary metadata must include non-empty 'name' and 'agency_id'"
+            )
+
         with APIDatabase(str(datafile)) as db:
             return cast(
                 JsonLD,
-                db.get_vocabulary_jsonld(self.api_uuid(), self.frame.context),
+                db.get_vocabulary_jsonld(
+                    metadata.agency_id,
+                    metadata.name,
+                    self.frame.context,
+                ),
             )
 
     def json_schema(

@@ -239,14 +239,14 @@ def add_data_to_db(folder: Path, db_url: str, repository: VocabularyRepository):
     with db:
         db.create_metadata_table()
         db.upsert_metadata(
-            vocabulary_uuid=repository.vocabulary_uuid,
             vocabulary_uri=repository.vocabulary_uri,
             agency_id=repository.agency_id,
             key_concept=repository.key_concept,
             openapi=openapi,
         )
         db.update_vocabulary_table(
-            vocabulary_uuid=repository.vocabulary_uuid,
+            agency_id=repository.agency_id,
+            key_concept=repository.key_concept,
             rows=rows,
         )
 

@@ -7,6 +7,7 @@ reuse the same DDL without importing heavier project dependencies.
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 from hashlib import sha256
 from pathlib import Path
@@ -15,6 +16,7 @@ from typing import Any, cast
 import yaml
 from jsonschema import Draft7Validator, validate
 
+log = logging.getLogger(__name__)
 METADATA_TABLE = "_metadata"
 METADATA_UNIQUE_INDEX = "agency_id_key_concept_unique"
 
@@ -42,13 +44,16 @@ ON _metadata (agency_id, key_concept)
 
 
 def build_vocabulary_uuid(
-    agency_id: str | None,
-    key_concept: str | None,
+    agency_id: str,
+    key_concept: str,
 ) -> str:
     """Build a stable vocabulary UUID.
 
     Hash ``agency_id|key_concept`` after normalization.
     """
+    assert isinstance(agency_id, (str,))
+    assert isinstance(key_concept, (str,))
+
     normalized_agency_id = (agency_id or "").strip().lower()
     normalized_key_concept = (key_concept or "").strip()
     if normalized_agency_id and normalized_key_concept:
@@ -181,12 +186,12 @@ class APIDatabase:
 
     def upsert_metadata(
         self,
-        vocabulary_uuid: str,
         vocabulary_uri: str,
         agency_id: str,
         key_concept: str,
         openapi: dict[str, Any],
     ) -> None:
+        vocabulary_uuid = self._table_name(agency_id, key_concept)
         conn = self.connect()
         conn.execute(
             """
@@ -213,26 +218,10 @@ class APIDatabase:
         )
         conn.commit()
 
-    def build_vocabulary_uuid(
-        self, agency_id: str, key_concept: str
-    ) -> str | None:
+    @staticmethod
+    def _table_name(agency_id: str, key_concept: str) -> str:
+        """Return the physical SQLite table name for a vocabulary."""
         return build_vocabulary_uuid(agency_id, key_concept)
-
-    def get_vocabulary_uuid(
-        self, agency_id: str, key_concept: str
-    ) -> str | None:
-        conn = self.connect()
-        row = cast(
-            sqlite3.Row | None,
-            conn.execute(
-                "SELECT vocabulary_uuid FROM _metadata WHERE agency_id = ? AND key_concept = ?",
-                (agency_id, key_concept),
-            ).fetchone(),
-        )
-        if row is None:
-            return None
-        vocabulary_uuid = row["vocabulary_uuid"]
-        return vocabulary_uuid if isinstance(vocabulary_uuid, str) else None
 
     def get_metadata(
         self, agency_id: str, key_concept: str
@@ -256,9 +245,13 @@ class APIDatabase:
         )
 
     def update_vocabulary_table(
-        self, vocabulary_uuid: str, rows: list[dict[str, Any]]
+        self,
+        agency_id: str,
+        key_concept: str,
+        rows: list[dict[str, Any]],
     ) -> None:
         conn = self.connect()
+        vocabulary_uuid = self._table_name(agency_id, key_concept)
         quoted_table_name = self._quoted_identifier(vocabulary_uuid)
         conn.execute(f"DROP TABLE IF EXISTS {quoted_table_name}")
 
@@ -280,35 +273,30 @@ class APIDatabase:
         )
         conn.commit()
 
-    def get_vocabulary_item_by_id(self, *args: str) -> dict[str, Any] | None:
-        """Get an item by ID.
-
-        Supported signatures:
-        - get_vocabulary_item_by_id(vocabulary_uuid, item_id)
-        - get_vocabulary_item_by_id(agency_id, key_concept, item_id)
-        """
-        if len(args) == 2:
-            vocabulary_uuid, item_id = args
-        elif len(args) == 3:
-            agency_id, key_concept, item_id = args
-            vocabulary_uuid = self.build_vocabulary_uuid(agency_id, key_concept)
-            if not vocabulary_uuid:
-                return None
-        else:
-            raise TypeError(
-                "get_vocabulary_item_by_id expects (vocabulary_uuid, item_id) "
-                "or (agency_id, key_concept, item_id)"
-            )
-
+    def get_vocabulary_item_by_id(
+        self, agency_id: str, key_concept: str, item_id: str
+    ) -> dict[str, Any] | None:
         conn = self.connect()
+        vocabulary_uuid = self._table_name(agency_id, key_concept)
         quoted_table_name = self._quoted_identifier(vocabulary_uuid)
-        row = cast(
-            sqlite3.Row | None,
-            conn.execute(
-                f"SELECT _text FROM {quoted_table_name} WHERE id = ?",
-                (item_id,),
-            ).fetchone(),
-        )
+        try:
+            row = cast(
+                sqlite3.Row | None,
+                conn.execute(
+                    f"SELECT _text FROM {quoted_table_name} WHERE id = ?",
+                    (item_id,),
+                ).fetchone(),
+            )
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e).lower():
+                log.info(
+                    "Vocabulary table %s not found for agency_id=%s, key_concept=%s",
+                    quoted_table_name,
+                    agency_id,
+                    key_concept,
+                )
+                return None
+            raise
         if row is None:
             return None
         payload = json.loads(row["_text"])
@@ -317,13 +305,31 @@ class APIDatabase:
         )
 
     def get_vocabulary_dataset(
-        self, vocabulary_uuid: str
+        self,
+        agency_id: str,
+        key_concept: str,
     ) -> list[dict[str, Any]]:
         conn = self.connect()
+        vocabulary_uuid = self._table_name(agency_id, key_concept)
         quoted_table_name = self._quoted_identifier(vocabulary_uuid)
-        rows = conn.execute(
-            f"SELECT _text FROM {quoted_table_name} ORDER BY id"
-        ).fetchall()
+        try:
+            rows = cast(
+                sqlite3.Row | None,
+                conn.execute(
+                    f"SELECT _text FROM {quoted_table_name} ORDER BY id"
+                ).fetchall(),
+            )
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e).lower():
+                log.info(
+                    "Vocabulary table %s not found for agency_id=%s, key_concept=%s",
+                    quoted_table_name,
+                    agency_id,
+                    key_concept,
+                )
+                return []
+            raise
+
         return [json.loads(row["_text"]) for row in rows]
 
     @staticmethod
@@ -357,17 +363,23 @@ class APIDatabase:
         }
 
     def update_vocabulary_from_jsonld(
-        self, vocabulary_uuid: str, graph: list[dict[str, Any]]
+        self,
+        agency_id: str,
+        key_concept: str,
+        graph: list[dict[str, Any]],
     ) -> None:
         """Serialize *graph* items to DB rows and write the vocabulary table."""
         rows = [self.jsonld_item_to_row(item) for item in graph]
-        self.update_vocabulary_table(vocabulary_uuid, rows)
+        self.update_vocabulary_table(agency_id, key_concept, rows)
 
     def get_vocabulary_jsonld(
-        self, vocabulary_uuid: str, context: dict[str, Any]
+        self,
+        agency_id: str,
+        key_concept: str,
+        context: dict[str, Any],
     ) -> dict[str, Any]:  # type: ignore
         """Return a JsonLD dict ``{"@context": context, "@graph": [...]}``."""
         return {
             "@context": context,
-            "@graph": self.get_vocabulary_dataset(vocabulary_uuid),
+            "@graph": self.get_vocabulary_dataset(agency_id, key_concept),
         }

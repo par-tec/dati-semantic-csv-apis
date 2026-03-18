@@ -9,19 +9,20 @@ from harvest_db_schema import APIDatabase, build_vocabulary_uuid
 @pytest.fixture
 def sample_harvest_db(tmp_path):
     db_path = tmp_path / "harvest.db"
-    vocabulary_uuid = "uuid-1"
+    agency_id = "agid"
+    key_concept = "test-vocab"
 
     with APIDatabase(db_path.as_posix()) as db:
         db.create_metadata_table()
         db.upsert_metadata(
-            vocabulary_uuid=vocabulary_uuid,
             vocabulary_uri="https://example.com/vocabularies/test",
-            agency_id="agid",
-            key_concept="test-vocab",
+            agency_id=agency_id,
+            key_concept=key_concept,
             openapi={"openapi": "3.0.3", "paths": {}},
         )
         db.update_vocabulary_table(
-            vocabulary_uuid=vocabulary_uuid,
+            agency_id=agency_id,
+            key_concept=key_concept,
             rows=[
                 {
                     "id": "A01",
@@ -36,38 +37,24 @@ def sample_harvest_db(tmp_path):
             ],
         )
 
-    return db_path.as_posix(), vocabulary_uuid
-
-
-def test_get_vocabulary_uuid_returns_value(sample_harvest_db):
-    db_path, vocabulary_uuid = sample_harvest_db
-    db = APIDatabase(db_path)
-
-    assert db.get_vocabulary_uuid("agid", "test-vocab") == vocabulary_uuid
-
-
-def test_get_vocabulary_uuid_returns_none_when_missing(sample_harvest_db):
-    db_path, _ = sample_harvest_db
-    db = APIDatabase(db_path)
-
-    assert db.get_vocabulary_uuid("missing", "missing") is None
+    return db_path.as_posix(), agency_id, key_concept
 
 
 def test_get_vocabulary_item_by_id_returns_item(sample_harvest_db):
-    db_path, vocabulary_uuid = sample_harvest_db
+    db_path, agency_id, key_concept = sample_harvest_db
     db = APIDatabase(db_path)
 
-    assert db.get_vocabulary_item_by_id(vocabulary_uuid, "A01") == {
+    assert db.get_vocabulary_item_by_id(agency_id, key_concept, "A01") == {
         "id": "A01",
         "label": "Item A01",
     }
 
 
 def test_get_vocabulary_dataset_returns_items(sample_harvest_db):
-    db_path, vocabulary_uuid = sample_harvest_db
+    db_path, agency_id, key_concept = sample_harvest_db
     db = APIDatabase(db_path)
 
-    assert db.get_vocabulary_dataset(vocabulary_uuid) == [
+    assert db.get_vocabulary_dataset(agency_id, key_concept) == [
         {"id": "A01", "label": "Item A01"},
         {"id": "A02", "label": "Item A02"},
     ]
@@ -96,7 +83,8 @@ def test_apidatabase_jsonld_graph_roundtrip(tmp_path):
     preserved; the returned JsonLD dict must include the original @context.
     """
     db_path = tmp_path / "v.db"
-    vocabulary_uuid = "test-uuid-rt"
+    agency_id = "agid"
+    key_concept = "test-uuid-rt"
     context = {"url": "@id", "id": "dct:identifier", "label": "skos:prefLabel"}
     graph = [
         {
@@ -112,8 +100,8 @@ def test_apidatabase_jsonld_graph_roundtrip(tmp_path):
     ]
 
     with APIDatabase(db_path.as_posix()) as db:
-        db.update_vocabulary_from_jsonld(vocabulary_uuid, graph)
-        result = db.get_vocabulary_jsonld(vocabulary_uuid, context)
+        db.update_vocabulary_from_jsonld(agency_id, key_concept, graph)
+        result = db.get_vocabulary_jsonld(agency_id, key_concept, context)
 
     assert result["@context"] == context
     items = result["@graph"]

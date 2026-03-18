@@ -24,9 +24,9 @@ Providers need to modify the stub file to validate it and ensure its correctness
 - [x] The `openapi` command of the CLI will generate a stub OpenAPI specification file.
 - [x] The `openapi` command requires the RDF vocabulary information to populate
   the metadata fields in the OpenAPI specification (e.g., title, description, version).
-- [ ] The generated file includes NDC:keyConcept and dcterms:rightsHolder as metadata fields in the OpenAPI specification.
+- [x] The generated file includes NDC:keyConcept and dcterms:rightsHolder as metadata fields in the OpenAPI specification.
 - [ ] The generated file will include a comment with provider instructions.
-- [ ] The OAS file will not include `servers` or `paths` sections: these will be
+- [x] The OAS file will include empty `servers` or `paths` sections: these will be
   dynamically provided by the Data API implementation.
 - [ ] Schema array fields will be constrained using maxItems and minItems.
 - [ ] Schema numeric fields will not be constrained because this depends

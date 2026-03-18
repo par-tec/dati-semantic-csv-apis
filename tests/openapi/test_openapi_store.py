@@ -161,8 +161,14 @@ def test_apiable_persistence_roundtrip(apiable_from_testcase, tmp_path):
     apiable.to_db(data=data, datafile=db_path, force=True)
 
     jsonld_result = apiable.from_db(db_path)
+    metadata = apiable.metadata()
+    assert metadata.agency_id is not None
+    assert metadata.name is not None
     with APIDatabase(db_path.as_posix()) as db:
-        dataset = db.get_vocabulary_dataset(apiable.api_uuid())
+        dataset = db.get_vocabulary_dataset(
+            metadata.agency_id,
+            metadata.name,
+        )
 
     assert len(jsonld_result["@graph"]) > 0
     assert jsonld_result["@graph"] == dataset

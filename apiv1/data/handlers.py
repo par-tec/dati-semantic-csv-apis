@@ -231,6 +231,12 @@ async def dump_vocabulary_dataset(
     vocabulary_items = _get_vocabulary_items_or_fail(
         harvest_db, agencyId, keyConcept
     )
+    if not vocabulary_items:
+        raise ProblemException(
+            title="Not Found",
+            status=404,
+            instance=str(request.url),
+        )
 
     # Create a compressed dump of the dataset
     data = {
