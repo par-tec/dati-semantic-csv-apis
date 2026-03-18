@@ -18,20 +18,19 @@ ATECO_SPEC = yaml.safe_load(ATECO_OAS.read_text())
 
 @pytest.fixture
 def single_entry_db(tmp_path) -> str:
-    db_path = tmp_path / "harvest.db"
-    vocabulary_uuid = "uuid-1"
+    db_path = tmp_path / "deleteme.db"
 
     with APIDatabase(db_path.as_posix()) as db:
         db.create_metadata_table()
         db.upsert_metadata(
-            vocabulary_uuid=vocabulary_uuid,
             vocabulary_uri="https://example.com/vocabularies/test",
             agency_id="agid",
             key_concept="test-vocab",
             openapi=ATECO_SPEC,
         )
         db.update_vocabulary_table(
-            vocabulary_uuid=vocabulary_uuid,
+            agency_id="agid",
+            key_concept="test-vocab",
             rows=[
                 {
                     "id": "A01",

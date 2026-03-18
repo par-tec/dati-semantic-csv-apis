@@ -25,7 +25,6 @@ def _get_metadata_or_fail(
     harvest_db: APIDatabase,
     agency_id: str,
     key_concept: str,
-    require_vocabulary_uuid: bool = True,
 ) -> sqlite3.Row:
     """Return the _metadata row for (agency_id, key_concept), or None."""
     try:
@@ -50,19 +49,6 @@ def _get_metadata_or_fail(
             status=404,
             instance=str(request.url),
         )
-    if require_vocabulary_uuid:
-        vocabulary_uuid = row["vocabulary_uuid"]
-        if not vocabulary_uuid:
-            log.error(
-                "Vocabulary UUID not found for agency_id=%s and key_concept=%s",
-                agency_id,
-                key_concept,
-            )
-            raise ProblemException(
-                title="Server Error",
-                status=500,
-                instance=str(request.url),
-            )
     assert row, "Row should be present since we checked for it above"
     return row
 
@@ -72,20 +58,14 @@ def _get_vocabulary_items_or_fail(
     agency_id: str,
     key_concept: str,
 ) -> list[dict[str, Any]]:
-    """Return the list of vocabulary items for the given vocabulary UUID."""
-    vocabulary_uuid = harvest_db.build_vocabulary_uuid(agency_id, key_concept)
-    if not vocabulary_uuid:
-        raise ProblemException(
-            title="Not Found",
-            status=404,
-            instance=str(request.url),
-        )
+    """Return the list of vocabulary items for the given vocabulary id."""
     try:
-        return harvest_db.get_vocabulary_dataset(vocabulary_uuid)
+        return harvest_db.get_vocabulary_dataset(agency_id, key_concept)
     except sqlite3.OperationalError:
         log.exception(
-            "Operational error while fetching vocabulary items for UUID %s",
-            vocabulary_uuid,
+            "Operational error while fetching vocabulary items for agency_id=%s and key_concept=%s",
+            agency_id,
+            key_concept,
         )
         raise
     except sqlite3.DatabaseError:
@@ -296,7 +276,6 @@ async def show_vocabulary_spec(
         harvest_db,
         agencyId,
         keyConcept,
-        require_vocabulary_uuid=False,
     )
 
     vocabulary_oas: dict = json.loads(row["openapi"])
