@@ -286,7 +286,18 @@ jobs:
         unzip /tmp/artifact.zip -d /usr/local/bin/
         chmod +x /usr/local/bin/schema_gov_it_tools.bin
         /usr/local/bin/schema_gov_it_tools.bin --version
+    - name: Check datapackage exists
+      id: check-datapackage
+      working-directory: ${{ matrix.asset }}
+      run: |
+        if [ -f datapackage.yaml ]; then
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+          echo "datapackage.yaml not found, skipping CSV generation"
+        fi
     - name: Generate and validate CSV
+      if: steps.check-datapackage.outputs.exists == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
       working-directory: >-
         ${{ matrix.asset }}
       run: |
@@ -319,6 +330,7 @@ jobs:
         MATRIX_ASSET: ${{ matrix.asset }}
     - name: Check for CSV files
       id: check-csv
+      if: steps.check-datapackage.outputs.exists == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
       working-directory: >-
         ${{ matrix.asset }}
       run: |
