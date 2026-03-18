@@ -162,12 +162,16 @@ jobs:
       id: check-frame
       working-directory: ${{ matrix.asset }}
       run: |
-        FRAME_FILE="${{ matrix.asset }}.frame.yamlld"
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+        FRAME_FILE="${ASSET_NAME}.frame.yamlld"
+
+        echo "Looking for frame: $FRAME_FILE"
+
         if [ -f "$FRAME_FILE" ]; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
         else
           echo "exists=false" >> "$GITHUB_OUTPUT"
-          echo "Frame file not found for ${{ matrix.asset }}, skipping datapackage creation"
+          echo "Frame file not found: expected '$FRAME_FILE'"
         fi
     - name: Warn missing frame
       if: steps.check-frame.outputs.exists == 'false'
