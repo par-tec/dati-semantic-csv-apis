@@ -141,13 +141,14 @@ jobs:
 
       - name: Determine CLI version
         id: cli_version
+        env:
+          GITHUB_REF: ${{ github.ref }}
+          UNTRUSTED_GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             VERSION="latest"
-          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            VERSION="${GITHUB_REF#refs/tags/}"
-          else
-            VERSION="dev-${GITHUB_RUN_NUMBER}"
+          elif [[ "${GITHUB_REF}" =~ ${{ matrix.tag_pattern }} ]]; then
+            VERSION="${UNTRUSTED_GITHUB_REF_NAME#*@}"
           fi
           echo "value=${VERSION}" >> "$GITHUB_OUTPUT"
 
@@ -204,6 +205,10 @@ jobs:
           image_suffix: "-data"
           tag_pattern: "^refs/tags/data@(.+)$"
           force_push_label: push-container:data  # Label prefix to force push the image in pull request
+        - target: cli
+          image_suffix: "-cli"
+          tag_pattern: "^refs/tags/cli@(.+)$"
+          force_push_label: push-container:cli  # Label prefix to force push the image in pull request
     name: Docker Build ${{ matrix.target }}
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
