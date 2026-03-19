@@ -20,7 +20,6 @@ from tools.commands.jsonld import jsonld
 from tools.commands.openapi import openapi
 
 log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 
 
 def _cli_version_string() -> str:
