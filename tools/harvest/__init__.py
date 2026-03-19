@@ -47,7 +47,14 @@ class VocabularyRepository:
     def download(self, destination_folder: Path) -> dict[str, str]:
         destination_folder.mkdir(parents=True, exist_ok=True)
 
-        source_url: str = self.download_url
+        if isinstance(self.download_url, list):
+            source_url: str = next(
+                url
+                for url in self.download_url
+                if url.endswith(f"{self.key_concept}.ttl")
+            )
+        else:
+            source_url = self.download_url
 
         source_url = _gh_to_raw_url(source_url)
 
@@ -70,7 +77,7 @@ class VocabularyRepository:
                     local_path.write_bytes(response.read())
                 log.info("Downloaded %s to %s", remote_url, local_path)
             except Exception as e:
-                log.error("Failed to download %s: %s", remote_url, e)
+                log.warning("Failed to download %s: %s", remote_url, e)
         return {
             "path": destination_folder.as_posix(),
             "vocabulary_ttl": vocab_ttl,
@@ -78,9 +85,4 @@ class VocabularyRepository:
         }
 
     def validate(self) -> bool:
-        if not isinstance(
-            self.download_url, str
-        ) or not self.download_url.startswith("http"):
-            log.error("Invalid Repository: %s", self.__dict__)
-            return False
         return True

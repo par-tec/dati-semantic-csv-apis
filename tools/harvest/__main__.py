@@ -107,11 +107,21 @@ def pipeline(catalog: Catalog, download_dir: Path, default_frame: Path) -> None:
             )
 
         if not jsonld_output.exists():
-            create_jsonld_framed(
-                ttl_path, frame_path, node["@id"], jsonld_output, True, 0
-            )
-        log.info("Created JSON-LD payload %s/%s", agency_id, key_concept)
-
+            try:
+                create_jsonld_framed(
+                    ttl_path, frame_path, node["@id"], jsonld_output, True, 0
+                )
+                log.info(
+                    "Created JSON-LD payload %s/%s", agency_id, key_concept
+                )
+            except Exception as e:
+                (node_dir / "jsonld-error.log").write_text(str(e))
+                log.error(
+                    "Failed to create JSON-LD payload for %s/%s",
+                    agency_id,
+                    key_concept,
+                )
+                continue
         if not openapi_output.exists():
             try:
                 create_oas_spec(
@@ -119,11 +129,11 @@ def pipeline(catalog: Catalog, download_dir: Path, default_frame: Path) -> None:
                 )
                 log.info("Created OpenAPI spec %s/%s", agency_id, key_concept)
             except Exception as e:
+                (node_dir / "jsonld-error.log").write_text(str(e))
                 log.error(
-                    "Failed to create OpenAPI spec for %s/%s: %s",
+                    "Failed to create OpenAPI spec for %s/%s",
                     agency_id,
                     key_concept,
-                    e,
                 )
 
 
