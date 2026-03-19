@@ -56,3 +56,25 @@ USER appuser
 # Run fast tests first, then the slower ones.
 RUN tox -e coverage -- -v -m "not asset" && \
     tox -e coverage -- -v -m asset
+
+#
+# CLI image
+#
+FROM base AS cli
+
+# Install git because pyld is installed from a Git repository
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy the entire project
+COPY . /app
+
+# Install the CLI as a Python package
+RUN pip install --no-cache-dir .
+
+# CLI entrypoint
+ENTRYPOINT ["python", "-m", "tools.commands"]
