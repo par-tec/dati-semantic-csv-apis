@@ -6,6 +6,8 @@ from pathlib import Path
 
 import click
 
+from tools.commands.jsonld import create_jsonld_framed
+from tools.commands.openapi import create_oas_spec
 from tools.harvest import VocabularyRepository
 from tools.harvest.catalog import Catalog
 
@@ -61,6 +63,68 @@ def download(
     except Exception as e:
         log.error("Failed to download vocabulary data: %s", e)
     click.echo(download_dir.as_posix())
+
+
+@harvest.command()
+@click.option(
+    "-d", "--download-dir", type=click.Path(path_type=Path), required=True
+)
+@click.option("--default-frame", type=click.Path(path_type=Path), required=True)
+@click.pass_obj
+def pipeline(catalog: Catalog, download_dir: Path, default_frame: Path) -> None:
+    for node in catalog.vocabularies()["@graph"]:
+        agency_id = Path(node["rightsHolder"]).name.lower()
+        key_concept = node["keyConcept"]
+        node_dir = download_dir / agency_id / key_concept
+        node_dir.mkdir(parents=True, exist_ok=True)
+        repo = VocabularyRepository(
+            download_url=node["turtleDownloadUrl"],
+            key_concept=key_concept,
+            rights_holder=node["rightsHolder"],
+            vocabulary_uri=node["@id"],
+        )
+        if not repo.validate():
+            log.error(
+                "Skipping invalid repository for %s/%s", agency_id, key_concept
+            )
+            continue
+        repo.download(node_dir)
+        log.info("Downloaded %s/%s", agency_id, key_concept)
+
+        ttl_path = node_dir / f"{key_concept}.ttl"
+        frame_path = node_dir / f"{key_concept}.frame.yamlld"
+        jsonld_output = node_dir / f"{key_concept}.data.yamlld"
+        openapi_output = node_dir / f"{key_concept}.oas3.yaml"
+        import shutil
+
+        if not frame_path.exists():
+            shutil.copy(default_frame, frame_path)
+            log.info(
+                "No frame found for %s/%s, copied default frame to %s",
+                agency_id,
+                key_concept,
+                frame_path,
+            )
+
+        if not jsonld_output.exists():
+            create_jsonld_framed(
+                ttl_path, frame_path, node["@id"], jsonld_output, True, 0
+            )
+        log.info("Created JSON-LD payload %s/%s", agency_id, key_concept)
+
+        if not openapi_output.exists():
+            try:
+                create_oas_spec(
+                    None, ttl_path, frame_path, node["@id"], openapi_output
+                )
+                log.info("Created OpenAPI spec %s/%s", agency_id, key_concept)
+            except Exception as e:
+                log.error(
+                    "Failed to create OpenAPI spec for %s/%s: %s",
+                    agency_id,
+                    key_concept,
+                    e,
+                )
 
 
 if __name__ == "__main__":

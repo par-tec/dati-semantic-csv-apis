@@ -1,18 +1,10 @@
-import json
 import logging
-import sqlite3
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
-import pandas as pd
-import yaml
-
-from tests.constants import SNAPSHOTS
-from tools.base import JsonLD
-from tools.harvest.catalog import Catalog
-from tools.store import APIStore, build_vocabulary_uuid
+from tools.store import build_vocabulary_uuid
 
 log = logging.getLogger(__name__)
 
@@ -84,3 +76,11 @@ class VocabularyRepository:
             "vocabulary_ttl": vocab_ttl,
             **self.__dict__,
         }
+
+    def validate(self) -> bool:
+        if not isinstance(
+            self.download_url, str
+        ) or not self.download_url.startswith("http"):
+            log.error("Invalid Repository: %s", self.__dict__)
+            return False
+        return True
