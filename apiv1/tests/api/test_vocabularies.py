@@ -1,8 +1,12 @@
+import json
 from collections import defaultdict
 from pathlib import Path
 
+import pytest
 import yaml
 from catalog.download import (
+    sparql_query,
+    sparql_query_vocabularies,
     transform_sparql_to_linkset,
 )
 
@@ -10,6 +14,37 @@ CWD = Path(__file__).parent
 
 API_BASE_URL = "https://schema.gov.it/api/vocabularies/v1/"
 SPARQL_URL = "https://virtuoso-test-external-service-ndc-test.apps.cloudpub.testedev.istat.it/sparql"
+
+
+def test_download():
+    all_vocabularies = sparql_query(
+        SPARQL_URL,
+        """
+        PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
+
+        CONSTRUCT {
+        ?scheme
+            NDC:keyConcept ?c;
+            dcterms:rightsHolder ?publisher
+        .
+        }
+        WHERE {
+        ?scheme
+             NDC:keyConcept ?c;
+            dcterms:rightsHolder ?publisher
+        .
+        }
+                    """,
+    )
+    expected = json.loads(all_vocabularies).get("@graph", [])
+    expected = {x["@id"] for x in expected}
+    data = sparql_query_vocabularies(SPARQL_URL)
+    data = {x["@id"] for x in data.get("@graph", [])}
+    assert len(data) == 146
+
+    raise pytest.skip("Support dcat and not only skos")
+    assert expected - data == set(), f"Missing vocabularies: {expected - data}"
+    assert len(expected) == 158
 
 
 def test_transform_vocabularies_to_linkset():

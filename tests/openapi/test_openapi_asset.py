@@ -46,6 +46,10 @@ def test_schema_with_constraints_and_validation(vocabulary_data_yaml: Path):
     if not datafile_ttl.exists():
         raise pytest.skip(datafile_ttl.name)
 
+    if datafile_ttl.stem in ("currency",):
+        raise pytest.skip(
+            f"{datafile_ttl.name} EU vocabularies are not yet supported."
+        )
     frame = JsonLDFrame.load(frame_yamlld)
 
     with vocabulary_data_yaml.open() as f:

@@ -25,6 +25,9 @@ and should not rely on external services (e.g., a separate database container) t
 - [x] We will use a relational database Sqlite to store the projected data.
 - [x] Entries will be stored as JSON in a single column, with an index on the identifier field.
 - [x] Searchable fields will be published as columns.
+- [x] Each vocabulary will be stored in a separate table, with a shared `_metadata` table to store common information and routing keys.
+- [x] The API will read from the Sqlite datafile in read-only mode to serve API requests.
+- [x] The table is identified by the pair `(agencyId, keyConcept)`, which is unique across vocabularies and used for API routing.
 
 The CLI:
 

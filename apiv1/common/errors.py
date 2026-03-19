@@ -1,13 +1,4 @@
-"""
-Exception handlers for the Catalog API.
-
-Responses:
-- must conform to application/problem+json
-- should not expose internal error details to the client.
-- MUST ensure that all response body fields are JSON-serializable.
-- MUST check for attributes and unexpected data
-
-"""
+"""Shared exception handlers for the API services."""
 
 import logging
 
@@ -32,43 +23,41 @@ def safe_problem(
     headers: dict | None = None,
     **kwargs,
 ) -> ConnexionResponse:
-    """
-    Build a size-constrained application/problem+json response.
-
-    All string fields are truncated to their configured maximums so
-    that callers never need to apply manual slicing.
-    """
-    if detail and (len(detail) > PROBLEM_MAX_DETAIL):
-        detail = detail[: PROBLEM_MAX_DETAIL - 10] + "..."
-
+    """Build a size-constrained application/problem+json response."""
     if title and (len(title) > PROBLEM_MAX_TITLE):
         title = title[: PROBLEM_MAX_TITLE - 10] + "..."
 
+    if status > 599 or status < 100:
+        status = 500
+
+    response = {
+        "status": status,
+        "title": title,
+    }
+
+    if type and (len(type) > 2048):
+        type = type[:2038] + "..."
+    response["type"] = type
+
+    if detail and (len(detail) > PROBLEM_MAX_DETAIL):
+        detail = detail[: PROBLEM_MAX_DETAIL - 10] + "..."
+    response["detail"] = detail or ""
+
     if instance and (len(instance) > PROBLEM_MAX_INSTANCE):
         instance = instance[: PROBLEM_MAX_INSTANCE - 10] + "..."
+    response["instance"] = instance or ""
 
     return problem(
-        status=status,
-        title=title,
-        detail=detail,
-        type=type,
-        instance=instance,
+        **response,
         headers=headers,
-        **kwargs,
+        # Safely ignore additional kwargs.
     )
 
 
 def bad_request(
     request: ConnexionRequest, error: BadRequestProblem
 ) -> ConnexionResponse:
-    """
-    Handle BadRequestProblem exceptions and return a 400 response.
-
-    Args:
-        error: The BadRequestProblem that was raised.
-    Returns:
-        A ConnexionResponse object representing the error response.
-    """
+    """Handle BadRequestProblem exceptions and return a 400 response."""
     return safe_problem(
         status=400,
         title="Bad Request",
@@ -79,17 +68,7 @@ def bad_request(
 def handle_problem_safe(
     request: ConnexionRequest, error: ProblemException
 ) -> ConnexionResponse:
-    """
-    Handle generic exceptions and return problem+json response.
-
-    The actual error details are logged but not exposed to the client.
-
-    Args:
-        error: The exception that was raised.
-
-    Returns:
-        A ConnexionResponse object representing the error response.
-    """
+    """Handle connexion ProblemException responses without exposing internals."""
     return safe_problem(
         status=error.status,
         title=error.title,
@@ -103,17 +82,7 @@ def handle_problem_safe(
 def handle_exception(
     request: ConnexionRequest, error: Exception
 ) -> ConnexionResponse:
-    """
-    Handle generic exceptions and return problem+json response.
-
-    The actual error details are logged but not exposed to the client.
-
-    Args:
-        error: The exception that was raised.
-
-    Returns:
-        A ConnexionResponse object representing the error response.
-    """
+    """Handle unexpected exceptions and return a generic 500 response."""
     logger.exception("Unhandled exception", exc_info=error)
     return safe_problem(
         status=500,
@@ -126,14 +95,7 @@ def handle_exception(
 def handle_not_implemented(
     request: ConnexionRequest, error: NotImplementedError
 ) -> ConnexionResponse:
-    """
-    Handle NotImplementedError exceptions and return a 501 response.
-
-    Args:
-        error: The NotImplementedError that was raised.
-    Returns:
-        A ConnexionResponse object representing the error response.
-    """
+    """Handle NotImplementedError exceptions and return a 501 response."""
     logger.exception("NotImplementedError: %s", str(error), exc_info=error)
 
     return safe_problem(
