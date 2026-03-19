@@ -70,10 +70,8 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Copy the entire project
 COPY . /app
 
-# Install the CLI as a Python package
 RUN pip install --no-cache-dir .
 
 # CLI entrypoint
