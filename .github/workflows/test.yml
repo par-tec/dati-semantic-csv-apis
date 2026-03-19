@@ -126,7 +126,12 @@ jobs:
     permissions:
       contents: read
       packages: write
-
+    strategy:
+      matrix:
+        include:
+        - target: cli
+          image_suffix: "-cli"
+          tag_pattern: "^refs/tags/cli@(.+)$"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -152,17 +157,23 @@ jobs:
             VERSION="${UNTRUSTED_GITHUB_REF_NAME#*@}"
           fi
           echo "value=${VERSION}" >> "$GITHUB_OUTPUT"
-
-      - name: Build CLI Docker image
-        run: |
-          docker build \
-            --target cli \
-            -t ghcr.io/${{ github.repository }}-cli:${{ steps.cli_version.outputs.value }} \
-            .
-
-      - name: Push CLI Docker image
-        run: |
-          docker push ghcr.io/${{ github.repository }}-cli:${{ steps.cli_version.outputs.value }}
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}-cli
+          tags: |
+            type=raw,value={{date 'YYYYMMDD'}}-${{github.run_number}}-{{sha}}
+            type=raw,value=${{ steps.cli_version.outputs.value }},enable=${{ steps.cli_version.outputs.value != '' }}
+      - name: Build and push CLI image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          target: cli
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   test-api:
     needs: changes
@@ -206,10 +217,6 @@ jobs:
           image_suffix: "-data"
           tag_pattern: "^refs/tags/data@(.+)$"
           force_push_label: push-container:data  # Label prefix to force push the image in pull request
-        - target: cli
-          image_suffix: "-cli"
-          tag_pattern: "^refs/tags/cli@(.+)$"
-          force_push_label: push-container:cli  # Label prefix to force push the image in pull request
     name: Docker Build ${{ matrix.target }}
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
