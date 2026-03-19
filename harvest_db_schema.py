@@ -314,7 +314,7 @@ class APIDatabase:
         quoted_table_name = self._quoted_identifier(vocabulary_uuid)
         try:
             rows = cast(
-                sqlite3.Row | None,
+                list[sqlite3.Row],
                 conn.execute(
                     f"SELECT _text FROM {quoted_table_name} ORDER BY id"
                 ).fetchall(),

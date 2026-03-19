@@ -17,7 +17,7 @@ ATECO_SPEC = yaml.safe_load(ATECO_OAS.read_text())
 
 
 @pytest.fixture
-def single_entry_db(tmp_path) -> str:
+def single_entry_db(tmp_path: Path) -> str:
     db_path = tmp_path / "deleteme.db"
 
     with APIDatabase(db_path.as_posix()) as db:
@@ -52,7 +52,7 @@ def single_entry_db(tmp_path) -> str:
 
 
 @pytest.fixture
-def broken_dataset_db(tmp_path) -> str:
+def broken_dataset_db(tmp_path: Path) -> str:
     db_path = tmp_path / "broken-harvest.db"
     conn = sqlite3.connect(db_path)
     conn.execute(

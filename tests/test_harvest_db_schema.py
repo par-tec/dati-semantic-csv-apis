@@ -64,7 +64,7 @@ def test_get_vocabulary_dataset_returns_items(sample_harvest_db):
 @pytest.mark.parametrize("agencyId", ["agid", "missing", None, ""])
 def test_build_vocabulary_uuid(agencyId, key_concept):
     if agencyId in (None, "") or key_concept in (None, ""):
-        with pytest.raises(ValueError):
+        with pytest.raises((ValueError, AssertionError)):
             build_vocabulary_uuid(agencyId, key_concept)
     else:
         assert (

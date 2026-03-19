@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 def sparql_query(
     sparql_url: str, query: str, format: str = "application/ld+json"
-) -> str:
+) -> bytes:
     params = {"query": query, "format": format}
     headers = {"Accept": format}
 
@@ -25,7 +25,7 @@ def sparql_query(
     request = urllib.request.Request(url, headers=headers)
 
     with urllib.request.urlopen(request) as response:
-        response_data = response.read()
+        response_data = cast(bytes, response.read())
         return response_data
 
 
@@ -105,8 +105,8 @@ def sparql_query_vocabularies(sparql_url: str) -> dict:
     response_data = sparql_query(
         sparql_url, query, format="application/ld+json"
     )
-    response_data = response_data.decode("utf-8")
-    return cast(dict[Any, Any], json.loads(response_data))
+    response_text = response_data.decode("utf-8")
+    return cast(dict[Any, Any], json.loads(response_text))
 
 
 ANY = object()
