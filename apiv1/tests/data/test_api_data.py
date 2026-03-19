@@ -15,6 +15,7 @@ from schemathesis.specs.openapi.schemas import OpenApiSchema
 
 from tests.harness import client_harness
 
+URI = "url"
 TESTDIR = Path(__file__).parent.parent
 APIDIR: Path = TESTDIR.parent / "data"
 OPENAPI_SPEC_PATH = APIDIR / "openapi.yaml"
@@ -23,9 +24,12 @@ oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
     str(OPENAPI_SPEC_PATH)
 )
 
+
 schema_dump = oas_schema.include(
     operation_id="data.handlers.dump_vocabulary_dataset"
-).parametrize
+)
+
+schema_item = oas_schema.include(operation_id="data.handlers.get_item")
 
 
 @oas_schema.parametrize()

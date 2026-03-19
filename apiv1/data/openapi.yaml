@@ -22,12 +22,19 @@ info:
 # checkov:skip=CKV_OPENAPI_4
 # checkov:skip=CKV_OPENAPI_5
 tags:
+- name: discover-vocabularies
+  description: |-
+    Discover vocabularies and how to retrieve the data and their metadata.
 - name: health-check
-  description: Endpoints for checking the health of the API.
+  description: |-
+    Check the health status of the API.
 - name: retrieve-data
-  description: Endpoints for retrieving vocabulary data.
+  description: |-
+    Retrieve the actual data, either in batch or point
 - name: dump-dataset
-  description: Endpoints for dumping the whole dataset.
+  description: |-
+    Dump the whole dataset for statistics or
+    internal reuse
 servers:
 - url: http://localhost:8080
   description: Local development server
@@ -38,34 +45,6 @@ servers:
 #     This is commented because the service will provide a customized
 #     openapi.yaml
 paths:
-  # This API does not define the /status endpoint because it is
-  # automatically provided by the API infrastructure.
-  # /openapi.yaml_:
-  #   get:
-  #     # operationId: show_vocabulary_spec
-  #     description: |-
-  #       Retrieve the OpenAPI specification
-  #       for a given vocabulary API identified by `agencyId` and `vocabularyId`.
-  #       The URL must be one of those
-  #       retrieved from the `/vocabularies` endpoint.
-  #
-  #       This OpenAPI resource includes
-  #       the x-jsonld-context and x-jsonld-type extensions
-  #       that enables the client to understand
-  #       how to interpret the vocabulary data.
-  #     security:
-  #     - {}
-  #     tags:
-  #     - discover-vocabularies
-  #     responses:
-  #       '200':
-  #         description: |-
-  #           A successful response returns the OpenAPI specification
-  #           for the vocabulary identified by `agencyId`.
-  #         content:
-  #           application/openapi+yaml:
-  #             schema:
-  #               type: object
   /{agencyId}/{keyConcept}/openapi.yaml:
     get:
       parameters:
@@ -401,6 +380,16 @@ components:
           items:
             $ref: "#/components/schemas/Item"
     Item:
+      type: object
+      description: |-
+        A base item schema that can be extended
+        with additional properties.
+
+        This is useful for vocabularies that have a common structure
+        but different properties.
+
+        The actual schema is provided by the real OAS published
+        on /{agencyId}/{keyConcept}/openapi.yaml, which extends this base schema.
       example:
         id: "11160204"
         label: Idrogeno solforato
@@ -419,11 +408,6 @@ components:
           maxLength: 500
           minLength: 1
           type: string
-        level:
-          maximum: 10
-          minimum: 0
-          format: int32
-          type: integer
         parent:
           items:
             properties:
@@ -434,6 +418,8 @@ components:
             - url
             type: object
           type: array
+          maxItems: 100
+          minItems: 0
         url:
           format: uri-reference
           type: string
@@ -447,49 +433,34 @@ components:
             - url
             type: object
           type: array
+          maxItems: 100
+          minItems: 0
       required:
       - id
       - label
-      - level
-      - parent
       - url
       # - vocab  # vocab is not required because some items may not have the skos:inScheme property.
-      type: object
       x-jsonld-context:
         "@vocab": https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/
         INAILService: https://w3id.org/italia/work-accident/onto/adm_serv/
         clvapit: https://w3id.org/italia/onto/CLV/
         dct: http://purl.org/dc/terms/
+        skos: http://www.w3.org/2004/02/skos/core#
+        xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+        xsd: http://www.w3.org/2001/XMLSchema#
         id:
           "@id": skos:notation
         label:
           "@id": skos:prefLabel
           "@language": it
-        label_de:
-          "@id": skos:prefLabel
-          "@language": de
-        label_en:
-          "@id": skos:prefLabel
-          "@language": en
-        level:
-          "@id": xkos:depth
-          "@type": xsd:integer
         parent:
           "@container": "@set"
           "@context":
             url: "@id"
           "@id": skos:broader
-        skos: http://www.w3.org/2004/02/skos/core#
         url: "@id"
         vocab:
           "@container": "@set"
           "@context":
             url: "@id"
           "@id": skos:inScheme
-        xkos: http://rdf-vocabulary.ddialliance.org/xkos#
-        xsd: http://www.w3.org/2001/XMLSchema#
-      x-jsonld-type: INAILService:AgenteCausaleINAIL
-      x-validation:
-        error_count: 0
-        errors: []
-        valid: true
