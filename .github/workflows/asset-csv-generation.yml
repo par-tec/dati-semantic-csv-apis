@@ -207,10 +207,10 @@ jobs:
         --ttl "${ASSET_NAME}.ttl" \
         --frame "${ASSET_NAME}.frame.yamlld" \
         --vocabulary-uri "changeme" \
-        --output "openapi.yaml" \
+        --output "${ASSET_NAME}.oas3.yaml" \
         --force
 
-        echo "Generated openapi.yaml for ${MATRIX_ASSET}"
+        echo "Generated ${ASSET_NAME}.oas3.yaml for ${MATRIX_ASSET}"
       env:
         MATRIX_ASSET: ${{ matrix.asset }}
     - name: Commit datapackage & OAS changes
@@ -221,7 +221,7 @@ jobs:
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
         git add "${{ matrix.asset }}/datapackage.yaml"
-        git add "${{ matrix.asset }}/openapi.yaml"
+        git add "${{ matrix.asset }}/*.oas3.yaml"
         if git diff --cached --quiet; then
           echo "No changes to commit"
           exit 0
