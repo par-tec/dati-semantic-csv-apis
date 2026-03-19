@@ -38,20 +38,22 @@ class Catalog:
 
     def __init__(self, sparql_url: str):
         self.sparql_url = sparql_url
-        self.graph = None
+        self._graph: dict[str, Any] | None = None
 
-    def vocabularies(self) -> list[dict[str, Any]]:
+    @property
+    def graph(self) -> dict[str, Any]:
+        if self._graph is None:
+            self._graph = sparql_query_vocabularies(self.sparql_url)
+        assert self._graph is not None
+        return self._graph
+
+    def vocabularies(self) -> dict[str, Any]:
         """
         Return the list of vocabulary schemes in the catalog, with their properties.
 
         Each scheme is represented as a dictionary with keys such as 'concept', 'title', 'languages', 'description', 'type', 'version', and 'publisher'.
         """
-        if self.graph is None:
-            self.load_catalog()
         return self.graph
-
-    def load_catalog(self):
-        self.graph = sparql_query_vocabularies(self.sparql_url)
 
     def items(self):
         """
@@ -59,9 +61,7 @@ class Catalog:
 
         Each scheme is represented as a dictionary with keys such as 'concept', 'title', 'languages', 'description', 'type', 'version', and 'publisher'.
         """
-        if self.graph is None:
-            self.load_catalog()
-        return transform_sparql_to_linkset_items(self.graph, "").values()
+        return self.graph["@graph"] if "@graph" in self.graph else []
 
     def to_db(self, harvest_db: APIStore):
         """
@@ -69,8 +69,6 @@ class Catalog:
 
         This method iterates over the vocabulary schemes in the catalog and stores their metadata and items into the database using the provided APIStore instance.
         """
-        if self.graph is None:
-            self.load_catalog()
         schemes = transform_sparql_to_linkset_items(self.graph, "")
         for _, scheme_data in schemes.items():
             agency_id = scheme_data["author"].split("/")[-1].lower()

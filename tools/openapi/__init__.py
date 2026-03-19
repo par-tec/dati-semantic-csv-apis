@@ -200,7 +200,7 @@ class Apiable(Vocabulary):
             "about": metadata.uri,
             "title": metadata.title,
             "description": metadata.description,
-            "hreflang": list(metadata.languages),
+            "hreflang": metadata.languages(),
             # "type": "application/json",
             "version": metadata.version,
             "author": metadata.rights_holder,
