@@ -13,9 +13,9 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from harvest_db_schema import APIDatabase, build_vocabulary_uuid
 from tests.constants import SNAPSHOTS
 from tools.base import JsonLD
+from tools.store import APIStore, build_vocabulary_uuid
 
 SPARQL_ENDPOINT = "https://schema.gov.it/sparql"
 SPARQL_QUERY = """
@@ -235,7 +235,7 @@ def add_data_to_db(folder: Path, db_url: str, repository: VocabularyRepository):
     data_payload: JsonLD = yaml.safe_load(data_path.read_text(encoding="utf-8"))
     rows = [_db_row(item) for item in data_payload.get("@graph", [])]
 
-    db = APIDatabase(_sqlite_path(db_url))
+    db = APIStore(_sqlite_path(db_url))
     with db:
         db.create_metadata_table()
         db.upsert_metadata(

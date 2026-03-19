@@ -16,13 +16,13 @@ import yaml
 from connexion import ProblemException, request
 from connexion.lifecycle import ConnexionResponse
 
-from harvest_db_schema import APIDatabase
+from tools.store import APIStore
 
 log = logging.getLogger(__name__)
 
 
 def _get_metadata_or_fail(
-    harvest_db: APIDatabase,
+    harvest_db: APIStore,
     agency_id: str,
     key_concept: str,
 ) -> sqlite3.Row:
@@ -54,7 +54,7 @@ def _get_metadata_or_fail(
 
 
 def _get_vocabulary_items_or_fail(
-    harvest_db: APIDatabase,
+    harvest_db: APIStore,
     agency_id: str,
     key_concept: str,
 ) -> list[dict[str, Any]]:
@@ -103,10 +103,10 @@ def _query_vocabulary_items_or_fail(
     return items[:limit]
 
 
-def _get_database_or_fail() -> APIDatabase:
-    """Return the configured read-only APIDatabase instance."""
+def _get_database_or_fail() -> APIStore:
+    """Return the configured read-only APIStore instance."""
     harvest_db = cast(
-        APIDatabase | None,
+        APIStore | None,
         getattr(request.state, "harvest_db", None),
     )
     if harvest_db is None:

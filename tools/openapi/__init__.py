@@ -48,13 +48,6 @@ def _remove_jsonld_keys(obj: Any) -> Any:
     return obj
 
 
-def _filter(item: dict):
-    """Compatibility shim — delegates to APIDatabase.jsonld_item_to_row."""
-    from harvest_db_schema import APIDatabase
-
-    return APIDatabase.jsonld_item_to_row(item)
-
-
 class Apiable(Vocabulary):
     """
     A Vocabulary that can be framed and projected as API data.
@@ -138,7 +131,7 @@ class Apiable(Vocabulary):
         """
         API require agencyId and keyConcept.
         """
-        from harvest_db_schema import build_vocabulary_uuid
+        from tools.store import build_vocabulary_uuid
 
         metadata: VocabularyMetadata = self.metadata()
         if metadata.name is None or metadata.agency_id is None:
@@ -151,7 +144,7 @@ class Apiable(Vocabulary):
         )
 
     def to_db(self, data: JsonLD, datafile: Path, force: bool = False):
-        from harvest_db_schema import APIDatabase
+        from tools.store import APIStore
 
         assert data
         metadata: VocabularyMetadata = self.metadata()
@@ -161,7 +154,7 @@ class Apiable(Vocabulary):
             )
         if force and datafile.exists():
             datafile.unlink()
-        with APIDatabase(str(datafile)) as db:
+        with APIStore(str(datafile)) as db:
             db.update_vocabulary_from_jsonld(
                 metadata.agency_id,
                 metadata.name,
@@ -169,7 +162,7 @@ class Apiable(Vocabulary):
             )
 
     def from_db(self, datafile: Path) -> JsonLD:
-        from harvest_db_schema import APIDatabase
+        from tools.store import APIStore
 
         metadata: VocabularyMetadata = self.metadata()
         if metadata.name is None or metadata.agency_id is None:
@@ -177,7 +170,7 @@ class Apiable(Vocabulary):
                 "Vocabulary metadata must include non-empty 'name' and 'agency_id'"
             )
 
-        with APIDatabase(str(datafile)) as db:
+        with APIStore(str(datafile)) as db:
             return cast(
                 JsonLD,
                 db.get_vocabulary_jsonld(
@@ -186,6 +179,48 @@ class Apiable(Vocabulary):
                     self.frame.context,
                 ),
             )
+
+    def catalog_entry(self) -> dict[str, Any]:
+        """
+        Return a dictionary representing this vocabulary as an entry in the API catalog.
+
+        The returned dictionary includes properties such as 'href', 'about', 'title', 'description', 'hreflang', 'version', 'author', and relations like 'service-desc' and 'predecessor-version'.
+        """
+        metadata: VocabularyMetadata = self.metadata()
+        if metadata.name is None or metadata.agency_id is None:
+            raise ValueError(
+                "Vocabulary metadata must include non-empty 'name' and 'agency_id'"
+            )
+        api_url = f"{metadata.agency_id.lower()}/{metadata.name}"
+        openapi_url = f"{api_url}/openapi.yaml"
+        predecessor_url = f"https://schema.gov.it/api/vocabularies/{api_url}"
+
+        return {
+            "href": api_url,
+            "about": metadata.uri,
+            "title": metadata.title,
+            "description": metadata.description,
+            "hreflang": list(metadata.languages),
+            # "type": "application/json",
+            "version": metadata.version,
+            "author": metadata.rights_holder,
+            "_vocabulary_type": metadata.type,
+            "_concept": metadata.name,
+            "service-desc": [
+                {"href": openapi_url, "type": "application/openapi+yaml"}
+            ],
+            "service-meta": [
+                {
+                    "href": f"{metadata.uri}?output=application/ld+json",
+                    "type": "application/ld+json",
+                }
+            ],
+            "predecessor-version": [
+                {
+                    "href": predecessor_url,
+                }
+            ],
+        }
 
     def json_schema(
         self,

@@ -8,8 +8,8 @@ import pytest
 import yaml
 from data.app import Config, create_app
 
-from harvest_db_schema import APIDatabase
 from tests.harness import client_harness
+from tools.store import APIStore
 
 TESTDIR = Path(__file__).parent.parent
 ATECO_OAS = TESTDIR / "api" / "ateco-2025.oas3.yaml"
@@ -20,7 +20,7 @@ ATECO_SPEC = yaml.safe_load(ATECO_OAS.read_text())
 def single_entry_db(tmp_path: Path) -> str:
     db_path = tmp_path / "deleteme.db"
 
-    with APIDatabase(db_path.as_posix()) as db:
+    with APIStore(db_path.as_posix()) as db:
         db.create_metadata_table()
         db.upsert_metadata(
             vocabulary_uri="https://example.com/vocabularies/test",

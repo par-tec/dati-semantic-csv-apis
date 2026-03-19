@@ -151,8 +151,8 @@ def apiable_from_testcase():
 
 def test_apiable_persistence_roundtrip(apiable_from_testcase, tmp_path):
     """to_db / from_db round-trip: data readable both via from_db and directly
-    through APIDatabase, with identical items and correct @context."""
-    from harvest_db_schema import APIDatabase
+    through APIStore, with identical items and correct @context."""
+    from tools.harvest import APIStore
 
     apiable = apiable_from_testcase
     db_path = tmp_path / "data.db"
@@ -164,7 +164,7 @@ def test_apiable_persistence_roundtrip(apiable_from_testcase, tmp_path):
     metadata = apiable.metadata()
     assert metadata.agency_id is not None
     assert metadata.name is not None
-    with APIDatabase(db_path.as_posix()) as db:
+    with APIStore(db_path.as_posix()) as db:
         dataset = db.get_vocabulary_dataset(
             metadata.agency_id,
             metadata.name,
