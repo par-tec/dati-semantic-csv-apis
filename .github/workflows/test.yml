@@ -145,9 +145,10 @@ jobs:
           GITHUB_REF: ${{ github.ref }}
           UNTRUSTED_GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
+          TAG_PATTERN='${{ matrix.tag_pattern }}'
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             VERSION="latest"
-          elif [[ "${GITHUB_REF}" =~ ${{ matrix.tag_pattern }} ]]; then
+          elif [[ "${GITHUB_REF}" =~ ${TAG_PATTERN} ]]; then
             VERSION="${UNTRUSTED_GITHUB_REF_NAME#*@}"
           fi
           echo "value=${VERSION}" >> "$GITHUB_OUTPUT"
