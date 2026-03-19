@@ -191,6 +191,7 @@ class APIStore:
         agency_id: str,
         key_concept: str,
         openapi: dict[str, Any],
+        catalog: dict[str, Any],
     ) -> None:
         vocabulary_uuid = self._table_name(agency_id, key_concept)
         conn = self.connect()
@@ -201,21 +202,30 @@ class APIStore:
                 vocabulary_uri,
                 agency_id,
                 key_concept,
-                openapi
-            ) VALUES (?, ?, ?, ?, ?)
+                openapi,
+                catalog
+            ) VALUES (:vocabulary_uuid, :vocabulary_uri, :agency_id, :key_concept, :openapi, :catalog)
             ON CONFLICT(vocabulary_uuid) DO UPDATE SET
                 vocabulary_uri = excluded.vocabulary_uri,
                 agency_id = excluded.agency_id,
                 key_concept = excluded.key_concept,
-                openapi = excluded.openapi
+                openapi = CASE
+                    WHEN excluded.openapi = '{}' THEN _metadata.openapi
+                    ELSE excluded.openapi
+                END,
+                catalog = CASE
+                    WHEN excluded.catalog = '{}' THEN _metadata.catalog
+                    ELSE excluded.catalog
+                END
             """,
-            (
-                vocabulary_uuid,
-                vocabulary_uri,
-                agency_id,
-                key_concept,
-                json.dumps(openapi),
-            ),
+            {
+                "vocabulary_uuid": vocabulary_uuid,
+                "vocabulary_uri": vocabulary_uri,
+                "agency_id": agency_id,
+                "key_concept": key_concept,
+                "openapi": json.dumps(openapi),
+                "catalog": json.dumps(catalog),
+            },
         )
         conn.commit()
 

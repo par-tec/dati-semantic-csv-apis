@@ -61,7 +61,7 @@ class Catalog:
         """
         if self.graph is None:
             self.load_catalog()
-        return transform_sparql_to_linkset(self.graph, "").values()
+        return transform_sparql_to_linkset_items(self.graph, "").values()
 
     def to_db(self, harvest_db: APIStore):
         """
@@ -71,21 +71,17 @@ class Catalog:
         """
         if self.graph is None:
             self.load_catalog()
-        schemes = transform_sparql_to_linkset(self.graph, "")
+        schemes = transform_sparql_to_linkset_items(self.graph, "")
         for _, scheme_data in schemes.items():
             agency_id = scheme_data["author"].split("/")[-1].lower()
             key_concept = scheme_data["_concept"]
-            metadata = {
-                "concept": key_concept,
-                "title": scheme_data["title"],
-                "languages": scheme_data["hreflang"],
-                "description": scheme_data["description"],
-                "type": scheme_data["_vocabulary_type"],
-                "version": scheme_data["version"],
-                "publisher": scheme_data["author"],
-            }
-            items = []  # In a real implementation, you would fetch the items for each vocabulary
-            harvest_db.store_vocabulary(agency_id, key_concept, metadata, items)
+            harvest_db.upsert_metadata(
+                vocabulary_uri=scheme_data["about"],
+                agency_id=agency_id,
+                key_concept=key_concept,
+                openapi={},  # Placeholder for the OpenAPI spec
+                catalog=scheme_data,  # Store the catalog data as-is
+            )
 
     def linkset(self, base_url: str) -> dict:
         """
@@ -151,7 +147,9 @@ def get_languages(val: list):
             )
 
 
-def transform_sparql_to_linkset(sparql_results: dict, base_url: str) -> dict:
+def transform_sparql_to_linkset_items(
+    sparql_results: dict, base_url: str
+) -> dict:
     """
     Transform JSON-LD SPARQL results into RFC 9727 linkset format.
 
@@ -287,7 +285,7 @@ def sparql_query_vocabularies(sparql_url: str) -> dict:
 
         CONSTRUCT {
             # Required properties for API endpoint:
-            ?scheme NDC:keyConcept ?concept
+            ?scheme NDC:keyConcept ?keyConcept
             ; dcterms:rightsHolder ?publisher
 
             # Catalog properties for linkset:
@@ -303,7 +301,7 @@ def sparql_query_vocabularies(sparql_url: str) -> dict:
         }
         WHERE {
             ?scheme
-            NDC:keyConcept ?concept
+            NDC:keyConcept ?keyConcept
             ; dcterms:rightsHolder ?publisher
             ; skos:prefLabel ?title
             ; dcat:distribution ?distribution
