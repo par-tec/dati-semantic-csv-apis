@@ -178,6 +178,11 @@ jobs:
         unzip /tmp/artifact.zip -d /usr/local/bin/
         chmod +x /usr/local/bin/schema_gov_it_tools.bin
         /usr/local/bin/schema_gov_it_tools.bin --version
+    
+    - name: Debug matrix asset
+      run: |
+        echo "Processing directory: '${{ matrix.asset }}'"
+
     - name: Check frame file exists
       id: check-frame
       working-directory: ${{ matrix.asset }}
