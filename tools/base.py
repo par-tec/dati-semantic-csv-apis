@@ -165,7 +165,7 @@ class JsonLDFrame(dict):
 
                 if actual_iri not in expected_iris:
                     raise ValueError(
-                        f"Field '{field}' must be one of {expected_iris}, "
+                        f"Frame field '{field}' must be one of {expected_iris}, "
                         f"got {actual_iri}"
                     )
 

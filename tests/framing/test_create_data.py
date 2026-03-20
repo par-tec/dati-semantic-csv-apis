@@ -1,4 +1,5 @@
 import json
+from contextlib import nullcontext
 from operator import itemgetter
 
 import pytest
@@ -19,13 +20,22 @@ from tools.vocabulary import (
 vocabularies = list(ASSETS.glob("**/*.ttl"))
 
 
+def _test_should_fail(obj):
+    return isinstance(obj, type) and issubclass(obj, Exception)
+
+
 @pytest.mark.parametrize(
-    "data,frame",
-    [itemgetter("data", "frame")(x) for x in TESTCASES],
-    ids=[x["name"] for x in TESTCASES],
+    "data,frame,expected_payload",
+    [
+        pytest.param(
+            *itemgetter("data", "frame", "expected_payload")(testcase),
+            id=testcase["name"],
+        )
+        for testcase in TESTCASES
+    ],
 )
 def test_can_project_data(
-    data, frame, snapshot, request: pytest.FixtureRequest
+    data, frame, expected_payload, snapshot, request: pytest.FixtureRequest
 ):
     """
     Given:
@@ -39,13 +49,22 @@ def test_can_project_data(
     Then:
     - I expect the projected API to only include fields from the framing context, or "@type"
     """
+
     frame = JsonLDFrame(frame)
     selected_fields = {"@type", *frame.get_fields()}
     vocabulary = Vocabulary(data)
-    framed = vocabulary.project(
-        frame,
-        callbacks=[lambda framed: select_fields(framed, selected_fields)],
-    )
+
+    with (
+        pytest.raises(expected_payload)
+        if _test_should_fail(expected_payload)
+        else nullcontext()
+    ):
+        framed = vocabulary.project(
+            frame,
+            callbacks=[lambda framed: select_fields(framed, selected_fields)],
+        )
+    if _test_should_fail(expected_payload):
+        return
     graph = framed["@graph"]
 
     for item in graph:
@@ -62,8 +81,14 @@ def test_can_project_data(
 
 @pytest.mark.parametrize(
     "data,frame",
-    [itemgetter("data", "frame")(x) for x in TESTCASES],
-    ids=[x["name"] for x in TESTCASES],
+    [
+        pytest.param(
+            *itemgetter("data", "frame")(testcase),
+            id=testcase["name"],
+        )
+        for testcase in TESTCASES
+        if not _test_should_fail(testcase.get("expected_payload"))
+    ],
 )
 def test_can_validate_data(data, frame):
     """

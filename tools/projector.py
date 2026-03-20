@@ -10,6 +10,43 @@ from tools.base import JsonLD, JsonLDFrame
 log = logging.getLogger(__name__)
 
 
+def _validate_id_field(item: dict) -> None:
+    """Validate the presence and structure of the 'id' field in a framed item."""
+    if "id" not in item:
+        raise ValueError(f"Missing 'id' field in item {item}")
+
+    id_value = item["id"]
+    if not isinstance(id_value, str):
+        if "@language" in id_value:
+            raise ValueError(
+                f"Unexpected '@language' in an identifier field: {id_value} in item {item}. See SKOS https://www.w3.org/TR/skos-reference/#L2655 for details."
+            )
+
+
+def _validate_vocab_entries(item: dict) -> None:
+    """Validate the optional 'vocab' field structure of a framed item."""
+    if "vocab" not in item:
+        return
+
+    vocabularies = item["vocab"]
+    if vocabularies is None:
+        return
+    if not isinstance(vocabularies, list):
+        raise ValueError(
+            f"Unexpected 'vocab' field type: {type(vocabularies)} in item {item}"
+        )
+
+    for vocab_entry in vocabularies:
+        if not isinstance(vocab_entry, dict):
+            raise ValueError(
+                f"Unexpected 'vocab' entry type: {type(vocab_entry)} in item {item}"
+            )
+        if "@type" in vocab_entry:
+            raise ValueError(
+                f"Unexpected '@type' in 'vocab' entry: {vocab_entry} in item {item}"
+            )
+
+
 def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
     """
     Apply a JSON-LD frame to a JSON-LD serialized RDF data to produce a JSON output.
@@ -99,25 +136,9 @@ def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
             "Empty batch framing result, '@graph' key missing"
         )
 
-        for i in framed_batch["@graph"]:
-            if "vocab" not in i:
-                continue
-            vocabularies = i["vocab"]
-            if vocabularies is None:
-                continue
-            if not isinstance(vocabularies, list):
-                raise ValueError(
-                    f"Unexpected 'vocab' field type: {type(vocabularies)} in item {i}"
-                )
-            for v in vocabularies:
-                if not isinstance(v, dict):
-                    raise ValueError(
-                        f"Unexpected 'vocab' entry type: {type(v)} in item {i}"
-                    )
-                if "@type" in v:
-                    raise ValueError(
-                        f"Unexpected '@type' in 'vocab' entry: {v} in item {i}"
-                    )
+        for item in framed_batch["@graph"]:
+            _validate_vocab_entries(item)
+            _validate_id_field(item)
         #
         # Log differences to troubleshoot
         #   the framing process.
