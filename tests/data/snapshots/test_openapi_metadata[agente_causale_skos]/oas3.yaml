@@ -104,8 +104,9 @@ components:
 info:
   contact:
     email: >-
-      fake@example.com
-    name: Fake Name
+      roberto.cangiamila@par-tec.it
+    name: >-
+      Roberto Cangiamila
     url: >-
       https://w3id.org/italia/work-accident/data/organization/inail
   description: >-
