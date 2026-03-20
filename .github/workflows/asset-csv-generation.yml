@@ -39,6 +39,7 @@ env:
   SOURCE_REF: ${{ github.event.pull_request.head.sha || github.sha
     }}
   CHECKOUT_REF: assets
+  VOCABULARY_DIR: 'assets/controlled-vocabularies'
 jobs:
   # Detect which assets changed in this push
   detect-changes:
@@ -60,18 +61,37 @@ jobs:
         # Get the list of changed files in the assets directory
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
           # For manual dispatch, detect all assets
-          ASSETS=$(find assets/controlled-vocabularies -maxdepth 1 -type f -name \*.ttl -exec basename {} \; | sort -u | jq -R -s -c 'split("\n")[:-1]')
-          echo "Detected assets for manual dispatch: ${ASSETS}"
+          RAW_ASSETS=$(find "$VOCABULARY_DIR" -maxdepth 3 -type f -name "*.ttl" -exec dirname {} \; | sort -u)
+          echo "Detected assets for manual dispatch:"
+          echo "$RAW_ASSETS"
         else
           true # XXX: uncomment
           # For push events, detect changed assets
-          # CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD | grep '^assets/controlled-vocabularies/')
+          # CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD | grep "^${VOCABULARY_DIR}/")
           # ASSETS=$(echo "$CHANGED_FILES" | cut -d/ -f3 | sort -u | jq -R -s -c 'split("\n")[:-1] | map(select(length > 0))')
         fi
+        #Fallback if RAW_ASSETS is empty.
+        if [ -z "$RAW_ASSETS" ]; then
+          RAW_ASSETS=$(find "$VOCABULARY_DIR" -type f -name "*.ttl" -exec dirname {} \; | sort -u)
+          echo "Fallback RAW_ASSETS:"
+          echo "$RAW_ASSETS"
+        fi
+        #filtered assets
+        FILTERED_ASSETS=()
 
-        ASSETS=$(find assets/controlled-vocabularies  \
-          -type f -name \*.ttl  -exec dirname {} \; | \
-          sort -u | jq -R -s -c 'split("\n")[:-1]')
+        for DIR in $RAW_ASSETS; do
+        TTL_FILES=($(find "$DIR" -maxdepth 3 -type f -name "*.ttl"))
+        COUNT=${#TTL_FILES[@]}
+
+        if [ "$COUNT" -gt 1 ]; then
+          echo "::warning::Directory $DIR contains multiple TTL files ($COUNT). Skipping."
+        continue
+        fi
+        # Exactly one TTL file found, include this asset
+        FILTERED_ASSETS+=("$DIR")
+        done
+
+        ASSETS=$(printf "%s\n" "${FILTERED_ASSETS[@]}" | jq -R -s -c 'split("\n")[:-1]')
 
         echo "assets=${ASSETS}" >> "$GITHUB_OUTPUT"
         echo "Detected assets: ${ASSETS}"
@@ -319,8 +339,20 @@ jobs:
           echo "exists=false" >> "$GITHUB_OUTPUT"
           echo "datapackage.yaml not found, skipping CSV generation"
         fi
+    - name: Check frame exists
+      id: check-frame
+      working-directory: ${{ matrix.asset }}
+      run: |
+        if ls *.frame.yamlld 1> /dev/null 2>&1; then
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+          FRAME_FILE=$(ls *.frame.yamlld | head -1)
+          echo "frame_file=$FRAME_FILE" >> "$GITHUB_OUTPUT"
+        else
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+          echo "frame file not found, skipping CSV generation"
+        fi
     - name: Generate and validate CSV
-      if: steps.check-datapackage.outputs.exists == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
+      if: steps.check-datapackage.outputs.exists == 'true' && steps.check-frame.outputs.exists == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
       working-directory: >-
         ${{ matrix.asset }}
       run: |
@@ -379,7 +411,7 @@ jobs:
           This PR contains the auto-generated CSV file for the `${{ matrix.asset }}` controlled vocabulary.
 
           ## Generated Files
-          - `assets/controlled-vocabularies/${{ matrix.asset }}/${{ steps.check-csv.outputs.csv_file }}`
+          - `${{ env.VOCABULARY_DIR }}/${{ matrix.asset }}/${{ steps.check-csv.outputs.csv_file }}`
 
           ## Validation
           The CSV has been generated from the RDF vocabulary and validated against the datapackage metadata.
