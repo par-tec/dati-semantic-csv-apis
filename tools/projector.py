@@ -8,7 +8,6 @@ from pyld import jsonld
 from tools.base import JsonLD, JsonLDFrame
 
 log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 
 
 def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
@@ -82,6 +81,16 @@ def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
         )
         batch_frame_time = time.time() - batch_frame_start
         log.info(f"Batch framing took {batch_frame_time:.3f}s")
+
+        if "@type" in framed_batch and "@graph" not in framed_batch:
+            log.debug(
+                "Framing resulted in a single item instead of a graph, "
+                "wrapping it in @graph for consistency"
+            )
+            framed_batch = {
+                "@context": framed_batch["@context"],
+                "@graph": [framed_batch],
+            }
 
         #
         # Control block for debugging framing issues.
