@@ -885,12 +885,17 @@ testcases:
     label:
       "@language": ["it", "en", "de"]
       "@value": {}
-    level: {}
+
+    # This is a default and tolerant frame that
+    #   should accept null levels.
+    level:
+      "@default": "@null"
 
     vocab:
     - url: {}
       "@explicit": true
       "@embed": "@never"
+      "@default": "@null"
     parent:
     - url: {}
       id: {}
