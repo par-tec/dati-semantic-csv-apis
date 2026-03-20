@@ -1,0 +1,103 @@
+components:
+  schemas:
+    Item:
+      example:
+        id: '0'
+        label: Colf
+        parent: []
+        url: >-
+          https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/tipo_mansione_lavoratore_domestico/0
+        vocab:
+        - url: >-
+            https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/tipo_mansione_lavoratore_domestico
+        xkos:depth: null
+      properties:
+        id:
+          minLength: 1
+          pattern: >-
+            ^[A-Za-z0-9._-]+$
+          type: string
+        label:
+          maxLength: 500
+          minLength: 1
+          type: string
+        parent:
+          items:
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+        url:
+          format: uri-reference
+          type: string
+        vocab:
+          items:
+            properties:
+              url:
+                format: uri-reference
+                type: string
+            required:
+            - url
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+      required:
+      - id
+      - label
+      - parent
+      - url
+      - vocab
+      type: object
+      "x-jsonld-context":
+        dct: >-
+          http://purl.org/dc/terms/
+        id:
+          '@id': dct:identifier
+        label:
+          '@id': skos:prefLabel
+          '@language': it
+        level:
+          '@id': xkos:depth
+          '@type': xsd:integer
+        parent:
+          '@container': '@set'
+          '@context':
+            url: '@id'
+          '@id': skos:broader
+        skos: >-
+          http://www.w3.org/2004/02/skos/core#
+        url: '@id'
+        vocab:
+          '@container': '@set'
+          '@context':
+            url: '@id'
+          '@id': skos:inScheme
+        xkos: >-
+          http://rdf-vocabulary.ddialliance.org/xkos#
+        xsd: >-
+          http://www.w3.org/2001/XMLSchema#
+      x-jsonld-type: skos:Concept
+      x-validation:
+        error_count: 0
+        errors: []
+        valid: true
+info:
+  contact:
+    email: >-
+      fake@example.com
+    name: Fake Name
+    url: >-
+      https://w3id.org/italia/social-security/data/organization/inps
+  description: >-
+    Vocabolario controllato sulla tipologia di retribuzione
+  title: >-
+    Vocabolario controllato sulla tipologia di mansione svolta dal Lavoratore Domestico
+  version: '0.1'
+  x-agencyId: inps
+  x-keyConcept: >-
+    tipo_mansione_lavoratore_domestico
+  x-summary: ''
+openapi: 3.0.0
+paths: {}
+servers: []

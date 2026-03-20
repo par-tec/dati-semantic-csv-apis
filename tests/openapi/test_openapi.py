@@ -94,7 +94,7 @@ def test_openapi_metadata(
     turtle: RDFText,
     frame: JsonLDFrame,
     expected_jsonschema: dict,
-    snapshot_dir: Path,
+    snapshot: Path,
     request: pytest.FixtureRequest,
 ):
     """
@@ -116,8 +116,7 @@ def test_openapi_metadata(
     if "-eu-" in request.node.callspec.id:
         pytest.skip("EU vocabularies are not supported yet")
 
-    oas3_yaml = snapshot_dir / "oas3.yaml"
-
+    oas3_yaml = snapshot / "base" / f"{request.node.callspec.id}.oas3.yaml"
     frame = JsonLDFrame(frame)
     apiable = Apiable(turtle, frame)
 
@@ -162,6 +161,8 @@ def test_openapi_datastore_from_rdf(
         pytest.skip("EU vocabularies are not supported yet")
 
     oas3_yaml = SNAPSHOTS / "base" / f"{request.node.callspec.id}.oas3.yaml"
+    if isinstance(expected_jsonschema, (str, type(None))):
+        expected_jsonschema = yaml.safe_load(oas3_yaml.read_text())
     validator = Draft7Validator(expected_jsonschema)
     datafile_db = snapshot_dir / "data.db"
     # Given an RDF vocabulary and a frame...
