@@ -40,16 +40,12 @@ components:
           maxItems: 100
           minItems: 0
           type: array
-        xkos:depth:
-          nullable: true
-          type: string
       required:
       - id
       - label
       - parent
       - url
       - vocab
-      - xkos:depth
       type: object
       "x-jsonld-context":
         dct: >-
@@ -81,15 +77,9 @@ components:
           http://www.w3.org/2001/XMLSchema#
       x-jsonld-type: skos:Concept
       x-validation:
-        error_count: 1
-        errors:
-        - index: 0
-          message: >-
-            None is not of type 'string'
-          path:
-          - xkos:depth
-          validator: type
-        valid: false
+        error_count: 0
+        errors: []
+        valid: true
 info:
   contact:
     email: >-
