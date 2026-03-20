@@ -159,17 +159,20 @@ jobs:
         unzip /tmp/artifact.zip -d /usr/local/bin/
         chmod +x /usr/local/bin/schema_gov_it_tools.bin
         /usr/local/bin/schema_gov_it_tools.bin --version
-    - name: Check frame exists
+    - name: Check frame file exists
       id: check-frame
       working-directory: ${{ matrix.asset }}
       run: |
-        if ls *.frame.yamlld 1> /dev/null 2>&1; then
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+        FRAME_FILE="${ASSET_NAME}.frame.yamlld"
+
+        echo "Looking for frame: $FRAME_FILE"
+
+        if [ -f "$FRAME_FILE" ]; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
-          FRAME_FILE=$(ls *.frame.yamlld | head -1)
-          echo "frame_file=$FRAME_FILE" >> "$GITHUB_OUTPUT"
         else
           echo "exists=false" >> "$GITHUB_OUTPUT"
-          echo "frame file not found, skipping datapackage generation"
+          echo "Frame file not found: expected '$FRAME_FILE'"
         fi
     - name: Warn missing frame
       if: steps.check-frame.outputs.exists == 'false'
@@ -317,17 +320,20 @@ jobs:
           echo "exists=false" >> "$GITHUB_OUTPUT"
           echo "datapackage.yaml not found, skipping CSV generation"
         fi
-    - name: Check frame exists
+    - name: Check frame file exists
       id: check-frame
       working-directory: ${{ matrix.asset }}
       run: |
-        if ls *.frame.yamlld 1> /dev/null 2>&1; then
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+        FRAME_FILE="${ASSET_NAME}.frame.yamlld"
+
+        echo "Looking for frame: $FRAME_FILE"
+
+        if [ -f "$FRAME_FILE" ]; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
-          FRAME_FILE=$(ls *.frame.yamlld | head -1)
-          echo "frame_file=$FRAME_FILE" >> "$GITHUB_OUTPUT"
         else
           echo "exists=false" >> "$GITHUB_OUTPUT"
-          echo "frame file not found, skipping CSV generation"
+          echo "Frame file not found: expected '$FRAME_FILE'"
         fi
     - name: Warn missing frame
       if: steps.check-frame.outputs.exists == 'false'
