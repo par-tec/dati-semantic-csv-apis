@@ -9,6 +9,7 @@ import urllib.request
 from pathlib import Path
 
 import pandas as pd
+import pytest
 import yaml
 
 from tests.constants import SNAPSHOTS
@@ -41,6 +42,7 @@ def harvest_vocabularies(sparql_endpoint: str) -> list[VocabularyRepository]:
     ]
 
 
+@pytest.mark.asset
 def test_harvest_vocabularies():
     vocabularies = harvest_vocabularies(SPARQL_ENDPOINT)
     assert len(vocabularies) > 0, "No vocabularies found at the SPARQL endpoint"
@@ -113,6 +115,7 @@ SNAPSHOT_REPOSITORIES = {
 }
 
 
+@pytest.mark.asset
 def test_collect_data(tmp_path: Path):
     data = ATECO
     collected_data = collect_data(data, tmp_path)
@@ -207,6 +210,7 @@ def add_data_to_db(folder: Path, db_url: str, repository: VocabularyRepository):
         )
 
 
+@pytest.mark.asset
 def test_add_data_to_db(tmp_path: Path):
     repository = ATECO
     collect_data(repository, tmp_path)
@@ -245,6 +249,7 @@ def test_add_data_to_db(tmp_path: Path):
             )
 
 
+@pytest.mark.asset
 def test_harvest_path():
     """
     Iterate through the SNAPSHOTS directory
