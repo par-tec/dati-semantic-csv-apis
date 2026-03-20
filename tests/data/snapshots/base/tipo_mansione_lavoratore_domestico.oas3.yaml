@@ -22,6 +22,7 @@ components:
           minLength: 1
           type: string
         parent:
+          items: {}
           maxItems: 100
           minItems: 0
           type: array

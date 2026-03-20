@@ -35,6 +35,8 @@ class ConstrainedList(List):
         schema = super().to_schema()
         schema["minItems"] = 0
         schema["maxItems"] = 100
+        if "items" not in schema:
+            schema["items"] = {}
         return schema
 
 
