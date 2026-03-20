@@ -86,5 +86,5 @@ class OAS3SchemaBuilder(SchemaBuilder):
         String,
         ConstrainedList,
         Tuple,
-        Object,
+        SafeObject,
     )

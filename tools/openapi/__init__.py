@@ -22,7 +22,7 @@ from tools.base import (
 )
 from tools.vocabulary import LANG_NONE, Vocabulary, VocabularyMetadata
 
-from .jsonschema import OAS3SchemaBuilder as SchemaBuilder
+from .jsonschema import OAS3SchemaBuilder
 
 log = logging.getLogger(__name__)
 
@@ -338,11 +338,8 @@ def create_schema_from_frame_and_data(
             "Framed data must be a JSON-LD dictionary or a single object with @type."
         )
 
-    # Remove nested JSON-LD typing from sample payloads before schema inference.
-    clean_samples = [remove_jsonld_key(sample, "@type") for sample in samples]
-
     # Infer schema from normalized samples
-    schema = infer_schema_from_samples(clean_samples)
+    schema = infer_schema_from_samples(samples)
 
     # Add constraints from JSON-LD context
     if add_constraints:
@@ -360,11 +357,11 @@ def create_schema_from_frame_and_data(
     # Add an example entry, that can be used
     #   inside the Schema Editor, eventually
     #   removing @type.
-    schema["example"] = clean_samples[0]
+    schema["example"] = samples[0]
 
     # Validate the framed data against the schema
     if validate_output:
-        is_valid, errors = validate_data_against_schema(clean_samples, schema)
+        is_valid, errors = validate_data_against_schema(samples, schema)
         schema["x-validation"] = {
             "valid": is_valid,
             "error_count": len(errors),
@@ -408,7 +405,7 @@ def infer_schema_from_samples(samples):
     Returns:
         dict: JSON Schema (OpenAPI-compatible)
     """
-    builder = SchemaBuilder()
+    builder = OAS3SchemaBuilder()
 
     if isinstance(samples, list):
         for sample in samples:
@@ -428,16 +425,6 @@ def infer_schema_from_samples(samples):
 
     if "properties" not in schema:
         raise ValueError("Inferred schema has no properties")
-
-    # Remove JSON-LD specific properties if present.
-    for p in list(schema["properties"]):
-        if p.startswith("@"):
-            log.info("Removing JSON-LD specific property %s", p)
-            del schema["properties"][p]
-    for p in schema["required"][:]:
-        if p.startswith("@"):
-            log.info("Removing JSON-LD specific required property %s", p)
-            schema["required"].remove(p)
 
     # Sort required properties for consistency
     schema["required"] = sorted(schema["required"])
