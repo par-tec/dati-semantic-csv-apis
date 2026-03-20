@@ -5,97 +5,56 @@ This file harvests vocabulary repository URLs from schema.gov.it/sparql.
 import json
 import logging
 import sqlite3
-import urllib.parse
 import urllib.request
-from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
+import pytest
 import yaml
 
-from harvest_db_schema import APIDatabase, build_vocabulary_uuid
 from tests.constants import SNAPSHOTS
 from tools.base import JsonLD
+from tools.harvest import VocabularyRepository
+from tools.harvest.catalog import Catalog
+from tools.store import APIStore
 
 SPARQL_ENDPOINT = "https://schema.gov.it/sparql"
-SPARQL_QUERY = """
-PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
-PREFIX dcterms: <http://purl.org/dc/terms/>
-
-SELECT DISTINCT * WHERE {
-
-    ?vocabulary_uri
-        dcat:distribution ?distribution ;
-        dcterms:rightsHolder ?rights_holder ;
-        NDC:keyConcept ?key_concept .
-
-    ?distribution
-        dcat:downloadURL ?download_url ;
-        dcterms:format
-        <http://publications.europa.eu/resource/authority/file-type/RDF_TURTLE> .
-}
-"""
 SQLITE_URL = "sqlite:///harvest.db"
 
 
-@dataclass(frozen=True)
-class VocabularyRepository:
-    download_url: str
-    distribution: str
-    key_concept: str
-    rights_holder: str
-    vocabulary_uri: str
-
-    @property
-    def vocabulary_uuid(self) -> str:
-        return build_vocabulary_uuid(
-            agency_id=self.agency_id,
-            key_concept=self.key_concept,
-        )
-
-    @property
-    def agency_id(self) -> str:
-        return Path(self.rights_holder).name.lower()
-
-
-def harvest_vocabularies(sparql_endpoint: str) -> list[dict[str, str]]:
+def harvest_vocabularies(sparql_endpoint: str) -> list[VocabularyRepository]:
     """
     Query the remote SPARQL endpoint and return discovered vocabularies.
     """
     log = logging.getLogger(__name__)
     log.info("Starting vocabulary harvesting process from %s", sparql_endpoint)
-
-    params = {
-        "query": SPARQL_QUERY,
-        "format": "application/sparql-results+json",
-    }
-    headers = {"Accept": "application/sparql-results+json"}
-    url = f"{sparql_endpoint}?{urllib.parse.urlencode(params)}"
-    request = urllib.request.Request(url, headers=headers)
-
-    with urllib.request.urlopen(request) as response:
-        payload = json.loads(response.read().decode("utf-8"))
-
-    bindings = payload.get("results", {}).get("bindings", [])
+    catalog = Catalog(sparql_endpoint)
+    vocabularies = catalog.vocabularies()
+    items: list[dict] = vocabularies["@graph"]
     return [
-        {
-            variable: binding[variable]["value"]
-            for variable in binding
-            if "value" in binding[variable]
-        }
-        for binding in bindings
+        VocabularyRepository(
+            download_url=vocab["turtleDownloadUrl"],
+            key_concept=vocab["keyConcept"],
+            rights_holder=vocab["rightsHolder"],
+            vocabulary_uri=vocab["@id"],
+        )
+        for vocab in items
     ]
 
 
+@pytest.mark.asset
 def test_harvest_vocabularies():
     vocabularies = harvest_vocabularies(SPARQL_ENDPOINT)
     assert len(vocabularies) > 0, "No vocabularies found at the SPARQL endpoint"
     for vocab in vocabularies:
-        assert "vocabulary_uri" in vocab, "Vocabulary URI missing in result"
-        assert "download_url" in vocab, "Download URL missing in result"
-        assert "rights_holder" in vocab, "Rights holder missing in result"
-        assert "key_concept" in vocab, "Key concept missing in result"
+        assert vocab.vocabulary_uri is not None, (
+            "Vocabulary URI missing in result"
+        )
+        assert vocab.download_url is not None, "Download URL missing in result"
+        assert vocab.rights_holder is not None, (
+            "Rights holder missing in result"
+        )
+        assert vocab.key_concept is not None, "Key concept missing in result"
 
 
 def collect_data(repository: VocabularyRepository, destination_folder: Path):
@@ -108,8 +67,8 @@ def collect_data(repository: VocabularyRepository, destination_folder: Path):
     destination_folder.mkdir(parents=True, exist_ok=True)
 
     source_url: str = repository.download_url
-    source_stem: str = source_url.removesuffix(".ttl")
     key_concept: str = repository.key_concept
+    source_stem: str = source_url.removesuffix(".ttl")
 
     remote_to_local = {
         source_url: destination_folder / f"{key_concept}.ttl",
@@ -139,13 +98,11 @@ def collect_data(repository: VocabularyRepository, destination_folder: Path):
 ATECO = VocabularyRepository(
     # "download_url"="https://github.com/istat/ndc-ontologie-vocabolari-controllati/tree/main/assets/controlled-vocabularies/economy/ateco-2025/ateco-2025.ttl",
     download_url="https://raw.githubusercontent.com/par-tec/dati-semantic-csv-apis/refs/heads/assets/assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl",
-    distribution="https://w3id.org/italia/data/distribution/Ateco2025-RDF-Turtle",
     key_concept="ateco-2025",
     rights_holder="https://w3id.org/italia/data/public-organization/ISTAT",
     vocabulary_uri="https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
 )
 AGENTE_CAUSALE = VocabularyRepository(
-    distribution="https://w3id.org/italia/work-accident/data/adm_serv/distribution/AC_RDF_TURTLE",
     download_url="https://raw.githubusercontent.com/par-tec/dati-semantic-csv-apis/refs/heads/assets/assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl",
     key_concept="agente_causale",
     rights_holder="https://w3id.org/italia/work-accident/data/organization/inail",
@@ -158,6 +115,7 @@ SNAPSHOT_REPOSITORIES = {
 }
 
 
+@pytest.mark.asset
 def test_collect_data(tmp_path: Path):
     data = ATECO
     collected_data = collect_data(data, tmp_path)
@@ -235,7 +193,7 @@ def add_data_to_db(folder: Path, db_url: str, repository: VocabularyRepository):
     data_payload: JsonLD = yaml.safe_load(data_path.read_text(encoding="utf-8"))
     rows = [_db_row(item) for item in data_payload.get("@graph", [])]
 
-    db = APIDatabase(_sqlite_path(db_url))
+    db = APIStore(_sqlite_path(db_url))
     with db:
         db.create_metadata_table()
         db.upsert_metadata(
@@ -243,6 +201,7 @@ def add_data_to_db(folder: Path, db_url: str, repository: VocabularyRepository):
             agency_id=repository.agency_id,
             key_concept=repository.key_concept,
             openapi=openapi,
+            catalog={},  # Don't overwrite catalog metadata for now.
         )
         db.update_vocabulary_table(
             agency_id=repository.agency_id,
@@ -251,6 +210,7 @@ def add_data_to_db(folder: Path, db_url: str, repository: VocabularyRepository):
         )
 
 
+@pytest.mark.asset
 def test_add_data_to_db(tmp_path: Path):
     repository = ATECO
     collect_data(repository, tmp_path)
@@ -289,6 +249,7 @@ def test_add_data_to_db(tmp_path: Path):
             )
 
 
+@pytest.mark.asset
 def test_harvest_path():
     """
     Iterate through the SNAPSHOTS directory

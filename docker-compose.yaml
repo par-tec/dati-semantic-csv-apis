@@ -36,10 +36,13 @@ services:
       context: .
       dockerfile: apiv1/Dockerfile
       target: data-api
+    environment:
+    - HARVEST_DB=/data/harvest.db
     ports:
     - "8001:8080"
     volumes:
     - ./assets:/assets:ro
+    - ./apiv1/tests/data/:/data:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
       interval: 1m30s

@@ -107,7 +107,7 @@ def create_oas_spec(
     frame: Path,
     vocabulary_uri: str,
     output: Path,
-) -> None:
+) -> Apiable | None:
     """Create OpenAPI specification from framed JSON-LD or RDF vocabulary.
 
     Args:
@@ -149,6 +149,7 @@ def create_oas_spec(
         )
 
     log.info(f"openapi stub created: {output}")
+    return apiable
 
 
 @openapi.command(name="validate")

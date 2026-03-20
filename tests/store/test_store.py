@@ -3,7 +3,7 @@ from hashlib import sha256
 
 import pytest
 
-from harvest_db_schema import APIDatabase, build_vocabulary_uuid
+from tools.store import APIStore, build_vocabulary_uuid
 
 
 @pytest.fixture
@@ -12,13 +12,14 @@ def sample_harvest_db(tmp_path):
     agency_id = "agid"
     key_concept = "test-vocab"
 
-    with APIDatabase(db_path.as_posix()) as db:
+    with APIStore(db_path.as_posix()) as db:
         db.create_metadata_table()
         db.upsert_metadata(
             vocabulary_uri="https://example.com/vocabularies/test",
             agency_id=agency_id,
             key_concept=key_concept,
             openapi={"openapi": "3.0.3", "paths": {}},
+            catalog={},
         )
         db.update_vocabulary_table(
             agency_id=agency_id,
@@ -42,7 +43,7 @@ def sample_harvest_db(tmp_path):
 
 def test_get_vocabulary_item_by_id_returns_item(sample_harvest_db):
     db_path, agency_id, key_concept = sample_harvest_db
-    db = APIDatabase(db_path)
+    db = APIStore(db_path)
 
     assert db.get_vocabulary_item_by_id(agency_id, key_concept, "A01") == {
         "id": "A01",
@@ -52,7 +53,7 @@ def test_get_vocabulary_item_by_id_returns_item(sample_harvest_db):
 
 def test_get_vocabulary_dataset_returns_items(sample_harvest_db):
     db_path, agency_id, key_concept = sample_harvest_db
-    db = APIDatabase(db_path)
+    db = APIStore(db_path)
 
     assert db.get_vocabulary_dataset(agency_id, key_concept) == [
         {"id": "A01", "label": "Item A01"},
@@ -99,7 +100,7 @@ def test_apidatabase_jsonld_graph_roundtrip(tmp_path):
         {"id": "B", "url": "https://example.com/B", "label": "Beta"},
     ]
 
-    with APIDatabase(db_path.as_posix()) as db:
+    with APIStore(db_path.as_posix()) as db:
         db.update_vocabulary_from_jsonld(agency_id, key_concept, graph)
         result = db.get_vocabulary_jsonld(agency_id, key_concept, context)
 
@@ -113,3 +114,51 @@ def test_apidatabase_jsonld_graph_roundtrip(tmp_path):
     assert "@type" not in item_a, "JSON-LD @-keys must be stripped"
     # Nested dicts are preserved in _text (the API serves them); only
     # the dedicated SQLite columns (id, url, label, …) are primitives-only.
+
+
+def test_upsert_metadata_preserves_openapi_when_empty_dict(tmp_path):
+    db_path = tmp_path / "harvest.db"
+
+    with APIStore(db_path.as_posix()) as db:
+        db.create_metadata_table()
+        db.upsert_metadata(
+            vocabulary_uri="https://example.com/vocabularies/test-v1",
+            agency_id="agid",
+            key_concept="test-vocab",
+            openapi={"openapi": "3.0.3", "info": {"title": "Original"}},
+            catalog={"version": 1},
+        )
+
+        db.upsert_metadata(
+            vocabulary_uri="https://example.com/vocabularies/test-v2",
+            agency_id="agid",
+            key_concept="test-vocab",
+            openapi={},
+            catalog={"version": 2},
+        )
+
+        metadata = db.get_metadata("agid", "test-vocab")
+
+        assert (
+            metadata["vocabulary_uri"]
+            == "https://example.com/vocabularies/test-v2"
+        )
+        assert json.loads(metadata["openapi"]) == {
+            "openapi": "3.0.3",
+            "info": {"title": "Original"},
+        }
+        assert json.loads(metadata["catalog"]) == {"version": 2}
+        db.upsert_metadata(
+            vocabulary_uri="https://example.com/vocabularies/test-v2",
+            agency_id="agid",
+            key_concept="test-vocab",
+            openapi={"openapi": "3.0.4", "info": {"title": "Original"}},
+            catalog={},
+        )
+
+        metadata = db.get_metadata("agid", "test-vocab")
+        assert json.loads(metadata["openapi"]) == {
+            "openapi": "3.0.4",
+            "info": {"title": "Original"},
+        }
+        assert json.loads(metadata["catalog"]) == {"version": 2}

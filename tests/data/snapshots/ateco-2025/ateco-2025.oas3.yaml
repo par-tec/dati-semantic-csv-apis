@@ -44,6 +44,8 @@ components:
             - id
             - url
             type: object
+          maxItems: 100
+          minItems: 0
           type: array
         url:
           format: uri-reference
@@ -57,6 +59,8 @@ components:
             required:
             - url
             type: object
+          maxItems: 100
+          minItems: 0
           type: array
       required:
       - id

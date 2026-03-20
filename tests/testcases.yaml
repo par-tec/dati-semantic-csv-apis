@@ -779,3 +779,202 @@ testcases:
     label_de: {}
     label_sl: {}
   expected_payload: language-eu-skos-strip.data.yaml
+- name: tipo_mansione_lavoratore_domestico-ko
+  data: |-
+    @prefix : <https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/tipo_mansione_lavoratore_domestico/> .
+    @prefix NDC: <https://w3id.org/italia/onto/NDC/> .
+    @prefix adms: <http://www.w3.org/ns/adms#> .
+    @prefix clvapit: <https://w3id.org/italia/onto/CLV/> .
+    @prefix dc: <http://purl.org/dc/terms/> .
+    @prefix dcat: <http://www.w3.org/ns/dcat#> .
+    @prefix dcatapit: <http://dati.gov.it/onto/dcatapit#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
+    @prefix prov: <http://www.w3.org/ns/prov#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+    @prefix xkos: <http://purl.org/linked-data/xkos#> .
+    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix dws: <https://w3id.org/italia/social-security/onto/domesticWorkServices/> .
+    @prefix dwsv: <https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/> .
+
+    dwsv:tipo_mansione_lavoratore_domestico a adms:Asset,
+        dcatapit:Dataset,
+        dws:TipologiaRetribuzione,
+        skos:ConceptScheme ;
+    rdfs:label "Controlled vocabulary on Domestic worker's role types"@en,
+        "Vocabolario controllato sulla tipologia di mansione svolta dal Lavoratore Domestico"@it ;
+    skos:prefLabel "Vocabolario controllato sulla tipologia di mansione svolta dal Lavoratore Domestico"@it ;
+    rdfs:comment "Controlled vocabulary on Domestic worker's role types"@en,
+        "Vocabolario controllato sulla di mansione svolta dal Lavoratore Domestico"@it ;
+    owl:versionInfo "0.1" ;
+    rdfs:isDefinedBy dws:tipo_mansione_lavoratore_domestico ;
+    adms:representationTechnique <http://purl.org/adms/representationtechnique/SKOS> ;
+    dc:accrualPeriodicity <http://publications.europa.eu/resource/authority/frequency/IRREG> ;
+    dc:conformsTo <https://w3id.org/italia/data/standard/SKOS> ;
+    dc:creator <https://w3id.org/italia/social-security/data/organization/inps> ;
+    dc:description "Controlled vocabulary on remuneration type"@en,
+        "Vocabolario controllato sulla tipologia di retribuzione"@it ;
+    dc:identifier "https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/tipo_mansione_lavoratore_domestico" ;
+    dc:language <http://publications.europa.eu/resource/authority/language/ITA> ;
+    dc:modified "2024-05-20"^^xsd:date ;
+    dc:publisher <https://w3id.org/italia/social-security/data/organization/inps> ;
+    dc:relation dws:tipo_contratto ;
+    dc:rightsHolder <https://w3id.org/italia/social-security/data/organization/inps> ;
+    dc:title "Controlled vocabulary on remuneration type"@en,
+        "Vocabolario controllato sulla tipologia di mansione svolta dal Lavoratore Domestico"@it ;
+    dc:type <http://purl.org/adms/assettype/CodeList> ;
+    dcat:contactPoint <https://w3id.org/italia/social-security/data/organization/DirezioneCentraleTII> ;
+    dcat:distribution <https://w3id.org/italia/social-security/data/domesticWorkServices/distribution/TMLD_CSV>,
+        <https://w3id.org/italia/social-security/data/domesticWorkServices/distribution/TMLD_JSON_LD>,
+        <https://w3id.org/italia/social-security/data/domesticWorkServices/distribution/TMLD_RDF_TURTLE> ;
+    dcat:keyword "domestic work services"@en,
+        "domestic worker's role type"@en,
+        "inps"@en,
+        "inps"@it,
+        "servizi per il lavoro domestico"@it,
+        "tipo di mansione del lavoratore domestico"@it ;
+    dcat:theme <http://publications.europa.eu/resource/authority/data-theme/SOCI> ;
+    NDC:keyConcept "tipo_mansione_lavoratore_domestico" ;
+    skos:hasTopConcept :0, :1;
+    xkos:numberOfLevels "1" .
+
+    :0 a skos:Concept ;
+    rdfs:label "Colf"@it ;
+    skos:prefLabel "Colf"@it ;
+    dc:identifier "0"@it ;
+    skos:inScheme dws:tipo_mansione_lavoratore_domestico;
+    skos:notation "0"@it .
+  frame: &generic_skos_frame
+    "@context":
+      dct: http://purl.org/dc/terms/
+      skos: http://www.w3.org/2004/02/skos/core#
+      xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+      xsd: "http://www.w3.org/2001/XMLSchema#"
+      url: "@id"
+      id:
+        "@id": dct:identifier
+      label:
+        "@id": skos:prefLabel
+        "@language": it
+      level:
+        "@id": xkos:depth
+        "@type": xsd:integer
+      parent:
+        "@id": skos:broader
+        "@container": "@set"
+        "@context":
+          url: "@id"
+
+      vocab:
+        "@id": skos:inScheme
+        "@container": "@set"
+        "@context":
+          url: "@id"
+    # Only show fields listed in @context.
+    "@explicit": true
+
+    # Always embed external references.
+    "@embed": "@never"
+    "@omitDefault": true
+
+    "@requireAll": true
+    # Matching on type works.
+    "@type":
+    - "skos:Concept"
+    url: {}
+    id: {}
+    label:
+      "@language": ["it", "en", "de"]
+      "@value": {}
+
+    # This is a default and tolerant frame that
+    #   should accept null levels.
+    level:
+      "@default": "@null"
+
+    vocab:
+    - url: {}
+      "@explicit": true
+      "@embed": "@never"
+      "@default": "@null"
+    parent:
+    - url: {}
+      id: {}
+      # To show further properties, you must
+      #   use "@embed": "@always".
+      "@embed": "@always"
+      "@explicit": true
+      # If @requireAll is true, you must
+      #   @default @null to avoid filtering out items
+      #   missing the field.
+      "@default": "@null"
+      "@requireAll": false
+  expected_payload: ValueError
+- name: tipo_mansione_lavoratore_domestico
+  data: |-
+    @prefix : <https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/tipo_mansione_lavoratore_domestico/> .
+    @prefix NDC: <https://w3id.org/italia/onto/NDC/> .
+    @prefix adms: <http://www.w3.org/ns/adms#> .
+    @prefix clvapit: <https://w3id.org/italia/onto/CLV/> .
+    @prefix dc: <http://purl.org/dc/terms/> .
+    @prefix dcat: <http://www.w3.org/ns/dcat#> .
+    @prefix dcatapit: <http://dati.gov.it/onto/dcatapit#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
+    @prefix prov: <http://www.w3.org/ns/prov#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+    @prefix xkos: <http://purl.org/linked-data/xkos#> .
+    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix dws: <https://w3id.org/italia/social-security/onto/domesticWorkServices/> .
+    @prefix dwsv: <https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/> .
+
+    dwsv:tipo_mansione_lavoratore_domestico a adms:Asset,
+        dcatapit:Dataset,
+        dws:TipologiaRetribuzione,
+        skos:ConceptScheme ;
+    rdfs:label "Controlled vocabulary on Domestic worker's role types"@en,
+        "Vocabolario controllato sulla tipologia di mansione svolta dal Lavoratore Domestico"@it ;
+    skos:prefLabel "Vocabolario controllato sulla tipologia di mansione svolta dal Lavoratore Domestico"@it ;
+    rdfs:comment "Controlled vocabulary on Domestic worker's role types"@en,
+        "Vocabolario controllato sulla di mansione svolta dal Lavoratore Domestico"@it ;
+    owl:versionInfo "0.1" ;
+    rdfs:isDefinedBy dws:tipo_mansione_lavoratore_domestico ;
+    adms:representationTechnique <http://purl.org/adms/representationtechnique/SKOS> ;
+    dc:accrualPeriodicity <http://publications.europa.eu/resource/authority/frequency/IRREG> ;
+    dc:conformsTo <https://w3id.org/italia/data/standard/SKOS> ;
+    dc:creator <https://w3id.org/italia/social-security/data/organization/inps> ;
+    dc:description "Controlled vocabulary on remuneration type"@en,
+        "Vocabolario controllato sulla tipologia di retribuzione"@it ;
+    dc:identifier "https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/tipo_mansione_lavoratore_domestico" ;
+    dc:language <http://publications.europa.eu/resource/authority/language/ITA> ;
+    dc:modified "2024-05-20"^^xsd:date ;
+    dc:publisher <https://w3id.org/italia/social-security/data/organization/inps> ;
+    dc:relation dws:tipo_contratto ;
+    dc:rightsHolder <https://w3id.org/italia/social-security/data/organization/inps> ;
+    dc:title "Controlled vocabulary on remuneration type"@en,
+        "Vocabolario controllato sulla tipologia di mansione svolta dal Lavoratore Domestico"@it ;
+    dc:type <http://purl.org/adms/assettype/CodeList> ;
+    dcat:contactPoint <https://w3id.org/italia/social-security/data/organization/DirezioneCentraleTII> ;
+    dcat:distribution <https://w3id.org/italia/social-security/data/domesticWorkServices/distribution/TMLD_CSV>,
+        <https://w3id.org/italia/social-security/data/domesticWorkServices/distribution/TMLD_JSON_LD>,
+        <https://w3id.org/italia/social-security/data/domesticWorkServices/distribution/TMLD_RDF_TURTLE> ;
+    dcat:keyword "domestic work services"@en,
+        "domestic worker's role type"@en,
+        "inps"@en,
+        "inps"@it,
+        "servizi per il lavoro domestico"@it,
+        "tipo di mansione del lavoratore domestico"@it ;
+    dcat:theme <http://publications.europa.eu/resource/authority/data-theme/SOCI> ;
+    NDC:keyConcept "tipo_mansione_lavoratore_domestico" ;
+    skos:hasTopConcept :0, :1;
+    xkos:numberOfLevels "1" .
+
+    :0 a skos:Concept ;
+    rdfs:label "Colf"@it ;
+    skos:prefLabel "Colf"@it ;
+    dc:identifier "0" ;
+    skos:inScheme dwsv:tipo_mansione_lavoratore_domestico ;
+    skos:notation "0" .
+  frame: *generic_skos_frame
+  expected_payload: tipo_mansione_lavoratore_domestico.data.yaml
+  expected_jsonschema: tipo_mansione_lavoratore_domestico.oas3.yaml

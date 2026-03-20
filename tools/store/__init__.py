@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS _metadata (
     vocabulary_uri TEXT NOT NULL,
     agency_id TEXT NOT NULL,
     key_concept TEXT NOT NULL,
-    openapi TEXT NOT NULL
+    openapi TEXT NOT NULL,
+    catalog TEXT NOT NULL
 )
 """
 
@@ -84,7 +85,7 @@ def has_unique_index_on_agency_key(cursor: sqlite3.Cursor) -> bool:
     return False
 
 
-class APIDatabase:
+class APIStore:
     """Access layer for API payloads stored in harvest.db metadata and tables."""
 
     def __init__(
@@ -103,7 +104,7 @@ class APIDatabase:
     def _quoted_identifier(identifier: str) -> str:
         return '"' + identifier.replace('"', '""') + '"'
 
-    def __enter__(self) -> APIDatabase:
+    def __enter__(self) -> APIStore:
         self.connect()
         return self
 
@@ -190,6 +191,7 @@ class APIDatabase:
         agency_id: str,
         key_concept: str,
         openapi: dict[str, Any],
+        catalog: dict[str, Any],
     ) -> None:
         vocabulary_uuid = self._table_name(agency_id, key_concept)
         conn = self.connect()
@@ -200,21 +202,30 @@ class APIDatabase:
                 vocabulary_uri,
                 agency_id,
                 key_concept,
-                openapi
-            ) VALUES (?, ?, ?, ?, ?)
+                openapi,
+                catalog
+            ) VALUES (:vocabulary_uuid, :vocabulary_uri, :agency_id, :key_concept, :openapi, :catalog)
             ON CONFLICT(vocabulary_uuid) DO UPDATE SET
                 vocabulary_uri = excluded.vocabulary_uri,
                 agency_id = excluded.agency_id,
                 key_concept = excluded.key_concept,
-                openapi = excluded.openapi
+                openapi = CASE
+                    WHEN excluded.openapi = '{}' THEN _metadata.openapi
+                    ELSE excluded.openapi
+                END,
+                catalog = CASE
+                    WHEN excluded.catalog = '{}' THEN _metadata.catalog
+                    ELSE excluded.catalog
+                END
             """,
-            (
-                vocabulary_uuid,
-                vocabulary_uri,
-                agency_id,
-                key_concept,
-                json.dumps(openapi),
-            ),
+            {
+                "vocabulary_uuid": vocabulary_uuid,
+                "vocabulary_uri": vocabulary_uri,
+                "agency_id": agency_id,
+                "key_concept": key_concept,
+                "openapi": json.dumps(openapi),
+                "catalog": json.dumps(catalog),
+            },
         )
         conn.commit()
 
@@ -336,12 +347,12 @@ class APIDatabase:
     def _remove_jsonld_keys(obj: Any) -> Any:
         if isinstance(obj, dict):
             return {
-                k: APIDatabase._remove_jsonld_keys(v)
+                k: APIStore._remove_jsonld_keys(v)
                 for k, v in obj.items()
                 if not k.startswith("@")
             }
         if isinstance(obj, list):
-            return [APIDatabase._remove_jsonld_keys(item) for item in obj]
+            return [APIStore._remove_jsonld_keys(item) for item in obj]
         return obj
 
     @staticmethod
@@ -354,7 +365,7 @@ class APIDatabase:
         - Drops any value that is not a JSON primitive (int, float, bool,
           str, None) so the row can be inserted directly into SQLite columns.
         """
-        sanitized = APIDatabase._remove_jsonld_keys(item)
+        sanitized = APIStore._remove_jsonld_keys(item)
         _text = json.dumps(sanitized, ensure_ascii=False)
         return {
             k: v

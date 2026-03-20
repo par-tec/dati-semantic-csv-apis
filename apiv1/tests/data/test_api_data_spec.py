@@ -10,11 +10,10 @@ import pytest
 import yaml
 from data.app import Config, create_app
 
-from harvest_db_schema import (
-    CREATE_METADATA_TABLE_SQL,
-    CREATE_METADATA_UNIQUE_INDEX_SQL,
-)
 from tests.harness import client_harness
+from tools.store import (
+    APIStore,
+)
 
 TESTDIR = Path(__file__).parent.parent
 
@@ -27,17 +26,39 @@ def harvest_db(tmp_path):
     """Create a minimal harvest.db with one vocabulary entry."""
     db_path = tmp_path / "harvest.db"
     conn = sqlite3.connect(db_path)
-    conn.execute(CREATE_METADATA_TABLE_SQL)
-    conn.execute(CREATE_METADATA_UNIQUE_INDEX_SQL)
+    store = APIStore(db_path.as_posix())
+    store.create_metadata_table()
     conn.execute(
-        "INSERT INTO _metadata VALUES (?, ?, ?, ?, ?)",
-        (
-            "ateco-2025-uuid",
-            "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
-            "istat",
-            "ateco-2025",
-            json.dumps(ATECO_SPEC),
-        ),
+        "INSERT INTO _metadata VALUES (:vocabulary_uuid, :vocabulary_uri, :agency_id, :key_concept, :openapi, :catalog)",
+        {
+            "vocabulary_uuid": "ateco-2025-uuid",
+            "vocabulary_uri": "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
+            "agency_id": "istat",
+            "key_concept": "ateco-2025",
+            "openapi": json.dumps(ATECO_SPEC),
+            "catalog": json.dumps(
+                {
+                    "about": "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
+                    "author": "https://w3id.org/italia/data/public-organization/ISTAT",
+                    "href": "https://schema.gov.it/api/vocabularies/v1/istat/ateco-2025",
+                    "hreflang": ["it"],
+                    "service-desc": [
+                        {
+                            "href": "/istat/ateco-2025/openapi.yaml",
+                            "type": "application/openapi+yaml",
+                        }
+                    ],
+                    "service-meta": [
+                        {
+                            "href": "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025?output=application/ld+json",
+                            "type": "application/ld+json",
+                        }
+                    ],
+                    "title": "Classificazione Ateco 2025",
+                    "version": "versione 2025",
+                }
+            ),
+        },
     )
     conn.commit()
     conn.close()

@@ -36,8 +36,17 @@ def _normalize_testcases(testcases: list[dict]) -> list[dict]:
         case = dict(case)
         payload = case.get("expected_payload")
         if isinstance(payload, str):
-            payload_path = _resolve_yaml_path(payload)
-            case["expected_payload"] = yaml.safe_load(payload_path.read_text())
+            if payload.endswith((".yaml", ".yamlld", ".jsonld", ".json")):
+                payload_path = _resolve_yaml_path(payload)
+                case["expected_payload"] = yaml.safe_load(
+                    payload_path.read_text()
+                )
+            elif payload == "ValueError":
+                case["expected_payload"] = ValueError
+            else:
+                raise NotImplementedError(
+                    f"Unsupported expected_payload format: {payload}"
+                )
         normalized.append(case)
     return normalized
 

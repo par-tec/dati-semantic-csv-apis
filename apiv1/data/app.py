@@ -24,7 +24,7 @@ from connexion import AsyncApp, ConnexionMiddleware
 from connexion.exceptions import ProblemException
 from connexion.middleware.main import MiddlewarePosition
 
-from harvest_db_schema import APIDatabase
+from tools.store import APIStore
 
 
 class Config(TypedDict):
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 def _validate_db(harvest_db: str) -> None:
     """Validate that the harvest.db file exists and has the expected structure."""
     try:
-        with APIDatabase(harvest_db, read_only=True) as db:
+        with APIStore(harvest_db, read_only=True) as db:
             db.validate_metadata_schema()
             db.validate_metadata_content()
     except Exception as e:
@@ -79,11 +79,11 @@ async def load_dataset_handler(
     with open(Path(__file__).parent / "openapi.yaml") as f:
         base_spec = yaml.safe_load(f)
 
-    # Open a single read-only APIDatabase instance reused across requests.
-    harvest_database: APIDatabase | None = None
+    # Open a single read-only APIStore instance reused across requests.
+    harvest_database: APIStore | None = None
     if harvest_db:
         _validate_db(harvest_db)
-        harvest_database = APIDatabase(
+        harvest_database = APIStore(
             harvest_db,
             read_only=True,
             check_same_thread=False,

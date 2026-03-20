@@ -13,6 +13,7 @@ ON ateco (json_extract(_text, '$.level'))
 """
 
 import json
+from operator import itemgetter
 from pathlib import Path
 
 import pytest
@@ -26,6 +27,7 @@ from tools.base import (
     JsonLDFrame,
 )
 from tools.openapi import Apiable
+from tools.store import APIStore
 
 
 @pytest.mark.skip(reason="Implemented in test_openapi_asset.")
@@ -142,7 +144,6 @@ def test_create_payload(snapshot):
 @pytest.fixture
 def apiable_from_testcase():
     """Return an Apiable built from the first TESTCASE that has turtle + frame."""
-    from operator import itemgetter
 
     tc = next(tc for tc in TESTCASES if "data" in tc and "frame" in tc)
     turtle, frame_dict = itemgetter("data", "frame")(tc)
@@ -151,8 +152,7 @@ def apiable_from_testcase():
 
 def test_apiable_persistence_roundtrip(apiable_from_testcase, tmp_path):
     """to_db / from_db round-trip: data readable both via from_db and directly
-    through APIDatabase, with identical items and correct @context."""
-    from harvest_db_schema import APIDatabase
+    through APIStore, with identical items and correct @context."""
 
     apiable = apiable_from_testcase
     db_path = tmp_path / "data.db"
@@ -164,7 +164,7 @@ def test_apiable_persistence_roundtrip(apiable_from_testcase, tmp_path):
     metadata = apiable.metadata()
     assert metadata.agency_id is not None
     assert metadata.name is not None
-    with APIDatabase(db_path.as_posix()) as db:
+    with APIStore(db_path.as_posix()) as db:
         dataset = db.get_vocabulary_dataset(
             metadata.agency_id,
             metadata.name,
