@@ -1,58 +1,80 @@
-example:
-  id: '11110101'
-  label_it: Idrogeno
-  level: '3'
-  url: agente/11110101
-properties:
-  id:
-    minLength: 1
-    pattern: >-
-      ^[A-Za-z0-9._-]+$
-    type: string
-  label_it:
-    maxLength: 500
-    minLength: 1
-    type: string
-  level:
-    type: string
-  url:
-    format: uri-reference
-    type: string
-required:
-- id
-- label_it
-- level
-- url
-type: object
-"x-jsonld-context":
-  '@base': >-
-    https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/
-  '@vocab': >-
-    https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/
-  clvapit: >-
-    https://w3id.org/italia/onto/CLV/
-  dct: >-
-    http://purl.org/dc/terms/
-  id:
-    '@id': dct:identifier
-  label_it:
-    '@id': rdfs:label
-    '@language': it
-  level:
-    '@id': >-
-      clvapit:hasRankOrder
-  rdfs: >-
-    http://www.w3.org/2000/01/rdf-schema#
-  skos: >-
-    http://www.w3.org/2004/02/skos/core#
-  url: '@id'
-  xkos: >-
-    http://rdf-vocabulary.ddialliance.org/xkos#
-  xsd: >-
-    http://www.w3.org/2001/XMLSchema#
-x-jsonld-type: >-
-  https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
-x-validation:
-  error_count: 0
-  errors: []
-  valid: true
+components:
+  schemas:
+    Item:
+      example:
+        id: '11110101'
+        label_it: Idrogeno
+        level: '3'
+        url: agente/11110101
+      properties:
+        id:
+          minLength: 1
+          pattern: >-
+            ^[A-Za-z0-9._-]+$
+          type: string
+        label_it:
+          maxLength: 500
+          minLength: 1
+          type: string
+        level:
+          type: string
+        url:
+          format: uri-reference
+          type: string
+      required:
+      - id
+      - label_it
+      - level
+      - url
+      type: object
+      "x-jsonld-context":
+        '@base': >-
+          https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/
+        '@vocab': >-
+          https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/
+        clvapit: >-
+          https://w3id.org/italia/onto/CLV/
+        dct: >-
+          http://purl.org/dc/terms/
+        id:
+          '@id': dct:identifier
+        label_it:
+          '@id': rdfs:label
+          '@language': it
+        level:
+          '@id': >-
+            clvapit:hasRankOrder
+        rdfs: >-
+          http://www.w3.org/2000/01/rdf-schema#
+        skos: >-
+          http://www.w3.org/2004/02/skos/core#
+        url: '@id'
+        xkos: >-
+          http://rdf-vocabulary.ddialliance.org/xkos#
+        xsd: >-
+          http://www.w3.org/2001/XMLSchema#
+      x-jsonld-type: >-
+        https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+      x-validation:
+        error_count: 0
+        errors: []
+        valid: true
+info:
+  contact:
+    email: >-
+      fake@example.com
+    name: Fake Name
+    url: >-
+      https://w3id.org/italia/work-accident/data/organization/inail
+  description: >-
+    Decodifica dell'agente, lavorazione, o esposizione che puo' essere causa o concausa
+    di malattia
+  title: >-
+    Vocabolario Controllato sulla classificazione degli agenti causali adottata dall'INAIL
+  version: '0.5'
+  x-agencyId: inail
+  x-keyConcept: agente_causale
+  x-summary: ''
+openapi: 3.0.0
+paths: {}
+servers: []
