@@ -157,6 +157,17 @@ class VocabularyMetadata(Graph):
         return str(version) if version else None
 
     @property
+    def contact_name(self) -> str | None:
+        version = self.get_value("hasEmail")
+        return str(version) if version else None
+
+    @property
+    def contact_email(self) -> str | None:
+        hasEmail = NDC.hasEmail
+        version = self.get_value(hasEmail)
+        return str(version) if version else None
+
+    @property
     def rights_holder(self) -> str | None:
         rights_holder = self.get_value(DCTERMS.rightsHolder)
         return str(rights_holder) if rights_holder else None
@@ -277,21 +288,39 @@ class Vocabulary:
             Graph: RDF graph representing the extracted vocabulary
         """
         query = """
-            PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
+                PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
+                PREFIX dcat: <http://www.w3.org/ns/dcat#>
+                PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
 
-            CONSTRUCT {
-                ?vocab ?p ?o .
-                ?vocab NDC:keyConcept ?keyConcept .
-            }
-            WHERE {
-                ?vocab
-                    NDC:keyConcept ?keyConcept ;
-                    ?p ?o .
-            }
-        """
+                CONSTRUCT {
+                    ?vocab ?p ?o .
+                    ?vocab NDC:keyConcept ?keyConcept .
+                    ?vocab dcat:contactPoint ?contactPoint .
+                    ?contactPoint ?vcardProp ?vcardValue .
+                }
+                WHERE {
+                    ?vocab NDC:keyConcept ?keyConcept ;
+                           ?p ?o .
+
+                    # Opzionale: include i dati vCard se presenti
+                    OPTIONAL {
+                        ?vocab dcat:contactPoint ?contactPoint .
+                        ?contactPoint ?vcardProp ?vcardValue .
+                        # Filtra solo le proprietà vCard rilevanti
+                        FILTER(
+                            ?vcardProp IN (
+                                vcard:fn,
+                                vcard:hasEmail,
+                                vcard:hasTelephone,
+                                vcard:hasURL,
+                                rdf:type
+                            )
+                        )
+                    }
+                }
+            """
         res = self.graph.query(query)
         _metadata: Graph = res.graph
-
         _metadata_uri = set(_metadata.subjects())
         do_i_have_just_one_vocab = len(_metadata_uri)
         if do_i_have_just_one_vocab != 1:

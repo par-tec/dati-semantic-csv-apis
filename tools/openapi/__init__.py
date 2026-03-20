@@ -240,8 +240,8 @@ class Apiable(Vocabulary):
                 )
                 or "",
                 "contact": {
-                    "name": "Fake Name",
-                    "email": "fake@example.com",
+                    "name": metadata.contact_name,
+                    "email": metadata.contact_email,
                     "url": metadata.rights_holder,
                 },
                 #
