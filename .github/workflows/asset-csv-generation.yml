@@ -161,7 +161,7 @@ jobs:
         /usr/local/bin/schema_gov_it_tools.bin --version
     - name: Check frame file exists
       id: check-frame
-      working-directory: ${{ env.VOCABULARY_DIR }}/${{ matrix.asset }}
+      working-directory: ${{ matrix.asset }}
       run: |
         ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
         FRAME_FILE="${ASSET_NAME}.frame.yamlld"
