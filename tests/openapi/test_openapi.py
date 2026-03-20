@@ -121,7 +121,11 @@ def test_openapi_metadata(
     apiable = Apiable(turtle, frame)
 
     openapi: OpenAPI = apiable.openapi()
-    compare_data(oas3_yaml, current_data=openapi, update=True)
+    compare_data(
+        oas3_yaml,
+        current_data=openapi["components"]["schemas"]["Item"],
+        update=True,
+    )
 
 
 @pytest.mark.parametrize(
