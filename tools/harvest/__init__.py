@@ -19,7 +19,7 @@ def _gh_to_raw_url(url: str) -> str:
     parsed = urllib.parse.urlparse(url)
     if parsed.netloc == "github.com":
         path_parts = parsed.path.strip("/").split("/")
-        if len(path_parts) >= 5 and path_parts[2] == "blob":
+        if len(path_parts) >= 5 and path_parts[2] in ("blob", "tree"):
             user, repo, _, branch, *file_path = path_parts
             raw_url = f"https://raw.githubusercontent.com/{user}/{repo}/{branch}/{'/'.join(file_path)}"
             return raw_url
@@ -57,7 +57,11 @@ class VocabularyRepository:
             source_url = self.download_url
 
         source_url = _gh_to_raw_url(source_url)
-
+        log.info(
+            "Downloading vocabulary from %s to %s",
+            source_url,
+            destination_folder,
+        )
         source_stem: str = source_url.removesuffix(".ttl")
 
         vocab_ttl = destination_folder / f"{self.key_concept}.ttl"
@@ -78,6 +82,10 @@ class VocabularyRepository:
                 log.info("Downloaded %s to %s", remote_url, local_path)
             except Exception as e:
                 log.warning("Failed to download %s: %s", remote_url, e)
+        if not vocab_ttl.exists():
+            raise FileNotFoundError(
+                f"Failed to download vocabulary TTL file from {self.download_url}"
+            )
         return {
             "path": destination_folder.as_posix(),
             "vocabulary_ttl": vocab_ttl,

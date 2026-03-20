@@ -4,6 +4,7 @@ import asyncio
 import json
 import logging
 import shutil
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -50,7 +51,7 @@ def _process_repository_node(
     frame_path = node_dir / f"{key_concept}.frame.yamlld"
     jsonld_output = node_dir / f"{key_concept}.data.yamlld"
     openapi_output = node_dir / f"{key_concept}.oas3.yaml"
-
+    openapi_db = node_dir / f"{key_concept}.db"
     if not frame_path.exists():
         shutil.copy(default_frame, frame_path)
         log.info(
@@ -74,22 +75,41 @@ def _process_repository_node(
                 key_concept,
             )
             return False
+    import yaml
 
+    from tools.base import JsonLDFrame
+
+    apiable = None
     if not openapi_output.exists():
         try:
-            create_oas_spec(
+            apiable = create_oas_spec(
                 None, ttl_path, frame_path, node["@id"], openapi_output
             )
             log.info("Created OpenAPI spec %s/%s", agency_id, key_concept)
+
         except Exception as exc:
             (node_dir / "openapi-error.log").write_text(str(exc))
             log.error(
-                "Failed to create OpenAPI spec for %s/%s",
+                "Failed to create OpenAPI spec for %s/%s. See %s for details.",
                 agency_id,
                 key_concept,
+                node_dir / "openapi-error.log",
             )
             return False
+    from tools.openapi import Apiable
 
+    if not openapi_db.exists():
+        with jsonld_output.open("r", encoding="utf-8") as f:
+            apiable = (
+                Apiable(
+                    rdf_data=ttl_path,
+                    frame=JsonLDFrame.load(frame_path),
+                )
+                if not apiable
+                else apiable
+            )
+            apiable.to_db(data=yaml.safe_load(f), datafile=openapi_db)
+        log.info("Created OpenAPI DB %s/%s", agency_id, key_concept)
     return True
 
 
@@ -99,15 +119,19 @@ async def _run_async_pipeline(
     default_frame: Path,
     workers: int,
 ) -> None:
-    semaphore = asyncio.Semaphore(workers)
-
-    async def _worker(node: dict[str, Any]) -> bool:
-        async with semaphore:
-            return await asyncio.to_thread(
-                _process_repository_node, node, download_dir, default_frame
+    loop = asyncio.get_running_loop()
+    with ProcessPoolExecutor(max_workers=workers) as pool:
+        futures = [
+            loop.run_in_executor(
+                pool,
+                _process_repository_node,
+                node,
+                download_dir,
+                default_frame,
             )
-
-    results = await asyncio.gather(*(_worker(node) for node in nodes))
+            for node in nodes
+        ]
+        results = await asyncio.gather(*futures)
     ok_count = sum(1 for result in results if result)
     log.info(
         "Async pipeline completed: %s processed, %s failed/skipped",
@@ -207,6 +231,14 @@ def async_pipeline(
     show_default=True,
 )
 @click.option("--workers", type=int, default=4, show_default=True)
+@click.option("--limit", "-l", type=int, default=0, show_default=True)
+@click.option(
+    "-k",
+    "--key-concept",
+    type=str,
+    required=False,
+    help="Filter by key concept",
+)
 @click.pass_obj
 def selectable_pipeline(
     catalog: Catalog,
@@ -214,9 +246,16 @@ def selectable_pipeline(
     default_frame: Path,
     mode: str,
     workers: int,
+    limit: int,
+    key_concept: str | None,
 ) -> None:
     if mode == "serial":
-        for node in catalog.vocabularies()["@graph"]:
+        for i, node in enumerate(catalog.vocabularies()["@graph"]):
+            log.info("Processing node %s/%s", i + 1, node["keyConcept"])
+            if key_concept and key_concept not in node["keyConcept"]:
+                continue
+            if limit > 0 and i >= limit:
+                break
             _process_repository_node(node, download_dir, default_frame)
         return
 
