@@ -977,3 +977,30 @@ testcases:
     skos:notation "0" .
   frame: *generic_skos_frame
   expected_payload: tipo_mansione_lavoratore_domestico.data.yaml
+  expected_jsonschema:
+    type: object
+    properties:
+      id:
+        type: string
+        minLength: 1
+        pattern: '^[A-Za-z0-9._-]+$'
+      url: *URL
+      label: *Label
+      level:
+        type: integer
+        minimum: 1
+      vocab:
+        type: array
+
+        items:
+          type: object
+          required:
+          - url
+          properties:
+            url: *URL
+    required:
+    - id
+    - label
+    - url
+    - level
+    - vocab

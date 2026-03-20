@@ -5,7 +5,6 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, cast
 
-from genson import SchemaBuilder
 from jsonschema import ValidationError, validate
 from rdflib import DCTERMS
 from rdflib.plugins.parsers.jsonld import to_rdf
@@ -22,6 +21,8 @@ from tools.base import (
     RDFText,
 )
 from tools.vocabulary import LANG_NONE, Vocabulary, VocabularyMetadata
+
+from .jsonschema import OAS3SchemaBuilder as SchemaBuilder
 
 log = logging.getLogger(__name__)
 
