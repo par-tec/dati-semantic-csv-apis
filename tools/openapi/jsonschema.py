@@ -1,3 +1,6 @@
+import logging
+import re
+
 from genson import SchemaBuilder
 from genson.schema.strategies import (
     Boolean,
@@ -8,6 +11,8 @@ from genson.schema.strategies import (
     String,
     Tuple,
 )
+
+log = logging.getLogger(__name__)
 
 
 class NullAsString(Null):
@@ -25,13 +30,61 @@ class NullAsString(Null):
         return schema
 
 
+class ConstrainedList(List):
+    def to_schema(self):
+        schema = super().to_schema()
+        schema["minItems"] = 0
+        schema["maxItems"] = 100
+        return schema
+
+
+VARIABLE_NAME_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]{0,32}$")
+
+
+class SafeObject(Object):
+    """
+    Remove all properties that:
+    - match /^@/ (e.g., @type, @id)
+    - do not match /^[a-zA-Z][a-zA-Z0-9_]+$/ (i.e., are not simple field names)
+    """
+
+    def add_object(self, obj):
+        properties = set()
+        for prop, subobj in obj.items():
+            #
+            # Skip properties that do not match with
+            #   allowed variable name patters.
+            #
+            if not VARIABLE_NAME_PATTERN.match(prop):
+                log.warning(
+                    f"Skipping property '{prop}' that does not match variable name pattern"
+                )
+                continue
+
+            pattern = None
+
+            if prop not in self._properties:
+                pattern = self._matching_pattern(prop)
+
+            if pattern is not None:
+                self._pattern_properties[pattern].add_object(subobj)
+            else:
+                properties.add(prop)
+                self._properties[prop].add_object(subobj)
+
+        if self._required is None:
+            self._required = properties
+        else:
+            self._required &= properties
+
+
 class OAS3SchemaBuilder(SchemaBuilder):
     STRATEGIES = (
         NullAsString,
         Boolean,
         Number,
         String,
-        List,
+        ConstrainedList,
         Tuple,
         Object,
     )

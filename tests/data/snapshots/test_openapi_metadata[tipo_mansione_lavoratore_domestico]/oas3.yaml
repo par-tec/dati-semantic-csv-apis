@@ -22,6 +22,8 @@ components:
           minLength: 1
           type: string
         parent:
+          maxItems: 100
+          minItems: 0
           type: array
         url:
           format: uri-reference
@@ -35,6 +37,8 @@ components:
             required:
             - url
             type: object
+          maxItems: 100
+          minItems: 0
           type: array
         xkos:depth:
           nullable: true
