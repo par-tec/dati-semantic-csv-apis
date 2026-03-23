@@ -946,9 +946,22 @@ python -m tools.cli jsonld validate ...
 
 ### Distribuzione
 
-La CLI verrà distribuita come eseguibile Python per Linux x86_64
-tramite GitHub artifacts.
-Ad ogni rilascio, la CI crea una nuova versione della CLI.
+La CLI viene distribuita come eseguibile Python standalone per ambienti Linux x86_64, pubblicato automaticamente tramite GitHub Releases.
+Ad ogni nuovo tag pushato sul repository, la pipeline CI avvia un processo di build e pubblicazione che genera una nuova versione della CLI.
+Il processo di distribuzione funziona così:
+
+Trigger del job di rilascio
+Il job release-cli viene eseguito solo quando il branch corrente corrisponde a un tag:
+in questo modo, ogni `git tag vX.Y.Z && git push origin vX.Y.Z` produce automaticamente una nuova release.
+
+Download dell’artifact
+La pipeline scarica l’artifact generato in precedenza (cli-binary), che contiene il file eseguibile della CLI compilato per Linux x86_64.
+
+Creazione della GitHub Release
+Utilizzando la GitHub CLI (gh), il workflow crea una nuova release usando:
+il nome del tag come titolo e versione
+la generazione automatica delle release notes
+l’upload del binario della CLI come asset allegato alla release
 
 ### CLI jsonld
 
