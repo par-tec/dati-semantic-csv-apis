@@ -961,7 +961,7 @@ Creazione della GitHub Release
 Utilizzando la GitHub CLI (gh), il workflow crea una nuova release usando:
 il nome del tag come titolo e versione
 la generazione automatica delle release notes
-l’upload del binario (schema_gov_it_tools.bin) come asset allegato alla release
+l’upload del binario della CLI come asset allegato alla release
 
 ### CLI jsonld
 
