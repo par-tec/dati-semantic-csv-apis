@@ -951,8 +951,8 @@ Ad ogni nuovo tag pushato sul repository, la pipeline CI avvia un processo di bu
 Il processo di distribuzione funziona così:
 
 Trigger del job di rilascio
-Il job release-cli viene eseguito solo quando il branch corrente corrisponde a un tag (refs/tags/*).
-In questo modo, ogni `git tag vX.Y.Z && git push origin vX.Y.Z` produce automaticamente una nuova release.
+Il job release-cli viene eseguito solo quando il branch corrente corrisponde a un tag:
+in questo modo, ogni `git tag vX.Y.Z && git push origin vX.Y.Z` produce automaticamente una nuova release.
 
 Download dell’artifact
 La pipeline scarica l’artifact generato in precedenza (cli-binary), che contiene il file eseguibile della CLI compilato per Linux x86_64.
