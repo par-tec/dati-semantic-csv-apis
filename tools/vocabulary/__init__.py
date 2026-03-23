@@ -166,7 +166,12 @@ class VocabularyMetadata(Graph):
     @property
     def contact_email(self) -> str | None:
         contact_email = self.get_value(VCARD.hasEmail)
-        return str(contact_email) if contact_email else None
+
+        if not isinstance(contact_email, str):
+            return None
+
+        contact_email = str(contact_email).replace("mailto:", "")
+        return contact_email
 
     @property
     def rights_holder(self) -> str | None:
