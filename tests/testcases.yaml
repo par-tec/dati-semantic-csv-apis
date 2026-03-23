@@ -148,6 +148,13 @@ testcases:
           grupagentecaus:1.9 ;
       skos:notation "1" ;
       xkos:depth 1 .
+
+    <https://w3id.org/italia/work-accident/data/organization/ufficioV> a dcatapit:Organization,
+            vcard:Kind,
+            vcard:Organization ;
+        vcard:fn "INAIL Ufficio V - D.C.O.D" ;
+        vcard:hasEmail <mailto:dcod@inail.it> .
+
   frame: &agente_causale_skos_frame
     #
     # This frame project a vocabulary compliant with the SKOS model
@@ -237,12 +244,6 @@ testcases:
     x-jsonld-context: *agente_causale_skos_context
     type: object
     properties:
-      info:
-        properties:
-          contact:
-            properties:
-              name:
-                type: string
       url: *URL
       id:
         type: string

@@ -52,12 +52,6 @@ components:
             - url
             type: object
           type: array
-        info:
-          properties:
-            contact:
-              properties:
-                name:
-                  type: string
       required:
       - id
       - label_it
@@ -110,9 +104,9 @@ components:
 info:
   contact:
     email: >-
-      roberto.cangiamila@par-tec.it
+      mailto:dcod@inail.it
     name: >-
-      Roberto Cangiamila
+      INAIL Ufficio V - D.C.O.D
     url: >-
       https://w3id.org/italia/work-accident/data/organization/inail
   description: >-
