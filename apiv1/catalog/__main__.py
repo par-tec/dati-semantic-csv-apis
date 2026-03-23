@@ -17,7 +17,8 @@ log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     sparql_url = os.getenv("SPARQL_URL")
-    api_base_url = os.getenv("API_BASE_URL")
+    api_base_url = os.environ["API_BASE_URL"].rstrip("/")
+
     vocabularies_datafile = (
         os.getenv("VOCABULARIES_DATAFILE") or "vocabularies.linkset.yaml"
     )

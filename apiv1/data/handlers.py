@@ -35,14 +35,12 @@ def _transform_item(obj: Any, api_base_url: str) -> Any:
     Returns:
         The transformed object.
     """
-    api_base_url = api_base_url.rstrip("/")
     if isinstance(obj, dict):
         item = obj
         # Add href to main entry using its id
         if "id" in item:
             # API_BASE_URL will be injected during loading
             item["href"] = "/".join([api_base_url, item["id"]])
-
         # Add href to parent items by extracting ID from their url
         if isinstance(item.get("parent"), list):
             for parent in item["parent"]:
@@ -247,7 +245,9 @@ async def get_item(
             status_code=404,
             content_type="application/problem+json",
         )
-    api_url = "/".join([request.state.api_base_url, agencyId, keyConcept])
+    api_url = "/".join(
+        [request.state.api_base_url.rstrip("/"), agencyId, keyConcept]
+    )
     item = _transform_item(item, api_url)
     return ConnexionResponse(
         status_code=200, content_type="application/json", body=item

@@ -28,7 +28,7 @@ from tools.store import APIStore
 
 
 class Config(TypedDict):
-    API_BASE_URL: str | None
+    API_BASE_URL: str
     HARVEST_DB: str
 
 
@@ -51,7 +51,7 @@ def _validate_db(harvest_db: str) -> None:
 @contextlib.asynccontextmanager
 async def load_dataset_handler(
     api_base_url: str,
-    harvest_db: str | None,
+    harvest_db: str,
     app: ConnexionMiddleware,
 ) -> AsyncIterator[dict[str, Any]]:
     """
@@ -69,9 +69,6 @@ async def load_dataset_handler(
     """
     logger.info("Application startup: loading vocabulary dataset")
     vocabulary_items = None
-    # load_vocabulary_items(
-    #     datafile=datafile, api_base_url=api_base_url
-    # )
     assert harvest_db
 
     # Load base OAS spec once for use in show_vocabulary_spec
