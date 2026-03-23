@@ -41,8 +41,8 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      cli: ${{ steps.filter.outputs.cli }}
-      api: ${{ steps.filter.outputs.api }}
+      cli: ${{ steps.set-outputs.outputs.cli }}
+      api: ${{ steps.set-outputs.outputs.api }}
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       with:
@@ -56,6 +56,22 @@ jobs:
           api:
             - '!tests/**'
             - '!tools/**'
+    - name: Set outputs (always true for tags)
+      id: set-outputs
+      env:
+        GITHUB_REF: ${{ github.ref }}
+        STEPS_FILTER_OUTPUTS_CLI: ${{ steps.filter.outputs.cli
+          }}
+        STEPS_FILTER_OUTPUTS_API: ${{ steps.filter.outputs.api
+          }}
+      run: |
+        if [[ "${GITHUB_REF}" =~ ^refs/tags/ ]]; then
+          echo "cli=true" >> "$GITHUB_OUTPUT"
+          echo "api=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "cli=${STEPS_FILTER_OUTPUTS_CLI}" >> "$GITHUB_OUTPUT"
+          echo "api=${STEPS_FILTER_OUTPUTS_API}" >> "$GITHUB_OUTPUT"
+        fi
 
   test-cli:
     needs: changes
