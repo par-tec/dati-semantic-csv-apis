@@ -222,6 +222,14 @@ class Apiable(Vocabulary):
         together with the generated OpenAPI schema.
         """
         metadata: VocabularyMetadata = self.metadata()
+        contact = {"url": metadata.rights_holder}
+        metadata_contact_name = metadata.contact_name
+        metadata_contact_email = metadata.contact_email
+        if metadata_contact_name is not None:
+            contact["name"] = metadata_contact_name
+        if metadata_contact_email is not None:
+            contact["email"] = metadata_contact_email
+
         schema_instances: JsonLD = self.create_api_data()
         assert schema_instances, "Expected non-empty schema instances"
         schema = self.json_schema(
@@ -241,11 +249,7 @@ class Apiable(Vocabulary):
                     lang=LANG_NONE,
                 )
                 or "",
-                "contact": {
-                    "name": metadata.contact_name or "",
-                    "email": metadata.contact_email or "",
-                    "url": metadata.rights_holder,
-                },
+                "contact": contact,
                 #
                 # Backward compatibility with API v0.
                 #
