@@ -75,7 +75,7 @@ def test_show_vocabulary_spec(harvest_db):
             HARVEST_DB=harvest_db,
         ),
     ) as (client, _logs):
-        response = client.get("/istat/ateco-2025/openapi.yaml")
+        response = client.get("/vocabularies/istat/ateco-2025/openapi.yaml")
 
         assert response.status_code == 200
         assert "application/openapi+yaml" in response.headers["content-type"]
@@ -103,6 +103,6 @@ def test_show_vocabulary_spec_not_found(sample_db):
             HARVEST_DB=sample_db,
         ),
     ) as (client, _logs):
-        response = client.get("/istat/nonexistent/openapi.yaml")
+        response = client.get("/vocabularies/istat/nonexistent/openapi.yaml")
 
         assert response.status_code == 404

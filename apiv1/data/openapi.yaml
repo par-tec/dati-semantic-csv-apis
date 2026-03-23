@@ -60,7 +60,7 @@ paths:
   #
   /vocabularies/{agencyId}:
     get:
-      operationId: catalog.handlers.list_vocabularies_by_agency
+      operationId: data.catalog.list_vocabularies_by_agency
       summary: Get vocabulary by agency ID
       description: |-
         Returns the API distribution for a specific controlled vocabularies
@@ -94,7 +94,7 @@ paths:
           $ref: '#/components/responses/GenericError'
   /vocabularies:
     get:
-      operationId: catalog.handlers.list_vocabularies
+      operationId: data.catalog.list_vocabularies
       summary: Get controlled vocabularies
       description: |
         Returns a linkset of controlled vocabularies in RFC 9727 format.

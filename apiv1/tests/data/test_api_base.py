@@ -104,7 +104,7 @@ def _config(harvest_db: str) -> Config:
 def test_get_single_item(single_entry_db):
     """The app should serve one known vocabulary item through the ASGI client."""
     with client_harness(create_app, _config(single_entry_db)) as (client, logs):
-        response = client.get("/agid/test-vocab/A01")
+        response = client.get("/vocabularies/agid/test-vocab/A01")
 
         assert any("Application startup complete" in log for log in logs)
         assert response.status_code == 200
@@ -151,7 +151,7 @@ def test_missing_vocab_returns_404(
         create_app,
         _config(broken_dataset_db),
     ) as (client, _logs):
-        response = client.get("/agid/broken-vocab")
+        response = client.get("/vocabularies/agid/broken-vocab")
 
         assert response.status_code == 404
         assert (
