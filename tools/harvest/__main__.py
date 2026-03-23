@@ -21,6 +21,28 @@ logging.basicConfig(level=logging.INFO)
 SPARQL_URL = "https://schema.gov.it/sparql"
 
 
+def _collect_inputs(
+    download_dir: Path, aggregate_db: Path | None, force: bool
+) -> tuple[Path, list[Path]]:
+    if not download_dir.exists() or not download_dir.is_dir():
+        raise click.BadParameter(
+            "download-dir must be an existing directory",
+            param_hint="--download-dir",
+        )
+
+    aggregate_db = aggregate_db or (download_dir / "aggregate.db")
+    if aggregate_db.exists() and not force:
+        raise click.ClickException(
+            f"{aggregate_db} already exists. Re-run with --force to overwrite."
+        )
+    db_files = sorted(
+        path
+        for path in download_dir.rglob("*.db")
+        if path.resolve() != aggregate_db.resolve()
+    )
+    return aggregate_db, db_files
+
+
 def _process_repository_node(
     node: dict[str, Any], download_dir: Path, default_frame: Path
 ) -> bool:
@@ -243,7 +265,13 @@ def async_pipeline(
 @click.option(
     "--collect",
     is_flag=True,
-    help="Collect generated .db files into download-dir/aggregate.db",
+    help="Collect generated .db files into the aggregate database",
+)
+@click.option(
+    "--aggregate-db",
+    type=click.Path(path_type=Path),
+    required=False,
+    help="Path of the aggregate SQLite database (default: download-dir/aggregate.db)",
 )
 @click.option(
     "--force",
@@ -260,6 +288,7 @@ def selectable_pipeline(
     limit: int,
     key_concept: str | None,
     collect: bool,
+    aggregate_db: Path | None,
     force: bool,
 ) -> None:
     if mode == "serial":
@@ -282,7 +311,14 @@ def selectable_pipeline(
         )
 
     if collect:
-        collect_databases(download_dir=download_dir, force=force)
+        aggregate_db, db_files = _collect_inputs(
+            download_dir, aggregate_db, force
+        )
+        collect_databases(
+            aggregate_db=aggregate_db,
+            db_paths=db_files,
+            force=force,
+        )
 
 
 @harvest.command("collect")
@@ -290,12 +326,26 @@ def selectable_pipeline(
     "-d", "--download-dir", type=click.Path(path_type=Path), required=True
 )
 @click.option(
+    "--aggregate-db",
+    type=click.Path(path_type=Path),
+    required=False,
+    help="Path of the aggregate SQLite database (default: download-dir/aggregate.db)",
+)
+@click.option(
     "--force",
     is_flag=True,
     help="Overwrite existing aggregate.db and existing tables",
 )
-def collect_command(download_dir: Path, force: bool) -> None:
-    collect_databases(download_dir=download_dir, force=force)
+def collect_command(
+    download_dir: Path, aggregate_db: Path | None, force: bool
+) -> None:
+    aggregate_db, db_files = _collect_inputs(download_dir, aggregate_db, force)
+
+    collect_databases(
+        aggregate_db=aggregate_db,
+        db_paths=db_files,
+        force=force,
+    )
 
 
 if __name__ == "__main__":

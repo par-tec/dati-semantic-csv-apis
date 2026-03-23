@@ -5,12 +5,8 @@ This module provides functions for loading and transforming vocabulary data
 from YAML files.
 """
 
-import ast
 import logging
-from pathlib import Path
-from typing import Any, cast
-
-import yaml
+from typing import Any
 
 log = logging.getLogger(__name__)
 
@@ -46,56 +42,3 @@ def _transform_item(obj: Any) -> Any:
         return [_transform_item(item) for item in obj]
     else:
         return obj
-
-
-def load_vocabulary_items(
-    datafile: str, api_base_url: str
-) -> list[dict[str, Any]]:
-    """
-    Load vocabulary items from a YAML data file.
-
-    This function is called once at app initialization to load
-    the vocabulary items into memory for efficient serving.
-
-    Args:
-        datafile: Path to the vocabulary data file (YAML format).
-        api_base_url: Base URL for the API (used for generating href fields).
-
-    Returns:
-        List of vocabulary items with @type field removed and href field added.
-
-    Raises:
-        FileNotFoundError: If the data file cannot be found.
-        yaml.YAMLError: If the YAML file is malformed.
-        ValueError: If the data structure is invalid.
-    """
-    datafile_path = Path(datafile)
-
-    if not datafile_path.is_file():
-        if datafile_path.is_absolute():
-            raise FileNotFoundError(f"Data file not found: {datafile_path}")
-        # Try resolving relative path
-        datafile_path = datafile_path.resolve()
-        if not datafile_path.is_file():
-            raise FileNotFoundError(f"Data file not found: {datafile_path}")
-
-    log.info(f"Loading vocabulary dataset from: {datafile_path}")
-
-    with open(datafile_path, encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-
-    if not isinstance(data, dict):
-        raise ValueError(f"Invalid data format in {datafile_path}")
-
-    # Extract items from @graph and apply transformations
-    items = [_transform_item(item) for item in data.get("@graph", [])]
-
-    # Replace placeholder in href fields with actual API base URL
-    items_json = str(items)
-    items_json = items_json.replace("{API_BASE_URL}", api_base_url)
-
-    items_result = cast(list[dict[str, Any]], ast.literal_eval(items_json))
-
-    log.info(f"Loaded {len(items_result)} vocabulary items")
-
-    return items_result

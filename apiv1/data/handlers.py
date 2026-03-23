@@ -262,6 +262,18 @@ async def dump_vocabulary_dataset(
     )
 
 
+def render_item(item: dict[str, Any], base_url: str) -> dict[str, Any]:
+    """Render a vocabulary item by removing @type and adding hrefs."""
+    assert isinstance(item, dict), (
+        f"Expected item to be a dict, got {type(item)}"
+    )
+    assert "id" in item
+    return {
+        **item,
+        "href": f"{base_url}{item['id']}",
+    }
+
+
 async def show_vocabulary_spec(
     agencyId: str, keyConcept: str
 ) -> ConnexionResponse:

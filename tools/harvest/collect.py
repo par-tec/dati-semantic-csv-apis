@@ -1,9 +1,8 @@
 import json
 import logging
 import sqlite3
+from collections.abc import Iterable
 from pathlib import Path
-
-import click
 
 from tools.store import APIStore
 
@@ -14,25 +13,18 @@ def _quoted_identifier(identifier: str) -> str:
     return '"' + identifier.replace('"', '""') + '"'
 
 
-def collect_databases(download_dir: Path, force: bool) -> None:
-    if not download_dir.exists() or not download_dir.is_dir():
-        raise click.BadParameter(
-            "download-dir must be an existing directory",
-            param_hint="--download-dir",
-        )
-
-    aggregate_db = download_dir / "aggregate.db"
+def collect_databases(
+    aggregate_db: Path, db_paths: Iterable[Path], force: bool
+) -> None:
     db_files = sorted(
-        path
-        for path in download_dir.rglob("*.db")
-        if path.resolve() != aggregate_db.resolve()
+        path for path in db_paths if path.resolve() != aggregate_db.resolve()
     )
     if not db_files:
-        log.warning("No source .db files found under %s", download_dir)
+        log.warning("No source .db files found for %s", aggregate_db)
         return
 
     if aggregate_db.exists() and not force:
-        raise click.ClickException(
+        raise FileExistsError(
             f"{aggregate_db} already exists. Re-run with --force to overwrite."
         )
 
@@ -140,7 +132,7 @@ def collect_databases(download_dir: Path, force: bool) -> None:
                 aggregate_conn.execute("DETACH DATABASE source_db")
                 attached = False
                 processed += 1
-            except (click.ClickException, sqlite3.Error) as exc:
+            except sqlite3.Error as exc:
                 log.warning("Skipping source DB %s: %s", source_label, exc)
                 aggregate_conn.rollback()
                 if attached:

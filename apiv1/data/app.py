@@ -9,7 +9,7 @@ import logging
 import sqlite3
 from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any, NotRequired, TypedDict
+from typing import Any, TypedDict
 
 import yaml
 from common.errors import (
@@ -29,8 +29,7 @@ from tools.store import APIStore
 
 class Config(TypedDict):
     API_BASE_URL: str | None
-    VOCABULARY_DATAFILE: str
-    HARVEST_DB: NotRequired[str | None]
+    HARVEST_DB: str
 
 
 # Configure logging
@@ -51,7 +50,6 @@ def _validate_db(harvest_db: str) -> None:
 
 @contextlib.asynccontextmanager
 async def load_dataset_handler(
-    datafile: str,
     api_base_url: str,
     harvest_db: str | None,
     app: ConnexionMiddleware,
@@ -74,22 +72,22 @@ async def load_dataset_handler(
     # load_vocabulary_items(
     #     datafile=datafile, api_base_url=api_base_url
     # )
+    assert harvest_db
 
     # Load base OAS spec once for use in show_vocabulary_spec
     with open(Path(__file__).parent / "openapi.yaml") as f:
         base_spec = yaml.safe_load(f)
 
+    _validate_db(harvest_db)
+
     # Open a single read-only APIStore instance reused across requests.
-    harvest_database: APIStore | None = None
-    if harvest_db:
-        _validate_db(harvest_db)
-        harvest_database = APIStore(
-            harvest_db,
-            read_only=True,
-            check_same_thread=False,
-        )
-        harvest_database.connect()
-        logger.info("Opened harvest DB connection: %s", harvest_db)
+    harvest_database: APIStore = APIStore(
+        harvest_db,
+        read_only=True,
+        check_same_thread=False,
+    )
+    harvest_database.connect()
+    logger.info("Opened harvest DB connection: %s", harvest_db)
 
     logger.info("Application startup complete")
 
@@ -122,19 +120,16 @@ def create_app(config: Config | None = None) -> AsyncApp:
     if config is None:
         config = Config(
             API_BASE_URL="http://localhost:8080",
-            VOCABULARY_DATAFILE="",
             HARVEST_DB="harvest.db",
         )
     assert config is not None, "Config must be provided to create_app"
 
     api_base_url = config.get("API_BASE_URL") or "http://localhost:8080"
-    vocabulary_datafile = config["VOCABULARY_DATAFILE"]
 
     app: AsyncApp = AsyncApp(
         import_name=__name__,
         specification_dir=str(Path(__file__).parent),
         lifespan=lambda app: load_dataset_handler(
-            vocabulary_datafile,
             api_base_url,
             harvest_db=config.get("HARVEST_DB"),
             app=app,

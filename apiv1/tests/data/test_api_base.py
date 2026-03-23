@@ -97,7 +97,6 @@ def broken_dataset_db(tmp_path: Path) -> str:
 def _config(harvest_db: str) -> Config:
     return Config(
         API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-        VOCABULARY_DATAFILE="",
         HARVEST_DB=harvest_db,
     )
 

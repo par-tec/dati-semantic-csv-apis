@@ -23,7 +23,7 @@ if __name__ == "__main__":
     app: AsyncApp = create_app(
         config=Config(
             API_BASE_URL=api_base_url,
-            VOCABULARY_DATAFILE=vocabulary_datafile,
+            HARVEST_DB="harvest.db",
         )
     )
     app.run(host="0.0.0.0", port=8080)
