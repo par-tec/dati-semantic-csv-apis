@@ -123,48 +123,26 @@ jobs:
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+    - name: Install Python dependencies
+      run: |
+        pip install requests
     - name: Download binary artifact
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -e
-        REPO="par-tec/dati-semantic-csv-apis"
-        echo "Fetching latest workflow run..."
-        
-        RUN_ID=$(curl -s \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          https://api.github.com/repos/${REPO}/actions/runs \
-          | jq -r '
-            .workflow_runs
-            | map(select(.name=="Test"))
-            | first
-            | .id
-          ')
-  
-        echo "Latest run ID: ${RUN_ID}"
 
-        if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-          echo "No run found for workflow Test"
-          exit 1
-        fi
+        echo "Fetching artifact URL via Python script..."
+        ARTIFACT_URL=$(python3 .github/scripts/fetch_artifact.py)
 
-        echo "Fetching artifacts..."
-
-        ARTIFACT_URL=$(curl -s \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          https://api.github.com/repos/${REPO}/actions/runs/${RUN_ID}/artifacts \
-          | jq -r '.artifacts[]
-            | select(.name=="cli-binary")
-            | select(.expired==false)
-            | .archive_download_url')
-
-        echo "Artifact URL: ${ARTIFACT_URL}"
+        echo "Artifact URL: $ARTIFACT_URL"
 
         if [ -z "$ARTIFACT_URL" ] || [ "$ARTIFACT_URL" = "null" ]; then
-          echo "No artifact found in run ${RUN_ID}"
+          echo "No valid artifact found"
           exit 1
         fi
 
+        echo "Downloading artifact..."
         curl -L \
           -H "Authorization: Bearer ${GH_TOKEN}" \
           "${ARTIFACT_URL}" \
@@ -178,7 +156,6 @@ jobs:
         unzip /tmp/artifact.zip -d /usr/local/bin/
         chmod +x /usr/local/bin/schema_gov_it_tools.bin
         /usr/local/bin/schema_gov_it_tools.bin --version
-    
     - name: Debug matrix asset
       run: |
         echo "Processing directory: '${{ matrix.asset }}'"
@@ -288,47 +265,26 @@ jobs:
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+    - name: Install Python dependencies
+      run: |
+        pip install requests
     - name: Download binary artifact
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -e
-        REPO="par-tec/dati-semantic-csv-apis"
-        echo "Fetching latest workflow run..."
-        
-        RUN_ID=$(curl -s \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          https://api.github.com/repos/${REPO}/actions/runs \
-          | jq -r '
-            .workflow_runs
-            | map(select(.name=="Test"))
-            | first
-            | .id
-          ')
 
-        echo "Latest run ID: ${RUN_ID}"
+        echo "Fetching artifact URL via Python script..."
+        ARTIFACT_URL=$(python3 .github/scripts/fetch_artifact.py)
 
-        if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-          echo "No run found for workflow Test"
-          exit 1
-        fi        
-
-        echo "Fetching artifacts..."
-
-        ARTIFACT_URL=$(curl -s \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          https://api.github.com/repos/${REPO}/actions/runs/${RUN_ID}/artifacts \
-          | jq -r '.artifacts[]
-            | select(.name=="cli-binary")
-            | select(.expired==false)
-            | .archive_download_url')
-
-        echo "Artifact URL: ${ARTIFACT_URL}"
+        echo "Artifact URL: $ARTIFACT_URL"
 
         if [ -z "$ARTIFACT_URL" ] || [ "$ARTIFACT_URL" = "null" ]; then
-          echo "No artifact found in run ${RUN_ID}"
+          echo "No valid artifact found"
           exit 1
         fi
+
+        echo "Downloading artifact..."
         curl -L \
           -H "Authorization: Bearer ${GH_TOKEN}" \
           "${ARTIFACT_URL}" \
@@ -338,7 +294,7 @@ jobs:
           echo "Artifact download failed"
           exit 1
         fi
-        
+
         unzip /tmp/artifact.zip -d /usr/local/bin/
         chmod +x /usr/local/bin/schema_gov_it_tools.bin
         /usr/local/bin/schema_gov_it_tools.bin --version
@@ -380,7 +336,9 @@ jobs:
       run: |
         echo "::warning title=Missing frame file::No frame file found for asset '${{ matrix.asset }}'. This asset will be skipped."
     - name: Generate and validate CSV
-      if: steps.check-datapackage.outputs.exists == 'true' && steps.check-frame.outputs.exists == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
+      if: steps.check-datapackage.outputs.exists == 'true' &&
+        steps.check-frame.outputs.exists == 'true' && !contains(matrix.asset,
+        'theme-subtheme-mapping')
       working-directory: >-
         ${{ matrix.asset }}
       run: |
@@ -413,7 +371,8 @@ jobs:
         MATRIX_ASSET: ${{ matrix.asset }}
     - name: Check for CSV files
       id: check-csv
-      if: steps.check-datapackage.outputs.exists == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
+      if: steps.check-datapackage.outputs.exists == 'true' &&
+        !contains(matrix.asset, 'theme-subtheme-mapping')
       working-directory: >-
         ${{ matrix.asset }}
       run: |
