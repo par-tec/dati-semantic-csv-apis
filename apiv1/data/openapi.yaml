@@ -1,4 +1,14 @@
 ---
+x-common:
+  headers_ok: &common_headers_ok
+    X-RateLimit-Limit:
+      $ref: '#/components/headers/X-RateLimit-Limit'
+    X-RateLimit-Remaining:
+      $ref: '#/components/headers/X-RateLimit-Remaining'
+    X-RateLimit-Reset:
+      $ref: '#/components/headers/X-RateLimit-Reset'
+    Cache-Control:
+      $ref: '#/components/headers/Cache-Control'
 openapi: 3.0.3
 info:
   title: Controlled Vocabularies API - Vocabulary Data Endpoints
@@ -45,7 +55,74 @@ servers:
 #     This is commented because the service will provide a customized
 #     openapi.yaml
 paths:
-  /{agencyId}/{keyConcept}/openapi.yaml:
+  #
+  # Catalog endpoints.
+  #
+  /vocabularies/{agencyId}:
+    get:
+      operationId: catalog.handlers.list_vocabularies_by_agency
+      summary: Get vocabulary by agency ID
+      description: |-
+        Returns the API distribution for a specific controlled vocabularies
+        published by the given agency.
+
+        Note: This endpoint might be redundant.
+      tags:
+      - discover-vocabularies
+
+      parameters:
+      # Pagination
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      # Path parameters
+      - $ref: '#/components/parameters/agencyIdPath'
+      # Metadata
+      - $ref: '#/components/parameters/author'
+      - $ref: '#/components/parameters/hreflang'
+      - $ref: '#/components/parameters/concept'
+      # Text filters
+      - $ref: '#/components/parameters/title'
+      - $ref: '#/components/parameters/description'
+      responses:
+        '200':
+          $ref: '#/components/responses/APICatalogItems'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
+  /vocabularies:
+    get:
+      operationId: catalog.handlers.list_vocabularies
+      summary: Get controlled vocabularies
+      description: |
+        Returns a linkset of controlled vocabularies in RFC 9727 format.
+        Supports filtering by author, language, and concept.
+      tags:
+      - discover-vocabularies
+      parameters:
+      # Pagination
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      # Metadata
+      - $ref: '#/components/parameters/author'
+      - $ref: '#/components/parameters/hreflang'
+      - $ref: '#/components/parameters/concept'
+      # Text filters
+      - $ref: '#/components/parameters/title'
+      - $ref: '#/components/parameters/description'
+      responses:
+        '200':
+          $ref: '#/components/responses/APICatalogItems'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
+
+  /vocabularies/{agencyId}/{keyConcept}/openapi.yaml:
     get:
       parameters:
       - $ref: '#/components/parameters/agencyIdPath'
@@ -110,8 +187,7 @@ paths:
   #
   # Data endpoints.
   #
-  /{agencyId}/{keyConcept}/dump:
-
+  /vocabularies/{agencyId}/{keyConcept}/dump:
     get:
       operationId: data.handlers.dump_vocabulary_dataset
       description: |-
@@ -154,7 +230,7 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         'default':
           $ref: '#/components/responses/GenericError'
-  /{agencyId}/{keyConcept}:
+  /vocabularies/{agencyId}/{keyConcept}:
     get:
       summary: List all vocabulary items.
       description: |-
@@ -195,7 +271,7 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         'default':
           $ref: '#/components/responses/GenericError'
-  /{agencyId}/{keyConcept}/{id}:
+  /vocabularies/{agencyId}/{keyConcept}/{id}:
     get:
       summary: Retrieve a single vocabulary item by its ID.
       description: |-
@@ -288,6 +364,22 @@ paths:
 
 components:
   responses:
+    APICatalogItems:
+      description: |-
+        A successful response returns the list
+        of Vocabulary API Endpoints
+        and the associated OAS specifications.
+
+        Consider using Content-Type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
+
+        The request returns the list of controlled vocabularies
+        APIs in RFC 9727 linkset format published by this API Catalog
+        endpoint.
+      headers: *common_headers_ok
+      content:
+        application/linkset+json:
+          schema:
+            $ref: '#/components/schemas/Linkset'
     TooManyRequests:
       $ref: 'components.oas3.yaml#/components/responses/TooManyRequests'
     ServiceUnavailable:
@@ -331,7 +423,127 @@ components:
       schema:
         $ref: '#/components/schemas/TextFilter'
       example: Idrogeno solforato
+    author:
+      name: author
+      in: query
+      explode: false
+      description: >-
+        Filter by a substring of the author URI.
+
+        For example, for the author URI
+        `https://w3id.org/italia/data/public-organization/ISTAT`,
+        `istat` is a valid author filter.
+      schema:
+        $ref: '#/components/schemas/TextFilter'
+      example: https://w3id.org/italia/data/public-organization/ISTAT
+    hreflang:
+      name: hreflang
+      in: query
+      explode: false
+      description: >-
+        Filter by language code (ISO 639-1).
+
+        The language code is the ISO 639-1 two-letter code of
+        the languages supported by the vocabulary,
+        to be compatible with the `hreflang` link attribute defined
+        in RFC 8288.
+
+        Since schema.gov.it vocabularies use
+        the eurovoc language tags, the `hreflang` value
+        uses the ISO 639-1 two-letter code of the language part
+        of the eurovoc tag.
+
+        eurovoc languages that do not have an ISO 639-1 two-letter
+        code are not supported by this filter.
+      schema:
+        $ref: '#/components/schemas/LanguageTagShort'
+      example: it
+    concept:
+      name: concept
+      in: query
+      explode: false
+      description: Filter by concept identifier
+      schema:
+        $ref: '#/components/schemas/TextFilter'
+      example: ateco-2007
+    #
+    # Text filters
+    #
+    title:
+      name: title
+      in: query
+      explode: false
+      description: >-
+        Filter by vocabulary title.
+
+        This is a substring match on the title field of the vocabulary
+        metadata.
+
+        TODO: As a request parameter, we can further
+        constrain the maximum length.
+      schema:
+        $ref: '#/components/schemas/TextFilter'
+      example: ateco
+    description:
+      name: description
+      in: query
+      explode: false
+      description: >-
+        Filter by vocabulary description.
+
+        This is a substring match on the description field of
+        the vocabulary metadata.
+
+        TODO: Further matching criteria may be added
+        in the future.
+
+        TODO: As a request parameter, we can further
+        constrain the maximum length.
+      schema:
+        $ref: '#/components/schemas/TextFilter'
+      example: registro imprese
+
+  headers:
+    X-RateLimit-Limit:
+      $ref: 'components.oas3.yaml#/components/headers/X-RateLimit-Limit'
+    X-RateLimit-Remaining:
+      $ref: 'components.oas3.yaml#/components/headers/X-RateLimit-Remaining'
+    X-RateLimit-Reset:
+      $ref: 'components.oas3.yaml#/components/headers/X-RateLimit-Reset'
+    Retry-After:
+      $ref: 'components.oas3.yaml#/components/headers/Retry-After'
+    Cache-Control:
+      description: |-
+        This field will indicate caching directives for the response
+        using the max-age directive.
+        Since this dataset is updated daily, a low threshold
+        of 3600 seconds (1 hour) is acceptable.
+      schema:
+        example: max-age=3600
+        externalDocs:
+          url: https://datatracker.ietf.org/doc/html/rfc7234
+        pattern: >-
+          $[a-zA-Z0-9=;" -]{0,255}
+        type: string
+
   schemas:
+    LanguageTagShort:
+      description: ISO 639-1 2-letter language code
+      type: string
+      pattern: '^[a-z]{2}$'
+      maxLength: 2
+      minLength: 2
+      example: en
+    TitleString: &TitleString
+      description: >-
+        A short string used for titles and similar fields. The
+        underlying regexp allows for newlines and other whitespace
+        characters.
+
+        It is defined to accept all characters used in RDF vocabularies.
+      type: string
+      maxLength: 200
+      pattern: '^[\s\S]{1,200}$'
     TextFilter:
       description: |-
         A text filter that constrains
@@ -353,6 +565,8 @@ components:
       $ref: 'components.oas3.yaml#/components/schemas/Offset'
     Url:
       $ref: 'components.oas3.yaml#/components/schemas/Url'
+    URI:
+      $ref: 'components.oas3.yaml#/components/schemas/URI'
     PaginatedResponse:
       type: object
       additionalProperties: false
@@ -464,3 +678,328 @@ components:
           "@context":
             url: "@id"
           "@id": skos:inScheme
+    ServiceDescription:
+      description: |-
+        A link to a service description document as per RFC 8631.
+
+        According to the Italian API guidelines,
+        it must be in OAS 3.0 format.
+
+        The document may be in YAML or JSON format.
+      x-jsonld-type: http://xmlns.com/foaf/0.1/Document
+      x-jsonld-context:
+        dcterms: http://purl.org/dc/terms/
+        href: '@id'
+        type:
+          '@context':
+            '@base': https://www.iana.org/assignments/media-types/
+            '@propagate': false
+          '@id': dcterms:format
+          '@type': '@vocab'
+      type: object
+      additionalProperties: false
+      required:
+      - href
+      - type
+      properties:
+        href:
+          $ref: '#/components/schemas/URI'
+        type:
+          description: |-
+            Media type of the service description document.
+
+            In the current dcatapit, dcterms:format references
+            the URI of the publication office, that references
+            the media type of the document.
+            Since we need to specify the media type directly,
+            we used the IANA media type registry as the base URI.
+          type: string
+          enum:
+          - application/openapi+yaml
+          - application/openapi+json
+      example: &ServiceDescription_example
+        href: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007/openapi.yaml
+        type: application/openapi+yaml
+    ServiceMeta:
+      description: Metadata about the vocabulary API service.
+      type: object
+      additionalProperties: false
+      required:
+      - href
+      - type
+      properties:
+        href:
+          $ref: '#/components/schemas/URI'
+        type:
+          type: string
+          enum:
+          - application/ld+json
+      example: &ServiceMeta_example
+        href: https://w3id.org/italia/controlled-vocabulary/classifications-for-organizations/ateco-2007?format=application/ld+json
+        type: application/ld+json
+    APIDistribution:
+      description: |-
+        An API endpoint publishing a controlled vocabulary
+        in RFC 9727 linkset format.
+      x-jsonld-type: https://w3id.org/italia/onto/NDC/DataService
+      x-jsonld-context:
+        # Prefixes
+        '@propagate': false
+        NDC: https://w3id.org/italia/onto/NDC/
+        dcat: http://www.w3.org/ns/dcat#
+        dcterms: http://purl.org/dc/terms/
+        description: dcterms:description
+        owl: http://www.w3.org/2002/07/owl#
+        skos: http://www.w3.org/2004/02/skos/core#
+        # Properties
+        about:
+          '@id': https://w3id.org/italia/onto/NDC/servesDataset
+          '@type': '@id'
+        href: '@id'
+        languages: dcterms:language
+        publisher:
+          '@id': dcterms:rightsHolder
+          '@type': '@id'
+        title: skos:prefLabel
+        version: owl:versionInfo
+        service-desc: NDC:endpointDescription
+        service-meta: null
+        predecessor-version: null
+        author: null
+        type: null
+        hreflang: null
+        _concept: NDC:keyConcept
+        _vocabulary_type: null
+      type: object
+      additionalProperties: false
+      required:
+      - about
+      - href
+      - title
+      - author
+      - description
+      properties:
+        about:
+          description: >-
+            The URI of the vocabulary concept being published
+            by this API.
+          oneOf:
+          - $ref: '#/components/schemas/URI'
+          example: https://w3id.org/italia/controlled-vocabulary/classifications-for-organizations/ateco-2007
+        href:
+          oneOf:
+          - $ref: '#/components/schemas/URI'
+          description: URL of the API endpoint for the vocabulary.
+            It is the identifier of the API.
+          example: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
+        title:
+          oneOf:
+          - $ref: '#/components/schemas/TitleString'
+          description: >-
+            Human-readable title extracted from the vocabulary
+            metadata,
+            (e.g., skos:prefLabel).
+        _concept:
+          deprecated: true
+          description: |-
+            The key concept of the vocabulary, if any.
+
+            This is extracted from the vocabulary metadata
+            and can be used for filtering and searching.
+
+            For example, for a classification vocabulary,
+            this is the concept that represents the classification itself.
+
+            :warning: Do we need this? URIs are more stable.
+          oneOf:
+          - $ref: '#/components/schemas/TitleString'
+          example: ateco-2007
+        _vocabulary_type:
+          deprecated: true
+          description: |-
+            The type of the vocabulary, if any.
+            This is extracted from the vocabulary metadata
+            :warning: Do we need this?.
+          oneOf:
+          - $ref: '#/components/schemas/URI'
+          example: http://purl.org/adms/assettype/CodeList
+        # type:
+        #   description: API response content type. :warning: May be redundant.
+        #   type: string
+        #   enum:
+        #   - application/json
+        hreflang:
+          description: |-
+            Language codes supported by the vocabulary
+            (ISO 639-1 two-letter codes),
+            to be compatible with the `hreflang` link attribute
+            defined in RFC 8288.
+          type: array
+          maxItems: 10
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/LanguageTagShort'
+          example:
+          - it
+        author:
+          allOf:
+          - $ref: '#/components/schemas/URI'
+          description: Author/publisher URI (RFC 4287) as extracted
+            from the vocabulary metadata.
+        description:
+          description: |-
+            Human-readable description extracted from the vocabulary metadata,
+            (e.g., skos:definition).
+            This is not associated with any Link Relation.
+
+            The underlying regexp allows for newlines and other whitespace characters.
+          type: string
+          maxLength: 4000
+          pattern: '^[\s\S]{1,4000}$'
+        version:
+          description: Version identifier
+          type: string
+          maxLength: 64
+          pattern: '^.{1,64}$'
+        service-desc:
+          description: Service description links (RFC 8631) referencing
+            the OpenAPI specification of the vocabulary API.
+          type: array
+          minItems: 1
+          maxItems: 1
+          items:
+            $ref: '#/components/schemas/ServiceDescription'
+        service-meta:
+          description: Metadata about the vocabulary API service.
+          type: array
+          minItems: 1
+          maxItems: 1
+          items:
+            $ref: '#/components/schemas/ServiceMeta'
+        predecessor-version:
+          description: |-
+            Link to the previous version of this vocabulary API,
+            if any.
+          type: array
+          minItems: 1
+          maxItems: 1
+          items:
+            $ref: '#/components/schemas/Link'
+      example: &APIDistribution_example
+        href: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
+        about: https://w3id.org/italia/controlled-vocabulary/classifications-for-organizations/ateco-2007
+        title: Classificazione Ateco 2007 - Aggiornamento 2021
+        version: versione 2007 - aggiornamento 2021
+        author: https://w3id.org/italia/data/public-organization/ISTAT
+        description: >-
+          Classificazione ISTAT Ateco 2007 - Aggiornamento
+          2021; la classificazione è usata per catalogare le attività
+          economiche. E' la classificazione di riferimento per
+          il Registro Imprese
+        hreflang:
+        - it
+        service-desc:
+        - *ServiceDescription_example
+        service-meta:
+        - *ServiceMeta_example
+        predecessor-version:
+        - href: https://schema.gov.it/api/vocabularies/istat/ateco-2007
+    APICatalog:
+      description: |-
+        An API Catalog publishing a collection of
+        API distributions for controlled vocabularies.
+
+        A catalog is semantically represented as an l0:Collection,
+        for now. Further concepts may be used in the future.
+      x-jsonld-type: https://dati.gov.it/onto/dcatapit#Catalog  # https://w3id.org/italia/onto/l0/Collection
+      x-jsonld-context:
+        "@propagate": false
+        dcat: "http://www.w3.org/ns/dcat#"
+        api-catalog: '@id'
+        item:
+          '@id': dcat:dataset
+          '@type': '@id'
+          '@container': '@set'
+        anchor: null
+      type: object
+      additionalProperties: false
+      required:
+      - api-catalog
+      - item
+      properties:
+        anchor:
+          allOf:
+          - $ref: '#/components/schemas/URI'
+          description: |-
+            The canonical reference to the API Catalog
+            URL. This is for future use, in case we want to spread
+            the current API Catalog URL across multiple URLs.
+        api-catalog:
+          allOf:
+          - $ref: '#/components/schemas/URI'
+          description: The current API Catalog URL.
+        item:
+          description: |-
+            List of API distributions published by
+            this API Catalog. The size of this list is limited
+            to 100 items per request. Consumer can use pagination
+            to retrieve the full list of items, or query for specific
+            items.
+          type: array
+          minItems: 0
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/APIDistribution'
+        #
+        # XXX: Do we need pagination metadata?
+        #
+        total_count:
+          $ref: 'components.oas3.yaml#/components/schemas/Offset'
+        count:
+          $ref: 'components.oas3.yaml#/components/schemas/Limit'
+        limit:
+          $ref: 'components.oas3.yaml#/components/schemas/Limit'
+        offset:
+          $ref: 'components.oas3.yaml#/components/schemas/Offset'
+      example: &APICatalog_example
+        api-catalog: https://schema.gov.it/api/vocabularies/v1/
+        anchor: https://schema.gov.it/api/vocabularies/v1/
+        item:
+        - *APIDistribution_example
+        # Pagination metadata.
+        total_count: 4340
+        count: 12
+        limit: 20
+        offset: 5
+    Linkset:
+      description: |-
+        A linkset containing a list of API Catalogs
+        for controlled vocabularies according to RFC 9727.
+      x-jsonld-type: http://dati.gov.it/onto/dcatapit#Catalog
+      x-jsonld-context:
+        dcat: "http://www.w3.org/ns/dcat#"
+        linkset:
+          '@container': '@set'
+          '@id': dcat:dataset
+          '@type': '@id'
+      type: object
+      additionalProperties: false
+      required:
+      - linkset
+      properties:
+        linkset:
+          description: |-
+            List of API Catalogs. The size of this list is limited
+            to 10 items because no more that 10 API Catalogs are expected.
+
+            For this API, it is actually always 1.
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/APICatalog'
+      example:
+        linkset:
+        - *APICatalog_example
+    Link:
+      $ref: 'components.oas3.yaml#/components/schemas/Link'
