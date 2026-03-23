@@ -32,7 +32,38 @@ components:
       schema:
         $ref: '#/components/schemas/Offset'
       example: 0
+      # Common schemas.
+    agencyIdPath:
+      name: agencyId
+      in: path
+      description: |-
+        Agency identifier matched via the latest path segment of the agency URI.
+        For example, for the agency URI `https://w3id.org/italia/data/public-organization/ISTAT`, `istat` is a valid agencyIdPath.
+      required: true
+      schema:
+        $ref: '#/components/schemas/AsciiText'
+      example: istat
+    keyConceptPath:
+      name: keyConcept
+      in: path
+      description: |-
+        Key concept identifier matched via the latest path segment of the key concept URI.
+        For example, for the key concept URI `https://w3id.org/italia/data/public-organization/ISTAT/ente`, `ente` is a valid keyConceptPath.
+      required: true
+      schema:
+        $ref: '#/components/schemas/AsciiText'
+      example: ateco-2025
   schemas:
+    AsciiText:
+      description: |-
+        An ASCII text string that constrains
+        the length and characters of the input.
+
+        This is a substring match on the corresponding field of
+        the vocabulary metadata.
+      type: string
+      maxLength: 32
+      pattern: '^[a-zA-Z0-9-_]{1,32}$'
     TextFilter:
       description: |-
         A text filter that constrains

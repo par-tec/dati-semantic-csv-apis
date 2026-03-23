@@ -18,8 +18,9 @@ services:
 
   api-catalog:
     build:
-      context: apiv1
-      dockerfile: catalog.dockerfile
+      context: .
+      dockerfile: apiv1/Dockerfile
+      target: catalog-api
     ports:
     - "8000:8080"
     volumes:
@@ -32,8 +33,9 @@ services:
       start_period: 30s
   api-data:
     build:
-      context: apiv1
-      dockerfile: data.dockerfile
+      context: .
+      dockerfile: apiv1/Dockerfile
+      target: data-api
     ports:
     - "8001:8080"
     volumes:

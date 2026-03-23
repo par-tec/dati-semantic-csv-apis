@@ -49,10 +49,6 @@ def _language_matches(obj, lang: str | LangTag):
 
 
 class VocabularyMetadata(Graph):
-    def __init__(self, *args, original_graph: Graph | None = None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._original_graph = original_graph
-
     def language(self) -> str:
         language_uris = list(self.objects(self.identifier, DCTERMS.language))
         if not language_uris:
@@ -282,7 +278,7 @@ class Vocabulary:
     def json_ld(self, value: JsonLD) -> None:
         self._jsonld = value
 
-    def metadata(self) -> Graph:
+    def metadata(self) -> VocabularyMetadata:
         """
         Extract a subgraph representing a vocabulary (concept scheme) from the RDF graph.
 
@@ -292,7 +288,7 @@ class Vocabulary:
             uri: URI of the vocabulary (concept scheme) to extract
             key_concept: Optional URI of the key concept to filter by
         Returns:
-            Graph: RDF graph representing the extracted vocabulary with contact info
+            VocabularyMetadata: Metadata of the extracted vocabulary
         """
         query = """
                 PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
@@ -321,21 +317,14 @@ class Vocabulary:
             """
         res = self.graph.query(query)
         _metadata: Graph = res.graph
-
-        # Count only ConceptScheme subjects, not contactPoint subjects
-        concept_schemes = list(_metadata.subjects(predicate=NDC.keyConcept))
-        do_i_have_just_one_vocab = len(concept_schemes)
-
+        _metadata_uri = set(_metadata.subjects())
+        do_i_have_just_one_vocab = len(_metadata_uri)
         if do_i_have_just_one_vocab != 1:
             raise UnsupportedVocabularyError(
                 "Expected exactly one vocabulary in the RDF data",
                 do_i_have_just_one_vocab,
             )
-
-        _m2 = VocabularyMetadata(
-            identifier=concept_schemes[0],
-            original_graph=self.graph,  # Pass original graph for fallback vCard access
-        )
+        _m2 = VocabularyMetadata(identifier=_metadata_uri.pop())
         for s, p, o in _metadata:
             _m2.add((s, p, o))
         return _m2

@@ -22,53 +22,70 @@ info:
 # checkov:skip=CKV_OPENAPI_4
 # checkov:skip=CKV_OPENAPI_5
 tags:
+- name: discover-vocabularies
+  description: |-
+    Discover vocabularies and how to retrieve the data and their metadata.
 - name: health-check
-  description: Endpoints for checking the health of the API.
+  description: |-
+    Check the health status of the API.
 - name: retrieve-data
-  description: Endpoints for retrieving vocabulary data.
+  description: |-
+    Retrieve the actual data, either in batch or point
 - name: dump-dataset
-  description: Endpoints for dumping the whole dataset.
+  description: |-
+    Dump the whole dataset for statistics or
+    internal reuse
 servers:
 - url: http://localhost:8080
   description: Local development server
   x-sandbox: true
-- url: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
-  description: Example API server
+#
+# - url: https://schema.gov.it/api/vocabularies/v1/istat/ateco-2007
+#   description: |-
+#     This is commented because the service will provide a customized
+#     openapi.yaml
 paths:
-  # This API does not define the /status endpoint because it is
-  # automatically provided by the API infrastructure.
-  # /openapi.yaml_:
-  #   get:
-  #     # operationId: show_vocabulary_spec
-  #     description: |-
-  #       Retrieve the OpenAPI specification
-  #       for a given vocabulary API identified by `agencyId` and `vocabularyId`.
-  #       The URL must be one of those
-  #       retrieved from the `/vocabularies` endpoint.
-  #
-  #       This OpenAPI resource includes
-  #       the x-jsonld-context and x-jsonld-type extensions
-  #       that enables the client to understand
-  #       how to interpret the vocabulary data.
-  #     security:
-  #     - {}
-  #     tags:
-  #     - discover-vocabularies
-  #     responses:
-  #       '200':
-  #         description: |-
-  #           A successful response returns the OpenAPI specification
-  #           for the vocabulary identified by `agencyId`.
-  #         content:
-  #           application/openapi+yaml:
-  #             schema:
-  #               type: object
+  /{agencyId}/{keyConcept}/openapi.yaml:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/agencyIdPath'
+      - $ref: '#/components/parameters/keyConceptPath'
+      operationId: data.handlers.show_vocabulary_spec
+      description: |-
+        Retrieve the OpenAPI specification
+        for a given vocabulary API identified by `agencyId` and `keyConcept`.
+        The URL must be one of those
+        retrieved from the `/vocabularies` endpoint.
+
+        This OpenAPI resource includes
+        the x-jsonld-context and x-jsonld-type extensions
+        that enables the client to understand
+        how to interpret the vocabulary data.
+      security:
+      - {}
+      tags:
+      - discover-vocabularies
+      responses:
+        '200':
+          description: |-
+            A successful response returns the OpenAPI specification
+            for the vocabulary identified by `agencyId` and `keyConcept`.
+          content:
+            application/openapi+yaml:
+              schema:
+                type: object
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
   /status:
     get:
       operationId: data.handlers.status
       description: |-
         Retrieve the status of the API for the vocabulary
-        identified by `agencyId` and `vocabularyId`.
+        identified by `agencyId` and `keyConcept`.
         The URL must be one of those
         retrieved from the `/vocabularies` endpoint.
       security:
@@ -79,7 +96,7 @@ paths:
         '200':
           description: |-
             A successful response returns the status of the API
-            for the vocabulary identified by `agencyId`.
+            for the vocabulary identified by `agencyId` and `keyConcept`.
           content:
             application/json:
               schema:
@@ -93,13 +110,14 @@ paths:
   #
   # Data endpoints.
   #
-  /dump:
+  /{agencyId}/{keyConcept}/dump:
+
     get:
       operationId: data.handlers.dump_vocabulary_dataset
       description: |-
         Dump the whole dataset
         for the vocabulary
-        identified by `agencyId` and `vocabularyId`.
+        identified by `agencyId` and `keyConcept`.
         The URL must be one of those
         retrieved from the `/vocabularies` endpoint.
 
@@ -107,6 +125,9 @@ paths:
         may return a 300 Redirect response
         to static files containing the whole dataset
         according to the vocabulary serialization format.
+      parameters:
+      - $ref: '#/components/parameters/agencyIdPath'
+      - $ref: '#/components/parameters/keyConceptPath'
       security:
       - {}
       - high-volume: []
@@ -116,7 +137,7 @@ paths:
         '200':
           description: |-
             A successful response returns the whole dataset
-            from the vocabulary identified by `agencyId`.
+            from the vocabulary identified by `agencyId` and `keyConcept`.
 
             The response should be a compressed stream of
             all the dataset.
@@ -133,7 +154,7 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         'default':
           $ref: '#/components/responses/GenericError'
-  /:
+  /{agencyId}/{keyConcept}:
     get:
       summary: List all vocabulary items.
       description: |-
@@ -149,6 +170,8 @@ paths:
       tags:
       - retrieve-data
       parameters:
+      - $ref: '#/components/parameters/agencyIdPath'
+      - $ref: '#/components/parameters/keyConceptPath'
       # Pagination.
       - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/offset'
@@ -161,7 +184,7 @@ paths:
         '200':
           description: |-
             A successful response returns the data
-            from the vocabulary identified by `agencyId`.
+            from the vocabulary identified by `agencyId` and `keyConcept`.
           content:
             application/json:
               schema:
@@ -172,7 +195,7 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         'default':
           $ref: '#/components/responses/GenericError'
-  /{id}:
+  /{agencyId}/{keyConcept}/{id}:
     get:
       summary: Retrieve a single vocabulary item by its ID.
       description: |-
@@ -237,6 +260,8 @@ paths:
       tags:
       - retrieve-data
       parameters:
+      - $ref: '#/components/parameters/agencyIdPath'
+      - $ref: '#/components/parameters/keyConceptPath'
       - name: id
         in: path
         required: true
@@ -293,6 +318,10 @@ components:
         pattern: '^[A-Za-z0-9._-]{1,128}$'
         maxLength: 128
       example: "11160204"
+    agencyIdPath:
+      $ref: 'components.oas3.yaml#/components/parameters/agencyIdPath'
+    keyConceptPath:
+      $ref: 'components.oas3.yaml#/components/parameters/keyConceptPath'
     label:
       name: label
       in: query
@@ -339,10 +368,7 @@ components:
           "@id": l0:hasMember
       properties:
         totalResults:
-          type: integer
-          format: int32
-          minimum: 0
-          maximum: 100
+          $ref: "#/components/schemas/Offset"
         limit:
           $ref: "#/components/schemas/Limit"
         offset:
@@ -354,9 +380,19 @@ components:
           items:
             $ref: "#/components/schemas/Item"
     Item:
+      type: object
+      description: |-
+        A base item schema that can be extended
+        with additional properties.
+
+        This is useful for vocabularies that have a common structure
+        but different properties.
+
+        The actual schema is provided by the real OAS published
+        on /{agencyId}/{keyConcept}/openapi.yaml, which extends this base schema.
       example:
         id: "11160204"
-        label_it: Idrogeno solforato
+        label: Idrogeno solforato
         level: 3
         parent:
         - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
@@ -368,15 +404,10 @@ components:
           minLength: 1
           pattern: ^[A-Za-z0-9._-]+$
           type: string
-        label_it:
+        label:
           maxLength: 500
           minLength: 1
           type: string
-        level:
-          maximum: 10
-          minimum: 0
-          format: int32
-          type: integer
         parent:
           items:
             properties:
@@ -387,6 +418,8 @@ components:
             - url
             type: object
           type: array
+          maxItems: 100
+          minItems: 0
         url:
           format: uri-reference
           type: string
@@ -400,49 +433,34 @@ components:
             - url
             type: object
           type: array
+          maxItems: 100
+          minItems: 0
       required:
       - id
-      - label_it
-      - level
-      - parent
+      - label
       - url
-      - vocab
-      type: object
+      # - vocab  # vocab is not required because some items may not have the skos:inScheme property.
       x-jsonld-context:
         "@vocab": https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/
         INAILService: https://w3id.org/italia/work-accident/onto/adm_serv/
         clvapit: https://w3id.org/italia/onto/CLV/
         dct: http://purl.org/dc/terms/
+        skos: http://www.w3.org/2004/02/skos/core#
+        xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+        xsd: http://www.w3.org/2001/XMLSchema#
         id:
           "@id": skos:notation
-        label_it:
+        label:
           "@id": skos:prefLabel
           "@language": it
-        label_de:
-          "@id": skos:prefLabel
-          "@language": de
-        label_en:
-          "@id": skos:prefLabel
-          "@language": en
-        level:
-          "@id": xkos:depth
-          "@type": xsd:integer
         parent:
           "@container": "@set"
           "@context":
             url: "@id"
           "@id": skos:broader
-        skos: http://www.w3.org/2004/02/skos/core#
         url: "@id"
         vocab:
           "@container": "@set"
           "@context":
             url: "@id"
           "@id": skos:inScheme
-        xkos: http://rdf-vocabulary.ddialliance.org/xkos#
-        xsd: http://www.w3.org/2001/XMLSchema#
-      x-jsonld-type: INAILService:AgenteCausaleINAIL
-      x-validation:
-        error_count: 0
-        errors: []
-        valid: true

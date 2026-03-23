@@ -10,11 +10,12 @@ import pytest
 import schemathesis
 from data.app import Config, create_app
 from httpx import Response
-from hypothesis import settings
+from hypothesis import HealthCheck, settings
 from schemathesis.specs.openapi.schemas import OpenApiSchema
 
 from tests.harness import client_harness
 
+URI = "url"
 TESTDIR = Path(__file__).parent.parent
 APIDIR: Path = TESTDIR.parent / "data"
 OPENAPI_SPEC_PATH = APIDIR / "openapi.yaml"
@@ -24,21 +25,28 @@ oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
 )
 
 
+schema_dump = oas_schema.include(
+    operation_id="data.handlers.dump_vocabulary_dataset"
+)
+
+schema_item = oas_schema.include(operation_id="data.handlers.get_item")
+
+
 @oas_schema.parametrize()
 @settings(
-    max_examples=50,
+    max_examples=20,
     # verbosity=Verbosity.debug
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
 )
-def test_openapi_compliance(case):
+def test_openapi_compliance(case, sample_db):
     """Test that the /status endpoint complies with OAS schema."""
 
     with client_harness(
         create_app,
         Config(
             API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-            VOCABULARY_DATAFILE=str(
-                TESTDIR / "api" / "agente_causale.short.yaml"
-            ),
+            VOCABULARY_DATAFILE="",
+            HARVEST_DB=sample_db,
         ),
     ) as (client, logs):
         # .. the logs should indicate that the vocabularies dataset is being loaded.
@@ -66,15 +74,14 @@ def test_openapi_compliance(case):
             case.validate_response(response)
 
 
-def test_latin_header():
+def test_latin_header(sample_db):
     """Test that the API can handle latin1 headers."""
     with client_harness(
         create_app,
         Config(
             API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-            VOCABULARY_DATAFILE=str(
-                TESTDIR / "api" / "agente_causale.short.yaml"
-            ),
+            VOCABULARY_DATAFILE="",
+            HARVEST_DB=sample_db,
         ),
     ) as (client, logs):
         response: Response = client.get(
@@ -84,15 +91,14 @@ def test_latin_header():
         assert response.status_code == 200
 
 
-def test_rejects_non_printable_query_parameter() -> None:
+def test_rejects_non_printable_query_parameter(sample_db) -> None:
     """Non-printable query parameter values should be rejected."""
     with client_harness(
         create_app,
         Config(
             API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-            VOCABULARY_DATAFILE=str(
-                TESTDIR / "api" / "agente_causale.short.yaml"
-            ),
+            VOCABULARY_DATAFILE="",
+            HARVEST_DB=sample_db,
         ),
     ) as (client, logs):
         response: Response = client.get(

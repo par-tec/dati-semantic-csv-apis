@@ -59,7 +59,8 @@ log_format = "%(asctime)s %(levelname)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 norecursedirs = "assets docs build dist *.egg-info .git .tox var/large_ml_model/ .*"
 # XXX: To speed up tests, coverage is only enabled in tox -e coverage.
-addopts = "-v -p no:memray -p no:profiling"
+# Skip heavy asset tests by default; run explicitly with `-m asset` when needed.
+addopts = "-v --durations=3 -m 'not asset' -p no:memray -p no:profiling -p no:legacypath"
 console_output_style = "count"
 testpaths = ["tests"]
 # XXX: Re-enable failing when no tests are collected.
