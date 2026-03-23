@@ -110,9 +110,9 @@ components:
         valid: true
 info:
   contact:
-    email: fake@example.com
-    name: Fake Name
-    url: https://example.com/contact
+    email: mailto:ndc-segr-tec@istat.it
+    name: Segreteria Tecnica Istat - Progetto PNRR National Data Catalog
+    url: https://w3id.org/italia/data/public-organization/ISTAT
   description: "Classificazione statistica delle attività economiche finalizzata all’elaborazione\
     \ di statistiche ufficiali, aventi per oggetto i fenomeni relativi alla partecipazione\
     \ delle unità produttive ai processi economici. La classificazione è direttamente\
@@ -128,6 +128,8 @@ info:
     \ raggruppate in 512 classi, 222 gruppi, 60 divisioni, 17 sezioni, 16 sottosezioni."
   title: Ateco 2025 - Classificazione delle attività economiche
   version: versione 2025
+  x-agencyId: istat
+  x-keyConcept: ateco-2025
   x-summary: ''
 openapi: 3.0.0
 paths: {}
