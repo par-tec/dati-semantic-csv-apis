@@ -14,6 +14,7 @@ from tools.commands.jsonld import create_jsonld_framed
 from tools.commands.openapi import create_oas_spec
 from tools.harvest import VocabularyRepository
 from tools.harvest.catalog import Catalog
+from tools.harvest.collect import collect_databases
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -239,6 +240,16 @@ def async_pipeline(
     required=False,
     help="Filter by key concept",
 )
+@click.option(
+    "--collect",
+    is_flag=True,
+    help="Collect generated .db files into download-dir/aggregate.db",
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    help="With --collect, overwrite existing aggregate.db and existing tables",
+)
 @click.pass_obj
 def selectable_pipeline(
     catalog: Catalog,
@@ -248,6 +259,8 @@ def selectable_pipeline(
     workers: int,
     limit: int,
     key_concept: str | None,
+    collect: bool,
+    force: bool,
 ) -> None:
     if mode == "serial":
         for i, node in enumerate(catalog.vocabularies()["@graph"]):
@@ -257,15 +270,32 @@ def selectable_pipeline(
             if limit > 0 and i >= limit:
                 break
             _process_repository_node(node, download_dir, default_frame)
-        return
+    else:
+        if workers < 1:
+            raise click.BadParameter(
+                "workers must be >= 1", param_hint="--workers"
+            )
 
-    if workers < 1:
-        raise click.BadParameter("workers must be >= 1", param_hint="--workers")
+        nodes = catalog.vocabularies()["@graph"]
+        asyncio.run(
+            _run_async_pipeline(nodes, download_dir, default_frame, workers)
+        )
 
-    nodes = catalog.vocabularies()["@graph"]
-    asyncio.run(
-        _run_async_pipeline(nodes, download_dir, default_frame, workers)
-    )
+    if collect:
+        collect_databases(download_dir=download_dir, force=force)
+
+
+@harvest.command("collect")
+@click.option(
+    "-d", "--download-dir", type=click.Path(path_type=Path), required=True
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    help="Overwrite existing aggregate.db and existing tables",
+)
+def collect_command(download_dir: Path, force: bool) -> None:
+    collect_databases(download_dir=download_dir, force=force)
 
 
 if __name__ == "__main__":

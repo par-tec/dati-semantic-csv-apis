@@ -156,6 +156,14 @@ class Apiable(Vocabulary):
         if force and datafile.exists():
             datafile.unlink()
         with APIStore(str(datafile)) as db:
+            db.create_metadata_table()
+            db.upsert_metadata(
+                vocabulary_uri=self.uri() or "",
+                agency_id=metadata.agency_id,
+                key_concept=metadata.name,
+                openapi={},
+                catalog={},
+            )
             db.update_vocabulary_from_jsonld(
                 metadata.agency_id,
                 metadata.name,

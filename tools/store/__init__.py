@@ -185,6 +185,12 @@ class APIStore:
             openapi = yaml.safe_load(row[0])
             validate(instance=openapi, schema=Draft7Validator.META_SCHEMA)
 
+    def validate_integrity(self) -> bool:
+        """Run ``PRAGMA integrity_check`` and return True when SQLite reports ``ok``."""
+        conn = self.connect()
+        row = conn.execute("PRAGMA integrity_check").fetchone()
+        return bool(row) and row[0] == "ok"
+
     def upsert_metadata(
         self,
         vocabulary_uri: str,
@@ -192,6 +198,8 @@ class APIStore:
         key_concept: str,
         openapi: dict[str, Any],
         catalog: dict[str, Any],
+        *,
+        commit: bool = True,
     ) -> None:
         vocabulary_uuid = self._table_name(agency_id, key_concept)
         conn = self.connect()
@@ -227,7 +235,8 @@ class APIStore:
                 "catalog": json.dumps(catalog),
             },
         )
-        conn.commit()
+        if commit:
+            conn.commit()
 
     @staticmethod
     def _table_name(agency_id: str, key_concept: str) -> str:
@@ -243,15 +252,6 @@ class APIStore:
             conn.execute(
                 "SELECT * FROM _metadata WHERE agency_id = ? AND key_concept = ?",
                 (agency_id, key_concept),
-            ).fetchone(),
-        )
-
-    def get_default_metadata(self) -> sqlite3.Row | None:
-        conn = self.connect()
-        return cast(
-            sqlite3.Row | None,
-            conn.execute(
-                "SELECT * FROM _metadata ORDER BY rowid LIMIT 1"
             ).fetchone(),
         )
 
