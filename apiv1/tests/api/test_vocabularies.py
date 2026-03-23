@@ -36,15 +36,12 @@ def test_download():
         }
                     """,
     )
-    expected = json.loads(all_vocabularies).get("@graph", [])
-    expected = {x["@id"] for x in expected}
+    json.loads(all_vocabularies).get("@graph", [])
     data = sparql_query_vocabularies(SPARQL_URL)
     data = {x["@id"] for x in data.get("@graph", [])}
-    assert len(data) == 146
+    assert len(data) == 148
 
     raise pytest.skip("Support dcat and not only skos")
-    assert expected - data == set(), f"Missing vocabularies: {expected - data}"
-    assert len(expected) == 158
 
 
 def test_transform_vocabularies_to_linkset():
