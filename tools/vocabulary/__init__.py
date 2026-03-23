@@ -22,6 +22,8 @@ from tools.projector import framer
 log = logging.getLogger(__name__)
 
 NDC = Namespace("https://w3id.org/italia/onto/NDC/")
+VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
+DCAT = Namespace("http://www.w3.org/ns/dcat#")
 
 
 class UnsupportedVocabularyError(ValueError):
@@ -175,6 +177,21 @@ class VocabularyMetadata(Graph):
         return str(version) if version else None
 
     @property
+    def contact_name(self) -> str | None:
+        contact_name = self.get_value(VCARD.fn)
+        return str(contact_name) if contact_name else None
+
+    @property
+    def contact_email(self) -> str | None:
+        contact_email = self.get_value(VCARD.hasEmail)
+
+        if not isinstance(contact_email, str):
+            return None
+
+        contact_email = str(contact_email).replace("mailto:", "")
+        return contact_email
+
+    @property
     def rights_holder(self) -> str | None:
         rights_holder = self.get_value(DCTERMS.rightsHolder)
         return str(rights_holder) if rights_holder else None
@@ -288,6 +305,8 @@ class Vocabulary:
         """
         Extract a subgraph representing a vocabulary (concept scheme) from the RDF graph.
 
+        Now includes vCard contact information if present via dcat:contactPoint.
+
         Args:
             uri: URI of the vocabulary (concept scheme) to extract
             key_concept: Optional URI of the key concept to filter by
@@ -295,21 +314,32 @@ class Vocabulary:
             VocabularyMetadata: Metadata of the extracted vocabulary
         """
         query = """
-            PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
+                PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
+                PREFIX dcat: <http://www.w3.org/ns/dcat#>
+                PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+                PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-            CONSTRUCT {
-                ?vocab ?p ?o .
-                ?vocab NDC:keyConcept ?keyConcept .
-            }
-            WHERE {
-                ?vocab
-                    NDC:keyConcept ?keyConcept ;
-                    ?p ?o .
-            }
-        """
+                CONSTRUCT {
+                    ?vocab ?p ?o .
+                    ?vocab NDC:keyConcept ?keyConcept .
+                    ?vocab vcard:fn ?contantName .
+                    ?vocab vcard:hasEmail ?contactEmail .
+                }
+                WHERE {
+                    ?vocab NDC:keyConcept ?keyConcept ;
+                           ?p ?o .
+
+                    # Optionally include vCard data if present
+                    OPTIONAL {
+                        ?vocab dcat:contactPoint ?contactPoint .
+                        ?contactPoint vcard:fn ?contantName .
+                        ?contactPoint vcard:hasEmail ?contactEmail .
+                    }
+                }
+            """
         res = self.graph.query(query)
         _metadata: Graph = res.graph
-
         _metadata_uri = set(_metadata.subjects())
         do_i_have_just_one_vocab = len(_metadata_uri)
         if do_i_have_just_one_vocab != 1:
@@ -317,6 +347,7 @@ class Vocabulary:
                 "Expected exactly one vocabulary in the RDF data",
                 do_i_have_just_one_vocab,
             )
+
         _m2 = VocabularyMetadata(identifier=_metadata_uri.pop())
         for s, p, o in _metadata:
             _m2.add((s, p, o))

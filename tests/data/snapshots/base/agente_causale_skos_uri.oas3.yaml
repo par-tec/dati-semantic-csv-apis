@@ -108,9 +108,9 @@ components:
         valid: true
 info:
   contact:
-    email: >-
-      fake@example.com
-    name: Fake Name
+    email: dcod@inail.it
+    name: >-
+      INAIL Ufficio V - D.C.O.D
     url: >-
       https://w3id.org/italia/work-accident/data/organization/inail
   description: >-
