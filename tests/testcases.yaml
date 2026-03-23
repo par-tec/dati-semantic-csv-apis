@@ -237,6 +237,12 @@ testcases:
     x-jsonld-context: *agente_causale_skos_context
     type: object
     properties:
+      info:
+        properties:
+          contact:
+            properties:
+              name:
+                type: string
       url: *URL
       id:
         type: string
