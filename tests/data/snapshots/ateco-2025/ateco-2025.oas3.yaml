@@ -110,7 +110,7 @@ components:
         valid: true
 info:
   contact:
-    email: mailto:ndc-segr-tec@istat.it
+    email: ndc-segr-tec@istat.it
     name: Segreteria Tecnica Istat - Progetto PNRR National Data Catalog
     url: https://w3id.org/italia/data/public-organization/ISTAT
   description: "Classificazione statistica delle attività economiche finalizzata all’elaborazione\
