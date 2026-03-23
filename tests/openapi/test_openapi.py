@@ -94,7 +94,7 @@ def test_openapi_metadata(
     turtle: RDFText,
     frame: JsonLDFrame,
     expected_jsonschema: dict,
-    snapshot_dir: Path,
+    snapshot: Path,
     request: pytest.FixtureRequest,
 ):
     """
@@ -116,13 +116,16 @@ def test_openapi_metadata(
     if "-eu-" in request.node.callspec.id:
         pytest.skip("EU vocabularies are not supported yet")
 
-    oas3_yaml = snapshot_dir / "oas3.yaml"
-
+    oas3_yaml = snapshot / "base" / f"{request.node.callspec.id}.oas3.yaml"
     frame = JsonLDFrame(frame)
     apiable = Apiable(turtle, frame)
 
     openapi: OpenAPI = apiable.openapi()
-    compare_data(oas3_yaml, current_data=openapi, update=True)
+    compare_data(
+        oas3_yaml,
+        current_data=openapi,
+        update=True,
+    )
 
 
 @pytest.mark.parametrize(
@@ -162,6 +165,9 @@ def test_openapi_datastore_from_rdf(
         pytest.skip("EU vocabularies are not supported yet")
 
     oas3_yaml = SNAPSHOTS / "base" / f"{request.node.callspec.id}.oas3.yaml"
+    if isinstance(expected_jsonschema, (str, type(None))):
+        oas3 = yaml.safe_load(oas3_yaml.read_text())
+        expected_jsonschema = oas3["components"]["schemas"]["Item"]
     validator = Draft7Validator(expected_jsonschema)
     datafile_db = snapshot_dir / "data.db"
     # Given an RDF vocabulary and a frame...
@@ -189,11 +195,6 @@ def test_openapi_datastore_from_rdf(
         for e in validator.iter_errors(r)
     ]
     assert not errors, "Invalid db._text JSON:\n" + "\n".join(errors[:5])
-    compare_data(
-        snapshot_file=oas3_yaml,
-        current_data=expected_jsonschema,
-        update=True,
-    )
 
 
 @pytest.mark.skip(

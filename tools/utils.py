@@ -11,7 +11,6 @@ from rdflib import Graph
 from rdflib.compare import IsomorphicGraph, to_isomorphic
 
 log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 
 
 class IGraph:

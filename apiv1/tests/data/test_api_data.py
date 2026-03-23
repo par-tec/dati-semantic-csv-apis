@@ -97,7 +97,6 @@ def test_rejects_non_printable_query_parameter(sample_db) -> None:
         create_app,
         Config(
             API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-            VOCABULARY_DATAFILE="",
             HARVEST_DB=sample_db,
         ),
     ) as (client, logs):

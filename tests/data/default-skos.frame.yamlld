@@ -5,9 +5,6 @@
 
 # Use context.
 "@context": &jsonld_context
-  "@base": "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025/"
-  "@vocab": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/"
-
   dct: http://purl.org/dc/terms/
   skos: http://www.w3.org/2004/02/skos/core#
   xkos: http://rdf-vocabulary.ddialliance.org/xkos#
@@ -18,6 +15,7 @@
   url: "@id"
   id:
     "@id": skos:notation
+    # "@type": "@value"
 
   #Localize labels. Order is relevant.
   label:
@@ -48,9 +46,11 @@
       url: "@id"
 
   level:
-    # Use type coercion to ensure that level is a JSON Number.
-    "@id": clvapit:hasRankOrder
-    "@type": xsd:int
+    "@id": xkos:depth
+    # Use type coercion to ensure that level is a JSON Number,
+    #   but since this is a default frame and this value may be missing
+    #   we don't specify the type.
+    # "@type": xsd:int
 
 # Only show fields listed in @context.
 "@explicit": true
@@ -62,7 +62,7 @@
 "@requireAll": true
 # Matching on type works.
 "@type":
-  - &jsonld_type "covapit:PrivateOrgActivityType"
+  - &jsonld_type "skos:Concept"
 url: {}
 id: {}
 label_de: {}
@@ -71,10 +71,11 @@ label_it: {}
 label:
   "@language": ["it", "en", "de"]
   "@value": {}
-level: {}
+level:
+  "@default": "@null"
 
 vocab:
-- url: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+- url: {}
   "@explicit": true
   "@embed": "@never"
 parent:

@@ -47,20 +47,38 @@ def _language_matches(obj, lang: str | LangTag):
 
 
 class VocabularyMetadata(Graph):
-    def language(self) -> str:
+    def languages(self) -> list[str]:
         language_uris = list(self.objects(self.identifier, DCTERMS.language))
+        languages = []
         if not language_uris:
             raise ValueError(
-                f"Vocabulary {self.identifier} is missing required DCTERMS:language"
+                f"Vocabulary {self.identifier} is missing required dcterms:language"
             )
+        for uri in language_uris:
+            uri_l = str(uri).lower()
+            if uri_l.endswith(("/it", "/ita")):
+                languages.append("it")
+            elif uri_l.endswith(("/en", "/eng")):
+                languages.append("en")
+            elif uri_l.endswith(("/de", "/deu")):
+                languages.append("de")
+            elif uri_l.endswith(("/fr", "/fra")):
+                languages.append("fr")
+            else:
+                raise NotImplementedError(
+                    f"Unsupported language '{uri}' for vocabulary {self.identifier}"
+                )
+        return languages
 
-        # Infer language from URI, preferring Italian if both are present.
-        if any(uri.lower().endswith(("/it", "/ita")) for uri in language_uris):
+    def language(self) -> str:
+        languages = self.languages()
+
+        if "it" in languages:
             return "it"
-        if any(uri.lower().endswith(("/en", "/eng")) for uri in language_uris):
+        if "en" in languages:
             return "en"
         raise NotImplementedError(
-            f"Unsupported language '{language_uris}' for vocabulary {self.identifier}"
+            f"Unsupported languages '{languages}' for vocabulary {self.identifier}"
         )
 
     def get_first_value(self, predicates: list, lang: str | LangTag = LANG_ANY):

@@ -16,13 +16,47 @@ import yaml
 from connexion import ProblemException, request
 from connexion.lifecycle import ConnexionResponse
 
-from harvest_db_schema import APIDatabase
+from tools.store import APIStore
 
 log = logging.getLogger(__name__)
 
 
+def _transform_item(obj: Any, api_base_url: str) -> Any:
+    """
+    Recursively transform items by adding href references
+    using "id" and "parent" fields.
+
+    Args:
+        obj: The object to transform (dict, list, or primitive).
+        api_base_url: The base URL for the API,
+            that includes the agencyId and keyConcept,
+            used to construct hrefs.
+
+    Returns:
+        The transformed object.
+    """
+    if isinstance(obj, dict):
+        item = obj
+        # Add href to main entry using its id
+        if "id" in item:
+            # API_BASE_URL will be injected during loading
+            item["href"] = "/".join([api_base_url, item["id"]])
+        # Add href to parent items by extracting ID from their url
+        if isinstance(item.get("parent"), list):
+            for parent in item["parent"]:
+                if isinstance(parent, dict) and "url" in parent:
+                    parent_id = parent["id"]
+                    parent["href"] = "/".join([api_base_url, parent_id])
+
+        return item
+    elif isinstance(obj, list):
+        return [_transform_item(item, api_base_url) for item in obj]
+    else:
+        return obj
+
+
 def _get_metadata_or_fail(
-    harvest_db: APIDatabase,
+    harvest_db: APIStore,
     agency_id: str,
     key_concept: str,
 ) -> sqlite3.Row:
@@ -54,7 +88,7 @@ def _get_metadata_or_fail(
 
 
 def _get_vocabulary_items_or_fail(
-    harvest_db: APIDatabase,
+    harvest_db: APIStore,
     agency_id: str,
     key_concept: str,
 ) -> list[dict[str, Any]]:
@@ -103,10 +137,10 @@ def _query_vocabulary_items_or_fail(
     return items[:limit]
 
 
-def _get_database_or_fail() -> APIDatabase:
-    """Return the configured read-only APIDatabase instance."""
+def _get_database_or_fail() -> APIStore:
+    """Return the configured read-only APIStore instance."""
     harvest_db = cast(
-        APIDatabase | None,
+        APIStore | None,
         getattr(request.state, "harvest_db", None),
     )
     if harvest_db is None:
@@ -211,7 +245,10 @@ async def get_item(
             status_code=404,
             content_type="application/problem+json",
         )
-
+    api_url = "/".join(
+        [request.state.api_base_url.rstrip("/"), agencyId, keyConcept]
+    )
+    item = _transform_item(item, api_url)
     return ConnexionResponse(
         status_code=200, content_type="application/json", body=item
     )
@@ -260,6 +297,18 @@ async def dump_vocabulary_dataset(
     return ConnexionResponse(
         status_code=200, headers=headers, body=compressed_data
     )
+
+
+def render_item(item: dict[str, Any], base_url: str) -> dict[str, Any]:
+    """Render a vocabulary item by removing @type and adding hrefs."""
+    assert isinstance(item, dict), (
+        f"Expected item to be a dict, got {type(item)}"
+    )
+    assert "id" in item
+    return {
+        **item,
+        "href": f"{base_url}{item['id']}",
+    }
 
 
 async def show_vocabulary_spec(

@@ -55,6 +55,9 @@ def compare_data(
     """
     if current_data is None:
         current_data = yaml.safe_load(current_file.read_text())
+        current_source = current_file
+    else:
+        current_source = "provided data"
 
     # If can't get info from current_file, get data from git.
     if current_data or (snapshot_file == current_file):
@@ -75,8 +78,8 @@ def compare_data(
         logging.warning(f"Updated snapshot file: {snapshot_file}")
     if delta:
         assert not delta, (
-            f"File {current_file} differs from {snapshot_file}."
-            f" Either {current_file} is wrong,"
+            f"{current_source} differs from {snapshot_file}."
+            f" Either {current_source} is wrong,"
             f" or {snapshot_file} has uncommitted changes."
             f"\ndiff:\n{delta}"  # limit diff output to 500 chars
         )

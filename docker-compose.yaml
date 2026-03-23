@@ -36,10 +36,14 @@ services:
       context: .
       dockerfile: apiv1/Dockerfile
       target: data-api
+    environment:
+    - HARVEST_DB=/data/aggregate.db
+    - API_BASE_URL=http://localhost:8001
     ports:
     - "8001:8080"
     volumes:
     - ./assets:/assets:ro
+    - ./apiv1/tests/data/:/data:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
       interval: 1m30s
