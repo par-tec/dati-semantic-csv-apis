@@ -83,9 +83,6 @@ components:
         valid: true
 info:
   contact:
-    email: dcod@inail.it
-    name: >-
-      INAIL Ufficio V - D.C.O.D
     url: >-
       https://w3id.org/italia/social-security/data/organization/inps
   description: >-
