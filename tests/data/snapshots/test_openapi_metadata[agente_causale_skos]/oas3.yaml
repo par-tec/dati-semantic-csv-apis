@@ -52,6 +52,12 @@ components:
             - url
             type: object
           type: array
+        info:
+          properties:
+            contact:
+              properties:
+                name:
+                  type: string
       required:
       - id
       - label_it
