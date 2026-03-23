@@ -242,8 +242,8 @@ class Apiable(Vocabulary):
                 )
                 or "",
                 "contact": {
-                    "name": metadata.contact_name,
-                    "email": metadata.contact_email,
+                    "name": metadata.contact_name or "",
+                    "email": metadata.contact_email or "",
                     "url": metadata.rights_holder,
                 },
                 #

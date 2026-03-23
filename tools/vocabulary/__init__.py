@@ -22,6 +22,8 @@ from tools.projector import framer
 log = logging.getLogger(__name__)
 
 NDC = Namespace("https://w3id.org/italia/onto/NDC/")
+VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
+DCAT = Namespace("http://www.w3.org/ns/dcat#")
 
 
 class UnsupportedVocabularyError(ValueError):
@@ -158,14 +160,13 @@ class VocabularyMetadata(Graph):
 
     @property
     def contact_name(self) -> str | None:
-        version = self.get_value("hasEmail")
-        return str(version) if version else None
+        contact_name = self.get_value(VCARD.fn)
+        return str(contact_name) if contact_name else None
 
     @property
     def contact_email(self) -> str | None:
-        hasEmail = NDC.hasEmail
-        version = self.get_value(hasEmail)
-        return str(version) if version else None
+        contact_email = self.get_value(VCARD.hasEmail)
+        return str(contact_email) if contact_email else None
 
     @property
     def rights_holder(self) -> str | None:
@@ -281,6 +282,8 @@ class Vocabulary:
         """
         Extract a subgraph representing a vocabulary (concept scheme) from the RDF graph.
 
+        Now includes vCard contact information if present via dcat:contactPoint.
+
         Args:
             uri: URI of the vocabulary (concept scheme) to extract
             key_concept: Optional URI of the key concept to filter by
@@ -291,31 +294,24 @@ class Vocabulary:
                 PREFIX NDC: <https://w3id.org/italia/onto/NDC/>
                 PREFIX dcat: <http://www.w3.org/ns/dcat#>
                 PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+                PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
                 CONSTRUCT {
                     ?vocab ?p ?o .
                     ?vocab NDC:keyConcept ?keyConcept .
-                    ?vocab dcat:contactPoint ?contactPoint .
-                    ?contactPoint ?vcardProp ?vcardValue .
+                    ?vocab vcard:fn ?contantName .
+                    ?vocab vcard:hasEmail ?contactEmail .
                 }
                 WHERE {
                     ?vocab NDC:keyConcept ?keyConcept ;
                            ?p ?o .
 
-                    # Opzionale: include i dati vCard se presenti
+                    # Optionally include vCard data if present
                     OPTIONAL {
                         ?vocab dcat:contactPoint ?contactPoint .
-                        ?contactPoint ?vcardProp ?vcardValue .
-                        # Filtra solo le proprietà vCard rilevanti
-                        FILTER(
-                            ?vcardProp IN (
-                                vcard:fn,
-                                vcard:hasEmail,
-                                vcard:hasTelephone,
-                                vcard:hasURL,
-                                rdf:type
-                            )
-                        )
+                        ?contactPoint vcard:fn ?contantName .
+                        ?contactPoint vcard:hasEmail ?contactEmail .
                     }
                 }
             """
