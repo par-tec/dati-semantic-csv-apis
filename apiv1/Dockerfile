@@ -23,7 +23,8 @@ ENV PYTHONPATH=/app
 WORKDIR /app
 
 COPY apiv1/common /app/common
-COPY harvest_db_schema.py /app/harvest_db_schema.py
+RUN mkdir -p /app/tools && touch /app/tools/__init__.py
+COPY tools/store/__init__.py /app/tools/store/__init__.py
 
 RUN chown -R appuser:appuser /app
 

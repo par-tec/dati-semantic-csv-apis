@@ -21,6 +21,44 @@ from tools.store import APIStore
 log = logging.getLogger(__name__)
 
 
+def _transform_item(obj: Any, api_base_url: str) -> Any:
+    """
+    Recursively transform items by removing @type fields and adding href references.
+
+    Args:
+        obj: The object to transform (dict, list, or primitive).
+        api_base_url: The base URL for the API.
+
+    Returns:
+        The transformed object.
+    """
+    if isinstance(obj, dict):
+        # Remove @type field
+        item = {
+            k: _transform_item(v, api_base_url)
+            for k, v in obj.items()
+            if k != "@type"
+        }
+
+        # Add href to main entry using its id
+        if "id" in item:
+            # API_BASE_URL will be injected during loading
+            item["href"] = f"{api_base_url}/{item['id']}"
+
+        # Add href to parent items by extracting ID from their url
+        if "parent" in item and isinstance(item["parent"], list):
+            for parent in item["parent"]:
+                if isinstance(parent, dict) and "url" in parent:
+                    parent_id = parent["id"]
+                    parent["href"] = f"{api_base_url}/{parent_id}"
+
+        return item
+    elif isinstance(obj, list):
+        return [_transform_item(item, api_base_url) for item in obj]
+    else:
+        return obj
+
+
 def _get_metadata_or_fail(
     harvest_db: APIStore,
     agency_id: str,
@@ -211,7 +249,8 @@ async def get_item(
             status_code=404,
             content_type="application/problem+json",
         )
-
+    api_url = "/".join([request.state.api_base_url, agencyId, keyConcept])
+    item = _transform_item(item, api_url)
     return ConnexionResponse(
         status_code=200, content_type="application/json", body=item
     )
