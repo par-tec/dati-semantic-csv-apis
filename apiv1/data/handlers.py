@@ -23,34 +23,32 @@ log = logging.getLogger(__name__)
 
 def _transform_item(obj: Any, api_base_url: str) -> Any:
     """
-    Recursively transform items by removing @type fields and adding href references.
+    Recursively transform items by adding href references
+    using "id" and "parent" fields.
 
     Args:
         obj: The object to transform (dict, list, or primitive).
-        api_base_url: The base URL for the API.
+        api_base_url: The base URL for the API,
+            that includes the agencyId and keyConcept,
+            used to construct hrefs.
 
     Returns:
         The transformed object.
     """
+    api_base_url = api_base_url.rstrip("/")
     if isinstance(obj, dict):
-        # Remove @type field
-        item = {
-            k: _transform_item(v, api_base_url)
-            for k, v in obj.items()
-            if k != "@type"
-        }
-
+        item = obj
         # Add href to main entry using its id
         if "id" in item:
             # API_BASE_URL will be injected during loading
-            item["href"] = f"{api_base_url}/{item['id']}"
+            item["href"] = "/".join([api_base_url, item["id"]])
 
         # Add href to parent items by extracting ID from their url
-        if "parent" in item and isinstance(item["parent"], list):
+        if isinstance(item.get("parent"), list):
             for parent in item["parent"]:
                 if isinstance(parent, dict) and "url" in parent:
                     parent_id = parent["id"]
-                    parent["href"] = f"{api_base_url}/{parent_id}"
+                    parent["href"] = "/".join([api_base_url, parent_id])
 
         return item
     elif isinstance(obj, list):

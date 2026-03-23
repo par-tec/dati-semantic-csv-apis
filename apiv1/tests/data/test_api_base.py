@@ -112,6 +112,7 @@ def test_get_single_item(single_entry_db):
             "id": "A01",
             "label": "Item A01",
             "url": "https://example.com/vocabularies/test/A01",
+            "href": "https://schema.gov.it/api/vocabularies/v1/agid/test-vocab/A01",
         }
 
 
