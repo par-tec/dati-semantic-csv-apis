@@ -21,26 +21,32 @@ def sample_db():
     return (DATADIR / "aggregate.db").as_posix()
 
 
+CATALOG_ENTRY = {
+    "vocabulary_uri": "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
+    "agency_id": "istat",
+    "key_concept": "ateco-2025",
+    "openapi": ATECO_SPEC,
+    "catalog": {
+        "about": "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
+        "title": "Ateco 2025 - Classificazione delle attività economiche",
+        "description": "Classificazione statistica delle attività finalizzata all’elaborazione di statistiche ufficiali, aventi per oggetto i fenomeni relativi alla partecipazione delle unità produttive ai processi economici. La classificazione è direttamente derivata da NACE Rev. 2.1 (Regolamento delegato (Ue) 2023/137 della Commissione che modifica il Regolamento (CE) n. 1893/2006 del Parlamento europeo e del Consiglio; rettifica n. 2024/90720). La classificazione Ateco 2025 comprende 1.290 sottocategorie, 920 categorie, raggruppate in 651 classi, 272 gruppi, 87 divisioni, 22 sezioni.\n    La struttura delle versioni precedenti è:\n    - Ateco 2007 1° rilascio: 996 categorie, raggruppate in 615 classi, 272 gruppi, 88 divisioni, 21 sezioni; negli anni la classificazione ha subito due aggiornamenti, uno nel 2021 l'altro nel 2022;\n    - Ateco 2002: 883 categorie, raggruppate in 514 classi, 224 gruppi, 62 divisioni, 17 sezioni, 16 sottosezioni;\n    - Ateco 1991: 874 categorie, raggruppate in 512 classi, 222 gruppi, 60 divisioni, 17 sezioni, 16 sottosezioni.",
+        "hreflang": ["it"],
+        "version": "versione 2025",
+        "author": "https://w3id.org/italia/data/public-organization/ISTAT",
+    },
+}
+
+
 @pytest.fixture
 def single_entry_db(tmp_path: Path) -> str:
     db_path = tmp_path / "deleteme.db"
 
     with APIStore(db_path.as_posix()) as db:
         db.create_metadata_table()
-        db.upsert_metadata(
-            vocabulary_uri="https://example.com/vocabularies/test",
-            agency_id="agid",
-            key_concept="test-vocab",
-            openapi=ATECO_SPEC,
-            catalog={
-                "hreflang": ["en"],
-                "title": "Test Vocabulary",
-                "description": "A test vocabulary for unit testing.",
-            },
-        )
+        db.upsert_metadata(**CATALOG_ENTRY)
         db.update_vocabulary_table(
             agency_id="agid",
-            key_concept="test-vocab",
+            key_concept="ateco-2025",
             rows=[
                 {
                     "id": "A01",

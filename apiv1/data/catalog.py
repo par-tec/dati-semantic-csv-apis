@@ -6,12 +6,15 @@ in RFC 9727 linkset format with filtering capabilities.
 """
 
 import json
+import logging
 from typing import Any
 
 from common.utils import _get_database_or_fail
 from connexion import request
 
 from tools.store import APIStore
+
+log = logging.getLogger(__name__)
 
 
 def filter_vocabularies(
@@ -84,51 +87,51 @@ def _to_catalog_item(item: dict, api_base_url: str, predecessor_base_url: str):
 
 
     """
-    catalog = item["catalog"] if "catalog" in item.keys() else None
-    if isinstance(catalog, str):
-        try:
-            catalog = json.loads(catalog)
-        except json.JSONDecodeError:
-            catalog = None
-
-    vocabulary_uri = (
-        item["vocabulary_uri"]
-        if "vocabulary_uri" in item.keys()
-        else (catalog.get("about") if isinstance(catalog, dict) else None)
-    )
-    if vocabulary_uri is None:
-        raise ValueError("Missing vocabulary URI in metadata row")
-
-    api_url: str = "/".join(
-        (api_base_url, item["agency_id"], item["key_concept"])
-    )
-    oas_url = "/".join((api_url, "openapi.yaml"))
-    pre_url = "/".join(
-        (predecessor_base_url, item["agency_id"], item["key_concept"])
-    )
-
-    return {
-        "href": api_url,
-        "about": vocabulary_uri,
-        "title": "Changeme",
-        "description": "Changeme",
-        "hreflang": ["it"],
-        # "type": "application/json",
-        "version": "0.0.1",
-        "author": "https://changeme.example.com",
-        "service-desc": [{"href": oas_url, "type": "application/openapi+yaml"}],
-        "service-meta": [
-            {
-                "href": f"{vocabulary_uri}?output=application/ld+json",
-                "type": "application/ld+json",
-            }
-        ],
-        "predecessor-version": [
-            {
-                "href": pre_url,
-            }
-        ],
-    }
+    try:
+        catalog = json.loads(item["catalog"])
+        vocabulary_uri = item["vocabulary_uri"]
+        api_url: str = "/".join(
+            (
+                api_base_url,
+                "vocabularies",
+                item["agency_id"],
+                item["key_concept"],
+            )
+        )
+        oas_url = "/".join((api_url, "openapi.yaml"))
+        pre_url = "/".join(
+            (predecessor_base_url, item["agency_id"], item["key_concept"])
+        )
+        return {
+            "href": api_url,
+            "about": vocabulary_uri,
+            "title": catalog["title"],
+            "description": catalog["description"],
+            "hreflang": catalog["hreflang"],
+            # "type": "application/json",
+            "version": catalog["version"],
+            "author": catalog["author"],
+            "service-desc": [
+                {"href": oas_url, "type": "application/openapi+yaml"}
+            ],
+            "service-meta": [
+                {
+                    "href": f"{vocabulary_uri}?output=application/ld+json",
+                    "type": "application/ld+json",
+                }
+            ],
+            "predecessor-version": [
+                {
+                    "href": pre_url,
+                }
+            ],
+        }
+    except (KeyError, json.JSONDecodeError) as e:
+        log.exception(
+            f"Skipping invalid catalog entry in database for agency_id={item['agency_id']} "
+            f"and key_concept={item['key_concept']}: {e}"
+        )
+        return None
 
 
 def list_vocabularies(
@@ -167,12 +170,13 @@ def list_vocabularies(
     with db.connect() as conn:
         rows = conn.execute("SELECT * FROM _metadata").fetchall()
 
-        items = [
+        items = (
             _to_catalog_item(
                 x, request.state.api_base_url, "https://old.example.com"
             )
             for x in rows
-        ]
+        )
+        items = [item for item in items if item is not None]
     # Apply filters
     filtered_items = list(
         filter_vocabularies(

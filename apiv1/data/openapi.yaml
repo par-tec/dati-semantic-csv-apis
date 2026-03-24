@@ -55,6 +55,33 @@ servers:
 #     This is commented because the service will provide a customized
 #     openapi.yaml
 paths:
+  /status:
+    get:
+      operationId: data.handlers.status
+      description: |-
+        Retrieve the status of the API for the vocabulary
+        identified by `agencyId` and `keyConcept`.
+        The URL must be one of those
+        retrieved from the `/vocabularies` endpoint.
+      security:
+      - {}
+      tags:
+      - health-check
+      responses:
+        '200':
+          description: |-
+            A successful response returns the status of the API
+            for the vocabulary identified by `agencyId` and `keyConcept`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        'default':
+          $ref: '#/components/responses/GenericError'
   #
   # Catalog endpoints.
   #
@@ -121,7 +148,6 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         'default':
           $ref: '#/components/responses/GenericError'
-
   /vocabularies/{agencyId}/{keyConcept}/openapi.yaml:
     get:
       parameters:
@@ -151,33 +177,6 @@ paths:
             application/openapi+yaml:
               schema:
                 type: object
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailable'
-        'default':
-          $ref: '#/components/responses/GenericError'
-  /status:
-    get:
-      operationId: data.handlers.status
-      description: |-
-        Retrieve the status of the API for the vocabulary
-        identified by `agencyId` and `keyConcept`.
-        The URL must be one of those
-        retrieved from the `/vocabularies` endpoint.
-      security:
-      - {}
-      tags:
-      - health-check
-      responses:
-        '200':
-          description: |-
-            A successful response returns the status of the API
-            for the vocabulary identified by `agencyId` and `keyConcept`.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '503':
