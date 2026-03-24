@@ -920,6 +920,10 @@ components:
           '@type': '@id'
           '@container': '@set'
         anchor: null
+        total_count: null
+        count: null
+        limit: null
+        offset: null
       type: object
       additionalProperties: false
       required:

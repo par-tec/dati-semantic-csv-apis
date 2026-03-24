@@ -32,6 +32,33 @@ tags:
       Dump the whole dataset for statistics or
       internal reuse
 paths:
+  /status:
+    get:
+      operationId: data.handlers.status
+      description: |-
+        Retrieve the status of the API for the vocabulary
+        identified by `agencyId` and `keyConcept`.
+        The URL must be one of those
+        retrieved from the `/vocabularies` endpoint.
+      security:
+        - {}
+      tags:
+        - health-check
+      responses:
+        '200':
+          description: |-
+            A successful response returns the status of the API
+            for the vocabulary identified by `agencyId` and `keyConcept`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/GenericError'
   /vocabularies/{agencyId}:
     get:
       operationId: data.catalog.list_vocabularies_by_agency
@@ -116,33 +143,6 @@ paths:
             application/openapi+yaml:
               schema:
                 type: object
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailable'
-        default:
-          $ref: '#/components/responses/GenericError'
-  /status:
-    get:
-      operationId: data.handlers.status
-      description: |-
-        Retrieve the status of the API for the vocabulary
-        identified by `agencyId` and `keyConcept`.
-        The URL must be one of those
-        retrieved from the `/vocabularies` endpoint.
-      security:
-        - {}
-      tags:
-        - health-check
-      responses:
-        '200':
-          description: |-
-            A successful response returns the status of the API
-            for the vocabulary identified by `agencyId` and `keyConcept`.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '503':
@@ -976,6 +976,10 @@ components:
           '@type': '@id'
           '@container': '@set'
         anchor: null
+        total_count: null
+        count: null
+        limit: null
+        offset: null
       type: object
       additionalProperties: false
       required:
