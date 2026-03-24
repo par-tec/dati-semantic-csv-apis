@@ -75,7 +75,7 @@ def test_get_vocabularies(single_entry_db):
                             "raggruppate in 512 classi, 222 gruppi, "
                             "60 divisioni, 17 sezioni, 16 "
                             "sottosezioni.",
-                            "href": "https://schema.gov.it/api/vocabularies/v1//istat/ateco-2025",
+                            "href": "https://schema.gov.it/api/vocabularies/v1//vocabularies/istat/ateco-2025",
                             "hreflang": ["it"],
                             "predecessor-version": [
                                 {
@@ -84,7 +84,7 @@ def test_get_vocabularies(single_entry_db):
                             ],
                             "service-desc": [
                                 {
-                                    "href": "https://schema.gov.it/api/vocabularies/v1//istat/ateco-2025/openapi.yaml",
+                                    "href": "https://schema.gov.it/api/vocabularies/v1//vocabularies/istat/ateco-2025/openapi.yaml",
                                     "type": "application/openapi+yaml",
                                 }
                             ],
