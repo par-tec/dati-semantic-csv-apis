@@ -50,6 +50,7 @@ nosetests.xml
 coverage.xml
 *.cover
 *.py,cover
+.benchmarks/
 .hypothesis/
 .pytest_cache/
 tests/data/snapshots/test_tabular_minimal*/

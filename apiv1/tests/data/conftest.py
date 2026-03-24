@@ -45,7 +45,7 @@ def single_entry_db(tmp_path: Path) -> str:
         db.create_metadata_table()
         db.upsert_metadata(**CATALOG_ENTRY)
         db.update_vocabulary_table(
-            agency_id="agid",
+            agency_id="istat",
             key_concept="ateco-2025",
             rows=[
                 {

@@ -1,0 +1,52 @@
+---
+testcases:
+- name: get_single_item
+  description: |-
+    When:
+
+    - GET /vocabularies/istat/ateco-2025
+
+    Then:
+
+    - I get the expected item
+  request:
+    method: get
+    url: /vocabularies/istat/ateco-2025/A01
+  expected:
+    logs:
+    - "Application startup complete"
+    response:
+      status_code: 200
+      json: {"id": "A01", "label": "Item A01", "url": "https://example.com/vocabularies/test/A01",
+        "href": "https://schema.gov.it/api/vocabularies/v1/istat/ateco-2025/A01"}
+
+- name: get_vocabularies
+  description: |-
+    When:
+
+    - GET /vocabularies
+
+    Then:
+
+    - I get the expected linkset item
+  request:
+    method: get
+    url: /vocabularies
+  expected:
+    response:
+      status_code: 200
+      json:
+        linkset: [{anchor: 'https://schema.gov.it/api/vocabularies/v1/',
+            api-catalog: 'https://schema.gov.it/api/vocabularies/v1/',
+            count: 1, item: [{about: 'https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025',
+                author: 'https://w3id.org/italia/data/public-organization/ISTAT',
+
+                href: 'https://schema.gov.it/api/vocabularies/v1//vocabularies/istat/ateco-2025',
+                hreflang: [it], predecessor-version: [{href: 'https://old.example.com/istat/ateco-2025'}],
+                service-desc: [{href: 'https://schema.gov.it/api/vocabularies/v1//vocabularies/istat/ateco-2025/openapi.yaml',
+                    type: application/openapi+yaml}], service-meta: [
+                  {href: "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025?output=application/ld+json",
+                    type: application/ld+json}], title: Ateco
+                  2025 - Classificazione delle attività economiche,
+                version: versione 2025}], limit: 20, offset: 0,
+            total_count: 1}]

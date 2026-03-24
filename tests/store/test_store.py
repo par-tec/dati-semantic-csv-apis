@@ -116,7 +116,7 @@ def test_apidatabase_jsonld_graph_roundtrip(tmp_path):
     # the dedicated SQLite columns (id, url, label, …) are primitives-only.
 
 
-def test_upsert_metadata_preserves_openapi_when_empty_dict(tmp_path, request):
+def test_upsert_metadata_preserves_openapi_when_empty_dict(tmp_path):
     db_path = tmp_path / "deleteme.db"
 
     with APIStore(db_path.as_posix()) as db:
