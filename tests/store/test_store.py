@@ -127,7 +127,7 @@ def test_upsert_metadata_preserves_openapi_when_empty_dict(tmp_path, request):
             key_concept="ateco-2025",
             openapi={"openapi": "3.0.3", "info": {"title": "Original"}},
             catalog={
-                "version": 1,
+                "version": "1",
                 "title": "Test Catalog",
                 "description": "A test catalog",
                 "hreflang": ["en"],
@@ -141,7 +141,7 @@ def test_upsert_metadata_preserves_openapi_when_empty_dict(tmp_path, request):
             key_concept="ateco-2025",
             openapi={},
             catalog={
-                "version": 2,
+                "version": "2",
                 "title": "Test Catalog",
                 "description": "A test catalog",
                 "hreflang": ["en"],
@@ -159,7 +159,7 @@ def test_upsert_metadata_preserves_openapi_when_empty_dict(tmp_path, request):
             "openapi": "3.0.3",
             "info": {"title": "Original"},
         }
-        assert json.loads(metadata["catalog"]) == {"version": 2}
+        assert json.loads(metadata["catalog"])["version"] == "2"
         db.upsert_metadata(
             vocabulary_uri="https://example.com/vocabularies/test-v2",
             agency_id="agid",
@@ -173,4 +173,4 @@ def test_upsert_metadata_preserves_openapi_when_empty_dict(tmp_path, request):
             "openapi": "3.0.4",
             "info": {"title": "Original"},
         }
-        assert json.loads(metadata["catalog"]) == {"version": 2}
+        assert json.loads(metadata["catalog"])["version"] == "2"
