@@ -146,27 +146,25 @@ class APIStore:
             (METADATA_TABLE,),
         )
         if not cursor.fetchone():
-            raise ValueError(
-                f"harvest.db is missing required {METADATA_TABLE} table"
-            )
+            raise ValueError(f"The is missing required {METADATA_TABLE} table")
 
         cursor.execute(f"PRAGMA table_info({METADATA_TABLE})")
         table_info = {row[1]: row for row in cursor.fetchall()}
         missing_columns = set(METADATA_REQUIRED_COLUMNS).difference(table_info)
         if missing_columns:
             raise ValueError(
-                f"harvest.db {METADATA_TABLE} table is missing required columns: "
+                f"The {METADATA_TABLE} table is missing required columns: "
                 + ", ".join(sorted(missing_columns))
             )
 
         if table_info["vocabulary_uuid"][5] != 1:
             raise ValueError(
-                "harvest.db _metadata.vocabulary_uuid must be a primary key"
+                "The _metadata.vocabulary_uuid must be a primary key"
             )
 
         if not has_unique_index_on_agency_key(cursor):
             raise ValueError(
-                "harvest.db _metadata table is missing required unique index on (agency_id, key_concept)"
+                "The _metadata table is missing required unique index on (agency_id, key_concept)"
             )
 
     def validate_metadata_content(self) -> None:
@@ -178,7 +176,7 @@ class APIStore:
         )
         if cursor.fetchone()[0] > 0:
             raise ValueError(
-                "harvest.db _metadata table has null values in agency_id or key_concept columns"
+                "The _metadata table has null values in agency_id or key_concept columns"
             )
 
         for row in cursor.execute(f"SELECT openapi FROM {METADATA_TABLE}"):

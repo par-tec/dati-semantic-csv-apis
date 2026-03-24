@@ -5,6 +5,7 @@ This module implements handlers for serving controlled vocabularies
 in RFC 9727 linkset format with filtering capabilities.
 """
 
+import json
 from typing import Any
 
 from common.utils import _get_database_or_fail
@@ -75,6 +76,61 @@ def list_vocabularies_by_agency(
     raise NotImplementedError("This endpoint is not implemented yet.")
 
 
+def _to_catalog_item(item: dict, api_base_url: str, predecessor_base_url: str):
+    """
+    Convert a dictionary item from _metadata
+    containing agency_id, key_concept, vocabulary_uri
+    to a catalog_item of the form
+
+
+    """
+    catalog = item["catalog"] if "catalog" in item.keys() else None
+    if isinstance(catalog, str):
+        try:
+            catalog = json.loads(catalog)
+        except json.JSONDecodeError:
+            catalog = None
+
+    vocabulary_uri = (
+        item["vocabulary_uri"]
+        if "vocabulary_uri" in item.keys()
+        else (catalog.get("about") if isinstance(catalog, dict) else None)
+    )
+    if vocabulary_uri is None:
+        raise ValueError("Missing vocabulary URI in metadata row")
+
+    api_url: str = "/".join(
+        (api_base_url, item["agency_id"], item["key_concept"])
+    )
+    oas_url = "/".join((api_url, "openapi.yaml"))
+    pre_url = "/".join(
+        (predecessor_base_url, item["agency_id"], item["key_concept"])
+    )
+
+    return {
+        "href": api_url,
+        "about": vocabulary_uri,
+        "title": "Changeme",
+        "description": "Changeme",
+        "hreflang": ["it"],
+        # "type": "application/json",
+        "version": "0.0.1",
+        "author": "https://changeme.example.com",
+        "service-desc": [{"href": oas_url, "type": "application/openapi+yaml"}],
+        "service-meta": [
+            {
+                "href": f"{vocabulary_uri}?output=application/ld+json",
+                "type": "application/ld+json",
+            }
+        ],
+        "predecessor-version": [
+            {
+                "href": pre_url,
+            }
+        ],
+    }
+
+
 def list_vocabularies(
     title: str | None = None,
     description: str | None = None,
@@ -109,30 +165,14 @@ def list_vocabularies(
     db: APIStore = _get_database_or_fail()
 
     with db.connect() as conn:
-        rows = conn.execute(
-            "SELECT agency_id, key_concept, catalog, openapi FROM _metadata"
-        ).fetchall()
-        linkset_data = {
-            "linkset": [
-                {
-                    "anchor": request.state.api_base_url.rstrip("/"),
-                    "api-catalog": "/".join(
-                        [
-                            request.state.api_base_url.rstrip("/"),
-                            row["agency_id"],
-                            row["key_concept"],
-                            "openapi.yaml",
-                        ]
-                    ),
-                    "item": [],
-                }
-                for row in rows
-            ]
-        }
+        rows = conn.execute("SELECT * FROM _metadata").fetchall()
 
-    catalog = linkset_data["linkset"][0]
-    items = catalog.get("item", [])
-
+        items = [
+            _to_catalog_item(
+                x, request.state.api_base_url, "https://old.example.com"
+            )
+            for x in rows
+        ]
     # Apply filters
     filtered_items = list(
         filter_vocabularies(
@@ -150,8 +190,8 @@ def list_vocabularies(
     result = {
         "linkset": [
             {
-                "anchor": catalog["anchor"],
-                "api-catalog": catalog["api-catalog"],
+                "anchor": request.state.api_base_url,
+                "api-catalog": request.state.api_base_url,
                 "item": filtered_items[offset : offset + limit],
                 # Pagination metadata.
                 "total_count": len(filtered_items),

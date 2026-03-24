@@ -33,11 +33,9 @@ def single_entry_db(tmp_path: Path) -> str:
             key_concept="test-vocab",
             openapi=ATECO_SPEC,
             catalog={
-                "about": "https://example.com/vocabularies/test",
                 "hreflang": ["en"],
                 "title": "Test Vocabulary",
-                "type": "API Catalog",
-                "href": "https://example.com/vocabularies/test",
+                "description": "A test vocabulary for unit testing.",
             },
         )
         db.update_vocabulary_table(

@@ -162,7 +162,7 @@ class Apiable(Vocabulary):
                 agency_id=metadata.agency_id,
                 key_concept=metadata.name,
                 openapi={},
-                catalog={},
+                catalog=self.catalog_entry(),
             )
             db.update_vocabulary_from_jsonld(
                 metadata.agency_id,
@@ -200,35 +200,15 @@ class Apiable(Vocabulary):
             raise ValueError(
                 "Vocabulary metadata must include non-empty 'name' and 'agency_id'"
             )
-        api_url = f"{metadata.agency_id.lower()}/{metadata.name}"
-        openapi_url = f"{api_url}/openapi.yaml"
-        predecessor_url = f"https://schema.gov.it/api/vocabularies/{api_url}"
 
         return {
-            "href": api_url,
-            "about": metadata.uri,
+            "about": self.uri(),
             "title": metadata.title,
             "description": metadata.description,
             "hreflang": metadata.languages(),
             # "type": "application/json",
             "version": metadata.version,
             "author": metadata.rights_holder,
-            "_vocabulary_type": metadata.type,
-            "_concept": metadata.name,
-            "service-desc": [
-                {"href": openapi_url, "type": "application/openapi+yaml"}
-            ],
-            "service-meta": [
-                {
-                    "href": f"{metadata.uri}?output=application/ld+json",
-                    "type": "application/ld+json",
-                }
-            ],
-            "predecessor-version": [
-                {
-                    "href": predecessor_url,
-                }
-            ],
         }
 
     def json_schema(
