@@ -9,12 +9,15 @@ from pathlib import Path
 from typing import Any
 
 import click
+import yaml
 
+from tools.base import JsonLDFrame
 from tools.commands.jsonld import create_jsonld_framed
 from tools.commands.openapi import create_oas_spec
 from tools.harvest import VocabularyRepository
 from tools.harvest.catalog import Catalog
 from tools.harvest.collect import collect_databases
+from tools.openapi import Apiable
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -44,7 +47,7 @@ def _collect_inputs(
 
 
 def _process_repository_node(
-    node: dict[str, Any], download_dir: Path, default_frame: Path
+    node: dict[str, Any], download_dir: Path, default_frame: Path, force=False
 ) -> bool:
     agency_id = Path(node["rightsHolder"]).name.lower()
     key_concept = node["keyConcept"]
@@ -98,9 +101,6 @@ def _process_repository_node(
                 key_concept,
             )
             return False
-    import yaml
-
-    from tools.base import JsonLDFrame
 
     apiable = None
     if not openapi_output.exists():
@@ -119,9 +119,8 @@ def _process_repository_node(
                 node_dir / "openapi-error.log",
             )
             return False
-    from tools.openapi import Apiable
 
-    if not openapi_db.exists():
+    if not openapi_db.exists() or force:
         with jsonld_output.open("r", encoding="utf-8") as f:
             apiable = (
                 Apiable(
@@ -131,7 +130,11 @@ def _process_repository_node(
                 if not apiable
                 else apiable
             )
-            apiable.to_db(data=yaml.safe_load(f), datafile=openapi_db)
+            apiable.to_db(
+                data=yaml.safe_load(f),
+                datafile=openapi_db,
+                openapi=yaml.safe_load(openapi_output.read_text()),
+            )
         log.info("Created OpenAPI DB %s/%s", agency_id, key_concept)
     return True
 
@@ -141,6 +144,7 @@ async def _run_async_pipeline(
     download_dir: Path,
     default_frame: Path,
     workers: int,
+    force: bool = False,
 ) -> None:
     loop = asyncio.get_running_loop()
     with ProcessPoolExecutor(max_workers=workers) as pool:
@@ -151,6 +155,7 @@ async def _run_async_pipeline(
                 node,
                 download_dir,
                 default_frame,
+                force,
             )
             for node in nodes
         ]
@@ -212,36 +217,6 @@ def download(
     click.echo(download_dir.as_posix())
 
 
-@harvest.command("serial-pipeline")
-@click.option(
-    "-d", "--download-dir", type=click.Path(path_type=Path), required=True
-)
-@click.option("--default-frame", type=click.Path(path_type=Path), required=True)
-@click.pass_obj
-def pipeline(catalog: Catalog, download_dir: Path, default_frame: Path) -> None:
-    for node in catalog.vocabularies()["@graph"]:
-        _process_repository_node(node, download_dir, default_frame)
-
-
-@harvest.command("async-pipeline")
-@click.option(
-    "-d", "--download-dir", type=click.Path(path_type=Path), required=True
-)
-@click.option("--default-frame", type=click.Path(path_type=Path), required=True)
-@click.option("--workers", type=int, default=4, show_default=True)
-@click.pass_obj
-def async_pipeline(
-    catalog: Catalog, download_dir: Path, default_frame: Path, workers: int
-) -> None:
-    if workers < 1:
-        raise click.BadParameter("workers must be >= 1", param_hint="--workers")
-
-    nodes = catalog.vocabularies()["@graph"]
-    asyncio.run(
-        _run_async_pipeline(nodes, download_dir, default_frame, workers)
-    )
-
-
 @harvest.command("pipeline")
 @click.option(
     "-d", "--download-dir", type=click.Path(path_type=Path), required=True
@@ -298,7 +273,7 @@ def selectable_pipeline(
                 continue
             if limit > 0 and i >= limit:
                 break
-            _process_repository_node(node, download_dir, default_frame)
+            _process_repository_node(node, download_dir, default_frame, force)
     else:
         if workers < 1:
             raise click.BadParameter(
@@ -307,7 +282,9 @@ def selectable_pipeline(
 
         nodes = catalog.vocabularies()["@graph"]
         asyncio.run(
-            _run_async_pipeline(nodes, download_dir, default_frame, workers)
+            _run_async_pipeline(
+                nodes, download_dir, default_frame, workers, force
+            )
         )
 
     if collect:

@@ -48,6 +48,7 @@ def collect_databases(
                         skipped += 1
                         continue
                     source_store.validate_metadata_schema()
+                    source_store.validate_metadata_content()
             except Exception as exc:
                 log.warning("Skipping source DB %s: %s", source_db, exc)
                 skipped += 1

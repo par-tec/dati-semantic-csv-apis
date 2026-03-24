@@ -5,6 +5,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, cast
 
+import frozendict
 from jsonschema import ValidationError, validate
 from rdflib import DCTERMS
 from rdflib.plugins.parsers.jsonld import to_rdf
@@ -29,8 +30,8 @@ log = logging.getLogger(__name__)
 type OpenAPI = dict[str, Any]
 OPENAPI_30_SCHEMA_JSON = DATADIR / "openapi_30.schema.json"
 OAS30_SCHEMA = json.loads(OPENAPI_30_SCHEMA_JSON.read_text())
-
 URI = "url"
+EmptyOpenAPI: OpenAPI = frozendict.frozendict()
 
 
 def _remove_jsonld_keys(obj: Any) -> Any:
@@ -144,7 +145,13 @@ class Apiable(Vocabulary):
             key_concept=metadata.name,
         )
 
-    def to_db(self, data: JsonLD, datafile: Path, force: bool = False):
+    def to_db(
+        self,
+        data: JsonLD,
+        datafile: Path,
+        force: bool = False,
+        openapi: OpenAPI = EmptyOpenAPI,
+    ) -> None:
         from tools.store import APIStore
 
         assert data
@@ -161,7 +168,7 @@ class Apiable(Vocabulary):
                 vocabulary_uri=self.uri() or "",
                 agency_id=metadata.agency_id,
                 key_concept=metadata.name,
-                openapi={},
+                openapi=openapi,
                 catalog=self.catalog_entry(),
             )
             db.update_vocabulary_from_jsonld(
