@@ -101,6 +101,18 @@ def _config(harvest_db: str) -> Config:
     )
 
 
+def test_get_vocabularies(single_entry_db):
+    """
+    When:
+
+    - I GET /vocabularies
+
+    Then:
+
+    - Response contains a linkset with item: [ .. ]
+    """
+
+
 def test_get_single_item(single_entry_db):
     """The app should serve one known vocabulary item through the ASGI client."""
     with client_harness(create_app, _config(single_entry_db)) as (client, logs):

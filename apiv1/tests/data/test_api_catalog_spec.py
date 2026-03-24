@@ -45,7 +45,6 @@ def test_openapi_compliance(case, sample_db):
         create_app,
         Config(
             API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-            VOCABULARY_DATAFILE="",
             HARVEST_DB=sample_db,
         ),
     ) as (client, logs):
