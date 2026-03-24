@@ -79,7 +79,11 @@ def list_vocabularies_by_agency(
     raise NotImplementedError("This endpoint is not implemented yet.")
 
 
-def _to_catalog_item(item: dict, api_base_url: str, predecessor_base_url: str):
+def _to_catalog_item(
+    item: dict[str, Any],
+    api_base_url: str,
+    predecessor_base_url: str,
+) -> dict[str, Any] | None:
     """
     Convert a dictionary item from _metadata
     containing agency_id, key_concept, vocabulary_uri
@@ -170,13 +174,16 @@ def list_vocabularies(
     with db.connect() as conn:
         rows = conn.execute("SELECT * FROM _metadata").fetchall()
 
-        items = (
-            _to_catalog_item(
-                x, request.state.api_base_url, "https://old.example.com"
-            )
+        items: list[dict[str, Any]] = [
+            item
             for x in rows
-        )
-        items = [item for item in items if item is not None]
+            if (
+                item := _to_catalog_item(
+                    x, request.state.api_base_url, "https://old.example.com"
+                )
+            )
+            is not None
+        ]
     # Apply filters
     filtered_items = list(
         filter_vocabularies(

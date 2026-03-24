@@ -83,7 +83,6 @@ def _get_metadata_or_fail(
             status=404,
             instance=str(request.url),
         )
-    assert row, "Row should be present since we checked for it above"
     return row
 
 
@@ -332,19 +331,30 @@ async def show_vocabulary_spec(
         agencyId,
         keyConcept,
     )
+    try:
+        vocabulary_oas: dict = json.loads(row["openapi"])
+        assert vocabulary_oas["info"]
+        spec = copy.deepcopy(request.state.base_spec)
+        spec["info"] = vocabulary_oas["info"]
+        spec["components"]["schemas"]["Item"] = vocabulary_oas["components"][
+            "schemas"
+        ]["Item"]
+        spec.setdefault("servers", []).append(
+            {"url": f"{request.state.api_base_url}{agencyId}/{keyConcept}/"}
+        )
 
-    vocabulary_oas: dict = json.loads(row["openapi"])
-    spec = copy.deepcopy(request.state.base_spec)
-    spec["info"] = vocabulary_oas["info"]
-    spec["components"]["schemas"]["Item"] = vocabulary_oas["components"][
-        "schemas"
-    ]["Item"]
-    spec.setdefault("servers", []).append(
-        {"url": f"{request.state.api_base_url}{agencyId}/{keyConcept}/"}
-    )
-
-    return ConnexionResponse(
-        status_code=200,
-        content_type="application/openapi+yaml",
-        body=yaml.dump(spec),
-    )
+        return ConnexionResponse(
+            status_code=200,
+            content_type="application/openapi+yaml",
+            body=yaml.dump(spec),
+        )
+    except (json.JSONDecodeError, KeyError, AssertionError) as e:
+        log.exception(
+            "Invalid or missing OpenAPI specification for agency_id=%s and key_concept=%s: %s",
+            agencyId,
+            keyConcept,
+            e,
+        )
+        raise NotImplementedError(
+            f"OpenAPI specification not available for agency_id={agencyId} and key_concept={keyConcept}"
+        ) from e

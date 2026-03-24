@@ -1,7 +1,24 @@
 openapi: 3.0.3
 info:
-  title: Controlled Vocabularies API - Vocabulary Data Endpoints
+  title: Controlled Vocabularies API - Vocabulary Catalog and Data Endpoints
   description: |-
+    An API Catalog endpoint providing access to controlled vocabularies
+    in RFC 9727 linkset format.
+
+    This v1 API is generated from the semantic mappings of the RDF
+    vocabularies (see README.csv.md) and decouples the published JSON
+    from legacy CSV files, while keeping the stable catalog URL
+    https://schema.gov.it/api/vocabularies/v1.
+
+    Use this API to:
+
+    - discover REST APIs that provide controlled vocabularies published by
+      various Italian public administrations;
+    - search controlled vocabularies by metadata and concept identifiers.
+
+    Schema formats are based on the OAS3.0 registry
+    https://spec.openapis.org/registry/format/
+
     This document defines the data endpoints
     for a Controlled Vocabulary API.
 
@@ -14,7 +31,7 @@ info:
     url: https://github.com/par-tec/dati-semantic-csv-apis
     email: roberto.polli@par-tec.it
   x-summary: This will be taken from skos:prefLabel of the ConceptScheme.
-  termsOfService: https://schema.gov.it
+  termsOfService: https://schema.gov.it/terms
   x-api-id: a68b0d9e-0445-4f98-bd6e-269a97268d8b
 servers:
   - url: http://localhost:8080

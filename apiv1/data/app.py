@@ -136,6 +136,7 @@ def create_app(config: Config | None = None) -> AsyncApp:
         "openapi.yaml",
         strict_validation=True,
     )
+    # Ensure that request parameters are safe (e.g., for logging, ..)
     app.add_middleware(
         PrintableParametersMiddleware,
         position=MiddlewarePosition.BEFORE_CONTEXT,
@@ -149,5 +150,12 @@ def create_app(config: Config | None = None) -> AsyncApp:
     app.add_error_handler(500, handle_exception)
     app.add_error_handler(Exception, handle_exception)
     app.add_error_handler(ProblemException, handle_problem_safe)
+
+    #
+    # We use assertion errors to track unexpected conditions
+    #   that are elsewhere tested. These should be
+    #   logged and fixed in the code.
+    #
+    app.add_error_handler(AssertionError, handle_exception)
 
     return app
