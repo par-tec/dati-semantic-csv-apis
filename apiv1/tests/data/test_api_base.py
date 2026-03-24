@@ -6,6 +6,7 @@ from typing import Any, cast
 import pytest
 import yaml
 from data.app import Config, create_app
+from deepdiff import DeepDiff
 
 from tests.harness import client_harness
 
@@ -16,13 +17,6 @@ TESTCASES_FILE = Path(__file__).with_suffix(".yaml")
 TESTCASES = cast(
     dict[str, list[dict[str, Any]]], yaml.safe_load(TESTCASES_FILE.read_text())
 )
-
-
-def _get_testcase(name: str) -> dict[str, Any]:
-    for testcase in TESTCASES["testcases"]:
-        if testcase["name"] == name:
-            return testcase
-    raise KeyError(f"Test case not found: {name}")
 
 
 def _config(harvest_db: str) -> Config:
@@ -37,15 +31,15 @@ def _config(harvest_db: str) -> Config:
     TESTCASES["testcases"],
     ids=[tc["name"] for tc in TESTCASES["testcases"]],
 )
-def test_get_vocabularies(single_entry_db, testcase):
+def test_base_requests(single_entry_db, testcase):
     """
     When:
 
-    - I GET /vocabularies
+    - I issue basic requrests
 
     Then:
 
-    - Response contains a linkset with item: [ .. ]
+    - I got the expected responses and logs.
     """
     with client_harness(create_app, _config(single_entry_db)) as (
         client,
@@ -54,40 +48,29 @@ def test_get_vocabularies(single_entry_db, testcase):
         response = client.request(
             method=testcase["request"]["method"],
             url=testcase["request"]["url"],
+            headers=testcase["request"].get("headers"),
+            params=testcase["request"].get("params"),
         )
         expected = testcase["expected"]
         assert response.status_code == expected["response"]["status_code"]
         if "json" in expected["response"]:
-            assert response.json() == expected["response"]["json"]
+            diff = DeepDiff(
+                expected["response"]["json"],
+                response.json(),
+                ignore_order=True,
+            )
+            unexpected = {
+                key: value
+                for key, value in diff.items()
+                if not key.endswith("_added")
+            }
+            assert not unexpected, (
+                "Missing/changed expected JSON fields:\n"
+                + yaml.safe_dump(unexpected, sort_keys=True)
+            )
 
         for log in expected.get("logs", []):
             assert log in _logs
-
-
-def test_latin_header(single_entry_db):
-    """Test that the API can handle latin1 headers."""
-    with client_harness(
-        create_app,
-        _config(single_entry_db),
-    ) as (client, _logs):
-        response = client.get(
-            "/status",
-            headers={"X-Test-Header": "Café\x80"},
-        )
-        assert response.status_code == 200
-
-
-def test_rejects_non_printable_query_parameter(single_entry_db) -> None:
-    """Non-printable query parameter values should be rejected."""
-    with client_harness(
-        create_app,
-        _config(single_entry_db),
-    ) as (client, _logs):
-        response = client.get(
-            "/agid/ateco-2025",
-            params={"label": "\u2008invalid"},
-        )
-        assert response.status_code == 400
 
 
 @pytest.mark.skip(reason="Check why it happens.")

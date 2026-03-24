@@ -50,3 +50,36 @@ testcases:
                   2025 - Classificazione delle attività economiche,
                 version: versione 2025}], limit: 20, offset: 0,
             total_count: 1}]
+
+- name: test_latin_header
+  description: |-
+    When:
+
+    - GET /status with a latin1 header value
+
+    Then:
+
+    - Response status is 200
+  request:
+    method: get
+    url: /status
+    headers:
+      X-Test-Header: "Café\x80"
+  expected:
+    response:
+      status_code: 200
+- name: reject_non_printable_query_parameter
+  description: |-
+    When:
+
+    - Request parameters contain non-printable characters
+
+    Then:
+
+    - Response status is 400
+  request:
+    method: get
+    url: "/istat/ateco-2025/?label= invalid"
+  expected:
+    response:
+      status_code: 400

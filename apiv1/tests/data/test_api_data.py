@@ -74,23 +74,6 @@ def test_openapi_compliance(case, sample_db):
             case.validate_response(response)
 
 
-def test_latin_header(sample_db):
-    """Test that the API can handle latin1 headers."""
-    with client_harness(
-        create_app,
-        Config(
-            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-            VOCABULARY_DATAFILE="",
-            HARVEST_DB=sample_db,
-        ),
-    ) as (client, logs):
-        response: Response = client.get(
-            "/status",
-            headers={"X-Test-Header": "Café\x80"},
-        )
-        assert response.status_code == 200
-
-
 def test_rejects_non_printable_query_parameter(sample_db) -> None:
     """Non-printable query parameter values should be rejected."""
     with client_harness(
