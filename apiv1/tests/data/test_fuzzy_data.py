@@ -23,21 +23,58 @@ oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
     str(OPENAPI_SPEC_PATH)
 )
 
-
-schema_dump = oas_schema.include(
-    operation_id="data.handlers.dump_vocabulary_dataset"
+discover_tag = oas_schema.include(
+    tag="discover-vocabularies",
+)
+retrieve_tag = oas_schema.include(
+    tag="retrieve-data",
+)
+dump_tag = oas_schema.include(
+    tag="dump-dataset",
+)
+health_tag = oas_schema.include(
+    tag="health-check",
 )
 
-schema_item = oas_schema.include(operation_id="data.handlers.get_item")
 
-
-@oas_schema.parametrize()
+@discover_tag.parametrize()
 @settings(
     max_examples=20,
     # verbosity=Verbosity.debug
     suppress_health_check=[HealthCheck.function_scoped_fixture],
 )
-def test_openapi_compliance(case, sample_db):
+def test_openapi_compliance_discover(case, sample_db):
+    return _harn_openapi_compliance(case, sample_db)
+
+
+@retrieve_tag.parametrize()
+@settings(
+    max_examples=20,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
+def test_openapi_compliance_retrieve(case, sample_db):
+    return _harn_openapi_compliance(case, sample_db)
+
+
+@dump_tag.parametrize()
+@settings(
+    max_examples=20,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
+def test_openapi_compliance_dump(case, sample_db):
+    return _harn_openapi_compliance(case, sample_db)
+
+
+@health_tag.parametrize()
+@settings(
+    max_examples=20,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
+def test_openapi_compliance_health(case, sample_db):
+    return _harn_openapi_compliance(case, sample_db)
+
+
+def _harn_openapi_compliance(case, sample_db):
     """Test that the /status endpoint complies with OAS schema."""
 
     with client_harness(
