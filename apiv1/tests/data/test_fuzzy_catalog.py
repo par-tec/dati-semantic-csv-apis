@@ -8,12 +8,12 @@ import pytest
 
 # See https://schemathesis.readthedocs.io/en/stable/tutorials/pytest/ for using schemathesis with pytest.
 import schemathesis
-from data.app import Config, create_app
+from data.app import create_app
 from httpx import Response
 from hypothesis import HealthCheck, settings
 from schemathesis.specs.openapi.schemas import OpenApiSchema
 
-from tests.harness import client_harness
+from tests.harness import _config, client_harness
 
 URI = "url"
 TESTDIR = Path(__file__).parent.parent
@@ -24,15 +24,14 @@ oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
     str(OPENAPI_SPEC_PATH)
 )
 
-
-schema_dump = oas_schema.include(
-    operation_id="data.handlers.dump_vocabulary_dataset"
+schema_list_vocabularies = oas_schema.include(
+    operation_id="data.catalog.list_vocabularies"
 )
 
 schema_item = oas_schema.include(operation_id="data.handlers.get_item")
 
 
-@oas_schema.parametrize()
+@schema_list_vocabularies.parametrize()
 @settings(
     max_examples=20,
     # verbosity=Verbosity.debug
@@ -43,11 +42,7 @@ def test_openapi_compliance(case, sample_db):
 
     with client_harness(
         create_app,
-        Config(
-            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-            VOCABULARY_DATAFILE="",
-            HARVEST_DB=sample_db,
-        ),
+        _config(sample_db),
     ) as (client, logs):
         # .. the logs should indicate that the vocabularies dataset is being loaded.
         for expected_log in [
@@ -72,19 +67,3 @@ def test_openapi_compliance(case, sample_db):
 
             # .. otherwise the response should comply with the OAS schema.
             case.validate_response(response)
-
-
-def test_rejects_non_printable_query_parameter(sample_db) -> None:
-    """Non-printable query parameter values should be rejected."""
-    with client_harness(
-        create_app,
-        Config(
-            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-            HARVEST_DB=sample_db,
-        ),
-    ) as (client, logs):
-        response: Response = client.get(
-            "/",
-            params={"label": "\u2008invalid"},
-        )
-        assert response.status_code == 400

@@ -8,15 +8,14 @@ import pytest
 
 # See https://schemathesis.readthedocs.io/en/stable/tutorials/pytest/ for using schemathesis with pytest.
 import schemathesis
-from data.app import Config, create_app
+from data.app import create_app
 from httpx import Response
 from hypothesis import HealthCheck, settings
 from schemathesis.specs.openapi.schemas import OpenApiSchema
 
-from tests.harness import client_harness
+from tests.harness import TESTDIR, _config, client_harness
 
 URI = "url"
-TESTDIR = Path(__file__).parent.parent
 APIDIR: Path = TESTDIR.parent / "data"
 OPENAPI_SPEC_PATH = APIDIR / "openapi.yaml"
 
@@ -25,14 +24,14 @@ oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
 )
 
 
-schema_list_vocabularies = oas_schema.include(
-    operation_id="data.catalog.list_vocabularies"
+schema_dump = oas_schema.include(
+    operation_id="data.handlers.dump_vocabulary_dataset"
 )
 
 schema_item = oas_schema.include(operation_id="data.handlers.get_item")
 
 
-@schema_list_vocabularies.parametrize()
+@oas_schema.parametrize()
 @settings(
     max_examples=20,
     # verbosity=Verbosity.debug
@@ -43,10 +42,7 @@ def test_openapi_compliance(case, sample_db):
 
     with client_harness(
         create_app,
-        Config(
-            API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-            HARVEST_DB=sample_db,
-        ),
+        _config(sample_db),
     ) as (client, logs):
         # .. the logs should indicate that the vocabularies dataset is being loaded.
         for expected_log in [

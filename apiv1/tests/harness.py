@@ -1,11 +1,26 @@
 import contextlib
 import logging
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
 import httpx
+import yaml
+from data.app import Config
 from starlette.testclient import TestClient
+
+TESTDIR = Path(__file__).parent
+
+ATECO_OAS = TESTDIR / "api" / "ateco-2025.oas3.yaml"
+ATECO_SPEC = yaml.safe_load(ATECO_OAS.read_text())
+
+
+def _config(harvest_db: str) -> Config:
+    return Config(
+        API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
+        HARVEST_DB=harvest_db,
+    )
 
 
 @contextlib.contextmanager

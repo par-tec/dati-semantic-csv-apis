@@ -5,10 +5,10 @@ from typing import Any, cast
 
 import pytest
 import yaml
-from data.app import Config, create_app
+from data.app import create_app
 from deepdiff import DeepDiff
 
-from tests.harness import client_harness
+from tests.harness import _config, client_harness
 
 TESTDIR = Path(__file__).parent.parent
 ATECO_OAS = TESTDIR / "api" / "ateco-2025.oas3.yaml"
@@ -17,13 +17,6 @@ TESTCASES_FILE = Path(__file__).with_suffix(".yaml")
 TESTCASES = cast(
     dict[str, list[dict[str, Any]]], yaml.safe_load(TESTCASES_FILE.read_text())
 )
-
-
-def _config(harvest_db: str) -> Config:
-    return Config(
-        API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
-        HARVEST_DB=harvest_db,
-    )
 
 
 @pytest.mark.parametrize(
@@ -45,32 +38,38 @@ def test_base_requests(single_entry_db, testcase):
         client,
         _logs,
     ):
-        response = client.request(
-            method=testcase["request"]["method"],
-            url=testcase["request"]["url"],
-            headers=testcase["request"].get("headers"),
-            params=testcase["request"].get("params"),
+        requests = (
+            testcase["request"]
+            if isinstance(testcase["request"], list)
+            else [testcase["request"]]
         )
-        expected = testcase["expected"]
-        assert response.status_code == expected["response"]["status_code"]
-        if "json" in expected["response"]:
-            diff = DeepDiff(
-                expected["response"]["json"],
-                response.json(),
-                ignore_order=True,
+        for request in requests:
+            response = client.request(
+                method=request["method"],
+                url=request["url"],
+                headers=request.get("headers"),
+                params=request.get("params"),
             )
-            unexpected = {
-                key: value
-                for key, value in diff.items()
-                if not key.endswith("_added")
-            }
-            assert not unexpected, (
-                "Missing/changed expected JSON fields:\n"
-                + yaml.safe_dump(unexpected, sort_keys=True)
-            )
+            expected = testcase["expected"]
+            assert response.status_code == expected["response"]["status_code"]
+            if "json" in expected["response"]:
+                diff = DeepDiff(
+                    expected["response"]["json"],
+                    response.json(),
+                    ignore_order=True,
+                )
+                unexpected = {
+                    key: value
+                    for key, value in diff.items()
+                    if not key.endswith("_added")
+                }
+                assert not unexpected, (
+                    "Missing/changed expected JSON fields:\n"
+                    + yaml.safe_dump(unexpected, sort_keys=True)
+                )
 
-        for log in expected.get("logs", []):
-            assert log in _logs
+            for log in expected.get("logs", []):
+                assert log in _logs
 
 
 @pytest.mark.skip(reason="Check why it happens.")
