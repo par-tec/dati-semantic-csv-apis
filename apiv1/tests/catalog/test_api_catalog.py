@@ -109,7 +109,8 @@ def test_list_vocabularies_rejects_invalid_concept_query(
             params=params,
         )
 
-    assert response.headers["Cache-Control"] is not None
+    assert response.headers is not None
+    assert response.headers["cache-control"] is not None
 
     assert response.status_code == expected_status, response.request.url
     if response.status_code == 200:
