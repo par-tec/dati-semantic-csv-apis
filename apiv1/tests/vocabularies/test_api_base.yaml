@@ -57,14 +57,14 @@ testcases:
     response:
       status_code: 200
       json:
-        linkset: [{anchor: 'https://schema.gov.it/api/vocabularies/v1/',
-            api-catalog: 'https://schema.gov.it/api/vocabularies/v1/',
-            count: 1, item: [{about: 'https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025',
-                author: 'https://w3id.org/italia/data/public-organization/ISTAT',
+        linkset: [{anchor: "https://schema.gov.it/api/vocabularies/v1/",
+            api-catalog: "https://schema.gov.it/api/vocabularies/v1/",
+            count: 1, item: [{about: "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025",
+                author: "https://w3id.org/italia/data/public-organization/ISTAT",
 
-                href: 'https://schema.gov.it/api/vocabularies/v1//vocabularies/istat/ateco-2025',
-                hreflang: [it], predecessor-version: [{href: 'https://old.example.com/istat/ateco-2025'}],
-                service-desc: [{href: 'https://schema.gov.it/api/vocabularies/v1//vocabularies/istat/ateco-2025/openapi.yaml',
+                href: "https://schema.gov.it/api/vocabularies/v1//vocabularies/istat/ateco-2025",
+                hreflang: [it], predecessor-version: [{href: "https://old.example.com/istat/ateco-2025"}],
+                service-desc: [{href: "https://schema.gov.it/api/vocabularies/v1//vocabularies/istat/ateco-2025/openapi.yaml",
                     type: application/openapi+yaml}], service-meta: [
                   {href: "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025?output=application/ld+json",
                     type: application/ld+json}], title: Ateco
@@ -125,6 +125,8 @@ testcases:
     url: /vocabularies?limit=-1&offset=0
   - method: get
     url: /vocabularies/istat/ateco-2025?limit=1.2&offset=0
+  - method: get
+    url: /vocabularies/istat/ateco-2025?limit=5&offset=10
   expected:
     response:
       status_code: 400
@@ -141,12 +143,54 @@ testcases:
   - method: get
     url: /vocabularies?limit=5&offset=10
   - method: get
-    url: /vocabularies/istat/ateco-2025?limit=5&offset=10
-  - method: get
     url: /vocabularies?limit=5&limit=10&offset=0&offset=20
   expected:
     response:
       status_code: 200
+- name: pagination_data_cursor
+  description: |-
+    When:
+
+    - GET with cursor-based pagination parameters
+
+    Then:
+
+    - Response status is 200, and the cursor parameters are accepted.
+  request:
+  - method: get
+    url: /vocabularies/istat/ateco-2025?cursor=A00
+  expected:
+    response:
+      status_code: 200
+      json:
+        limit: 20
+        offset: 0
+        totalResults: 1
+        items:
+        - id: A01
+          label: Item A01
+          url: https://example.com/vocabularies/test/A01
+- name: pagination_data_cursor
+  description: |-
+    When:
+
+    - GET with cursor-based pagination parameters
+
+    Then:
+
+    - Response status is 200, and the cursor parameters are accepted.
+  request:
+  - method: get
+    url: /vocabularies/istat/ateco-2025?cursor=A01
+  expected:
+    response:
+      status_code: 200
+      json:
+        limit: 20
+        offset: 0
+        totalResults: 0
+        items: []
+
 #
 # Non-printable characters in query parameters
 #

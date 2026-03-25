@@ -33,6 +33,8 @@ providers to use additional filters in front of the application service.
   according to <https://spec.openapis.org/oas/v3.0.3.html#style-values>.
 - [x] Separate JSON Schemas between input request and response, allowing only ascii
   characters in request parameters.
+- [ ] Use `cursor` pagination instead of `offset` pagination for vocabulary endpoints,
+  to improve performance and reduce the risk of missing or duplicate items when the dataset changes.
 
 ## Consequences
 

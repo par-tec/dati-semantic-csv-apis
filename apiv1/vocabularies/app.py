@@ -87,6 +87,10 @@ async def load_dataset_handler(
         read_only=True,
         check_same_thread=False,
     )
+
+    # Update the FTS table.
+    # harvest_database.create_fts_table()
+
     harvest_database.connect()
     logger.info("Opened harvest DB connection: %s", harvest_db)
 

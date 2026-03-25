@@ -171,19 +171,18 @@ def list_vocabularies(
 
     db: APIStore = _get_database_or_fail()
 
-    with db.connect() as conn:
-        rows = conn.execute("SELECT * FROM _metadata").fetchall()
+    rows = db.search_metadata(query=description, limit=limit, offset=offset)
 
-        items: list[dict[str, Any]] = [
-            item
-            for x in rows
-            if (
-                item := _to_catalog_item(
-                    x, request.state.api_base_url, "https://old.example.com"
-                )
+    items: list[dict[str, Any]] = [
+        item
+        for x in rows
+        if (
+            item := _to_catalog_item(
+                x, request.state.api_base_url, "https://old.example.com"
             )
-            is not None
-        ]
+        )
+        is not None
+    ]
     # Apply filters
     filtered_items = list(
         filter_vocabularies(

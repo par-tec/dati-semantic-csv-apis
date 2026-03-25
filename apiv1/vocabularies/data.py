@@ -76,19 +76,6 @@ def _get_metadata_or_fail(
     return row
 
 
-def _get_vocabulary_items_or_fail(
-    harvest_db: APIStore,
-    agency_id: str,
-    key_concept: str,
-) -> list[dict[str, Any]]:
-    """
-    Return the list of vocabulary items for the given vocabulary id.
-
-    Sqlite exceptions are handled by the error handlers registered in app.py.
-    """
-    return harvest_db.get_vocabulary_dataset(agency_id, key_concept)
-
-
 def _query_vocabulary_items_or_fail(
     items: list[dict[str, Any]],
     limit: int = 10,
@@ -138,7 +125,7 @@ async def show_items(
     keyConcept: str,
     limit: int = 20,
     offset: int = 0,
-    cursor: str | None = None,
+    cursor: str = "",
     label: str | None = None,
     **kwargs: Any,
 ) -> ConnexionResponse:
@@ -161,7 +148,14 @@ async def show_items(
     harvest_db = _get_database_or_fail()
 
     log.debug("Extra query parameters: %s", kwargs)
-    all_items = _get_vocabulary_items_or_fail(harvest_db, agencyId, keyConcept)
+    all_items = harvest_db.get_vocabulary_dataset(
+        agencyId,
+        keyConcept,
+        params={
+            "limit": limit,
+            "cursor": cursor,
+        },
+    )
 
     items = _query_vocabulary_items_or_fail(
         all_items,
@@ -236,9 +230,7 @@ async def dump_vocabulary_dataset(
         and response headers.
     """
     harvest_db = _get_database_or_fail()
-    vocabulary_items = _get_vocabulary_items_or_fail(
-        harvest_db, agencyId, keyConcept
-    )
+    vocabulary_items = harvest_db.get_vocabulary_dataset(agencyId, keyConcept)
     if not vocabulary_items:
         raise ProblemException(
             title="Not Found",

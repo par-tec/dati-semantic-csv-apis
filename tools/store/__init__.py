@@ -43,6 +43,26 @@ CREATE UNIQUE INDEX IF NOT EXISTS agency_id_key_concept_unique
 ON _metadata (agency_id, key_concept)
 """
 
+FTS_TABLE = "_metadata_fts"
+
+# Consider tweaking `tokenize` option.
+CREATE_FTS_TABLE_SQL = f"""
+CREATE VIRTUAL TABLE IF NOT EXISTS {FTS_TABLE}
+USING fts5(title, description);
+"""
+
+POPULATE_FTS_TABLE_SQL = f"""
+INSERT INTO {FTS_TABLE}(rowid, title, description)
+SELECT rowid,
+       json_extract(openapi, '$.info.title'),
+       json_extract(openapi, '$.info.description')
+FROM _metadata
+"""
+
+DELETE_FTS_TABLE_CONTENT_SQL = f"""
+DELETE FROM {FTS_TABLE}
+"""
+
 
 def build_vocabulary_uuid(
     agency_id: str,
@@ -136,6 +156,55 @@ class APIStore:
         conn.execute(CREATE_METADATA_TABLE_SQL)
         conn.execute(CREATE_METADATA_UNIQUE_INDEX_SQL)
         conn.commit()
+
+    def create_fts_table(self) -> None:
+        """Create and populate the FTS5 index on openapi title/description."""
+        conn = self.connect()
+        conn.execute(CREATE_FTS_TABLE_SQL)
+        # Keep it safe across repeated calls (eg request-time refresh).
+        conn.execute(DELETE_FTS_TABLE_CONTENT_SQL)
+        conn.execute(POPULATE_FTS_TABLE_SQL)
+        conn.commit()
+
+    def search_metadata(
+        self,
+        query: str,
+        *,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> list[sqlite3.Row]:
+        """Full-text search over openapi ``info.title`` and ``info.description``.
+
+        Returns ``_metadata`` rows ranked by FTS5 relevance (best match first).
+        Common FTS5 query syntax is supported: ``term``, ``term1 term2``,
+        ``"exact phrase"``, ``term*`` (prefix), ``term1 OR term2``.
+        """
+        conn = self.connect()
+        qp = {}
+
+        q = "SELECT * FROM _metadata WHERE 1=1 "
+        if query:
+            qp["query"] = query
+            q = f"""
+                    SELECT m.*
+                    FROM _metadata m
+                    JOIN {FTS_TABLE} f ON f.rowid = m.rowid
+                    WHERE {FTS_TABLE} MATCH :query
+                    ORDER BY rank
+            """
+
+        if limit:
+            qp["limit"] = limit
+        if offset:
+            qp["offset"] = offset
+
+        return cast(
+            list[sqlite3.Row],
+            conn.execute(
+                q,
+                qp,
+            ).fetchall(),
+        )
 
     def validate_metadata_schema(self) -> None:
         conn = self.connect()
@@ -242,7 +311,11 @@ class APIStore:
         return build_vocabulary_uuid(agency_id, key_concept)
 
     def get_metadata(
-        self, agency_id: str, key_concept: str
+        self,
+        agency_id: str,
+        key_concept: str,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> sqlite3.Row | None:
         conn = self.connect()
         return cast(
@@ -264,14 +337,14 @@ class APIStore:
         quoted_table_name = self._quoted_identifier(vocabulary_uuid)
         conn.execute(f"DROP TABLE IF EXISTS {quoted_table_name}")
 
-        if not rows:
-            conn.execute(f"CREATE TABLE {quoted_table_name} (_text TEXT)")
-            conn.commit()
-            return
-
         columns = ["id", "url", "label", "level", "_text"]
         quoted_columns = [self._quoted_identifier(column) for column in columns]
         column_defs = ", ".join(f"{column} TEXT" for column in quoted_columns)
+        if not rows:
+            conn.execute(f"CREATE TABLE {quoted_table_name} ({column_defs})")
+            conn.commit()
+            return
+
         placeholders = ", ".join("?" for _ in columns)
         insert_columns = ", ".join(quoted_columns)
 
@@ -317,16 +390,30 @@ class APIStore:
         self,
         agency_id: str,
         key_concept: str,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         conn = self.connect()
         vocabulary_uuid = self._table_name(agency_id, key_concept)
         quoted_table_name = self._quoted_identifier(vocabulary_uuid)
+
+        params = params or {}
+        qs = f"SELECT _text FROM {quoted_table_name} WHERE 1=1 "
+        query_params: dict[str, Any] = {}
+
+        if params.get("cursor", ""):
+            query_params |= {"cursor": params["cursor"]}
+            qs += " AND id > :cursor "
+
+        if "limit" in params:
+            query_params |= {"limit": params["limit"]}
+            qs += " LIMIT :limit "
+
+        log.info("Executing SQL query %s with params %s", qs, query_params)
         try:
             rows = cast(
                 list[sqlite3.Row],
-                conn.execute(
-                    f"SELECT _text FROM {quoted_table_name} ORDER BY id"
-                ).fetchall(),
+                conn.execute(qs, query_params).fetchall(),
             )
         except sqlite3.OperationalError as e:
             if "no such table" in str(e).lower():

@@ -80,7 +80,7 @@ repos:
     - manual
     language: docker_image
     files: >-
-      apiv1/(catalog|data)/open.*yaml
+      apiv1/vocabularies/open.*yaml
     entry: |-
       --entrypoint sh
       docker.io/redocly/cli:2.20.3
