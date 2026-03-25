@@ -11,7 +11,7 @@ from data.app import Config
 from starlette.testclient import TestClient
 
 TESTDIR = Path(__file__).parent
-
+DATADIR = TESTDIR / "data"
 ATECO_OAS = TESTDIR / "api" / "ateco-2025.oas3.yaml"
 ATECO_SPEC = yaml.safe_load(ATECO_OAS.read_text())
 

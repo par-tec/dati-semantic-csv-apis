@@ -3,22 +3,14 @@ import sqlite3
 from pathlib import Path
 
 import pytest
-import yaml
 
+from tests.harness import ATECO_SPEC, DATADIR
 from tools.store import APIStore
-
-TESTDIR = Path(__file__).parent.parent
-ATECO_OAS = TESTDIR / "api" / "ateco-2025.oas3.yaml"
-ATECO_SPEC = yaml.safe_load(ATECO_OAS.read_text())
-
-
-TESTDIR = Path(__file__).parent.parent
-DATADIR = TESTDIR / "data"
 
 
 @pytest.fixture
 def sample_db():
-    return (DATADIR / "aggregate.db").as_posix()
+    return (DATADIR / "harvest.db").as_posix()
 
 
 CATALOG_ENTRY = {

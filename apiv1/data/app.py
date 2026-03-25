@@ -38,14 +38,18 @@ logger = logging.getLogger(__name__)
 
 
 def _validate_db(harvest_db: str) -> None:
-    """Validate that the harvest.db file exists and has the expected structure."""
+    """Validate that the datastore file exists and has the expected structure."""
     try:
         with APIStore(harvest_db, read_only=True) as db:
             db.validate_metadata_schema()
             db.validate_metadata_content()
     except Exception as e:
-        logger.error("Error validating harvest.db: %s", e)
-        raise ValueError(f"Invalid harvest.db: {e}") from e
+        logger.error(
+            "Error validating datastore %s: %s", Path(harvest_db).absolute(), e
+        )
+        raise ValueError(
+            f"Invalid datastore {Path(harvest_db).absolute()}: {e}"
+        ) from e
 
 
 @contextlib.asynccontextmanager
