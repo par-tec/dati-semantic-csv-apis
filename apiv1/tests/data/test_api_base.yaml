@@ -1,0 +1,184 @@
+---
+testcases:
+- name: get_single_item
+  description: |-
+    When:
+
+    - GET /vocabularies/istat/ateco-2025
+
+    Then:
+
+    - I get the expected item
+  request:
+    method: get
+    url: /vocabularies/istat/ateco-2025/A01
+  expected:
+    logs:
+    - "Application startup complete"
+    response:
+      status_code: 200
+      json: {"id": "A01", "label": "Item A01", "url": "https://example.com/vocabularies/test/A01",
+        "href": "https://schema.gov.it/api/vocabularies/v1/istat/ateco-2025/A01"}
+- name: get_vocabulary_oas
+  description: |-
+    When:
+
+    - GET /vocabularies/istat/ateco-2025/openapi.yaml
+
+    Then:
+
+    - I get the expected OAS spec
+  request:
+    method: get
+    url: /vocabularies/istat/ateco-2025/openapi.yaml
+  expected:
+    response:
+      status_code: 200
+      headers:
+        content-type: application/openapi+yaml
+      yaml:
+        openapi: 3.0.0
+        info:
+          title: Ateco 2025 API
+          version: 1.0.0
+- name: get_vocabularies
+  description: |-
+    When:
+
+    - GET /vocabularies
+
+    Then:
+
+    - I get the expected linkset item
+  request:
+    method: get
+    url: /vocabularies
+  expected:
+    response:
+      status_code: 200
+      json:
+        linkset: [{anchor: 'https://schema.gov.it/api/vocabularies/v1/',
+            api-catalog: 'https://schema.gov.it/api/vocabularies/v1/',
+            count: 1, item: [{about: 'https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025',
+                author: 'https://w3id.org/italia/data/public-organization/ISTAT',
+
+                href: 'https://schema.gov.it/api/vocabularies/v1//vocabularies/istat/ateco-2025',
+                hreflang: [it], predecessor-version: [{href: 'https://old.example.com/istat/ateco-2025'}],
+                service-desc: [{href: 'https://schema.gov.it/api/vocabularies/v1//vocabularies/istat/ateco-2025/openapi.yaml',
+                    type: application/openapi+yaml}], service-meta: [
+                  {href: "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025?output=application/ld+json",
+                    type: application/ld+json}], title: Ateco
+                  2025 - Classificazione delle attività economiche,
+                version: versione 2025}], limit: 20, offset: 0,
+            total_count: 1}]
+
+- name: test_latin_header
+  description: |-
+    When:
+
+    - GET /status with a latin1 header value
+
+    Then:
+
+    - Response status is 200
+  request:
+    method: get
+    url: /status
+    headers:
+      X-Test-Header: "Café\x80"
+  expected:
+    response:
+      status_code: 200
+- name: reject_non_printable_query_parameter
+  description: |-
+    When:
+
+    - Request parameters contain non-printable characters
+
+    Then:
+
+    - Response status is 400
+  request:
+    method: get
+    url: "/istat/ateco-2025/?label= invalid"
+  expected:
+    response:
+      status_code: 400
+#
+# Pagination tests
+#
+- name: pagination_invalid
+  description: |-
+    When:
+
+    - GET with invalid pagination parameters
+
+    Then:
+
+    - Response status is 400
+  request:
+  - method: get
+    url: /vocabularies?limit=1,2,3&offset=0
+  - method: get
+    url: /vocabularies/istat/ateco-2025?limit=1,2,3&offset=0
+  - method: get
+    url: /vocabularies?limit=-1&offset=0
+  - method: get
+    url: /vocabularies/istat/ateco-2025?limit=1.2&offset=0
+  expected:
+    response:
+      status_code: 400
+- name: pagination_acceptable
+  description: |-
+    When:
+
+    - GET with acceptable pagination parameters
+
+    Then:
+
+    - Response status is 200, and the last pagination parameter is used.
+  request:
+  - method: get
+    url: /vocabularies?limit=5&offset=10
+  - method: get
+    url: /vocabularies/istat/ateco-2025?limit=5&offset=10
+  - method: get
+    url: /vocabularies?limit=5&limit=10&offset=0&offset=20
+  expected:
+    response:
+      status_code: 200
+#
+# Non-printable characters in query parameters
+#
+- name: non_printable_query_parameter
+  description: |-
+    When:
+
+    - GET with non-printable characters in query parameters
+
+    Then:
+
+    - Response status is 400
+  request:
+  - method: get
+    url: "/vocabularies?concept=t%1E&description=%E2%80%88S7H&hreflang=sx&limit=131"
+  - method: get
+    url: "/vocabularies?concept=G%2Fx%0C%C2%A0uhJ%0B%1FSp%2F%E2%81%9F%C2%85tXQ0B"
+  expected:
+    response:
+      status_code: 400
+- name: non_printable_query_parameter_acceptable
+  description: |-
+    When:
+
+    - GET with non-printable characters in query parameters that are percent-encoded
+
+    Then:
+
+    - Response status is 200
+  request:
+  - method: get
+    url: "/vocabularies?concept=valid&description=valid&hreflang=sx&limit=131"
+  expected:
+    response:
+      status_code: 200

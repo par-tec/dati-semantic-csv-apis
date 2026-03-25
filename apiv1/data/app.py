@@ -38,14 +38,18 @@ logger = logging.getLogger(__name__)
 
 
 def _validate_db(harvest_db: str) -> None:
-    """Validate that the harvest.db file exists and has the expected structure."""
+    """Validate that the datastore file exists and has the expected structure."""
     try:
         with APIStore(harvest_db, read_only=True) as db:
             db.validate_metadata_schema()
             db.validate_metadata_content()
     except Exception as e:
-        logger.error("Error validating harvest.db: %s", e)
-        raise ValueError(f"Invalid harvest.db: {e}") from e
+        logger.error(
+            "Error validating datastore %s: %s", Path(harvest_db).absolute(), e
+        )
+        raise ValueError(
+            f"Invalid datastore {Path(harvest_db).absolute()}: {e}"
+        ) from e
 
 
 @contextlib.asynccontextmanager
@@ -136,6 +140,7 @@ def create_app(config: Config | None = None) -> AsyncApp:
         "openapi.yaml",
         strict_validation=True,
     )
+    # Ensure that request parameters are safe (e.g., for logging, ..)
     app.add_middleware(
         PrintableParametersMiddleware,
         position=MiddlewarePosition.BEFORE_CONTEXT,
@@ -149,5 +154,12 @@ def create_app(config: Config | None = None) -> AsyncApp:
     app.add_error_handler(500, handle_exception)
     app.add_error_handler(Exception, handle_exception)
     app.add_error_handler(ProblemException, handle_problem_safe)
+
+    #
+    # We use assertion errors to track unexpected conditions
+    #   that are elsewhere tested. These should be
+    #   logged and fixed in the code.
+    #
+    app.add_error_handler(AssertionError, handle_exception)
 
     return app

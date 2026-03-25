@@ -28,20 +28,6 @@ COPY tools/store/__init__.py /app/tools/store/__init__.py
 
 RUN chown -R appuser:appuser /app
 
-FROM api-base AS catalog-api
-COPY apiv1/catalog /app/catalog
-COPY apiv1/openapi/catalog.yaml /app/catalog/openapi.yaml
-COPY apiv1/components.oas3.yaml /app/catalog/components.oas3.yaml
-
-RUN python -m catalog download && \
-    chown -R appuser:appuser /app
-
-USER appuser
-
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD ["python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8080/status')"]
-ENTRYPOINT ["python"]
-CMD ["-m", "catalog"]
-
 FROM api-base AS data-api
 COPY apiv1/data /app/data
 COPY apiv1/openapi/data.yaml /app/data/openapi.yaml

@@ -10,7 +10,7 @@ from tools.store import APIStore, build_vocabulary_uuid
 def sample_harvest_db(tmp_path):
     db_path = tmp_path / "harvest.db"
     agency_id = "agid"
-    key_concept = "test-vocab"
+    key_concept = "ateco-2025"
 
     with APIStore(db_path.as_posix()) as db:
         db.create_metadata_table()
@@ -61,7 +61,7 @@ def test_get_vocabulary_dataset_returns_items(sample_harvest_db):
     ]
 
 
-@pytest.mark.parametrize("key_concept", ["test-vocab", None, ""])
+@pytest.mark.parametrize("key_concept", ["ateco-2025", None, ""])
 @pytest.mark.parametrize("agencyId", ["agid", "missing", None, ""])
 def test_build_vocabulary_uuid(agencyId, key_concept):
     if agencyId in (None, "") or key_concept in (None, ""):
@@ -117,27 +117,39 @@ def test_apidatabase_jsonld_graph_roundtrip(tmp_path):
 
 
 def test_upsert_metadata_preserves_openapi_when_empty_dict(tmp_path):
-    db_path = tmp_path / "harvest.db"
+    db_path = tmp_path / "deleteme.db"
 
     with APIStore(db_path.as_posix()) as db:
         db.create_metadata_table()
         db.upsert_metadata(
             vocabulary_uri="https://example.com/vocabularies/test-v1",
             agency_id="agid",
-            key_concept="test-vocab",
+            key_concept="ateco-2025",
             openapi={"openapi": "3.0.3", "info": {"title": "Original"}},
-            catalog={"version": 1},
+            catalog={
+                "version": "1",
+                "title": "Test Catalog",
+                "description": "A test catalog",
+                "hreflang": ["en"],
+                "author": "https://example.com/author",
+            },
         )
 
         db.upsert_metadata(
             vocabulary_uri="https://example.com/vocabularies/test-v2",
             agency_id="agid",
-            key_concept="test-vocab",
+            key_concept="ateco-2025",
             openapi={},
-            catalog={"version": 2},
+            catalog={
+                "version": "2",
+                "title": "Test Catalog",
+                "description": "A test catalog",
+                "hreflang": ["en"],
+                "author": "https://example.com/author",
+            },
         )
 
-        metadata = db.get_metadata("agid", "test-vocab")
+        metadata = db.get_metadata("agid", "ateco-2025")
 
         assert (
             metadata["vocabulary_uri"]
@@ -147,18 +159,18 @@ def test_upsert_metadata_preserves_openapi_when_empty_dict(tmp_path):
             "openapi": "3.0.3",
             "info": {"title": "Original"},
         }
-        assert json.loads(metadata["catalog"]) == {"version": 2}
+        assert json.loads(metadata["catalog"])["version"] == "2"
         db.upsert_metadata(
             vocabulary_uri="https://example.com/vocabularies/test-v2",
             agency_id="agid",
-            key_concept="test-vocab",
+            key_concept="ateco-2025",
             openapi={"openapi": "3.0.4", "info": {"title": "Original"}},
             catalog={},
         )
 
-        metadata = db.get_metadata("agid", "test-vocab")
+        metadata = db.get_metadata("agid", "ateco-2025")
         assert json.loads(metadata["openapi"]) == {
             "openapi": "3.0.4",
             "info": {"title": "Original"},
         }
-        assert json.loads(metadata["catalog"]) == {"version": 2}
+        assert json.loads(metadata["catalog"])["version"] == "2"

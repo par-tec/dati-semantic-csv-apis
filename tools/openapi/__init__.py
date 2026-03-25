@@ -5,6 +5,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, cast
 
+import frozendict
 from jsonschema import ValidationError, validate
 from rdflib import DCTERMS
 from rdflib.plugins.parsers.jsonld import to_rdf
@@ -29,8 +30,8 @@ log = logging.getLogger(__name__)
 type OpenAPI = dict[str, Any]
 OPENAPI_30_SCHEMA_JSON = DATADIR / "openapi_30.schema.json"
 OAS30_SCHEMA = json.loads(OPENAPI_30_SCHEMA_JSON.read_text())
-
 URI = "url"
+EmptyOpenAPI: OpenAPI = frozendict.frozendict()
 
 
 def _remove_jsonld_keys(obj: Any) -> Any:
@@ -144,7 +145,13 @@ class Apiable(Vocabulary):
             key_concept=metadata.name,
         )
 
-    def to_db(self, data: JsonLD, datafile: Path, force: bool = False):
+    def to_db(
+        self,
+        data: JsonLD,
+        datafile: Path,
+        force: bool = False,
+        openapi: OpenAPI = EmptyOpenAPI,
+    ) -> None:
         from tools.store import APIStore
 
         assert data
@@ -161,8 +168,8 @@ class Apiable(Vocabulary):
                 vocabulary_uri=self.uri() or "",
                 agency_id=metadata.agency_id,
                 key_concept=metadata.name,
-                openapi={},
-                catalog={},
+                openapi=openapi,
+                catalog=self.catalog_entry(),
             )
             db.update_vocabulary_from_jsonld(
                 metadata.agency_id,
@@ -200,35 +207,15 @@ class Apiable(Vocabulary):
             raise ValueError(
                 "Vocabulary metadata must include non-empty 'name' and 'agency_id'"
             )
-        api_url = f"{metadata.agency_id.lower()}/{metadata.name}"
-        openapi_url = f"{api_url}/openapi.yaml"
-        predecessor_url = f"https://schema.gov.it/api/vocabularies/{api_url}"
 
         return {
-            "href": api_url,
-            "about": metadata.uri,
+            "about": self.uri(),
             "title": metadata.title,
             "description": metadata.description,
             "hreflang": metadata.languages(),
             # "type": "application/json",
             "version": metadata.version,
             "author": metadata.rights_holder,
-            "_vocabulary_type": metadata.type,
-            "_concept": metadata.name,
-            "service-desc": [
-                {"href": openapi_url, "type": "application/openapi+yaml"}
-            ],
-            "service-meta": [
-                {
-                    "href": f"{metadata.uri}?output=application/ld+json",
-                    "type": "application/ld+json",
-                }
-            ],
-            "predecessor-version": [
-                {
-                    "href": predecessor_url,
-                }
-            ],
         }
 
     def json_schema(

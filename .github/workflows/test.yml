@@ -194,10 +194,6 @@ jobs:
     strategy:
       matrix:
         include:
-        - target: catalog-api
-          image_suffix: "-catalog"
-          tag_pattern: "^refs/tags/catalog@(.+)$"
-          force_push_label: push-container:catalog  # Label prefix to force push the image in pull request
         - target: data-api
           image_suffix: "-data"
           tag_pattern: "^refs/tags/data@(.+)$"
@@ -280,8 +276,6 @@ jobs:
     strategy:
       matrix:
         include:
-        - target: catalog-api
-          image_suffix: "-catalog"
         - target: data-api
           image_suffix: "-data"
     name: Cleanup Docker Images ${{ matrix.target }}
