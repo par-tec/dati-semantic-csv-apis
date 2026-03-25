@@ -149,10 +149,13 @@ def create_app(config: Config | None = None) -> AsyncApp:
     # Register exception handler for generic exceptions
     app.add_error_handler(NotImplementedError, handle_not_implemented)
     app.add_error_handler(501, handle_not_implemented)
-    app.add_error_handler(sqlite3.OperationalError, handle_exception)
-    app.add_error_handler(sqlite3.DatabaseError, handle_exception)
     app.add_error_handler(500, handle_exception)
     app.add_error_handler(Exception, handle_exception)
+
+    # Specific sql Handlers.
+    app.add_error_handler(sqlite3.OperationalError, handle_exception)
+    app.add_error_handler(sqlite3.DatabaseError, handle_exception)
+
     app.add_error_handler(ProblemException, handle_problem_safe)
 
     #

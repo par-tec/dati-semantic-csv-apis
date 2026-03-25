@@ -10,9 +10,10 @@ import gzip
 import json
 import logging
 import sqlite3
-from typing import Any, cast
+from typing import Any
 
 import yaml
+from common.utils import _get_database_or_fail
 from connexion import ProblemException, request
 from connexion.lifecycle import ConnexionResponse
 
@@ -60,23 +61,12 @@ def _get_metadata_or_fail(
     agency_id: str,
     key_concept: str,
 ) -> sqlite3.Row:
-    """Return the _metadata row for (agency_id, key_concept), or None."""
-    try:
-        row = harvest_db.get_metadata(agency_id, key_concept)
-    except sqlite3.OperationalError:
-        log.exception(
-            "Operational error while fetching metadata for agency_id=%s and key_concept=%s",
-            agency_id,
-            key_concept,
-        )
-        raise
-    except sqlite3.DatabaseError:
-        log.exception(
-            "Database error while fetching metadata for agency_id=%s and key_concept=%s",
-            agency_id,
-            key_concept,
-        )
-        raise
+    """
+    Return the _metadata row for (agency_id, key_concept), or None.
+
+    Sqlite exceptions are handled by the error handlers registered in app.py.
+    """
+    row = harvest_db.get_metadata(agency_id, key_concept)
     if not row:
         raise ProblemException(
             title="Not Found",
@@ -91,19 +81,12 @@ def _get_vocabulary_items_or_fail(
     agency_id: str,
     key_concept: str,
 ) -> list[dict[str, Any]]:
-    """Return the list of vocabulary items for the given vocabulary id."""
-    try:
-        return harvest_db.get_vocabulary_dataset(agency_id, key_concept)
-    except sqlite3.OperationalError:
-        log.exception(
-            "Operational error while fetching vocabulary items for agency_id=%s and key_concept=%s",
-            agency_id,
-            key_concept,
-        )
-        raise
-    except sqlite3.DatabaseError:
-        log.exception("Database error while fetching vocabulary items")
-        raise
+    """
+    Return the list of vocabulary items for the given vocabulary id.
+
+    Sqlite exceptions are handled by the error handlers registered in app.py.
+    """
+    return harvest_db.get_vocabulary_dataset(agency_id, key_concept)
 
 
 def _query_vocabulary_items_or_fail(
@@ -134,17 +117,6 @@ def _query_vocabulary_items_or_fail(
         items = items[offset:]
 
     return items[:limit]
-
-
-def _get_database_or_fail() -> APIStore:
-    """Return the configured read-only APIStore instance."""
-    harvest_db = cast(
-        APIStore | None,
-        getattr(request.state, "harvest_db", None),
-    )
-    if harvest_db is None:
-        raise ValueError("Harvest DB not configured")
-    return harvest_db
 
 
 async def status() -> ConnexionResponse:
