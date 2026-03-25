@@ -35,11 +35,26 @@ def _cli_version_string() -> str:
     return pkg_version
 
 
+LOG_LEVELS = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]
+
+
+def common_options(func):
+    func = click.option(
+        "--log-level",
+        "-l",
+        type=click.Choice(LOG_LEVELS, case_sensitive=False),
+        default="INFO",
+        help="Set the logging level.",
+    )(func)
+    return func
+
+
 @click.group(epilog=f"Version: {_cli_version_string()}")
 @click.version_option(version=_cli_version_string())
-def cli():
+@common_options
+def cli(log_level):
     """CLI for creating and validating vocabulary artifacts."""
-    pass
+    logging.basicConfig(level=getattr(logging, log_level))
 
 
 cli.add_command(jsonld)
