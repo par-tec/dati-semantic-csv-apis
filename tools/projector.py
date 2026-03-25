@@ -3,6 +3,7 @@ import time
 from itertools import batched
 from pathlib import Path
 
+import pyld
 from pyld import jsonld
 
 from tools.base import JsonLD, JsonLDFrame
@@ -47,7 +48,13 @@ def _validate_vocab_entries(item: dict) -> None:
             )
 
 
-def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
+def framer(
+    ld_doc: JsonLD,
+    frame: JsonLDFrame,
+    batch_size: int = 0,
+    *,
+    pre_filter_by_type: bool = False,
+) -> JsonLD:
     """
     Apply a JSON-LD frame to a JSON-LD serialized RDF data to produce a JSON output.
     When requested, it processes in batches to improve performance:
@@ -76,6 +83,22 @@ def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
         items = ld_doc
     else:
         items = [ld_doc]
+
+    if pre_filter_by_type and frame.get("@type") is not None:
+        frame_type = pyld.jsonld.expand(
+            {"@context": frame.context, "@type": frame["@type"]}
+        )
+        assert isinstance(frame_type, list)
+        assert isinstance(frame_type[0]["@type"], list)
+        selected_types = set(frame_type[0]["@type"])
+
+        log.info("Pre-filtering by type %s", frame["@type"])
+        items = [
+            item
+            for item in items
+            if set(item.get("@type", [])) & selected_types
+        ]
+        assert items
 
     num_items = len(items)
     log.info(

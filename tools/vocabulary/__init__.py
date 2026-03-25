@@ -370,7 +370,9 @@ class Vocabulary:
         self,
         frame: JsonLDFrame | dict,
         batch_size: int = 0,
+        *,
         callbacks: Iterable[JsonLDFunction] = (),
+        pre_filter_by_type: bool = False,
     ) -> JsonLD:
         """
         Apply the frame to the RDF data and then project the result to only include fields in the frame context.
@@ -386,7 +388,9 @@ class Vocabulary:
         if isinstance(frame, dict):
             frame = JsonLDFrame(frame)
             frame.validate(strict=True)
-        framed: JsonLD = framer(ld_doc, frame, batch_size)
+        framed: JsonLD = framer(
+            ld_doc, frame, batch_size, pre_filter_by_type=pre_filter_by_type
+        )
 
         for callback in callbacks or []:
             log.debug(f"Applying callbacks to framed data: {callback.__name__}")

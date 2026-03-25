@@ -886,8 +886,7 @@ testcases:
 
     "@requireAll": true
     # Matching on type works.
-    "@type":
-    - "skos:Concept"
+    "@type": "skos:Concept"
     url: {}
     id: {}
     label:
