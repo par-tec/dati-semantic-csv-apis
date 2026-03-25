@@ -171,7 +171,9 @@ def list_vocabularies(
 
     db: APIStore = _get_database_or_fail()
 
-    rows = db.search_metadata(query=description, limit=limit, offset=offset)
+    rows = db.search_metadata(
+        query=description or "", limit=limit, offset=offset
+    )
 
     items: list[dict[str, Any]] = [
         item

@@ -183,7 +183,7 @@ class APIStore:
         qp = {}
 
         q = "SELECT * FROM _metadata WHERE 1=1 "
-        if query:
+        if query and query.strip():
             qp["query"] = query
             q = f"""
                     SELECT m.*
@@ -194,9 +194,11 @@ class APIStore:
             """
 
         if limit:
-            qp["limit"] = limit
+            qp["limit"] = str(limit)
+            q += " LIMIT :limit "
         if offset:
-            qp["offset"] = offset
+            qp["offset"] = str(offset)
+            q += " OFFSET :offset "
 
         return cast(
             list[sqlite3.Row],
