@@ -90,7 +90,13 @@ def _process_repository_node(
     if not jsonld_output.exists():
         try:
             create_jsonld_framed(
-                ttl_path, frame_path, node["@id"], jsonld_output, True, 0
+                ttl_path,
+                frame_path,
+                node["@id"],
+                jsonld_output,
+                frame_only=True,
+                batch_size=0,
+                pre_filter_by_type=True,
             )
             log.info("Created JSON-LD payload %s/%s", agency_id, key_concept)
         except Exception as exc:
