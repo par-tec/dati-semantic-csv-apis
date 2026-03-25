@@ -7,13 +7,15 @@ from unittest.mock import patch
 
 import httpx
 import yaml
-from data.app import Config
 from starlette.testclient import TestClient
+from vocabularies.app import Config
 
 TESTDIR = Path(__file__).parent
 DATADIR = TESTDIR / "data"
-ATECO_OAS = TESTDIR / "api" / "ateco-2025.oas3.yaml"
+ATECO_OAS = DATADIR / "ateco-2025.oas3.yaml"
 ATECO_SPEC = yaml.safe_load(ATECO_OAS.read_text())
+APIDIR: Path = TESTDIR.parent / "vocabularies"
+OPENAPI_SPEC_PATH = APIDIR / "openapi.yaml"
 
 
 def _config(harvest_db: str) -> Config:

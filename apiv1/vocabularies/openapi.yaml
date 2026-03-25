@@ -75,7 +75,7 @@ servers:
 paths:
   /status:
     get:
-      operationId: data.handlers.status
+      operationId: vocabularies.data.status
       description: |-
         Retrieve the status of the API for the vocabulary
         identified by `agencyId` and `keyConcept`.
@@ -105,7 +105,7 @@ paths:
   #
   /vocabularies/{agencyId}:
     get:
-      operationId: data.catalog.list_vocabularies_by_agency
+      operationId: vocabularies.catalog.list_vocabularies_by_agency
       summary: Get vocabulary by agency ID
       description: |-
         Returns the API distribution for a specific controlled vocabularies
@@ -139,7 +139,7 @@ paths:
           $ref: '#/components/responses/GenericError'
   /vocabularies:
     get:
-      operationId: data.catalog.list_vocabularies
+      operationId: vocabularies.catalog.list_vocabularies
       summary: Get controlled vocabularies
       description: |
         Returns a linkset of controlled vocabularies in RFC 9727 format.
@@ -171,7 +171,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/agencyIdPath'
       - $ref: '#/components/parameters/keyConceptPath'
-      operationId: data.handlers.show_vocabulary_spec
+      operationId: vocabularies.data.show_vocabulary_spec
       description: |-
         Retrieve the OpenAPI specification
         for a given vocabulary API identified by `agencyId` and `keyConcept`.
@@ -206,7 +206,7 @@ paths:
   #
   /vocabularies/{agencyId}/{keyConcept}/dump:
     get:
-      operationId: data.handlers.dump_vocabulary_dataset
+      operationId: vocabularies.data.dump_vocabulary_dataset
       description: |-
         Dump the whole dataset
         for the vocabulary
@@ -256,7 +256,7 @@ paths:
         Pagination is implemented via
         - offset
         - cursor, using the `id` of the last item in the previous page.
-      operationId: data.handlers.show_items
+      operationId: vocabularies.data.show_items
       security:
       - {}
       - high-volume: []
@@ -347,7 +347,7 @@ paths:
         - url: https://example.com/vocab/l1/A
         ```
 
-      operationId: data.handlers.get_item
+      operationId: vocabularies.data.get_item
       security:
       - {}
       tags:

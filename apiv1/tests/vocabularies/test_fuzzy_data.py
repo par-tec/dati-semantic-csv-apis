@@ -2,22 +2,18 @@
 Tests for the Vocabularies API ASGI app.
 """
 
-from pathlib import Path
-
 import pytest
 
 # See https://schemathesis.readthedocs.io/en/stable/tutorials/pytest/ for using schemathesis with pytest.
 import schemathesis
-from data.app import create_app
 from httpx import Response
 from hypothesis import HealthCheck, settings
 from schemathesis.specs.openapi.schemas import OpenApiSchema
+from vocabularies.app import create_app
 
-from tests.harness import TESTDIR, _config, client_harness
+from tests.harness import OPENAPI_SPEC_PATH, _config, client_harness
 
 URI = "url"
-APIDIR: Path = TESTDIR.parent / "data"
-OPENAPI_SPEC_PATH = APIDIR / "openapi.yaml"
 
 oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
     str(OPENAPI_SPEC_PATH)
