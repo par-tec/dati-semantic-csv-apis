@@ -7,7 +7,8 @@ class CacheControlResponseHeaderMiddleware:
         if (
             (response.headers.get("Cache-Control") is not None)
             or (response.status_code != 200)
-        ) or (response.method != "GET"):
+            or (response.method != "GET")
+        ):
             return response
 
         response.headers.add("Cache-Control", "max-age=3600")
