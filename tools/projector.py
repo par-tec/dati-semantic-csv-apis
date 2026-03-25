@@ -1,13 +1,37 @@
 import logging
+import signal
 import time
+from collections.abc import Iterator
+from contextlib import contextmanager
 from itertools import batched
 from pathlib import Path
 
+import yaml
 from pyld import jsonld
 
 from tools.base import JsonLD, JsonLDFrame
 
 log = logging.getLogger(__name__)
+
+
+@contextmanager
+def _signal_timeout(seconds: int) -> Iterator[None]:
+    """Apply a SIGALRM-based timeout for blocking operations."""
+    if seconds <= 0:
+        yield
+        return
+
+    def _timeout_handler(_signum, _frame) -> None:
+        raise TimeoutError(f"Operation timed out after {seconds} seconds")
+
+    previous_handler = signal.getsignal(signal.SIGALRM)
+    signal.signal(signal.SIGALRM, _timeout_handler)
+    signal.setitimer(signal.ITIMER_REAL, float(seconds))
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0.0)
+        signal.signal(signal.SIGALRM, previous_handler)
 
 
 def _validate_id_field(item: dict) -> None:
@@ -47,7 +71,12 @@ def _validate_vocab_entries(item: dict) -> None:
             )
 
 
-def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
+def framer(
+    ld_doc: JsonLD,
+    frame: JsonLDFrame,
+    batch_size: int = 0,
+    frame_timeout_seconds: int = 0,
+) -> JsonLD:
     """
     Apply a JSON-LD frame to a JSON-LD serialized RDF data to produce a JSON output.
     When requested, it processes in batches to improve performance:
@@ -62,6 +91,8 @@ def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
         batch_size: Number of records to process per batch.
             If 0 (default), process all at once to ensure
             proper embedding of referenced properties.
+        frame_timeout_seconds: Per-batch timeout for `jsonld.frame` in seconds.
+            If 0 (default), timeout is disabled.
 
     Returns:
         JsonLD: Framed JSON-LD document containing @context and @graph fields.
@@ -112,10 +143,21 @@ def framer(ld_doc: JsonLD, frame: JsonLDFrame, batch_size: int = 0) -> JsonLD:
             "@graph": list(batch),
         }
 
+        frame_timeout_seconds = 10
         batch_frame_start = time.time()
-        framed_batch = jsonld.frame(
-            batch_doc, frame, options={"processingMode": "json-ld-1.1"}
-        )
+        try:
+            with _signal_timeout(frame_timeout_seconds):
+                framed_batch = jsonld.frame(
+                    batch_doc, frame, options={"processingMode": "json-ld-1.1"}
+                )
+        except TimeoutError as exc:
+            Path("framing_timeout_debug.json").write_text(
+                yaml.safe_dump(batch_doc, indent=2)
+            )
+            raise TimeoutError(
+                "Timed out while framing batch "
+                f"({batch_len} items, timeout={frame_timeout_seconds}s)"
+            ) from exc
         batch_frame_time = time.time() - batch_frame_start
         log.info(f"Batch framing took {batch_frame_time:.3f}s")
 
