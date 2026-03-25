@@ -1,5 +1,7 @@
-$schema: https://datapackage.org/profiles/2.0/datapackage.json
-created: '2025-01-01T00:00:00Z'
+$schema: >-
+  https://datapackage.org/profiles/2.0/datapackage.json
+created: >-
+  2025-01-01T00:00:00Z
 description: "Classificazione delle attivit\xE0 economiche, adottata dall'Istat a\
   \ partire dal 1\xB0 gennaio 2008. L'Ateco 2007 \xE8 la versione nazionale della\
   \ classificazione Nace Rev. 2 definita in ambito europeo che, a sua volta, deriva\
@@ -9,7 +11,8 @@ description: "Classificazione delle attivit\xE0 economiche, adottata dall'Istat 
   \ sottocategorie (1.224). Diversamente dalle precedenti versioni della classificazione,\
   \ non sono pi\xF9 presenti le sottosezioni precedentemente individuate dalle due\
   \ lettere."
-id: ISTAT:D.8
+id: >-
+  https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2007-2022
 keywords:
 - ATECO
 - Ateco2007
@@ -18,7 +21,9 @@ keywords:
 name: ateco-2007-2022
 resources: []
 sources:
-- path: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2007-2022
+- path: >-
+    https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2007-2022
 title: "Ateco 2007 - Classificazione delle attivit\xE0 economiche - Aggiornamento\
   \ 2022"
-version: versione 2007 - Aggiornamento 2022
+version: >-
+  versione 2007 - Aggiornamento 2022

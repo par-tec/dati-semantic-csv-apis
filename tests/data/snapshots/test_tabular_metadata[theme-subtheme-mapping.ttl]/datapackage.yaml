@@ -1,8 +1,11 @@
-$schema: https://datapackage.org/profiles/2.0/datapackage.json
-created: '2017-10-20T00:00:00Z'
-description: Mappatura tra i vocabolari controllati europei sui Temi dei dati ed Eurovoc
-  utile per il profilo nazionale di metadatazione DCAT-AP_IT
-id: agid:D.10
+$schema: >-
+  https://datapackage.org/profiles/2.0/datapackage.json
+created: >-
+  2017-10-20T00:00:00Z
+description: |-
+  Mappatura tra i vocabolari controllati europei sui Temi dei dati ed Eurovoc utile per il profilo nazionale di metadatazione DCAT-AP_IT
+id: >-
+  https://w3id.org/italia/controlled-vocabulary/theme-subtheme-mapping
 keywords:
 - data themes
 - eurovoc
@@ -12,9 +15,12 @@ keywords:
 - sottemi dati
 - suthemes
 - temi dati
-name: theme-subtheme-mapping
+name: >-
+  theme-subtheme-mapping
 resources: []
 sources:
-- path: https://w3id.org/italia/controlled-vocabulary/theme-subtheme-mapping
-title: Mappatura tra Temi dei dati - Eurovoc
+- path: >-
+    https://w3id.org/italia/controlled-vocabulary/theme-subtheme-mapping
+title: >-
+  Mappatura tra Temi dei dati - Eurovoc
 version: versione 0.1
