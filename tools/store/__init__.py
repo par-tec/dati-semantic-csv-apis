@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sqlite3
 from hashlib import sha256
 from pathlib import Path
@@ -184,6 +185,8 @@ class APIStore:
 
         q = "SELECT * FROM _metadata WHERE 1=1 "
         if query and query.strip():
+            # Ensure query respects FTS5 syntax.
+            query = re.sub('[^a-zA-Z0-9*" ]', " ", query)
             qp["query"] = query
             q = f"""
                     SELECT m.*

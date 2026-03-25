@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 from deepdiff import DeepDiff
@@ -35,16 +35,15 @@ def assert_snapshot(fileinfo: dict):
 
     match fileinfo.get("compare"):
         case "data":
-            compare_f = compare_data
+            return compare_data(snapshot_file, path)
         case _:
-            compare_f = compare_content
-
-    compare_f(snapshot_file, path)
+            return compare_content(snapshot_file, path)
+    raise NotImplementedError()
 
 
 def compare_data(
     snapshot_file: Path,
-    current_file: Path = None,
+    current_file: Path | None = None,
     current_data: Any = None,
     update=False,
 ):
@@ -53,7 +52,11 @@ def compare_data(
     eventually retrieving the last committed version
     from git.
     """
-    if current_data is None:
+    assert not (current_data and current_file), (
+        "Either current_data or current_file must be provided"
+    )
+    current_source: Path | str
+    if current_file is not None:
         current_data = yaml.safe_load(current_file.read_text())
         current_source = current_file
     else:
@@ -102,10 +105,10 @@ def compare_content(snapshot_file: Path, current_file: Path):
 
 def git_show_head(path: Path) -> str:
     """
-    Get the git show of a file at HEAD as bytes.
+    Get the git show of a file at HEAD as a string.
 
     :param path: Path to the file to get the show for
-    :return: The git show as bytes
+    :return: The git show as a string
     """
     repo = Repo(TESTDIR.parent, search_parent_directories=True)
 
@@ -115,10 +118,10 @@ def git_show_head(path: Path) -> str:
         else path
     )
 
-    show = repo.git.show(
+    show: str = repo.git.show(
         f"HEAD:{relative_path.as_posix()}",
     )
-    return show
+    return cast(str, show)
 
 
 def git_diff(path: Path) -> bytes:
@@ -130,7 +133,7 @@ def git_diff(path: Path) -> bytes:
     """
 
     repo = Repo(TESTDIR.parent, search_parent_directories=True)
-    diff = repo.git.diff("HEAD", path.as_posix(), ignore_cr_at_eol=True)
+    diff: str = repo.git.diff("HEAD", path.as_posix(), ignore_cr_at_eol=True)
     return diff.encode("utf-8")
 
 

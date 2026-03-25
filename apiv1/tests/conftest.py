@@ -61,6 +61,7 @@ def single_entry_db(tmp_path: Path) -> str:
                 }
             ],
         )
+        db.create_fts_table()
 
     return db_path.as_posix()
 

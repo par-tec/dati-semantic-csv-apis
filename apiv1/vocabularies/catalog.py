@@ -180,7 +180,7 @@ def list_vocabularies(
         for x in rows
         if (
             item := _to_catalog_item(
-                x, request.state.api_base_url, "https://old.example.com"
+                dict(x), request.state.api_base_url, "https://old.example.com"
             )
         )
         is not None

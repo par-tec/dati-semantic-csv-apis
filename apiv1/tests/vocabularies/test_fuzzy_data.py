@@ -32,40 +32,33 @@ health_tag = oas_schema.include(
     tag="health-check",
 )
 
+MAX_EXAMPLES = 20
+COMMON_SETTINGS = {
+    "max_examples": MAX_EXAMPLES,
+    "suppress_health_check": [HealthCheck.function_scoped_fixture],
+}
+
 
 @discover_tag.parametrize()
-@settings(
-    max_examples=20,
-    # verbosity=Verbosity.debug
-    suppress_health_check=[HealthCheck.function_scoped_fixture],
-)
+@settings(**COMMON_SETTINGS)
 def test_openapi_compliance_discover(case, sample_db):
     return _harn_openapi_compliance(case, sample_db)
 
 
 @retrieve_tag.parametrize()
-@settings(
-    max_examples=20,
-    suppress_health_check=[HealthCheck.function_scoped_fixture],
-)
+@settings(**COMMON_SETTINGS)
 def test_openapi_compliance_retrieve(case, sample_db):
     return _harn_openapi_compliance(case, sample_db)
 
 
 @dump_tag.parametrize()
-@settings(
-    max_examples=20,
-    suppress_health_check=[HealthCheck.function_scoped_fixture],
-)
+@settings(**COMMON_SETTINGS)
 def test_openapi_compliance_dump(case, sample_db):
     return _harn_openapi_compliance(case, sample_db)
 
 
 @health_tag.parametrize()
-@settings(
-    max_examples=20,
-    suppress_health_check=[HealthCheck.function_scoped_fixture],
-)
+@settings(**COMMON_SETTINGS)
 def test_openapi_compliance_health(case, sample_db):
     return _harn_openapi_compliance(case, sample_db)
 

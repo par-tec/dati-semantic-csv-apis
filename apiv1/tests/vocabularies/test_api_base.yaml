@@ -226,3 +226,10 @@ testcases:
   expected:
     response:
       status_code: 200
+- name: random_strings
+  request:
+  - method: get
+    url: "/vocabularies?concept=OYWHWxVQtX9Qxn%2F&description=PbBMRDxk1BTD23%2F&hreflang=us"
+  expected:
+    response:
+      status_code: 200
