@@ -3,7 +3,7 @@ Tests for the show_vocabulary_spec endpoint.
 """
 
 import yaml
-from data.app import create_app
+from vocabularies.app import create_app
 
 from tests.harness import ATECO_SPEC, _config, client_harness
 

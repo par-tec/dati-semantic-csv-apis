@@ -5,14 +5,11 @@ from typing import Any, cast
 
 import pytest
 import yaml
-from data.app import create_app
 from deepdiff import DeepDiff
+from vocabularies.app import create_app
 
 from tests.harness import _config, client_harness
 
-TESTDIR = Path(__file__).parent.parent
-ATECO_OAS = TESTDIR / "api" / "ateco-2025.oas3.yaml"
-ATECO_SPEC = yaml.safe_load(ATECO_OAS.read_text())
 TESTCASES_FILE = Path(__file__).with_suffix(".yaml")
 TESTCASES = cast(
     dict[str, list[dict[str, Any]]], yaml.safe_load(TESTCASES_FILE.read_text())
