@@ -1,10 +1,7 @@
-import os
-
 import pytest
-import yaml
-from deepdiff import DeepDiff
 
 from tests.constants import ASSETS
+from tests.harness import compare_data
 from tools.tabular import Tabular
 from tools.vocabulary import UnsupportedVocabularyError
 
@@ -44,13 +41,8 @@ def test_tabular_metadata(
         )
     vocab = tabular.datapackage_stub()
 
-    if os.environ.get("UPDATE_SNAPSHOTS", "false").lower() == "true":
-        datapackage_yaml.parent.mkdir(parents=True, exist_ok=True)
-        datapackage_yaml.write_text(yaml.safe_dump(vocab, sort_keys=True))
-        raise pytest.fail("Snapshot updated, skipping test.")
-
-    assert datapackage_yaml.exists()
-
-    expected = yaml.safe_load(datapackage_yaml.read_text())
-    diff = DeepDiff(expected, vocab)
-    assert not diff, "Metadata extraction does not match expected snapshot"
+    compare_data(
+        snapshot_file=datapackage_yaml,
+        current_data=vocab,
+        update=True,
+    )

@@ -13,7 +13,7 @@ description: "Classificazione statistica delle attività economiche finalizzata 
   \ 2022;\n    - Ateco 2002: 883 categorie, raggruppate in 514 classi, 224 gruppi,\
   \ 62 divisioni, 17 sezioni, 16 sottosezioni;\n    - Ateco 1991: 874 categorie, raggruppate\
   \ in 512 classi, 222 gruppi, 60 divisioni, 17 sezioni, 16 sottosezioni."
-id: ISTAT:D.7
+id: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
 keywords:
 - Ateco
 - Ateco2025

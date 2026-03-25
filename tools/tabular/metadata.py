@@ -39,14 +39,11 @@ def create_datapackage(
     # XXX: Should we use conformsTo?
     # conformsTo = vocabulary.value(vocabulary_uri, DCTERMS.conformsTo)
 
-    dcterms_identifier = vocabulary.get_identifier(
-        DCTERMS.identifier, unique=True, required=True
-    )
     # Map RDF properties to Frictionless datapackage fields
     datapackage = {
         "$schema": "https://datapackage.org/profiles/2.0/datapackage.json",
         "name": vocabulary.name,
-        "id": dcterms_identifier or str(vocabulary_uri),
+        "id": str(vocabulary_uri),
         "title": vocabulary.title or "",
         "sources": [
             {

@@ -1,5 +1,7 @@
-$schema: https://datapackage.org/profiles/2.0/datapackage.json
-created: '2025-01-01T00:00:00Z'
+$schema: >-
+  https://datapackage.org/profiles/2.0/datapackage.json
+created: >-
+  2025-01-01T00:00:00Z
 description: "Classificazione statistica delle attivit\xE0 economiche finalizzata\
   \ all\u2019elaborazione di statistiche ufficiali, aventi per oggetto i fenomeni\
   \ relativi alla partecipazione delle unit\xE0 produttive ai processi economici.\
@@ -14,7 +16,8 @@ description: "Classificazione statistica delle attivit\xE0 economiche finalizzat
   \ raggruppate in 514 classi, 224 gruppi, 62 divisioni, 17 sezioni, 16 sottosezioni;\n\
   \    - Ateco 1991: 874 categorie, raggruppate in 512 classi, 222 gruppi, 60 divisioni,\
   \ 17 sezioni, 16 sottosezioni."
-id: ISTAT:D.7
+id: >-
+  https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
 keywords:
 - Ateco
 - Ateco2025
@@ -23,6 +26,7 @@ keywords:
 name: ateco-2025
 resources: []
 sources:
-- path: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+- path: >-
+    https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
 title: "Ateco 2025 - Classificazione delle attivit\xE0 economiche"
 version: versione 2025
