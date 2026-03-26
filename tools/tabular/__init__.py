@@ -279,7 +279,6 @@ class Tabular(Vocabulary):
                 if actual_iri in self.ignore_rdf_properties:
                     continue  # Skip ignored RDF properties
 
-            # breakpoint()  # Debugging: check field extraction logic
             # Determine field type based on @type in context or use string as default
             field_type = "string"
             if isinstance(value, dict):

@@ -233,6 +233,8 @@ testcases:
   request:
   - method: get
     url: "/vocabularies?concept=OYWHWxVQtX9Qxn%2F&description=PbBMRDxk1BTD23%2F&hreflang=us"
+  - method: get
+    url: "/vocabularies?limit=172&concept=br7Z5E2sx8&hreflang=rl&offset=43029&title=GyN&description=-"
   expected:
     response:
       status_code: 200

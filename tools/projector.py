@@ -172,7 +172,6 @@ def framer(
 
         if framed_items_len != batch_len:
             statistics["filtered"].extend(list(batch_ids - framed_ids))  # type: ignore
-            # breakpoint()
 
         # Extract framed items from batch
         all_framed_items.extend(framed_batch["@graph"])
