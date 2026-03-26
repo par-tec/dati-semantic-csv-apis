@@ -233,3 +233,4 @@ testcases:
   expected:
     response:
       status_code: 200
+      headers: {"cache-control": "max-age=3600"}

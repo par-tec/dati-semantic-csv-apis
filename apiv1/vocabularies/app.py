@@ -8,10 +8,14 @@ import contextlib
 import logging
 import sqlite3
 from collections.abc import AsyncIterator
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any
 
 import yaml
+from common.cache_control_middleware import (
+    CacheControlResponseHeaderMiddleware,
+)
 from common.errors import (
     handle_exception,
     handle_not_implemented,
@@ -27,9 +31,11 @@ from connexion.middleware.main import MiddlewarePosition
 from tools.store import APIStore
 
 
-class Config(TypedDict):
+@dataclass
+class Config:
     API_BASE_URL: str
     HARVEST_DB: str
+    CACHE_CONTROL_MAX_AGE: int = 3600
 
 
 # Configure logging
@@ -129,14 +135,14 @@ def create_app(config: Config | None = None) -> AsyncApp:
         )
     assert config is not None, "Config must be provided to create_app"
 
-    api_base_url = config.get("API_BASE_URL") or "http://localhost:8080"
+    api_base_url = config.API_BASE_URL or "http://localhost:8080"
 
     app: AsyncApp = AsyncApp(
         import_name=__name__,
         specification_dir=str(Path(__file__).parent),
         lifespan=lambda app: load_dataset_handler(
             api_base_url,
-            harvest_db=config.get("HARVEST_DB"),
+            harvest_db=config.HARVEST_DB,
             app=app,
         ),
     )
@@ -147,6 +153,12 @@ def create_app(config: Config | None = None) -> AsyncApp:
     # Ensure that request parameters are safe (e.g., for logging, ..)
     app.add_middleware(
         PrintableParametersMiddleware,
+        position=MiddlewarePosition.BEFORE_CONTEXT,
+    )
+    app.add_middleware(
+        CacheControlResponseHeaderMiddleware.factory(
+            max_age=config.CACHE_CONTROL_MAX_AGE
+        ),
         position=MiddlewarePosition.BEFORE_CONTEXT,
     )
 

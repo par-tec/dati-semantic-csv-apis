@@ -66,7 +66,7 @@ def _get_metadata_or_fail(
 
     Sqlite exceptions are handled by the error handlers registered in app.py.
     """
-    row = harvest_db.get_metadata(agency_id, key_concept)
+    row: sqlite3.Row | None = harvest_db.get_metadata(agency_id, key_concept)
     if not row:
         raise ProblemException(
             title="Not Found",

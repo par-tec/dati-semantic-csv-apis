@@ -18,6 +18,7 @@ if __name__ == "__main__":
         config=Config(
             API_BASE_URL=api_base_url,
             HARVEST_DB=harvest_db,
+            CACHE_CONTROL_MAX_AGE=int(os.getenv("CACHE_CONTROL_MAX_AGE", 3600)),
         )
     )
     app.run(host="0.0.0.0", port=8080)

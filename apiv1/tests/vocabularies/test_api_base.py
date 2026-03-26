@@ -25,7 +25,7 @@ def test_base_requests(single_entry_db, testcase):
     """
     When:
 
-    - I issue basic requrests
+    - I issue basic requests
 
     Then:
 
@@ -48,10 +48,23 @@ def test_base_requests(single_entry_db, testcase):
                 params=request.get("params"),
             )
             expected = testcase["expected"]
+
+            # Then I got the expected status code ..
             assert response.status_code == expected["response"]["status_code"]
-            if "json" in expected["response"]:
+
+            # .. headers are as expected ..
+            if expected_headers := expected["response"].get("headers"):
+                for header, value in expected_headers.items():
+                    assert header in response.headers, (
+                        f"Missing expected header: {header}"
+                    )
+                    assert response.headers[header] == value, (
+                        f"Expected header '{header}' to be '{value}', but got '{response.headers[header]}'"
+                    )
+            # .. the content is as expected ..
+            if expected_json := expected["response"].get("json"):
                 diff = DeepDiff(
-                    expected["response"]["json"],
+                    expected_json,
                     response.json(),
                     ignore_order=True,
                 )
@@ -65,6 +78,7 @@ def test_base_requests(single_entry_db, testcase):
                     + yaml.safe_dump(unexpected, sort_keys=True)
                 )
 
+            # .. and the logs contain the expected messages.
             for log in expected.get("logs", []):
                 assert log in _logs
 
