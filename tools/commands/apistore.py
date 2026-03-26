@@ -132,6 +132,49 @@ def create_apistore(
     log.info("APIStore database created: %s", output)
 
 
+@apistore.command(name="collect")
+@click.option(
+    "--output",
+    type=click.Path(dir_okay=False, resolve_path=True, path_type=Path),
+    required=True,
+    help="Output path for the aggregate SQLite database",
+)
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
+    help="Overwrite output file if it already exists.",
+)
+@click.argument(
+    "db_paths",
+    nargs=-1,
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
+)
+def collect_command(output: Path, force: bool, db_paths: tuple[Path, ...]):
+    """Merge multiple APIStore databases into a single aggregate database."""
+    from tools.harvest.collect import collect_databases
+
+    if len(db_paths) == 1 and db_paths[0].is_dir():
+        # If a single directory is provided, collect all .db files within it.
+        db_dir = db_paths[0]
+        db_paths = tuple(
+            f for f in db_dir.glob("*.db") if f.with_suffix(".ttl").exists()
+        )
+        log.debug(
+            "Collecting from directory: %s",
+            db_dir,
+        )
+    try:
+        collect_databases(output, db_paths, force=force)
+        click.secho(f"✓ Collected into: {output}", fg="green")
+    except FileExistsError as e:
+        click.secho(f"✗ {e}", fg="red", err=True)
+        raise click.Abort() from e
+
+
 @apistore.command(name="validate")
 @click.option(
     "--db",
