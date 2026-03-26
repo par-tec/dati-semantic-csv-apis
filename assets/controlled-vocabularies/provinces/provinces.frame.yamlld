@@ -28,20 +28,20 @@
   acronym:
     "@id": clvapit:acronym
 
-  nuts:
-    "@id": owl:sameAs
-    "@container": "@set"
-    "@context":
-      url: "@id"
+  # nuts:
+  #   "@id": owl:sameAs
+  #   "@container": "@set"
+  #   "@context":
+  #     url: "@id"
 
   # When mapping to a list, use @container: @set
   #   to ensure that JSON-LD framing handles it as an array.
-  region:
+  parent:
     "@id": skos:broader
     "@container": "@set"
     "@context":
       url: "@id"
-      id: skos:notation
+      # id: skos:notation
 
   vocab:
     "@id": skos:inScheme
@@ -58,8 +58,8 @@
 
 "@requireAll": true
 # Matching on type works.
-"@type":
-  - &jsonld_type "clvapit:Province"
+# "@type":
+#   - &jsonld_type "clvapit:Province"
 url: {}
 id: {}
 label_it: {}
@@ -70,7 +70,7 @@ vocab:
   "@explicit": true
   "@embed": "@never"
 
-region:
+parent:
 - url: {}
   id: {}
   "@embed": "@always"
