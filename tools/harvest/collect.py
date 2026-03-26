@@ -15,13 +15,19 @@ def _quoted_identifier(identifier: str) -> str:
 
 def collect_databases(
     aggregate_db: Path, db_paths: Iterable[Path], force: bool
-) -> None:
+) -> dict[str, int]:
     db_files = sorted(
         path for path in db_paths if path.resolve() != aggregate_db.resolve()
     )
     if not db_files:
         log.warning("No source .db files found for %s", aggregate_db)
-        return
+        return {
+            "processed": 0,
+            "skipped": 0,
+            "metadata_count": 0,
+            "copied_tables": 0,
+            "skipped_tables": 0,
+        }
 
     if aggregate_db.exists() and not force:
         raise FileExistsError(
@@ -143,6 +149,8 @@ def collect_databases(
                         pass
                 skipped += 1
 
+            # After processing all source DBs, create FTS table in aggregate DB.
+            aggregate_store.create_fts_table()
         metadata_count = aggregate_conn.execute(
             "SELECT COUNT(*) FROM _metadata"
         ).fetchone()[0]
@@ -154,3 +162,10 @@ def collect_databases(
             copied_tables,
             skipped_tables,
         )
+        return {
+            "processed": processed,
+            "skipped": skipped,
+            "metadata_count": metadata_count,
+            "copied_tables": copied_tables,
+            "skipped_tables": skipped_tables,
+        }
