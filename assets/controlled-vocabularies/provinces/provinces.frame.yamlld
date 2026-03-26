@@ -1,0 +1,86 @@
+---
+#
+# Content-Type: application/ld+yaml; profile="http://www.w3.org/ns/json-ld#frame"
+#
+
+# Use context.
+"@context": &jsonld_context
+  "@base": "https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces/"
+  "@vocab": "https://w3id.org/italia/onto/CLV/"
+
+  dct: http://purl.org/dc/terms/
+  skos: http://www.w3.org/2004/02/skos/core#
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+  owl: http://www.w3.org/2002/07/owl#
+  clvapit: https://w3id.org/italia/onto/CLV/
+  l0: https://w3id.org/italia/onto/l0/
+  xsd: "http://www.w3.org/2001/XMLSchema#"
+
+  # Fields.
+  url: "@id"
+  id:
+    "@id": skos:notation
+
+  label_it:
+    "@id": skos:prefLabel
+    "@language": it
+
+  acronym:
+    "@id": clvapit:acronym
+
+  nuts:
+    "@id": owl:sameAs
+    "@container": "@set"
+    "@context":
+      url: "@id"
+
+  # When mapping to a list, use @container: @set
+  #   to ensure that JSON-LD framing handles it as an array.
+  region:
+    "@id": skos:broader
+    "@container": "@set"
+    "@context":
+      url: "@id"
+      id: skos:notation
+
+  vocab:
+    "@id": skos:inScheme
+    "@container": "@set"
+    "@context":
+      url: "@id"
+
+# Only show fields listed in @context.
+"@explicit": true
+
+# Always embed external references.
+"@embed": "@never"
+"@omitDefault": true
+
+"@requireAll": true
+# Matching on type works.
+"@type":
+  - &jsonld_type "clvapit:Province"
+url: {}
+id: {}
+label_it: {}
+acronym: {}
+
+vocab:
+- url: https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+  "@explicit": true
+  "@embed": "@never"
+
+region:
+- url: {}
+  id: {}
+  "@embed": "@always"
+  "@explicit": true
+  "@default": "@null"
+  "@requireAll": false
+
+nuts:
+- url: {}
+  "@embed": "@never"
+  "@explicit": true
+  "@default": "@null"
+  "@requireAll": false

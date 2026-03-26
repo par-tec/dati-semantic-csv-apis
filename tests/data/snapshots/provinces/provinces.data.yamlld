@@ -1,0 +1,1889 @@
+'@context':
+  '@base': https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces/
+  '@vocab': https://w3id.org/italia/onto/CLV/
+  acronym:
+    '@id': clvapit:acronym
+  clvapit: https://w3id.org/italia/onto/CLV/
+  dct: http://purl.org/dc/terms/
+  id:
+    '@id': skos:notation
+  l0: https://w3id.org/italia/onto/l0/
+  label_it:
+    '@id': skos:prefLabel
+    '@language': it
+  nuts:
+    '@container': '@set'
+    '@context':
+      url: '@id'
+    '@id': owl:sameAs
+  owl: http://www.w3.org/2002/07/owl#
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+  region:
+    '@container': '@set'
+    '@context':
+      id: skos:notation
+      url: '@id'
+    '@id': skos:broader
+  skos: http://www.w3.org/2004/02/skos/core#
+  url: '@id'
+  vocab:
+    '@container': '@set'
+    '@context':
+      url: '@id'
+    '@id': skos:inScheme
+  xsd: http://www.w3.org/2001/XMLSchema#
+'@graph':
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: TO
+  id: '001'
+  label_it: Torino
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC11
+  region:
+  - id: null
+    url: ../regions/01
+  url: '001'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: VC
+  id: '002'
+  label_it: Vercelli
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC12
+  region:
+  - id: null
+    url: ../regions/01
+  url: '002'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: 'NO'
+  id: '003'
+  label_it: Novara
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC15
+  region:
+  - id: null
+    url: ../regions/01
+  url: '003'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CN
+  id: '004'
+  label_it: Cuneo
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC16
+  region:
+  - id: null
+    url: ../regions/01
+  url: '004'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: AT
+  id: '005'
+  label_it: Asti
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC17
+  region:
+  - id: null
+    url: ../regions/01
+  url: '005'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: AL
+  id: '006'
+  label_it: Alessandria
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC18
+  region:
+  - id: null
+    url: ../regions/01
+  url: '006'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: AO
+  id: '007'
+  label_it: Valle d'Aosta/Vallée d'Aoste
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC20
+  region:
+  - id: null
+    url: ../regions/02
+  url: '007'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: IM
+  id: 008
+  label_it: Imperia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC31
+  region:
+  - id: null
+    url: ../regions/07
+  url: 008
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: SV
+  id: 009
+  label_it: Savona
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC32
+  region:
+  - id: null
+    url: ../regions/07
+  url: 009
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: GE
+  id: '010'
+  label_it: Genova
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC33
+  region:
+  - id: null
+    url: ../regions/07
+  url: '010'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: SP
+  id: '011'
+  label_it: La Spezia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC34
+  region:
+  - id: null
+    url: ../regions/07
+  url: '011'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: VA
+  id: '012'
+  label_it: Varese
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC41
+  region:
+  - id: null
+    url: ../regions/03
+  url: '012'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CO
+  id: '013'
+  label_it: Como
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC42
+  region:
+  - id: null
+    url: ../regions/03
+  url: '013'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: SO
+  id: '014'
+  label_it: Sondrio
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC44
+  region:
+  - id: null
+    url: ../regions/03
+  url: '014'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: MI
+  id: '015'
+  label_it: Milano
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC45
+  region:
+  - id: null
+    url: ../regions/03
+  url: '015'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: BG
+  id: '016'
+  label_it: Bergamo
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC46
+  - url: http://nuts.geovocab.org/id/ITC43
+  region:
+  - id: null
+    url: ../regions/03
+  url: '016'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: BS
+  id: '017'
+  label_it: Brescia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC47
+  region:
+  - id: null
+    url: ../regions/03
+  url: '017'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PV
+  id: 018
+  label_it: Pavia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC48
+  region:
+  - id: null
+    url: ../regions/03
+  url: 018
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CR
+  id: 019
+  label_it: Cremona
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC4A
+  region:
+  - id: null
+    url: ../regions/03
+  url: 019
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: MN
+  id: '020'
+  label_it: Mantova
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC4B
+  region:
+  - id: null
+    url: ../regions/03
+  url: '020'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: BZ
+  id: '021'
+  label_it: Bolzano/Bozen
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD10
+  region:
+  - id: null
+    url: ../regions/04
+  url: '021'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: TN
+  id: '022'
+  label_it: Trento
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD20
+  region:
+  - id: null
+    url: ../regions/04
+  url: '022'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: VR
+  id: '023'
+  label_it: Verona
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD31
+  region:
+  - id: null
+    url: ../regions/05
+  url: '023'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: VI
+  id: '024'
+  label_it: Vicenza
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD32
+  region:
+  - id: null
+    url: ../regions/05
+  url: '024'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: BL
+  id: '025'
+  label_it: Belluno
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD33
+  region:
+  - id: null
+    url: ../regions/05
+  url: '025'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: TV
+  id: '026'
+  label_it: Treviso
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD34
+  region:
+  - id: null
+    url: ../regions/05
+  url: '026'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: VE
+  id: '027'
+  label_it: Venezia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD35
+  region:
+  - id: null
+    url: ../regions/05
+  url: '027'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PD
+  id: 028
+  label_it: Padova
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD36
+  region:
+  - id: null
+    url: ../regions/05
+  url: 028
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: RO
+  id: 029
+  label_it: Rovigo
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD37
+  region:
+  - id: null
+    url: ../regions/05
+  url: 029
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: UD
+  id: '030'
+  label_it: Udine
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD42
+  - url: http://nuts.geovocab.org/id/ITD33
+  region:
+  - id: null
+    url: ../regions/06
+  url: '030'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: GO
+  id: '031'
+  label_it: Gorizia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD43
+  region:
+  - id: null
+    url: ../regions/06
+  url: '031'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: TS
+  id: '032'
+  label_it: Trieste
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD44
+  region:
+  - id: null
+    url: ../regions/06
+  url: '032'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PC
+  id: '033'
+  label_it: Piacenza
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD51
+  region:
+  - id: null
+    url: ../regions/08
+  url: '033'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PR
+  id: '034'
+  label_it: Parma
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD52
+  region:
+  - id: null
+    url: ../regions/08
+  url: '034'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: RE
+  id: '035'
+  label_it: Reggio nell'Emilia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD53
+  region:
+  - id: null
+    url: ../regions/08
+  url: '035'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: MO
+  id: '036'
+  label_it: Modena
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD54
+  region:
+  - id: null
+    url: ../regions/08
+  url: '036'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: BO
+  id: '037'
+  label_it: Bologna
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD55
+  region:
+  - id: null
+    url: ../regions/08
+  url: '037'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: FE
+  id: 038
+  label_it: Ferrara
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD56
+  region:
+  - id: null
+    url: ../regions/08
+  url: 038
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: RA
+  id: 039
+  label_it: Ravenna
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD57
+  region:
+  - id: null
+    url: ../regions/08
+  url: 039
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: FC
+  id: '040'
+  label_it: Forlì-Cesena
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD58
+  region:
+  - id: null
+    url: ../regions/08
+  url: '040'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PU
+  id: '041'
+  label_it: Pesaro e Urbino
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE31
+  region:
+  - id: null
+    url: ../regions/11
+  url: '041'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: AN
+  id: '042'
+  label_it: Ancona
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE32
+  region:
+  - id: null
+    url: ../regions/11
+  url: '042'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: MC
+  id: '043'
+  label_it: Macerata
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE33
+  region:
+  - id: null
+    url: ../regions/11
+  url: '043'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: AP
+  id: '044'
+  label_it: Ascoli Piceno
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE34
+  region:
+  - id: null
+    url: ../regions/11
+  url: '044'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: MS
+  id: '045'
+  label_it: Massa-Carrara
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE11
+  region:
+  - id: null
+    url: ../regions/09
+  url: '045'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: LU
+  id: '046'
+  label_it: Lucca
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE12
+  region:
+  - id: null
+    url: ../regions/09
+  url: '046'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PT
+  id: '047'
+  label_it: Pistoia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE13
+  region:
+  - id: null
+    url: ../regions/09
+  url: '047'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: FI
+  id: 048
+  label_it: Firenze
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE14
+  region:
+  - id: null
+    url: ../regions/09
+  url: 048
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: LI
+  id: 049
+  label_it: Livorno
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE16
+  region:
+  - id: null
+    url: ../regions/09
+  url: 049
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PI
+  id: '050'
+  label_it: Pisa
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE17
+  region:
+  - id: null
+    url: ../regions/09
+  url: '050'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: AR
+  id: '051'
+  label_it: Arezzo
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE18
+  region:
+  - id: null
+    url: ../regions/09
+  url: '051'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: SI
+  id: '052'
+  label_it: Siena
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE19
+  region:
+  - id: null
+    url: ../regions/09
+  url: '052'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: GR
+  id: '053'
+  label_it: Grosseto
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE1A
+  region:
+  - id: null
+    url: ../regions/09
+  url: '053'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PG
+  id: '054'
+  label_it: Perugia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE21
+  region:
+  - id: null
+    url: ../regions/10
+  url: '054'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: TR
+  id: '055'
+  label_it: Terni
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE22
+  region:
+  - id: null
+    url: ../regions/10
+  url: '055'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: VT
+  id: '056'
+  label_it: Viterbo
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE41
+  region:
+  - id: null
+    url: ../regions/12
+  url: '056'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: RI
+  id: '057'
+  label_it: Rieti
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE42
+  region:
+  - id: null
+    url: ../regions/12
+  url: '057'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: RM
+  id: 058
+  label_it: Roma
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE43
+  region:
+  - id: null
+    url: ../regions/12
+  url: 058
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: LT
+  id: 059
+  label_it: Latina
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE44
+  region:
+  - id: null
+    url: ../regions/12
+  url: 059
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: FR
+  id: '060'
+  label_it: Frosinone
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE45
+  region:
+  - id: null
+    url: ../regions/12
+  url: '060'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CE
+  id: '061'
+  label_it: Caserta
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF31
+  region:
+  - id: null
+    url: ../regions/15
+  url: '061'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: BN
+  id: '062'
+  label_it: Benevento
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF32
+  region:
+  - id: null
+    url: ../regions/15
+  url: '062'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: NA
+  id: '063'
+  label_it: Napoli
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF33
+  region:
+  - id: null
+    url: ../regions/15
+  url: '063'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: AV
+  id: '064'
+  label_it: Avellino
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF34
+  region:
+  - id: null
+    url: ../regions/15
+  url: '064'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: SA
+  id: '065'
+  label_it: Salerno
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF35
+  region:
+  - id: null
+    url: ../regions/15
+  url: '065'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: AQ
+  id: '066'
+  label_it: L'Aquila
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF11
+  region:
+  - id: null
+    url: ../regions/13
+  url: '066'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: TE
+  id: '067'
+  label_it: Teramo
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF12
+  region:
+  - id: null
+    url: ../regions/13
+  url: '067'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PE
+  id: 068
+  label_it: Pescara
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF13
+  region:
+  - id: null
+    url: ../regions/13
+  url: 068
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CH
+  id: 069
+  label_it: Chieti
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF14
+  region:
+  - id: null
+    url: ../regions/13
+  url: 069
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CB
+  id: '070'
+  label_it: Campobasso
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF22
+  region:
+  - id: null
+    url: ../regions/14
+  url: '070'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: FG
+  id: '071'
+  label_it: Foggia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF41
+  region:
+  - id: null
+    url: ../regions/16
+  url: '071'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: BA
+  id: '072'
+  label_it: Bari
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF42
+  region:
+  - id: null
+    url: ../regions/16
+  url: '072'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: TA
+  id: '073'
+  label_it: Taranto
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF43
+  region:
+  - id: null
+    url: ../regions/16
+  url: '073'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: BR
+  id: '074'
+  label_it: Brindisi
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF44
+  region:
+  - id: null
+    url: ../regions/16
+  url: '074'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: LE
+  id: '075'
+  label_it: Lecce
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF45
+  region:
+  - id: null
+    url: ../regions/16
+  url: '075'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PZ
+  id: '076'
+  label_it: Potenza
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF51
+  region:
+  - id: null
+    url: ../regions/17
+  url: '076'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: MT
+  id: '077'
+  label_it: Matera
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF52
+  region:
+  - id: null
+    url: ../regions/17
+  url: '077'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CS
+  id: 078
+  label_it: Cosenza
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF61
+  region:
+  - id: null
+    url: ../regions/18
+  url: 078
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CZ
+  id: 079
+  label_it: Catanzaro
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF63
+  region:
+  - id: null
+    url: ../regions/18
+  url: 079
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: RC
+  id: 080
+  label_it: Reggio di Calabria
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF65
+  region:
+  - id: null
+    url: ../regions/18
+  url: 080
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: TP
+  id: 081
+  label_it: Trapani
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG11
+  region:
+  - id: null
+    url: ../regions/19
+  url: 081
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PA
+  id: 082
+  label_it: Palermo
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG12
+  region:
+  - id: null
+    url: ../regions/19
+  url: 082
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: ME
+  id: 083
+  label_it: Messina
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG13
+  region:
+  - id: null
+    url: ../regions/19
+  url: 083
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: AG
+  id: 084
+  label_it: Agrigento
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG14
+  region:
+  - id: null
+    url: ../regions/19
+  url: 084
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CL
+  id: 085
+  label_it: Caltanissetta
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG15
+  region:
+  - id: null
+    url: ../regions/19
+  url: 085
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: EN
+  id: 086
+  label_it: Enna
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG16
+  region:
+  - id: null
+    url: ../regions/19
+  url: 086
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CT
+  id: 087
+  label_it: Catania
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG17
+  region:
+  - id: null
+    url: ../regions/19
+  url: 087
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: RG
+  id: 088
+  label_it: Ragusa
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG18
+  region:
+  - id: null
+    url: ../regions/19
+  url: 088
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: SR
+  id: 089
+  label_it: Siracusa
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG19
+  region:
+  - id: null
+    url: ../regions/19
+  url: 089
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: SS
+  id: 090
+  label_it: Sassari
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG29
+  - url: http://nuts.geovocab.org/id/ITG25
+  region:
+  - id: null
+    url: ../regions/20
+  url: 090
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: NU
+  id: 091
+  label_it: Nuoro
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG26
+  - url: http://nuts.geovocab.org/id/ITG2A
+  region:
+  - id: null
+    url: ../regions/20
+  url: 091
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: CA
+  id: 092
+  label_it: Cagliari
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG27
+  region:
+  - id: null
+    url: ../regions/20
+  url: 092
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PN
+  id: 093
+  label_it: Pordenone
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD41
+  region:
+  - id: null
+    url: ../regions/06
+  url: 093
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: IS
+  id: 094
+  label_it: Isernia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF21
+  region:
+  - id: null
+    url: ../regions/14
+  url: 094
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: OR
+  id: 095
+  label_it: Oristano
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG28
+  region:
+  - id: null
+    url: ../regions/20
+  url: 095
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: BI
+  id: 096
+  label_it: Biella
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC13
+  region:
+  - id: null
+    url: ../regions/01
+  url: 096
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: LC
+  id: 097
+  label_it: Lecco
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC43
+  region:
+  - id: null
+    url: ../regions/03
+  url: 097
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: LO
+  id: 098
+  label_it: Lodi
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC49
+  region:
+  - id: null
+    url: ../regions/03
+  url: 098
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: RN
+  id: 099
+  label_it: Rimini
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITD59
+  - url: http://nuts.geovocab.org/id/ITE31
+  region:
+  - id: null
+    url: ../regions/08
+  url: 099
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: PO
+  id: '100'
+  label_it: Prato
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITE15
+  region:
+  - id: null
+    url: ../regions/09
+  url: '100'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: KR
+  id: '101'
+  label_it: Crotone
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF62
+  region:
+  - id: null
+    url: ../regions/18
+  url: '101'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: VV
+  id: '102'
+  label_it: Vibo Valentia
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITF64
+  region:
+  - id: null
+    url: ../regions/18
+  url: '102'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: VB
+  id: '103'
+  label_it: Verbano-Cusio-Ossola
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITC14
+  region:
+  - id: null
+    url: ../regions/01
+  url: '103'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: MB
+  id: '108'
+  label_it: Monza e della Brianza
+  nuts:
+  - url: http://nuts.geovocab.org/id/-
+  region:
+  - id: null
+    url: ../regions/03
+  url: '108'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: FM
+  id: '109'
+  label_it: Fermo
+  nuts:
+  - url: http://nuts.geovocab.org/id/-
+  region:
+  - id: null
+    url: ../regions/11
+  url: '109'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: BT
+  id: '110'
+  label_it: Barletta-Andria-Trani
+  nuts:
+  - url: http://nuts.geovocab.org/id/-
+  region:
+  - id: null
+    url: ../regions/16
+  url: '110'
+  vocab:
+  - url: ../provinces
+- '@type':
+  - Province
+  - AdminUnitComponent
+  - skos:Concept
+  - Feature
+  acronym: SU
+  id: '111'
+  label_it: Sud Sardegna
+  nuts:
+  - url: http://nuts.geovocab.org/id/ITG2B
+  - url: http://nuts.geovocab.org/id/ITG27
+  - url: http://nuts.geovocab.org/id/ITG2C
+  - url: http://nuts.geovocab.org/id/ITG28
+  - url: http://nuts.geovocab.org/id/ITG2A
+  region:
+  - id: null
+    url: ../regions/20
+  url: '111'
+  vocab:
+  - url: ../provinces
+statistics:
+  filtered:
+  - '201'
+  - '210'
+  - '215'
+  - '227'
+  - '237'
+  - '248'
+  - '258'
+  - '263'
+  - '272'
+  - '280'
+  - '282'
+  - '283'
+  - '287'
+  - '292'
+  - AG
+  - AL
+  - AN
+  - AO
+  - AP
+  - AQ
+  - AR
+  - AT
+  - AV
+  - BA
+  - BG
+  - BI
+  - BL
+  - BN
+  - BO
+  - BR
+  - BS
+  - BT
+  - BZ
+  - CA
+  - CB
+  - CE
+  - CH
+  - CL
+  - CN
+  - CO
+  - CR
+  - CS
+  - CT
+  - CZ
+  - EN
+  - FC
+  - FE
+  - FG
+  - FI
+  - FM
+  - FR
+  - GE
+  - GO
+  - GR
+  - IM
+  - IS
+  - KR
+  - LC
+  - LE
+  - LI
+  - LO
+  - LT
+  - LU
+  - MB
+  - MC
+  - ME
+  - MI
+  - MN
+  - MO
+  - MS
+  - MT
+  - NA
+  - 'NO'
+  - NU
+  - OR
+  - PA
+  - PC
+  - PD
+  - PE
+  - PG
+  - PI
+  - PN
+  - PO
+  - PR
+  - PT
+  - PU
+  - PV
+  - PZ
+  - RA
+  - RC
+  - RE
+  - RG
+  - RI
+  - RM
+  - RN
+  - RO
+  - SA
+  - SI
+  - SKOS
+  - SO
+  - SP
+  - SR
+  - SS
+  - SU
+  - SV
+  - TA
+  - TE
+  - TN
+  - TO
+  - TP
+  - TR
+  - TS
+  - TV
+  - UD
+  - VA
+  - VB
+  - VC
+  - VE
+  - VI
+  - VR
+  - VT
+  - VV
+  - agid
+  - provinces
+  - provinces_JSON_LD
+  - provinces_RDF_Turtle
+  - provinces_RDF_XML
+  - td_PCM
+  - voc_AgID
+  framed_items: 107
+  source_items: 343

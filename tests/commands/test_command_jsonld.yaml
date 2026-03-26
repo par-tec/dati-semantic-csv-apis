@@ -138,6 +138,51 @@
         Pre-filtering by type.*covapit:PrivateOrgActivityType
 
 #
+# Not asset tests
+#
+- id: create_jsonld_provinces
+  description: |-
+    Given:
+    - the provinces TTL file
+    - a JSON-LD frame
+    When:
+    - I run the `jsonld create` command
+    Then:
+    - the command exits successfully
+    - the output JSON-LD file contains 107 items
+  steps:
+  - description: |-
+      When:
+      - I run the `jsonld create` command
+
+      Then:
+      - the command exits successfully
+      - the output JSON-LD file contains 107 items
+    command:
+    - jsonld
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --frame
+    - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/provinces
+    - --frame-only
+    - --output
+    - tests/data/snapshots/provinces/provinces.data.yamlld
+    - --force
+    expected:
+      files:
+      - path: tests/data/snapshots/provinces/provinces.data.yamlld
+        snapshot: tests/data/snapshots/provinces/provinces.data.yamlld
+        compare: data
+      logs:
+      - >-
+        Dataset contains 343 items
+      - >-
+        Batched framing completed, total items: 107
+
+#
 # EU vocabulary, not currently supported.
 #
 - id: create_currency
