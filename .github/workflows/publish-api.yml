@@ -121,50 +121,15 @@ jobs:
         REPO="par-tec/dati-semantic-csv-apis"
         echo "Fetching latest workflow run..."
 
-        RUN_ID=$(curl -s \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          https://api.github.com/repos/${REPO}/actions/runs \
-          | jq -r '
-            .workflow_runs
-            | map(select(.name=="Test"))
-            | first
-            | .id
-          ')
-
-        echo "Latest run ID: ${RUN_ID}"
-
-        if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-          echo "No run found for workflow Test"
-          exit 1
-        fi
-
+        ARTIFACT_URL=https://github.com/par-tec/dati-semantic-csv-apis/releases/download/0.0.4/schema_gov_it_tools.bin
+        
         echo "Fetching artifacts..."
 
-        ARTIFACT_URL=$(curl -s \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          https://api.github.com/repos/${REPO}/actions/runs/${RUN_ID}/artifacts \
-          | jq -r '.artifacts[]
-            | select(.name=="cli-binary")
-            | select(.expired==false)
-            | .archive_download_url')
-
-        echo "Artifact URL: ${ARTIFACT_URL}"
-
-        if [ -z "$ARTIFACT_URL" ] || [ "$ARTIFACT_URL" = "null" ]; then
-          echo "No artifact found in run ${RUN_ID}"
-          exit 1
-        fi
         curl -L \
           -H "Authorization: Bearer ${GH_TOKEN}" \
           "${ARTIFACT_URL}" \
-          -o /tmp/artifact.zip
+          -o /usr/local/bin/schema_gov_it_tools.bin
 
-        if [ ! -f /tmp/artifact.zip ]; then
-          echo "Artifact download failed"
-          exit 1
-        fi
-
-        unzip /tmp/artifact.zip -d /usr/local/bin/
         chmod +x /usr/local/bin/schema_gov_it_tools.bin
         /usr/local/bin/schema_gov_it_tools.bin --version
     - name: Check oas3 exists
@@ -172,6 +137,8 @@ jobs:
       working-directory: ${{ matrix.asset }}
       run: |
         shopts -s nullglob
+        pwd
+        ls -l
         OAS3_FILE=( *.oas3.yaml )
 
         if (( ${#OAS3_FILE[@]} == 0 )); then
