@@ -1006,6 +1006,19 @@ La CLI jsonld fornisce i seguenti comandi:
 La CLI datapackage crea un file di metadatazione Frictionless Data Package
 a partire da un file di framing JSON-LD e da un file di proiezione JSON-LD.
 
+### CLI csv
+
+La CLI csv permette di generare un file CSV
+a partire da una proiezione JSON-LD e da un file di metadatazione datapackage.
+
+Modificando i campi disponibili nel datapackage
+è possibile eliminare dal CSV i campi presenti nella proiezione JSON-LD
+che non è possibile mappare in modo coerente in CSV (e.g., campi con
+valori complessi come oggetti o array).
+
+Questi campi potranno ancora essere pubblicati
+tramite API REST.
+
 ## Conclusioni
 
 Il sistema di generazione e metadatazione dei CSV uniforma
