@@ -182,11 +182,10 @@ class APIStore:
         """
         conn = self.connect()
         qp = {}
+        # Ensure query respects FTS5 syntax.
+        query = re.sub('[^a-zA-Z0-9*" ]', " ", query).strip() if query else ""
 
-        q = "SELECT * FROM _metadata WHERE 1=1 "
-        if query and query.strip():
-            # Ensure query respects FTS5 syntax.
-            query = re.sub('[^a-zA-Z0-9*" ]', " ", query)
+        if query:
             qp["query"] = query
             q = f"""
                     SELECT m.*
@@ -195,6 +194,8 @@ class APIStore:
                     WHERE {FTS_TABLE} MATCH :query
                     ORDER BY rank
             """
+        else:
+            q = "SELECT * FROM _metadata WHERE 1=1 "
 
         if limit:
             qp["limit"] = str(limit)
