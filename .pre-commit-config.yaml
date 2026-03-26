@@ -67,8 +67,13 @@ repos:
   rev: v1.19.1
   hooks:
   - id: mypy
+    name: mypy (root)
     additional_dependencies: [types-PyYAML]
-    exclude: ^tests/
+    exclude: ^(tests/|apiv1/)
+  - id: mypy
+    name: mypy (apiv1)
+    additional_dependencies: [types-PyYAML]
+    files: ^apiv1/
 #
 # Generators.
 #
@@ -80,7 +85,7 @@ repos:
     - manual
     language: docker_image
     files: >-
-      apiv1/(catalog|data)/open.*yaml
+      apiv1/vocabularies/open.*yaml
     entry: |-
       --entrypoint sh
       docker.io/redocly/cli:2.20.3

@@ -61,6 +61,45 @@ def test_get_vocabulary_dataset_returns_items(sample_harvest_db):
     ]
 
 
+@pytest.mark.parametrize(
+    "testcase",
+    [
+        {
+            "params": {},
+            "expected": [
+                {"id": "A01", "label": "Item A01"},
+                {"id": "A02", "label": "Item A02"},
+            ],
+        },
+        {
+            "params": {"limit": 1},
+            "expected": [{"id": "A01", "label": "Item A01"}],
+        },
+        {
+            "params": {"limit": "1", "cursor": "A01"},
+            "expected": [{"id": "A02", "label": "Item A02"}],
+        },
+        {
+            "params": {},
+            "expected": [
+                {"id": "A01", "label": "Item A01"},
+                {"id": "A02", "label": "Item A02"},
+            ],
+        },
+    ],
+)
+def test_get_vocabulary_dataset_with_limit(sample_harvest_db, testcase):
+    db_path, agency_id, key_concept = sample_harvest_db
+    db = APIStore(db_path)
+
+    assert (
+        db.get_vocabulary_dataset(
+            agency_id, key_concept, params=testcase["params"]
+        )
+        == testcase["expected"]
+    )
+
+
 @pytest.mark.parametrize("key_concept", ["ateco-2025", None, ""])
 @pytest.mark.parametrize("agencyId", ["agid", "missing", None, ""])
 def test_build_vocabulary_uuid(agencyId, key_concept):

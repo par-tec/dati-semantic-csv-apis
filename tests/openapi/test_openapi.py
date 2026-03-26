@@ -9,7 +9,7 @@ from jsonschema import Draft7Validator
 # from rdflib.plugins.serializers.jsonld import from_rdf
 # from rdflib.plugins.parsers.jsonld import to_rdf
 from tests.constants import ASSETS, SNAPSHOTS, TESTCASES
-from tests.harness import assert_schema, compare_data
+from tests.harness import assert_schema, assert_snapshot_matches_data
 from tools.base import APPLICATION_LD_JSON_FRAMED, JsonLD, JsonLDFrame, RDFText
 from tools.openapi import (
     Apiable,
@@ -121,7 +121,7 @@ def test_openapi_metadata(
     apiable = Apiable(turtle, frame)
 
     openapi: OpenAPI = apiable.openapi()
-    compare_data(
+    assert_snapshot_matches_data(
         oas3_yaml,
         current_data=openapi,
         update=True,
@@ -276,7 +276,7 @@ def test_openapi_datastore_from_projection(
         for e in validator.iter_errors(r)
     ]
     assert not errors, "Invalid db._text JSON:\n" + "\n".join(errors[:5])
-    compare_data(
+    assert_snapshot_matches_data(
         snapshot_file=oas3_yaml,
         current_data=expected_jsonschema,
         update=True,
