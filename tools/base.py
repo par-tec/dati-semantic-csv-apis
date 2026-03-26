@@ -94,7 +94,7 @@ class JsonLDFrame(dict):
             self["@context"] = current
         return self
 
-    def validate(self, strict: bool = False) -> bool:
+    def validate(self, strict: bool = False, require_type=True) -> bool:
         """
         This tool expects that a frame has a specific structure,
         to ensure a consistent output between different datasets.
@@ -111,23 +111,31 @@ class JsonLDFrame(dict):
             strict: If True, validate context fields against allowed IRIs
 
         Returns:
-            bool: True if valid, False otherwise
+            bool: True if valid
 
         Raises:
-            ValueError: In strict mode if field mappings are invalid
+            ValueError: If not valid.
         """
+        if not isinstance(self.context, dict):
+            raise ValueError(
+                f"String @context is not supported: {self.context}"
+            )
+
         # Check if @type exists
         _type = self.get("@type")
         if not _type:
-            log.error("Frame must specify an @type")
-            return False
+            if require_type:
+                log.error("Frame must specify an @type")
+                raise ValueError("Frame must specify an @type")
 
         # Ensure only a single @type is specified
         if isinstance(_type, list) and len(_type) > 1:
             log.error(
                 "Frame must specify a single @type, found list: %s", _type
             )
-            return False
+            raise ValueError(
+                f"Frame must specify a single @type, found list: {_type}"
+            )
 
         # Strict mode: validate context field mappings
         if strict:

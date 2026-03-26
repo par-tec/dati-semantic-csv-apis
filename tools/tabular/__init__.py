@@ -65,7 +65,7 @@ class Tabular(Vocabulary):
         self.frame: JsonLDFrame = (
             frame if isinstance(frame, JsonLDFrame) else JsonLDFrame(frame)
         )
-        self.frame.validate(strict=True)
+        self.frame.validate(strict=True, require_type=False)
         self.ignore_rdf_properties = ignore_rdf_properties
         self.sort_by = sort_by
 

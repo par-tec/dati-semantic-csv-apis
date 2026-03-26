@@ -983,10 +983,3 @@ testcases:
   frame: *generic_skos_frame
   expected_payload: tipo_mansione_lavoratore_domestico.data.yaml
   expected_jsonschema: tipo_mansione_lavoratore_domestico.oas3.yaml
-- name: tipo_mansione_lavoratore_domestico
-  data: *tipo_mansione_lavoratore_domestico_ttl
-  frame:
-    <<: *generic_skos_frame
-    "@type": "skos:ConceptScheme"
-    "@context": "https://example.com/unsupported-context"
-  expected_payload: ValueError

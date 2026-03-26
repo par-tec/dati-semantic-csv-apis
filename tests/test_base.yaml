@@ -1,0 +1,75 @@
+---
+testcases:
+- id: invalid string context
+  description: |-
+    When:
+
+    - A JSON-LD frame with a string @context is used.
+
+    Then:
+
+    - A ValueError is raised indicating that string @context is not supported.
+  frame:
+    "@context": "http://example.com/context"
+
+- id: invalid string context with type
+  description: |-
+    When:
+
+    - A JSON-LD frame with a string @context and a valid @type is used.
+
+    Then:
+
+    - A ValueError is raised indicating that string @context is not supported.
+  frame:
+    "@context": "http://example.com/context"
+    "@type": ExampleType
+
+- id: missing type
+  description: |-
+    When:
+
+    - A JSON-LD frame without an @type is used.
+
+    Then:
+
+    - A ValueError is raised indicating that @type is required.
+  frame:
+    "@context":
+      skos: "http://www.w3.org/2004/02/skos/core#"
+      url: "@id"
+      id:
+        "@id": "skos:notation"
+
+- id: multiple types
+  description: |-
+    When:
+
+    - A JSON-LD frame with multiple @type values is used.
+
+    Then:
+
+    - A ValueError is raised indicating that multiple @type values are not supported.
+  frame:
+    "@context":
+      url: "@id"
+    "@type":
+    - TypeA
+    - TypeB
+
+- id: invalid allowed value for id field
+  description: |-
+    When:
+
+    - A JSON-LD frame with an invalid allowed value for the id field is used.
+
+    Then:
+
+    - A ValueError is raised indicating that the allowed value for the id field is invalid.
+  strict_only: true
+  frame:
+    "@context":
+      rdfs: "http://www.w3.org/2000/01/rdf-schema#"
+      url: "@id"
+      id: "http://www.w3.org/2000/01/rdf-schema#label"
+    "@type": SomeType

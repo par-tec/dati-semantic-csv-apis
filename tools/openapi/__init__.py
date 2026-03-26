@@ -85,8 +85,7 @@ class Apiable(Vocabulary):
         else:
             raise ValueError(f"Unsupported rdf_data type: {type(rdf_data)}")
 
-        if not frame.validate(strict=True):
-            raise ValueError(f"Invalid frame: {frame}")
+        frame.validate(strict=True)
 
         self.frame = frame
         self._already_framed = bool(format == APPLICATION_LD_JSON_FRAMED)
@@ -321,8 +320,7 @@ def create_schema_from_frame_and_data(
         OpenAPI: OpenAPI schema inferred from framed samples
     """
 
-    if not frame.validate(strict=True):
-        raise ValueError(f"Invalid frame: {frame}")
+    frame.validate(strict=True)
 
     if not framed:
         raise ValueError(f"No framed data: {framed}")
