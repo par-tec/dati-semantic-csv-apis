@@ -150,7 +150,7 @@ def create_apistore(
     "db_paths",
     nargs=-1,
     type=click.Path(
-        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+        exists=True, dir_okay=True, resolve_path=True, path_type=Path
     ),
 )
 def collect_command(output: Path, force: bool, db_paths: tuple[Path, ...]):
@@ -161,15 +161,15 @@ def collect_command(output: Path, force: bool, db_paths: tuple[Path, ...]):
         # If a single directory is provided, collect all .db files within it.
         db_dir = db_paths[0]
         db_paths = tuple(
-            f for f in db_dir.glob("*.db") if f.with_suffix(".ttl").exists()
+            f for f in db_dir.glob("**/*.db") if f.with_suffix(".ttl").exists()
         )
-        log.debug(
-            "Collecting from directory: %s",
-            db_dir,
-        )
+        log.debug("Collecting from directory: %s, files: %s", db_dir, db_paths)
     try:
-        collect_databases(output, db_paths, force=force)
-        click.secho(f"✓ Collected into: {output}", fg="green")
+        stats = collect_databases(output, db_paths, force=force)
+        click.secho(
+            f"✓ Collected into: {output} (processed: {stats['processed']}, skipped: {stats['skipped']}, metadata: {stats['metadata_count']}, tables copied: {stats['copied_tables']}, tables skipped: {stats['skipped_tables']})",
+            fg="green",
+        )
     except FileExistsError as e:
         click.secho(f"✗ {e}", fg="red", err=True)
         raise click.Abort() from e
