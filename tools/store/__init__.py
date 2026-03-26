@@ -125,6 +125,11 @@ class APIStore:
     def _quoted_identifier(identifier: str) -> str:
         return '"' + identifier.replace('"', '""') + '"'
 
+    @staticmethod
+    def _table_name(agency_id: str, key_concept: str) -> str:
+        """Return the physical SQLite table name for a vocabulary."""
+        return build_vocabulary_uuid(agency_id, key_concept)
+
     def __enter__(self) -> APIStore:
         self.connect()
         return self
@@ -152,6 +157,9 @@ class APIStore:
             self.connection.close()
             self.connection = None
 
+    #
+    # Metadata and vocabulary management.
+    #
     def create_metadata_table(self) -> None:
         conn = self.connect()
         conn.execute(CREATE_METADATA_TABLE_SQL)
@@ -166,51 +174,6 @@ class APIStore:
         conn.execute(DELETE_FTS_TABLE_CONTENT_SQL)
         conn.execute(POPULATE_FTS_TABLE_SQL)
         conn.commit()
-
-    def search_metadata(
-        self,
-        query: str,
-        *,
-        limit: int = 20,
-        offset: int = 0,
-    ) -> list[sqlite3.Row]:
-        """Full-text search over openapi ``info.title`` and ``info.description``.
-
-        Returns ``_metadata`` rows ranked by FTS5 relevance (best match first).
-        Common FTS5 query syntax is supported: ``term``, ``term1 term2``,
-        ``"exact phrase"``, ``term*`` (prefix), ``term1 OR term2``.
-        """
-        conn = self.connect()
-        qp = {}
-        # Ensure query respects FTS5 syntax.
-        query = re.sub('[^a-zA-Z0-9*" ]', " ", query).strip() if query else ""
-
-        if query:
-            qp["query"] = query
-            q = f"""
-                    SELECT m.*
-                    FROM _metadata m
-                    JOIN {FTS_TABLE} f ON f.rowid = m.rowid
-                    WHERE {FTS_TABLE} MATCH :query
-                    ORDER BY rank
-            """
-        else:
-            q = "SELECT * FROM _metadata WHERE 1=1 "
-
-        if limit:
-            qp["limit"] = str(limit)
-            q += " LIMIT :limit "
-        if offset:
-            qp["offset"] = str(offset)
-            q += " OFFSET :offset "
-
-        return cast(
-            list[sqlite3.Row],
-            conn.execute(
-                q,
-                qp,
-            ).fetchall(),
-        )
 
     def validate_metadata_schema(self) -> None:
         conn = self.connect()
@@ -311,17 +274,55 @@ class APIStore:
         if commit:
             conn.commit()
 
-    @staticmethod
-    def _table_name(agency_id: str, key_concept: str) -> str:
-        """Return the physical SQLite table name for a vocabulary."""
-        return build_vocabulary_uuid(agency_id, key_concept)
+    def search_metadata(
+        self,
+        query: str,
+        *,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> list[sqlite3.Row]:
+        """Full-text search over openapi ``info.title`` and ``info.description``.
+
+        Returns ``_metadata`` rows ranked by FTS5 relevance (best match first).
+        Common FTS5 query syntax is supported: ``term``, ``term1 term2``,
+        ``"exact phrase"``, ``term*`` (prefix), ``term1 OR term2``.
+        """
+        conn = self.connect()
+        qp = {}
+        # Ensure query respects FTS5 syntax.
+        query = re.sub('[^a-zA-Z0-9*" ]', " ", query).strip() if query else ""
+
+        if query:
+            qp["query"] = query
+            q = f"""
+                    SELECT m.*
+                    FROM _metadata m
+                    JOIN {FTS_TABLE} f ON f.rowid = m.rowid
+                    WHERE {FTS_TABLE} MATCH :query
+                    ORDER BY rank
+            """
+        else:
+            q = "SELECT * FROM _metadata WHERE 1=1 "
+
+        if limit:
+            qp["limit"] = str(limit)
+            q += " LIMIT :limit "
+        if offset:
+            qp["offset"] = str(offset)
+            q += " OFFSET :offset "
+
+        return cast(
+            list[sqlite3.Row],
+            conn.execute(
+                q,
+                qp,
+            ).fetchall(),
+        )
 
     def get_metadata(
         self,
         agency_id: str,
         key_concept: str,
-        *,
-        params: dict[str, Any] | None = None,
     ) -> sqlite3.Row | None:
         conn = self.connect()
         return cast(
@@ -332,6 +333,9 @@ class APIStore:
             ).fetchone(),
         )
 
+    #
+    # Vocabulary table management.
+    #
     def update_vocabulary_table(
         self,
         agency_id: str,
@@ -360,6 +364,46 @@ class APIStore:
             [tuple(row.get(column) for column in columns) for row in rows],
         )
         conn.commit()
+
+    @staticmethod
+    def _remove_jsonld_keys(obj: Any) -> Any:
+        if isinstance(obj, dict):
+            return {
+                k: APIStore._remove_jsonld_keys(v)
+                for k, v in obj.items()
+                if not k.startswith("@")
+            }
+        if isinstance(obj, list):
+            return [APIStore._remove_jsonld_keys(item) for item in obj]
+        return obj
+
+    @staticmethod
+    def jsonld_item_to_row(item: dict[str, Any]) -> dict[str, Any]:
+        """Convert a JSON-LD item to a DB row dict.
+
+        - Strips keys starting with ``@`` recursively.
+        - Adds ``_text`` with the JSON serialisation of the cleaned item
+          (``ensure_ascii=False`` to preserve non-ASCII labels).
+        - Drops any value that is not a JSON primitive (int, float, bool,
+          str, None) so the row can be inserted directly into SQLite columns.
+        """
+        sanitized = APIStore._remove_jsonld_keys(item)
+        _text = json.dumps(sanitized, ensure_ascii=False)
+        return {
+            k: v
+            for k, v in {**sanitized, "_text": _text}.items()
+            if isinstance(v, (int, float, bool, str, type(None)))
+        }
+
+    def update_vocabulary_from_jsonld(
+        self,
+        agency_id: str,
+        key_concept: str,
+        graph: list[dict[str, Any]],
+    ) -> None:
+        """Serialize *graph* items to DB rows and write the vocabulary table."""
+        rows = [self.jsonld_item_to_row(item) for item in graph]
+        self.update_vocabulary_table(agency_id, key_concept, rows)
 
     def get_vocabulary_item_by_id(
         self, agency_id: str, key_concept: str, item_id: str
@@ -433,46 +477,6 @@ class APIStore:
             raise
 
         return [json.loads(row["_text"]) for row in rows]
-
-    @staticmethod
-    def _remove_jsonld_keys(obj: Any) -> Any:
-        if isinstance(obj, dict):
-            return {
-                k: APIStore._remove_jsonld_keys(v)
-                for k, v in obj.items()
-                if not k.startswith("@")
-            }
-        if isinstance(obj, list):
-            return [APIStore._remove_jsonld_keys(item) for item in obj]
-        return obj
-
-    @staticmethod
-    def jsonld_item_to_row(item: dict[str, Any]) -> dict[str, Any]:
-        """Convert a JSON-LD item to a DB row dict.
-
-        - Strips keys starting with ``@`` recursively.
-        - Adds ``_text`` with the JSON serialisation of the cleaned item
-          (``ensure_ascii=False`` to preserve non-ASCII labels).
-        - Drops any value that is not a JSON primitive (int, float, bool,
-          str, None) so the row can be inserted directly into SQLite columns.
-        """
-        sanitized = APIStore._remove_jsonld_keys(item)
-        _text = json.dumps(sanitized, ensure_ascii=False)
-        return {
-            k: v
-            for k, v in {**sanitized, "_text": _text}.items()
-            if isinstance(v, (int, float, bool, str, type(None)))
-        }
-
-    def update_vocabulary_from_jsonld(
-        self,
-        agency_id: str,
-        key_concept: str,
-        graph: list[dict[str, Any]],
-    ) -> None:
-        """Serialize *graph* items to DB rows and write the vocabulary table."""
-        rows = [self.jsonld_item_to_row(item) for item in graph]
-        self.update_vocabulary_table(agency_id, key_concept, rows)
 
     def get_vocabulary_jsonld(
         self,
