@@ -140,4 +140,5 @@ dmypy.json
 
 # built docs
 doc/*pdf
-*.db
+docs/*.db
+tests/**/*.db
