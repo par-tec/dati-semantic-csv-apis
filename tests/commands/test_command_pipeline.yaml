@@ -160,3 +160,162 @@
       - >-
         CSV roundtrip validation passed with 3257 rows and 16285
         triples
+
+- id: pipeline_provinces
+  description: |-
+    Given:
+    - a TTL file
+    - a JSON-LD frame
+
+    When:
+    - I execute the `jsonld create` command
+    - I execute the `datapackage create` command
+    - I execute the `csv create` command
+
+    Then:
+    - all commands exit successfully
+    - the output CSV file contains the expected number of items
+  steps:
+  - description: |-
+      When:
+      - I run the `jsonld create` command on the provinces vocabulary
+
+      Then:
+      - the command exits successfully
+      - the output JSON-LD file contains the expected number of items
+    command:
+    - jsonld
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --frame
+    - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+    - --frame-only
+    - --output
+    - tests/data/snapshots/provinces/provinces.data.yamlld
+    - --force
+    expected:
+      exit_status: 0
+      files:
+      - path: tests/data/snapshots/provinces/provinces.data.yamlld
+        snapshot: tests/data/snapshots/provinces/provinces.data.yamlld
+        compare: data
+      logs:
+      - >-
+        Dataset contains 343 items
+      - >-
+        Batched framing completed, total items: 107
+  - command:
+    - jsonld
+    - validate
+    - --vocabulary-uri
+    - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --jsonld
+    - tests/data/snapshots/provinces/provinces.data.yamlld
+    expected: {}
+  - description: |-
+      When:
+      - I run `datapackage create`
+
+      Then:
+      - the command exits successfully
+      - a datapackage stub YAML file is created
+    command:
+    - datapackage
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --frame
+    - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+    - --output
+    - tests/data/snapshots/provinces/stub-datapackage.yaml
+    - --force
+    expected:
+      files:
+      - path: tests/data/snapshots/provinces/stub-datapackage.yaml
+        snapshot: tests/data/snapshots/provinces/stub-datapackage.yaml
+        compare: data
+      logs:
+      - >-
+        Datapackage stub created: .*tests/data/snapshots/provinces/stub-datapackage.yaml
+      stdout:
+      - >-
+        Creating datapackage metadata for https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+      - >-
+        ✓ Created: .*tests/data/snapshots/provinces/stub-datapackage.yaml
+  - description: |-
+      When:
+      - I run `datapackage validate` on the created datapackage stub
+
+      Then:
+      - the command exits successfully
+      - validation passes
+    command:
+    - datapackage
+    - validate
+    - --datapackage
+    - tests/data/snapshots/provinces/stub-datapackage.yaml
+    expected:
+      stdout:
+      - >-
+        ✓ Datapackage validation passed
+  - description: |-
+      When:
+      - I run the `csv create` command
+
+      Then:
+      - the command exits successfully
+      - the output CSV file contains the expected items
+    command:
+    - csv
+    - create
+    - --datapackage
+    - assets/controlled-vocabularies/provinces/datapackage.yaml
+    - --jsonld
+    - tests/data/snapshots/provinces/provinces.data.yamlld
+    - --output
+    - tests/data/snapshots/provinces/provinces.csv
+    - --force
+    expected:
+      files:
+      - path: tests/data/snapshots/provinces/provinces.csv
+        snapshot: tests/data/snapshots/provinces/provinces.csv
+      logs:
+      - >-
+        CSV file created successfully at .*provinces.csv
+      stdout:
+      - >-
+        Created: .*/provinces.csv
+  - description: |-
+      When:
+      - I run `csv validate` on the created CSV file
+
+      Then:
+      - the command exits successfully
+      - validation passes
+    command:
+    - csv
+    - validate
+    - --vocabulary-uri
+    - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --datapackage
+    - assets/controlled-vocabularies/provinces/datapackage.yaml
+    expected:
+      logs:
+      - >-
+        Vocabulary URI https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+        found in original RDF graph
+      - >-
+        CSV-derived RDF graph has \d+ triples
+      stdout:
+      - >-
+        CSV roundtrip validation passed with 107 rows and \d+
+        triples

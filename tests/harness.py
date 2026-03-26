@@ -36,8 +36,10 @@ def assert_snapshot(fileinfo: dict):
     match fileinfo.get("compare"):
         case "data":
             assert_snapshot_matches_data(snapshot_file, path)
+            return
         case _:
             assert_snapshot_matches_content(snapshot_file, path)
+            return
     raise NotImplementedError("Unreachable code.")
 
 
