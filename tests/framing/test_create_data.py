@@ -7,7 +7,7 @@ import yaml
 from rdflib.compare import IsomorphicGraph
 
 from tests.constants import ASSETS, TESTCASES
-from tests.harness import compare_data
+from tests.harness import assert_snapshot_matches_data
 from tools.base import TEXT_TURTLE, JsonLDFrame
 from tools.projector import select_fields
 from tools.utils import IGraph
@@ -90,7 +90,7 @@ def test_can_project_data(
     ).replace("pre_filtered-", "")
     snapshot_path = base / f"{snapshot_file_name}.data.yaml"
 
-    compare_data(snapshot_path, current_data=graph, update=True)
+    assert_snapshot_matches_data(snapshot_path, current_data=graph, update=True)
 
 
 @pytest.mark.parametrize(

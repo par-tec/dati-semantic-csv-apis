@@ -35,13 +35,13 @@ def assert_snapshot(fileinfo: dict):
 
     match fileinfo.get("compare"):
         case "data":
-            return compare_data(snapshot_file, path)
+            assert_snapshot_matches_data(snapshot_file, path)
         case _:
-            return compare_content(snapshot_file, path)
-    raise NotImplementedError()
+            assert_snapshot_matches_content(snapshot_file, path)
+    raise NotImplementedError("Unreachable code.")
 
 
-def compare_data(
+def assert_snapshot_matches_data(
     snapshot_file: Path,
     current_file: Path | None = None,
     current_data: Any = None,
@@ -88,7 +88,7 @@ def compare_data(
         )
 
 
-def compare_content(snapshot_file: Path, current_file: Path):
+def assert_snapshot_matches_content(snapshot_file: Path, current_file: Path):
     if snapshot_file == current_file:
         # compare the current_file to its git commited version.
         delta = git_diff(snapshot_file)
