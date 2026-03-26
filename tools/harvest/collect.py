@@ -60,6 +60,7 @@ def collect_databases(
                 skipped += 1
                 continue
 
+            # Trigger CI.
             source_label = source_db.as_posix()
             attached = False
             try:
