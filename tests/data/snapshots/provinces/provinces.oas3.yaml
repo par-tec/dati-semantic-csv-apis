@@ -5,10 +5,10 @@ components:
         acronym: TO
         id: '001'
         label_it: Torino
-        nuts: null
+        nuts:
+        - url: http://nuts.geovocab.org/id/ITC11
         parent:
-        - id: null
-          url: ../regions/01
+        - url: ../regions/01
         url: '001'
         vocab:
         - url: ../provinces
@@ -24,19 +24,24 @@ components:
           minLength: 1
           type: string
         nuts:
-          nullable: true
-          type: string
-        parent:
           items:
             properties:
-              id:
-                nullable: true
-                type: string
               url:
                 format: uri-reference
                 type: string
             required:
-            - id
+            - url
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+        parent:
+          items:
+            properties:
+              url:
+                format: uri-reference
+                type: string
+            required:
             - url
             type: object
           maxItems: 100
@@ -79,6 +84,11 @@ components:
         label_it:
           '@id': skos:prefLabel
           '@language': it
+        nuts:
+          '@container': '@set'
+          '@context':
+            url: '@id'
+          '@id': owl:sameAs
         owl: http://www.w3.org/2002/07/owl#
         parent:
           '@container': '@set'
@@ -96,59 +106,9 @@ components:
         xsd: http://www.w3.org/2001/XMLSchema#
       x-jsonld-type: clvapit:Province
       x-validation:
-        error_count: 107
-        errors:
-        - index: 0
-          message: None is not of type 'string'
-          path:
-          - nuts
-          validator: type
-        - index: 1
-          message: None is not of type 'string'
-          path:
-          - nuts
-          validator: type
-        - index: 2
-          message: None is not of type 'string'
-          path:
-          - nuts
-          validator: type
-        - index: 3
-          message: None is not of type 'string'
-          path:
-          - nuts
-          validator: type
-        - index: 4
-          message: None is not of type 'string'
-          path:
-          - nuts
-          validator: type
-        - index: 5
-          message: None is not of type 'string'
-          path:
-          - nuts
-          validator: type
-        - index: 6
-          message: None is not of type 'string'
-          path:
-          - nuts
-          validator: type
-        - index: 7
-          message: None is not of type 'string'
-          path:
-          - nuts
-          validator: type
-        - index: 8
-          message: None is not of type 'string'
-          path:
-          - nuts
-          validator: type
-        - index: 9
-          message: None is not of type 'string'
-          path:
-          - nuts
-          validator: type
-        valid: false
+        error_count: 0
+        errors: []
+        valid: true
 info:
   contact:
     email: info@dati.gov.it

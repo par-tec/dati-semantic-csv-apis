@@ -163,10 +163,10 @@
     - --vocabulary-uri
     - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
     - --output
-    - tests/data/snapshots/provinces/provinces-datapackage.yaml
+    - tests/data/snapshots/provinces/stub-datapackage.yaml
     - --force
     expected:
       files:
-      - path: tests/data/snapshots/provinces/provinces-datapackage.yaml
-        snapshot: tests/data/snapshots/provinces/provinces-datapackage.yaml
+      - path: tests/data/snapshots/provinces/stub-datapackage.yaml
+        snapshot: tests/data/snapshots/provinces/stub-datapackage.yaml
         compare: data

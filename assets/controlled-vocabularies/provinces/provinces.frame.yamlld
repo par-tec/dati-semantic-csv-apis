@@ -28,11 +28,14 @@
   acronym:
     "@id": clvapit:acronym
 
-  # nuts:
-  #   "@id": owl:sameAs
-  #   "@container": "@set"
-  #   "@context":
-  #     url: "@id"
+  #
+  # This field should be ignored in the datapackage.
+  #
+  nuts:
+    "@id": owl:sameAs
+    "@container": "@set"
+    "@context":
+      url: "@id"
 
   # When mapping to a list, use @container: @set
   #   to ensure that JSON-LD framing handles it as an array.
@@ -72,7 +75,7 @@ vocab:
 
 parent:
 - url: {}
-  id: {}
+  # id: {}
   "@embed": "@always"
   "@explicit": true
   "@default": "@null"

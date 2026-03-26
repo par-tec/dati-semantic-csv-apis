@@ -234,21 +234,21 @@
     - --vocabulary-uri
     - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
     - --output
-    - tests/data/snapshots/provinces/provinces-datapackage.yaml
+    - tests/data/snapshots/provinces/stub-datapackage.yaml
     - --force
     expected:
       files:
-      - path: tests/data/snapshots/provinces/provinces-datapackage.yaml
-        snapshot: tests/data/snapshots/provinces/provinces-datapackage.yaml
+      - path: tests/data/snapshots/provinces/stub-datapackage.yaml
+        snapshot: tests/data/snapshots/provinces/stub-datapackage.yaml
         compare: data
       logs:
       - >-
-        Datapackage stub created: .*tests/data/snapshots/provinces/provinces-datapackage.yaml
+        Datapackage stub created: .*tests/data/snapshots/provinces/stub-datapackage.yaml
       stdout:
       - >-
         Creating datapackage metadata for https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
       - >-
-        ✓ Created: .*tests/data/snapshots/provinces/provinces-datapackage.yaml
+        ✓ Created: .*tests/data/snapshots/provinces/stub-datapackage.yaml
   - description: |-
       When:
       - I run `datapackage validate` on the created datapackage stub
@@ -260,7 +260,7 @@
     - datapackage
     - validate
     - --datapackage
-    - tests/data/snapshots/provinces/provinces-datapackage.yaml
+    - tests/data/snapshots/provinces/stub-datapackage.yaml
     expected:
       stdout:
       - >-
@@ -276,7 +276,7 @@
     - csv
     - create
     - --datapackage
-    - tests/data/snapshots/provinces/provinces-datapackage.yaml
+    - assets/controlled-vocabularies/provinces/datapackage.yaml
     - --jsonld
     - tests/data/snapshots/provinces/provinces.data.yamlld
     - --output
@@ -307,7 +307,7 @@
     - --ttl
     - assets/controlled-vocabularies/provinces/provinces.ttl
     - --datapackage
-    - tests/data/snapshots/provinces/provinces-datapackage.yaml
+    - assets/controlled-vocabularies/provinces/datapackage.yaml
     expected:
       logs:
       - >-

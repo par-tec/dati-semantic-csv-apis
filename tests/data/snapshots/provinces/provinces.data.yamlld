@@ -43,8 +43,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC11
   parent:
-  - id: null
-    url: ../regions/01
+  - url: ../regions/01
   url: '001'
   vocab:
   - url: ../provinces
@@ -59,8 +58,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC12
   parent:
-  - id: null
-    url: ../regions/01
+  - url: ../regions/01
   url: '002'
   vocab:
   - url: ../provinces
@@ -75,8 +73,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC15
   parent:
-  - id: null
-    url: ../regions/01
+  - url: ../regions/01
   url: '003'
   vocab:
   - url: ../provinces
@@ -91,8 +88,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC16
   parent:
-  - id: null
-    url: ../regions/01
+  - url: ../regions/01
   url: '004'
   vocab:
   - url: ../provinces
@@ -107,8 +103,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC17
   parent:
-  - id: null
-    url: ../regions/01
+  - url: ../regions/01
   url: '005'
   vocab:
   - url: ../provinces
@@ -123,8 +118,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC18
   parent:
-  - id: null
-    url: ../regions/01
+  - url: ../regions/01
   url: '006'
   vocab:
   - url: ../provinces
@@ -139,8 +133,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC20
   parent:
-  - id: null
-    url: ../regions/02
+  - url: ../regions/02
   url: '007'
   vocab:
   - url: ../provinces
@@ -155,8 +148,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC31
   parent:
-  - id: null
-    url: ../regions/07
+  - url: ../regions/07
   url: 008
   vocab:
   - url: ../provinces
@@ -171,8 +163,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC32
   parent:
-  - id: null
-    url: ../regions/07
+  - url: ../regions/07
   url: 009
   vocab:
   - url: ../provinces
@@ -187,8 +178,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC33
   parent:
-  - id: null
-    url: ../regions/07
+  - url: ../regions/07
   url: '010'
   vocab:
   - url: ../provinces
@@ -203,8 +193,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC34
   parent:
-  - id: null
-    url: ../regions/07
+  - url: ../regions/07
   url: '011'
   vocab:
   - url: ../provinces
@@ -219,8 +208,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC41
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: '012'
   vocab:
   - url: ../provinces
@@ -235,8 +223,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC42
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: '013'
   vocab:
   - url: ../provinces
@@ -251,8 +238,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC44
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: '014'
   vocab:
   - url: ../provinces
@@ -267,8 +253,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC45
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: '015'
   vocab:
   - url: ../provinces
@@ -284,8 +269,7 @@
   - url: http://nuts.geovocab.org/id/ITC43
   - url: http://nuts.geovocab.org/id/ITC46
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: '016'
   vocab:
   - url: ../provinces
@@ -300,8 +284,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC47
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: '017'
   vocab:
   - url: ../provinces
@@ -316,8 +299,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC48
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: 018
   vocab:
   - url: ../provinces
@@ -332,8 +314,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC4A
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: 019
   vocab:
   - url: ../provinces
@@ -348,8 +329,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC4B
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: '020'
   vocab:
   - url: ../provinces
@@ -364,8 +344,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD10
   parent:
-  - id: null
-    url: ../regions/04
+  - url: ../regions/04
   url: '021'
   vocab:
   - url: ../provinces
@@ -380,8 +359,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD20
   parent:
-  - id: null
-    url: ../regions/04
+  - url: ../regions/04
   url: '022'
   vocab:
   - url: ../provinces
@@ -396,8 +374,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD31
   parent:
-  - id: null
-    url: ../regions/05
+  - url: ../regions/05
   url: '023'
   vocab:
   - url: ../provinces
@@ -412,8 +389,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD32
   parent:
-  - id: null
-    url: ../regions/05
+  - url: ../regions/05
   url: '024'
   vocab:
   - url: ../provinces
@@ -428,8 +404,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD33
   parent:
-  - id: null
-    url: ../regions/05
+  - url: ../regions/05
   url: '025'
   vocab:
   - url: ../provinces
@@ -444,8 +419,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD34
   parent:
-  - id: null
-    url: ../regions/05
+  - url: ../regions/05
   url: '026'
   vocab:
   - url: ../provinces
@@ -460,8 +434,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD35
   parent:
-  - id: null
-    url: ../regions/05
+  - url: ../regions/05
   url: '027'
   vocab:
   - url: ../provinces
@@ -476,8 +449,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD36
   parent:
-  - id: null
-    url: ../regions/05
+  - url: ../regions/05
   url: 028
   vocab:
   - url: ../provinces
@@ -492,8 +464,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD37
   parent:
-  - id: null
-    url: ../regions/05
+  - url: ../regions/05
   url: 029
   vocab:
   - url: ../provinces
@@ -509,8 +480,7 @@
   - url: http://nuts.geovocab.org/id/ITD33
   - url: http://nuts.geovocab.org/id/ITD42
   parent:
-  - id: null
-    url: ../regions/06
+  - url: ../regions/06
   url: '030'
   vocab:
   - url: ../provinces
@@ -525,8 +495,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD43
   parent:
-  - id: null
-    url: ../regions/06
+  - url: ../regions/06
   url: '031'
   vocab:
   - url: ../provinces
@@ -541,8 +510,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD44
   parent:
-  - id: null
-    url: ../regions/06
+  - url: ../regions/06
   url: '032'
   vocab:
   - url: ../provinces
@@ -557,8 +525,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD51
   parent:
-  - id: null
-    url: ../regions/08
+  - url: ../regions/08
   url: '033'
   vocab:
   - url: ../provinces
@@ -573,8 +540,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD52
   parent:
-  - id: null
-    url: ../regions/08
+  - url: ../regions/08
   url: '034'
   vocab:
   - url: ../provinces
@@ -589,8 +555,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD53
   parent:
-  - id: null
-    url: ../regions/08
+  - url: ../regions/08
   url: '035'
   vocab:
   - url: ../provinces
@@ -605,8 +570,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD54
   parent:
-  - id: null
-    url: ../regions/08
+  - url: ../regions/08
   url: '036'
   vocab:
   - url: ../provinces
@@ -621,8 +585,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD55
   parent:
-  - id: null
-    url: ../regions/08
+  - url: ../regions/08
   url: '037'
   vocab:
   - url: ../provinces
@@ -637,8 +600,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD56
   parent:
-  - id: null
-    url: ../regions/08
+  - url: ../regions/08
   url: 038
   vocab:
   - url: ../provinces
@@ -653,8 +615,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD57
   parent:
-  - id: null
-    url: ../regions/08
+  - url: ../regions/08
   url: 039
   vocab:
   - url: ../provinces
@@ -669,8 +630,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD58
   parent:
-  - id: null
-    url: ../regions/08
+  - url: ../regions/08
   url: '040'
   vocab:
   - url: ../provinces
@@ -685,8 +645,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE31
   parent:
-  - id: null
-    url: ../regions/11
+  - url: ../regions/11
   url: '041'
   vocab:
   - url: ../provinces
@@ -701,8 +660,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE32
   parent:
-  - id: null
-    url: ../regions/11
+  - url: ../regions/11
   url: '042'
   vocab:
   - url: ../provinces
@@ -717,8 +675,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE33
   parent:
-  - id: null
-    url: ../regions/11
+  - url: ../regions/11
   url: '043'
   vocab:
   - url: ../provinces
@@ -733,8 +690,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE34
   parent:
-  - id: null
-    url: ../regions/11
+  - url: ../regions/11
   url: '044'
   vocab:
   - url: ../provinces
@@ -749,8 +705,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE11
   parent:
-  - id: null
-    url: ../regions/09
+  - url: ../regions/09
   url: '045'
   vocab:
   - url: ../provinces
@@ -765,8 +720,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE12
   parent:
-  - id: null
-    url: ../regions/09
+  - url: ../regions/09
   url: '046'
   vocab:
   - url: ../provinces
@@ -781,8 +735,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE13
   parent:
-  - id: null
-    url: ../regions/09
+  - url: ../regions/09
   url: '047'
   vocab:
   - url: ../provinces
@@ -797,8 +750,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE14
   parent:
-  - id: null
-    url: ../regions/09
+  - url: ../regions/09
   url: 048
   vocab:
   - url: ../provinces
@@ -813,8 +765,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE16
   parent:
-  - id: null
-    url: ../regions/09
+  - url: ../regions/09
   url: 049
   vocab:
   - url: ../provinces
@@ -829,8 +780,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE17
   parent:
-  - id: null
-    url: ../regions/09
+  - url: ../regions/09
   url: '050'
   vocab:
   - url: ../provinces
@@ -845,8 +795,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE18
   parent:
-  - id: null
-    url: ../regions/09
+  - url: ../regions/09
   url: '051'
   vocab:
   - url: ../provinces
@@ -861,8 +810,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE19
   parent:
-  - id: null
-    url: ../regions/09
+  - url: ../regions/09
   url: '052'
   vocab:
   - url: ../provinces
@@ -877,8 +825,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE1A
   parent:
-  - id: null
-    url: ../regions/09
+  - url: ../regions/09
   url: '053'
   vocab:
   - url: ../provinces
@@ -893,8 +840,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE21
   parent:
-  - id: null
-    url: ../regions/10
+  - url: ../regions/10
   url: '054'
   vocab:
   - url: ../provinces
@@ -909,8 +855,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE22
   parent:
-  - id: null
-    url: ../regions/10
+  - url: ../regions/10
   url: '055'
   vocab:
   - url: ../provinces
@@ -925,8 +870,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE41
   parent:
-  - id: null
-    url: ../regions/12
+  - url: ../regions/12
   url: '056'
   vocab:
   - url: ../provinces
@@ -941,8 +885,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE42
   parent:
-  - id: null
-    url: ../regions/12
+  - url: ../regions/12
   url: '057'
   vocab:
   - url: ../provinces
@@ -957,8 +900,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE43
   parent:
-  - id: null
-    url: ../regions/12
+  - url: ../regions/12
   url: 058
   vocab:
   - url: ../provinces
@@ -973,8 +915,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE44
   parent:
-  - id: null
-    url: ../regions/12
+  - url: ../regions/12
   url: 059
   vocab:
   - url: ../provinces
@@ -989,8 +930,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE45
   parent:
-  - id: null
-    url: ../regions/12
+  - url: ../regions/12
   url: '060'
   vocab:
   - url: ../provinces
@@ -1005,8 +945,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF31
   parent:
-  - id: null
-    url: ../regions/15
+  - url: ../regions/15
   url: '061'
   vocab:
   - url: ../provinces
@@ -1021,8 +960,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF32
   parent:
-  - id: null
-    url: ../regions/15
+  - url: ../regions/15
   url: '062'
   vocab:
   - url: ../provinces
@@ -1037,8 +975,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF33
   parent:
-  - id: null
-    url: ../regions/15
+  - url: ../regions/15
   url: '063'
   vocab:
   - url: ../provinces
@@ -1053,8 +990,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF34
   parent:
-  - id: null
-    url: ../regions/15
+  - url: ../regions/15
   url: '064'
   vocab:
   - url: ../provinces
@@ -1069,8 +1005,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF35
   parent:
-  - id: null
-    url: ../regions/15
+  - url: ../regions/15
   url: '065'
   vocab:
   - url: ../provinces
@@ -1085,8 +1020,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF11
   parent:
-  - id: null
-    url: ../regions/13
+  - url: ../regions/13
   url: '066'
   vocab:
   - url: ../provinces
@@ -1101,8 +1035,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF12
   parent:
-  - id: null
-    url: ../regions/13
+  - url: ../regions/13
   url: '067'
   vocab:
   - url: ../provinces
@@ -1117,8 +1050,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF13
   parent:
-  - id: null
-    url: ../regions/13
+  - url: ../regions/13
   url: 068
   vocab:
   - url: ../provinces
@@ -1133,8 +1065,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF14
   parent:
-  - id: null
-    url: ../regions/13
+  - url: ../regions/13
   url: 069
   vocab:
   - url: ../provinces
@@ -1149,8 +1080,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF22
   parent:
-  - id: null
-    url: ../regions/14
+  - url: ../regions/14
   url: '070'
   vocab:
   - url: ../provinces
@@ -1165,8 +1095,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF41
   parent:
-  - id: null
-    url: ../regions/16
+  - url: ../regions/16
   url: '071'
   vocab:
   - url: ../provinces
@@ -1181,8 +1110,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF42
   parent:
-  - id: null
-    url: ../regions/16
+  - url: ../regions/16
   url: '072'
   vocab:
   - url: ../provinces
@@ -1197,8 +1125,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF43
   parent:
-  - id: null
-    url: ../regions/16
+  - url: ../regions/16
   url: '073'
   vocab:
   - url: ../provinces
@@ -1213,8 +1140,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF44
   parent:
-  - id: null
-    url: ../regions/16
+  - url: ../regions/16
   url: '074'
   vocab:
   - url: ../provinces
@@ -1229,8 +1155,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF45
   parent:
-  - id: null
-    url: ../regions/16
+  - url: ../regions/16
   url: '075'
   vocab:
   - url: ../provinces
@@ -1245,8 +1170,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF51
   parent:
-  - id: null
-    url: ../regions/17
+  - url: ../regions/17
   url: '076'
   vocab:
   - url: ../provinces
@@ -1261,8 +1185,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF52
   parent:
-  - id: null
-    url: ../regions/17
+  - url: ../regions/17
   url: '077'
   vocab:
   - url: ../provinces
@@ -1277,8 +1200,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF61
   parent:
-  - id: null
-    url: ../regions/18
+  - url: ../regions/18
   url: 078
   vocab:
   - url: ../provinces
@@ -1293,8 +1215,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF63
   parent:
-  - id: null
-    url: ../regions/18
+  - url: ../regions/18
   url: 079
   vocab:
   - url: ../provinces
@@ -1309,8 +1230,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF65
   parent:
-  - id: null
-    url: ../regions/18
+  - url: ../regions/18
   url: 080
   vocab:
   - url: ../provinces
@@ -1325,8 +1245,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG11
   parent:
-  - id: null
-    url: ../regions/19
+  - url: ../regions/19
   url: 081
   vocab:
   - url: ../provinces
@@ -1341,8 +1260,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG12
   parent:
-  - id: null
-    url: ../regions/19
+  - url: ../regions/19
   url: 082
   vocab:
   - url: ../provinces
@@ -1357,8 +1275,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG13
   parent:
-  - id: null
-    url: ../regions/19
+  - url: ../regions/19
   url: 083
   vocab:
   - url: ../provinces
@@ -1373,8 +1290,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG14
   parent:
-  - id: null
-    url: ../regions/19
+  - url: ../regions/19
   url: 084
   vocab:
   - url: ../provinces
@@ -1389,8 +1305,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG15
   parent:
-  - id: null
-    url: ../regions/19
+  - url: ../regions/19
   url: 085
   vocab:
   - url: ../provinces
@@ -1405,8 +1320,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG16
   parent:
-  - id: null
-    url: ../regions/19
+  - url: ../regions/19
   url: 086
   vocab:
   - url: ../provinces
@@ -1421,8 +1335,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG17
   parent:
-  - id: null
-    url: ../regions/19
+  - url: ../regions/19
   url: 087
   vocab:
   - url: ../provinces
@@ -1437,8 +1350,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG18
   parent:
-  - id: null
-    url: ../regions/19
+  - url: ../regions/19
   url: 088
   vocab:
   - url: ../provinces
@@ -1453,8 +1365,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG19
   parent:
-  - id: null
-    url: ../regions/19
+  - url: ../regions/19
   url: 089
   vocab:
   - url: ../provinces
@@ -1470,8 +1381,7 @@
   - url: http://nuts.geovocab.org/id/ITG25
   - url: http://nuts.geovocab.org/id/ITG29
   parent:
-  - id: null
-    url: ../regions/20
+  - url: ../regions/20
   url: 090
   vocab:
   - url: ../provinces
@@ -1487,8 +1397,7 @@
   - url: http://nuts.geovocab.org/id/ITG2A
   - url: http://nuts.geovocab.org/id/ITG26
   parent:
-  - id: null
-    url: ../regions/20
+  - url: ../regions/20
   url: 091
   vocab:
   - url: ../provinces
@@ -1503,8 +1412,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG27
   parent:
-  - id: null
-    url: ../regions/20
+  - url: ../regions/20
   url: 092
   vocab:
   - url: ../provinces
@@ -1519,8 +1427,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITD41
   parent:
-  - id: null
-    url: ../regions/06
+  - url: ../regions/06
   url: 093
   vocab:
   - url: ../provinces
@@ -1535,8 +1442,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF21
   parent:
-  - id: null
-    url: ../regions/14
+  - url: ../regions/14
   url: 094
   vocab:
   - url: ../provinces
@@ -1551,8 +1457,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITG28
   parent:
-  - id: null
-    url: ../regions/20
+  - url: ../regions/20
   url: 095
   vocab:
   - url: ../provinces
@@ -1567,8 +1472,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC13
   parent:
-  - id: null
-    url: ../regions/01
+  - url: ../regions/01
   url: 096
   vocab:
   - url: ../provinces
@@ -1583,8 +1487,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC43
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: 097
   vocab:
   - url: ../provinces
@@ -1599,8 +1502,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC49
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: 098
   vocab:
   - url: ../provinces
@@ -1616,8 +1518,7 @@
   - url: http://nuts.geovocab.org/id/ITD59
   - url: http://nuts.geovocab.org/id/ITE31
   parent:
-  - id: null
-    url: ../regions/08
+  - url: ../regions/08
   url: 099
   vocab:
   - url: ../provinces
@@ -1632,8 +1533,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITE15
   parent:
-  - id: null
-    url: ../regions/09
+  - url: ../regions/09
   url: '100'
   vocab:
   - url: ../provinces
@@ -1648,8 +1548,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF62
   parent:
-  - id: null
-    url: ../regions/18
+  - url: ../regions/18
   url: '101'
   vocab:
   - url: ../provinces
@@ -1664,8 +1563,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITF64
   parent:
-  - id: null
-    url: ../regions/18
+  - url: ../regions/18
   url: '102'
   vocab:
   - url: ../provinces
@@ -1680,8 +1578,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/ITC14
   parent:
-  - id: null
-    url: ../regions/01
+  - url: ../regions/01
   url: '103'
   vocab:
   - url: ../provinces
@@ -1696,8 +1593,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/-
   parent:
-  - id: null
-    url: ../regions/03
+  - url: ../regions/03
   url: '108'
   vocab:
   - url: ../provinces
@@ -1712,8 +1608,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/-
   parent:
-  - id: null
-    url: ../regions/11
+  - url: ../regions/11
   url: '109'
   vocab:
   - url: ../provinces
@@ -1728,8 +1623,7 @@
   nuts:
   - url: http://nuts.geovocab.org/id/-
   parent:
-  - id: null
-    url: ../regions/16
+  - url: ../regions/16
   url: '110'
   vocab:
   - url: ../provinces
@@ -1748,8 +1642,7 @@
   - url: http://nuts.geovocab.org/id/ITG27
   - url: http://nuts.geovocab.org/id/ITG28
   parent:
-  - id: null
-    url: ../regions/20
+  - url: ../regions/20
   url: '111'
   vocab:
   - url: ../provinces
