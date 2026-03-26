@@ -1,7 +1,7 @@
 import pytest
 
 from tests.constants import ASSETS
-from tests.harness import compare_data
+from tests.harness import assert_snapshot_matches_data
 from tools.tabular import Tabular
 from tools.vocabulary import UnsupportedVocabularyError
 
@@ -41,7 +41,7 @@ def test_tabular_metadata(
         )
     vocab = tabular.datapackage_stub()
 
-    compare_data(
+    assert_snapshot_matches_data(
         snapshot_file=datapackage_yaml,
         current_data=vocab,
         update=True,
