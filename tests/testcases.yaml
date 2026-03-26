@@ -405,6 +405,55 @@ testcases:
     - label_it
     - level
     - url
+- name: agente_causale_plain_string_ctx
+  data: *agente_causale_ttl
+  frame:
+    "@context": &plain_string_ctx
+      "@base": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/"
+      "@vocab": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/"
+      skos: http://www.w3.org/2004/02/skos/core#
+      xkos: http://rdf-vocabulary.ddialliance.org/xkos#
+      xsd: "http://www.w3.org/2001/XMLSchema#"
+      url: "@id"
+      id:
+        "@id": "skos:notation"
+      # Plain string URI — not "@id", not a dict:
+      # This exercises the isinstance(context_def, str) True branch (line 521)
+      label_it: "skos:prefLabel"  # <-- plain string, not a dict
+      level:
+        "@id": xkos:depth
+        "@type": xsd:integer
+    "@explicit": true
+    "@embed": "@never"
+    "@omitDefault": true
+    "@requireAll": true
+    "@type":
+    - "https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL"
+    url: {}
+    id: {}
+    label_it: {}
+    level: {}
+  expected_payload: agente_causale_plain_string_ctx.data.yaml
+  expected_jsonschema:
+    x-jsonld-context: *plain_string_ctx
+    type: object
+    properties:
+      url:
+        type: string
+        format: uri-reference
+      id:
+        type: string
+        minLength: 1
+        pattern: '^[A-Za-z0-9._-]+$'
+      label_it:
+        type: string
+        minLength: 1
+        maxLength: 500  # prefLabel predicate → line 565 hit
+      level:
+        type: integer
+        minimum: 0
+        maximum: 10
+    required: [id, label_it, level, url]
 
 - name: ateco-2025-skos
   data: |-

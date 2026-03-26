@@ -1,0 +1,72 @@
+components:
+  schemas:
+    Item:
+      example:
+        id: '11110101'
+        label_it: {}
+        level: 3
+        url: agente/11110101
+      properties:
+        id:
+          minLength: 1
+          pattern: >-
+            ^[A-Za-z0-9._-]+$
+          type: string
+        label_it:
+          type: object
+        level:
+          maximum: 10
+          minimum: 0
+          type: integer
+        url:
+          format: uri-reference
+          type: string
+      required:
+      - id
+      - label_it
+      - level
+      - url
+      type: object
+      "x-jsonld-context":
+        '@base': >-
+          https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/
+        '@vocab': >-
+          https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/
+        id:
+          '@id': skos:notation
+        label_it: skos:prefLabel
+        level:
+          '@id': xkos:depth
+          '@type': xsd:integer
+        skos: >-
+          http://www.w3.org/2004/02/skos/core#
+        url: '@id'
+        xkos: >-
+          http://rdf-vocabulary.ddialliance.org/xkos#
+        xsd: >-
+          http://www.w3.org/2001/XMLSchema#
+      x-jsonld-type: >-
+        https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
+      x-validation:
+        error_count: 0
+        errors: []
+        valid: true
+info:
+  contact:
+    email: dcod@inail.it
+    name: >-
+      INAIL Ufficio V - D.C.O.D
+    url: >-
+      https://w3id.org/italia/work-accident/data/organization/inail
+  description: >-
+    Decodifica dell'agente, lavorazione, o esposizione che puo' essere causa o concausa
+    di malattia
+  title: >-
+    Vocabolario Controllato sulla classificazione degli agenti causali adottata dall'INAIL
+  version: '0.5'
+  x-agencyId: inail
+  x-keyConcept: agente_causale
+  x-summary: ''
+openapi: 3.0.0
+paths: {}
+servers: []

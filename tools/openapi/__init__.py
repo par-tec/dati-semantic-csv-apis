@@ -381,17 +381,6 @@ def create_schema_from_frame_and_data(
     return cast(OpenAPI, schema)
 
 
-def remove_jsonld_key(obj: Any, key: str) -> Any:
-    """Return a deep copy of `obj` removing `key` recursively from objects."""
-    if isinstance(obj, dict):
-        return {
-            k: remove_jsonld_key(v, key) for k, v in obj.items() if k != key
-        }
-    if isinstance(obj, list):
-        return [remove_jsonld_key(item, key) for item in obj]
-    return obj
-
-
 def infer_schema_from_samples(samples):
     """
     Generate JSON Schema from sample data using genson.
