@@ -229,6 +229,8 @@ def test_openapi_datastore_from_jsonld(
         pytest.skip("EU vocabularies are not supported yet")
 
     oas3_yaml = SNAPSHOTS / "base" / f"{request.node.callspec.id}.oas3.yaml"
+    data_yaml = oas3_yaml.with_suffix("").with_suffix(".data.yaml")
+
     if isinstance(expected_jsonschema, (str, type(None))):
         oas3 = yaml.safe_load(oas3_yaml.read_text())
         expected_jsonschema = oas3["components"]["schemas"]["Item"]
@@ -236,19 +238,20 @@ def test_openapi_datastore_from_jsonld(
     datafile_db = snapshot_dir / "data.db"
     # Given an RDF vocabulary and a frame...
     context = expected_jsonschema["x-jsonld-context"]
-    frame = JsonLDFrame(frame)
+    frame = JsonLDFrame(
+        {"@context": context, "@type": expected_jsonschema["x-jsonld-type"]}
+    )
+
+    frame.validate(strict=True)
 
     # When I create an Apiable instance...
     apiable = Apiable(turtle, frame)
 
     # .. and generate the iterable API payload...
-    data: JsonLD = apiable.create_api_data()
-    assert data
+    data = yaml.safe_load(data_yaml.read_text())
     # ... and serialize it to a SQLite database
     apiable.to_db(
-        data=data,
-        datafile=datafile_db,
-        force=True,
+        data={"@graph": data}, datafile=datafile_db, force=True, openapi=oas3
     )
 
     # Then I can query the datastore ...
@@ -260,89 +263,3 @@ def test_openapi_datastore_from_jsonld(
         for e in validator.iter_errors(r)
     ]
     assert not errors, "Invalid db._text JSON:\n" + "\n".join(errors[:5])
-
-
-@pytest.mark.skip(
-    reason="TODO: Generating data without full turtle"
-    " is clumsy. Let's enforce turtle-only"
-    " input."
-)
-@pytest.mark.parametrize(
-    "turtle,frame,expected_payload,expected_jsonschema",
-    argvalues=[
-        itemgetter("data", "frame", "expected_payload", "expected_jsonschema")(
-            x
-        )
-        for x in TESTCASES
-        if "expected_jsonschema" in x
-    ],
-    ids=[x["name"] for x in TESTCASES if "expected_jsonschema" in x],
-)
-def test_openapi_datastore_from_projection(
-    turtle: RDFText,
-    frame: JsonLDFrame,
-    expected_payload: JsonLD,
-    expected_jsonschema: dict,
-    snapshot_dir: Path,
-    request: pytest.FixtureRequest,
-):
-    """
-    Test the OpenAPI schema generation from JSON-LD frames and data.
-
-    Given:
-    - RDF vocabulary data in JSON-LD
-    - A JSON-LD frame with @context definitions
-
-    When:
-    - I create an instance of the Apiable class with the RDF data and frame
-    - Generate the API payload
-    - I create a datastore with the above payload
-
-    Then:
-    - The datastore should be created successfully
-    - I can query the datastore
-    - The datastore content respects the JSON Schema
-    """
-    if "-eu-" in request.node.callspec.id:
-        pytest.skip("EU vocabularies are not supported yet")
-
-    oas3_yaml = SNAPSHOTS / "base" / f"{request.node.callspec.id}.oas3.yaml"
-    validator = Draft7Validator(expected_jsonschema)
-    datafile_db = snapshot_dir / "data.db"
-    # Given an RDF vocabulary and a frame...
-    frame = JsonLDFrame(frame)
-
-    # When I create an Apiable instance...
-    apiable = Apiable(
-        {
-            "@context": frame.context,
-            "@graph": expected_payload,
-        },
-        frame,
-        format=APPLICATION_LD_JSON_FRAMED,
-    )
-
-    # .. and generate the iterable API payload...
-    data: JsonLD = apiable.create_api_data()
-    assert data
-    # ... and serialize it to a SQLite database
-    apiable.to_db(
-        data=data,
-        datafile=datafile_db,
-        force=True,
-    )
-
-    # Then I can query the datastore ...
-    rows = apiable.from_db(datafile_db)["@graph"]
-    # ... and the content should be valid according to the JSON Schema
-    errors = [
-        f"{e.json_path}: {e.message}"
-        for r in rows
-        for e in validator.iter_errors(r)
-    ]
-    assert not errors, "Invalid db._text JSON:\n" + "\n".join(errors[:5])
-    assert_snapshot_matches_data(
-        snapshot_file=oas3_yaml,
-        current_data=expected_jsonschema,
-        update=True,
-    )
