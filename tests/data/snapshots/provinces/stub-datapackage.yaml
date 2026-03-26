@@ -32,6 +32,8 @@ resources:
       type: string
     - name: acronym
       type: string
+    - name: nuts
+      type: string
     x-jsonld-context:
       '@base': https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces/
       '@vocab': https://w3id.org/italia/onto/CLV/
@@ -45,6 +47,11 @@ resources:
       label_it:
         '@id': skos:prefLabel
         '@language': it
+      nuts:
+        '@container': '@set'
+        '@context':
+          url: '@id'
+        '@id': owl:sameAs
       owl: http://www.w3.org/2002/07/owl#
       parent:
         '@container': '@set'
