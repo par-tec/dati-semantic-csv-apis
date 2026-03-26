@@ -230,7 +230,7 @@ jobs:
           This PR contains the auto-generated DB file for the `${{ matrix.asset }}` controlled vocabulary.
 
           ## Generated Files
-          - `${{ env.VOCABULARY_DIR }}/${{ matrix.asset }}/${{ steps.check-db.outputs.db_file }}`
+          - `${{ matrix.asset }}/${{ steps.check-db.outputs.db_file }}`
 
           ## Validation
           The DB has been generated from the RDF vocabulary and validated against the datapackage metadata.
