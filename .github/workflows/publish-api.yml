@@ -181,7 +181,9 @@ jobs:
     - name: Warn missing frame
       if: steps.check-frame.outputs.exists == 'false'
       run: |
-        echo "::warning title=Missing frame file::No frame file found for asset '${{ matrix.asset }}'. This asset will be skipped."
+        echo "::warning title=Missing frame file::No frame file found for asset '${MATRIX_ASSET}'. This asset will be skipped."
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
     - name: Generate and validate CSV
       if: steps.check-oas3.outputs.exists == 'true' && steps.check-frame.outputs.exists
         == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
