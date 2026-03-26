@@ -32,6 +32,7 @@ env:
     }}
   CHECKOUT_REF: main
   VOCABULARY_DIR: 'assets/controlled-vocabularies'
+  CLI_VERSION: '0.0.5'
 jobs:
   # Detect which assets changed in this push
   detect-changes:
@@ -121,7 +122,7 @@ jobs:
         REPO="par-tec/dati-semantic-csv-apis"
         echo "Fetching latest workflow run..."
 
-        ARTIFACT_URL=https://github.com/par-tec/dati-semantic-csv-apis/releases/download/0.0.4/schema_gov_it_tools.bin
+        ARTIFACT_URL=https://github.com/par-tec/dati-semantic-csv-apis/releases/download/${{ env.CLI_VERSION }}/schema_gov_it_tools.bin
 
         echo "Fetching artifacts..."
 
@@ -199,6 +200,11 @@ jobs:
           --jsonld "${ASSET_NAME}.data.yaml" \
           --oas "${ASSET_NAME}.oas3.yaml" \
           --output "${ASSET_NAME}.db" --force
+
+        /usr/local/bin/schema_gov_it_tools.bin \
+          apistore collect \
+          --output ${GITHUB_WORKSPACE}/${VOCABULARY_DIR}/vocabularies.sqlite \
+          ${GITHUB_WORKSPACE}/${VOCABULARY_DIR}
 
         echo "Generated API for ${MATRIX_ASSET}"
       env:
