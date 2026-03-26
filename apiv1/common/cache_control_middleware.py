@@ -32,7 +32,10 @@ class CacheControlResponseHeaderMiddleware:
             return
 
         async def send_with_cache_control(message):
-            if message["type"] == "http.response.start":
+            if (
+                message["type"] == "http.response.start"
+                and message.get("status") == 200
+            ):
                 # Headers are a list of (name, value) tuples in bytes
                 headers = list(message.get("headers", []))
                 headers.append((b"cache-control", self._cache_control_value))

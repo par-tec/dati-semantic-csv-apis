@@ -35,7 +35,7 @@ testcases:
     response:
       status_code: 200
       headers:
-        content-type: application/openapi+yaml
+      - content-type: application/openapi+yaml
       yaml:
         openapi: 3.0.0
         info:
@@ -211,6 +211,9 @@ testcases:
   expected:
     response:
       status_code: 400
+      headers:
+      - cache-control: max-age=3600
+        present: false
 - name: non_printable_query_parameter_acceptable
   description: |-
     When:
@@ -233,4 +236,5 @@ testcases:
   expected:
     response:
       status_code: 200
-      headers: {"cache-control": "max-age=3600"}
+      headers:
+      - cache-control: max-age=3600

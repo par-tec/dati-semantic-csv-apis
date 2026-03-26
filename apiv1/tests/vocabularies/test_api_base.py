@@ -54,13 +54,21 @@ def test_base_requests(single_entry_db, testcase):
 
             # .. headers are as expected ..
             if expected_headers := expected["response"].get("headers"):
-                for header, value in expected_headers.items():
-                    assert header in response.headers, (
-                        f"Missing expected header: {header}"
-                    )
-                    assert response.headers[header] == value, (
-                        f"Expected header '{header}' to be '{value}', but got '{response.headers[header]}'"
-                    )
+                for check in expected_headers:
+                    present = check.get("present", True)
+                    headers = {k: v for k, v in check.items() if k != "present"}
+                    for header, value in headers.items():
+                        if present:
+                            assert header in response.headers, (
+                                f"Missing expected header: {header}"
+                            )
+                            assert response.headers[header] == value, (
+                                f"Expected header '{header}' to be '{value}', but got '{response.headers[header]}'"
+                            )
+                        else:
+                            assert header not in response.headers, (
+                                f"Unexpected header present: {header}={response.headers[header]!r}"
+                            )
             # .. the content is as expected ..
             if expected_json := expected["response"].get("json"):
                 diff = DeepDiff(
