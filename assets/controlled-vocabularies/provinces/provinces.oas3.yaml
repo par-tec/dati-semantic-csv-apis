@@ -1,0 +1,132 @@
+---
+components:
+  schemas:
+    Item:
+      example:
+        '@type':
+        - >-
+          AdminUnitComponent
+        - Feature
+        - Province
+        - skos:Concept
+        acronym: TO
+        id: '001'
+        label_it: Torino
+        nuts:
+        - url: >-
+            http://nuts.geovocab.org/id/ITC11
+        parent:
+        - url: ../regions/01
+        url: '001'
+        vocab:
+        - url: ../provinces
+      properties:
+        acronym:
+          type: string
+        id:
+          minLength: 1
+          pattern: >-
+            ^[A-Za-z0-9._-]+$
+          type: string
+        label_it:
+          maxLength: 500
+          minLength: 1
+          type: string
+        nuts:
+          items:
+            properties:
+              url:
+                format: uri-reference
+                type: string
+            required:
+            - url
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+        parent:
+          items:
+            properties:
+              url:
+                format: uri-reference
+                type: string
+            required:
+            - url
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+        url:
+          format: uri-reference
+          type: string
+        vocab:
+          items:
+            properties:
+              url:
+                format: uri-reference
+                type: string
+            required:
+            - url
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+      required:
+      - acronym
+      - id
+      - label_it
+      - nuts
+      - parent
+      - url
+      - vocab
+      type: object
+      "x-jsonld-context":
+        '@base': >-
+          https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces/
+        '@vocab': >-
+          https://w3id.org/italia/onto/CLV/
+        acronym:
+          '@id': clvapit:acronym
+        clvapit: >-
+          https://w3id.org/italia/onto/CLV/
+        dct: >-
+          http://purl.org/dc/terms/
+        id:
+          '@id': skos:notation
+        l0: >-
+          https://w3id.org/italia/onto/l0/
+        label_it:
+          '@id': skos:prefLabel
+          '@language': it
+        nuts:
+          '@container': '@set'
+          '@context':
+            url: '@id'
+          '@id': owl:sameAs
+        owl: >-
+          http://www.w3.org/2002/07/owl#
+        parent:
+          '@container': '@set'
+          '@context':
+            url: '@id'
+          '@id': skos:broader
+        rdfs: >-
+          http://www.w3.org/2000/01/rdf-schema#
+        skos: >-
+          http://www.w3.org/2004/02/skos/core#
+        url: '@id'
+        vocab:
+          '@container': '@set'
+          '@context':
+            url: '@id'
+          '@id': skos:inScheme
+        xsd: >-
+          http://www.w3.org/2001/XMLSchema#
+      x-jsonld-type: >-
+        clvapit:Province
+      x-validation:
+        error_count: 0
+        errors: []
+        valid: true
+openapi: 3.0.3
+paths: {}
