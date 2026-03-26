@@ -135,6 +135,7 @@ jobs:
     - name: Check oas3 exists
       id: check-oas3
       working-directory: ${{ matrix.asset }}
+      shell: bash
       run: |
         shopts -s nullglob
         pwd
