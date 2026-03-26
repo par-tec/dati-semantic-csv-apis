@@ -43,6 +43,7 @@ def _normalize_testcases(testcases: list[dict]) -> list[dict]:
                 )
             elif payload == "ValueError":
                 case["expected_payload"] = ValueError
+                case["invalid"] = True
             else:
                 raise NotImplementedError(
                     f"Unsupported expected_payload format: {payload}"

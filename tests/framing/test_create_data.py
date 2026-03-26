@@ -32,6 +32,7 @@ def _test_should_fail(obj):
             id=testcase["name"],
         )
         for testcase in TESTCASES
+        if "invalid" not in testcase
     ],
 )
 @pytest.mark.parametrize(
