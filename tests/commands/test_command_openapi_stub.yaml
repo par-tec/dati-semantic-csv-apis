@@ -130,3 +130,67 @@
       stdout:
       - >-
         ✓ openapi validation passed
+
+- id: create_validate_openapi_provinces
+  description: |-
+    Given:
+    - a TTL file in assets/
+    - a JSON-LD frame in assets/
+
+    When:
+    - I run `openapi create`
+
+    Then:
+    - the command exits successfully
+    - a openapi stub YAML file is created
+    - logs show the openapi stub was created
+  steps:
+  - description: |-
+      When:
+      - I run `openapi create`
+
+      Then:
+      - the command exits successfully
+      - a openapi stub YAML file is created
+      - logs show the openapi stub was created
+    command:
+    - openapi
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --frame
+    - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+    - --output
+    - tests/data/snapshots/provinces/provinces.oas3.yaml
+    - --force
+    expected:
+      files:
+      - path: tests/data/snapshots/provinces/provinces.oas3.yaml
+        snapshot: tests/data/snapshots/provinces/provinces.oas3.yaml
+        compare: data
+      logs:
+      - >-
+        openapi stub created: .*tests/data/snapshots/provinces/provinces.oas3.yaml
+      stdout:
+      - >-
+        Creating openapi metadata for https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+      - >-
+        ✓ Created: .*tests/data/snapshots/provinces/provinces.oas3.yaml
+  - description: |-
+      When:
+      - I run `openapi validate` on the created openapi stub
+
+      Then:
+      - the command exits successfully
+      - validation passes
+    command:
+    - openapi
+    - validate
+    - --openapi
+    - tests/data/snapshots/provinces/provinces.oas3.yaml
+    expected:
+      stdout:
+      - >-
+        ✓ openapi validation passed

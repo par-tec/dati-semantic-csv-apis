@@ -387,7 +387,10 @@ class Vocabulary:
         ld_doc: JsonLD = self.json_ld
         if isinstance(frame, dict):
             frame = JsonLDFrame(frame)
-            frame.validate(strict=True)
+
+        if not frame.validate(strict=True):
+            raise ValueError("Invalid JSON-LD frame: see logs for details,")
+
         framed: JsonLD = framer(
             ld_doc, frame, batch_size, pre_filter_by_type=pre_filter_by_type
         )

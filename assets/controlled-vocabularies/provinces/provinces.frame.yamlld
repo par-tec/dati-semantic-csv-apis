@@ -57,9 +57,9 @@
 "@omitDefault": true
 
 "@requireAll": true
-# Matching on type works.
-# "@type":
-#   - &jsonld_type "clvapit:Province"
+# @type is required.
+"@type":
+  - &jsonld_type "clvapit:Province"
 url: {}
 id: {}
 label_it: {}

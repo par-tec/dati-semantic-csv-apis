@@ -1,0 +1,166 @@
+components:
+  schemas:
+    Item:
+      example:
+        acronym: TO
+        id: '001'
+        label_it: Torino
+        nuts: null
+        parent:
+        - id: null
+          url: ../regions/01
+        url: '001'
+        vocab:
+        - url: ../provinces
+      properties:
+        acronym:
+          type: string
+        id:
+          minLength: 1
+          pattern: ^[A-Za-z0-9._-]+$
+          type: string
+        label_it:
+          maxLength: 500
+          minLength: 1
+          type: string
+        nuts:
+          nullable: true
+          type: string
+        parent:
+          items:
+            properties:
+              id:
+                nullable: true
+                type: string
+              url:
+                format: uri-reference
+                type: string
+            required:
+            - id
+            - url
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+        url:
+          format: uri-reference
+          type: string
+        vocab:
+          items:
+            properties:
+              url:
+                format: uri-reference
+                type: string
+            required:
+            - url
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+      required:
+      - acronym
+      - id
+      - label_it
+      - nuts
+      - parent
+      - url
+      - vocab
+      type: object
+      x-jsonld-context:
+        '@base': https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces/
+        '@vocab': https://w3id.org/italia/onto/CLV/
+        acronym:
+          '@id': clvapit:acronym
+        clvapit: https://w3id.org/italia/onto/CLV/
+        dct: http://purl.org/dc/terms/
+        id:
+          '@id': skos:notation
+        l0: https://w3id.org/italia/onto/l0/
+        label_it:
+          '@id': skos:prefLabel
+          '@language': it
+        owl: http://www.w3.org/2002/07/owl#
+        parent:
+          '@container': '@set'
+          '@context':
+            url: '@id'
+          '@id': skos:broader
+        rdfs: http://www.w3.org/2000/01/rdf-schema#
+        skos: http://www.w3.org/2004/02/skos/core#
+        url: '@id'
+        vocab:
+          '@container': '@set'
+          '@context':
+            url: '@id'
+          '@id': skos:inScheme
+        xsd: http://www.w3.org/2001/XMLSchema#
+      x-jsonld-type: clvapit:Province
+      x-validation:
+        error_count: 107
+        errors:
+        - index: 0
+          message: None is not of type 'string'
+          path:
+          - nuts
+          validator: type
+        - index: 1
+          message: None is not of type 'string'
+          path:
+          - nuts
+          validator: type
+        - index: 2
+          message: None is not of type 'string'
+          path:
+          - nuts
+          validator: type
+        - index: 3
+          message: None is not of type 'string'
+          path:
+          - nuts
+          validator: type
+        - index: 4
+          message: None is not of type 'string'
+          path:
+          - nuts
+          validator: type
+        - index: 5
+          message: None is not of type 'string'
+          path:
+          - nuts
+          validator: type
+        - index: 6
+          message: None is not of type 'string'
+          path:
+          - nuts
+          validator: type
+        - index: 7
+          message: None is not of type 'string'
+          path:
+          - nuts
+          validator: type
+        - index: 8
+          message: None is not of type 'string'
+          path:
+          - nuts
+          validator: type
+        - index: 9
+          message: None is not of type 'string'
+          path:
+          - nuts
+          validator: type
+        valid: false
+info:
+  contact:
+    email: info@dati.gov.it
+    name: banche dati e open data
+    url: https://w3id.org/italia/data/public-organization/agid
+  description: Vocabolario controllato delle province d'Italia e relativo codice regione
+  title: Vocabolario Controllato delle Province d'Italia
+  version: 2.0 - allineamento all'ontologia e alle pratiche di gestione dei vocabolari
+    controllati di OntoPiA
+  x-agencyId: agid
+  x-keyConcept: provinces
+  x-summary: ''
+openapi: 3.0.0
+paths: {}
+servers: []
