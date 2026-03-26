@@ -940,10 +940,24 @@ facilitando la gestione e la revisione degli output attesi.
 La PoC fornisce una CLI per eseguire le operazioni descritte,
 implementate con la seguente griglia.
 
-jsonld       Commands for JSON-LD artifacts.
-datapackage  Commands for Data Package artifacts.
-csv          Commands for CSV artifacts.
-openapi      Commands for OpenAPI artifacts.
+```bash
+Usage: schema_gov_it_tools.bin [OPTIONS] COMMAND [ARGS]...
+
+  CLI for creating and validating vocabulary artifacts.
+
+Options:
+  --version                       Show the version and exit.
+  -l, --log-level [critical|error|warning|info|debug]
+                                  Set the logging level.
+  --help                          Show this message and exit.
+
+Commands:
+  jsonld       Commands for JSON-LD artifacts.
+  csv          Commands for CSV artifacts.
+  datapackage  Commands for Data Package artifacts.
+  openapi      Commands for OpenAPI artifacts.
+  apistore     Commands for APIStore SQLite databases.
+```
 
 Tutti i comandi della CLI mostrano una documentazione
 dettagliata se eseguiti con  `--help`.
@@ -961,10 +975,10 @@ Esempio:
 
 ```bash
 # Creare un file.
-python -m tools.cli jsonld create  ...
+schema_gov_it_tools.bin jsonld create  ...
 
 # Validare un file.
-python -m tools.cli jsonld validate ...
+schema_gov_it_tools.bin jsonld validate ...
 ```
 
 ### Distribuzione
