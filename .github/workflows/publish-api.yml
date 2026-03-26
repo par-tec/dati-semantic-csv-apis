@@ -137,9 +137,10 @@ jobs:
       working-directory: ${{ matrix.asset }}
       shell: bash
       run: |
-        shopts -s nullglob
+        set -x
         pwd
         ls -l
+        python --version
         OAS3_FILE=( *.oas3.yaml )
 
         if (( ${#OAS3_FILE[@]} == 0 )); then
