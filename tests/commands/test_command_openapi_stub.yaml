@@ -130,3 +130,72 @@
       stdout:
       - >-
         ✓ openapi validation passed
+# The following test checks that the command fails when --jsonld is used without --input-format
+- id: openapi_jsonld_requires_input_format
+  marks:
+  - cli
+  description: |
+    When:
+    - I run `openapi create` with --jsonld but without --input-format
+
+    Then:
+    - the command fails with a UsageError
+    - the error message explains that --input-format is required
+  steps:
+  - description: |
+      Running openapi create without --input-format
+    command:
+    - openapi
+    - create
+    - --jsonld
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.data.yamlld
+    - --frame
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - --output
+    - tests/data/tmp/ateco-2025.oas3.yaml
+    expected:
+      exit_status: 2
+      stderr:
+      - "Please provide --input-format when using --jsonld (e.g.,
+        application/ld+json)."
+# The following test checks that the command succeeds when --jsonld is used with --input-format
+- id: create_validate_openapi_jsonld_ateco_2025
+  marks:
+  - asset
+  description: |
+    Given:
+    - a JSON-LD framed file in assets/
+    - a JSON-LD frame in assets/
+
+    When:
+    - I run `openapi create` with --jsonld and --input-format
+
+    Then:
+    - the command exits successfully
+    - an OpenAPI stub is created
+  steps:
+  - description: |
+      Running openapi create with JSON-LD input
+    command:
+    - openapi
+    - create
+    - --jsonld
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.data.yamlld
+    - --input-format
+    - application/ld+json
+    - --frame
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - --output
+    - tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+    - --force
+    expected:
+      files:
+      - path: tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+        compare: exists
+      stdout:
+      - "Creating openapi metadata"
+      - "✓ Created:"
