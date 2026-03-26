@@ -171,6 +171,7 @@ jobs:
       id: check-oas3
       working-directory: ${{ matrix.asset }}
       run: |
+        shopts -s nullglob
         OAS3_FILE=( *.oas3.yaml )
 
         if (( ${#OAS3_FILE[@]} == 0 )); then
