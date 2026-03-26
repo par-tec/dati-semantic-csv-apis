@@ -367,8 +367,7 @@ testcases:
       # Mappings
       #
       url: "@id"
-      id:
-        "@id": "dct:identifier"
+      id: "dct:identifier"
       label_it:
         "@id": rdfs:label
         "@language": it
@@ -405,55 +404,6 @@ testcases:
     - label_it
     - level
     - url
-- name: agente_causale_plain_string_ctx
-  data: *agente_causale_ttl
-  frame:
-    "@context": &plain_string_ctx
-      "@base": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/"
-      "@vocab": "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/"
-      skos: http://www.w3.org/2004/02/skos/core#
-      xkos: http://rdf-vocabulary.ddialliance.org/xkos#
-      xsd: "http://www.w3.org/2001/XMLSchema#"
-      url: "@id"
-      id:
-        "@id": "skos:notation"
-      # Plain string URI — not "@id", not a dict:
-      # This exercises the isinstance(context_def, str) True branch (line 521)
-      label_it: "skos:prefLabel"  # <-- plain string, not a dict
-      level:
-        "@id": xkos:depth
-        "@type": xsd:integer
-    "@explicit": true
-    "@embed": "@never"
-    "@omitDefault": true
-    "@requireAll": true
-    "@type":
-    - "https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL"
-    url: {}
-    id: {}
-    label_it: {}
-    level: {}
-  expected_payload: agente_causale_plain_string_ctx.data.yaml
-  expected_jsonschema:
-    x-jsonld-context: *plain_string_ctx
-    type: object
-    properties:
-      url:
-        type: string
-        format: uri-reference
-      id:
-        type: string
-        minLength: 1
-        pattern: '^[A-Za-z0-9._-]+$'
-      label_it:
-        type: string
-        minLength: 1
-        maxLength: 500  # prefLabel predicate → line 565 hit
-      level:
-        type: integer
-        minimum: 0
-        maximum: 10
-    required: [id, label_it, level, url]
 
 - name: ateco-2025-skos
   data: |-
@@ -966,7 +916,7 @@ testcases:
       "@requireAll": false
   expected_payload: ValueError
 - name: tipo_mansione_lavoratore_domestico
-  data: |-
+  data: &tipo_mansione_lavoratore_domestico_ttl |-
     @prefix : <https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/tipo_mansione_lavoratore_domestico/> .
     @prefix NDC: <https://w3id.org/italia/onto/NDC/> .
     @prefix adms: <http://www.w3.org/ns/adms#> .
@@ -1033,3 +983,10 @@ testcases:
   frame: *generic_skos_frame
   expected_payload: tipo_mansione_lavoratore_domestico.data.yaml
   expected_jsonschema: tipo_mansione_lavoratore_domestico.oas3.yaml
+- name: tipo_mansione_lavoratore_domestico
+  data: *tipo_mansione_lavoratore_domestico_ttl
+  frame:
+    <<: *generic_skos_frame
+    "@type": "skos:ConceptScheme"
+    "@context": "https://example.com/unsupported-context"
+  expected_payload: ValueError
