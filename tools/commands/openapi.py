@@ -60,12 +60,6 @@ def openapi():
     help="Output path for OpenAPI specification",
 )
 @click.option(
-    "--input-format",
-    type=str,
-    required=False,
-    help="Format of the input file (e.g., application/ld+json, text/turtle)",
-)
-@click.option(
     "--force",
     "-f",
     is_flag=True,

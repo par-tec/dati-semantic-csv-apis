@@ -130,34 +130,62 @@
       stdout:
       - >-
         ✓ openapi validation passed
+<<<<<<< HEAD
 
 - id: create_validate_openapi_provinces
+=======
+# Test for creating openapi stub from JSON-LD framed file.
+- id: create_validate_openapi_ateco_2025_jsonld
+  marks:
+  - asset
+>>>>>>> 5475ec3 (Fix: #122. Remove input-format from openapi create command and adapted test)
   description: |-
     Given:
     - a TTL file in assets/
     - a JSON-LD frame in assets/
 
     When:
+<<<<<<< HEAD
     - I run `openapi create`
 
     Then:
     - the command exits successfully
     - a openapi stub YAML file is created
+=======
+    - I run `openapi create` with --jsonld
+
+    Then:
+    - the command exits successfully
+    - an openapi stub YAML file is created
+>>>>>>> 5475ec3 (Fix: #122. Remove input-format from openapi create command and adapted test)
     - logs show the openapi stub was created
   steps:
   - description: |-
       When:
+<<<<<<< HEAD
       - I run `openapi create`
 
       Then:
       - the command exits successfully
       - a openapi stub YAML file is created
+=======
+      - I run `openapi create` with --jsonld
+
+      Then:
+      - the command exits successfully
+      - an openapi stub YAML file is created
+>>>>>>> 5475ec3 (Fix: #122. Remove input-format from openapi create command and adapted test)
       - logs show the openapi stub was created
     command:
     - openapi
     - create
+<<<<<<< HEAD
     - --ttl
     - assets/controlled-vocabularies/provinces/provinces.ttl
+=======
+    - --jsonld
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.data.yamlld
+>>>>>>> 5475ec3 (Fix: #122. Remove input-format from openapi create command and adapted test)
     - --frame
     - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
     - --vocabulary-uri
@@ -167,6 +195,7 @@
     - --force
     expected:
       files:
+<<<<<<< HEAD
       - path: tests/data/snapshots/provinces/provinces.oas3.yaml
         snapshot: tests/data/snapshots/provinces/provinces.oas3.yaml
         compare: data
@@ -178,6 +207,20 @@
         Creating openapi metadata for https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
       - >-
         ✓ Created: .*tests/data/snapshots/provinces/provinces.oas3.yaml
+=======
+      - path: tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+        snapshot: tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+        compare: data
+      logs:
+      - >-
+        openapi stub created: .*tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+      stdout:
+      - >-
+        Creating openapi metadata for https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+      - >-
+        ✓ Created: .*tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+
+>>>>>>> 5475ec3 (Fix: #122. Remove input-format from openapi create command and adapted test)
   - description: |-
       When:
       - I run `openapi validate` on the created openapi stub
@@ -189,7 +232,11 @@
     - openapi
     - validate
     - --openapi
+<<<<<<< HEAD
     - tests/data/snapshots/provinces/provinces.oas3.yaml
+=======
+    - tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+>>>>>>> 5475ec3 (Fix: #122. Remove input-format from openapi create command and adapted test)
     expected:
       stdout:
       - >-
