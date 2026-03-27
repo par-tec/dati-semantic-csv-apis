@@ -58,7 +58,7 @@ jobs:
       run: |
         xargs /usr/local/bin/schema_gov_it_tools.bin \
           --log-level debug \
-          apistore
+          apistore \
           collect \
           --skip-not-found \
           --force \
