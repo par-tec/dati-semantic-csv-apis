@@ -1,0 +1,239 @@
+---
+#
+# This workflow file traverses the VOCABULARY_DIR
+#   and when an oas3.yaml and the data.yaml files
+#   are present, it generates a .db file containing
+#   using the schema_gov_it_tools.bin apistore create command.
+#
+# When all databases are generated, it merges them in a single
+#   .db file and pushes it to the repository.
+#
+name: Asset API Generation
+permissions: {}
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+    paths:
+    - 'assets/controlled-vocabularies/**'
+    - '.github/workflows/publish-api.yml'
+  pull_request:
+    branches:
+    - main
+    paths:
+    - 'assets/controlled-vocabularies/**'
+    - '.github/workflows/publish-api.yml'
+env:
+  CI: true
+  PYTHON_VERSION: '3.14'
+  SOURCE_REF: ${{ github.event.pull_request.head.sha || github.sha
+    }}
+  CHECKOUT_REF: main
+  VOCABULARY_DIR: 'assets/controlled-vocabularies'
+  CLI_VERSION: '0.0.5'
+jobs:
+  # Detect which assets changed in this push
+  detect-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      assets: ${{ steps.detect.outputs.assets }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+    - name: Detect changed assets
+      id: detect
+      shell: bash
+      run: |
+        set -x
+        # Get the list of changed files in the assets directory
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          # For manual dispatch, detect all assets
+          RAW_ASSETS=$(find "$VOCABULARY_DIR" -maxdepth 3 -type f -name "*.ttl" -exec dirname {} \; | sort -u)
+          echo "Detected assets for manual dispatch:"
+          echo "$RAW_ASSETS"
+        else
+          true # XXX: uncomment
+          # For push events, detect changed assets
+          # CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD | grep "^${VOCABULARY_DIR}/")
+          # ASSETS=$(echo "$CHANGED_FILES" | cut -d/ -f3 | sort -u | jq -R -s -c 'split("\n")[:-1] | map(select(length > 0))')
+        fi
+        #Fallback if RAW_ASSETS is empty.
+        if [ -z "$RAW_ASSETS" ]; then
+          RAW_ASSETS=$(find "$VOCABULARY_DIR" -type f -name "*.ttl" -exec dirname {} \; | sort -u)
+          echo "Fallback RAW_ASSETS:"
+          echo "$RAW_ASSETS"
+        fi
+        #filtered assets
+        FILTERED_ASSETS=()
+
+        for DIR in $RAW_ASSETS; do
+        TTL_FILES=($(find "$DIR" -maxdepth 3 -type f -name "*.ttl"))
+        COUNT=${#TTL_FILES[@]}
+
+        if [ "$COUNT" -gt 1 ]; then
+          echo "::warning::Directory $DIR contains multiple TTL files ($COUNT). Skipping."
+        continue
+        fi
+        # Exactly one TTL file found, include this asset
+        FILTERED_ASSETS+=("$DIR")
+        done
+
+        ASSETS=$(printf "%s\n" "${FILTERED_ASSETS[@]}" | jq -R -s -c 'split("\n")[:-1]')
+
+        echo "assets=${ASSETS}" >> "$GITHUB_OUTPUT"
+        echo "Detected assets: ${ASSETS}"
+  #
+  # Job 2: Generate db files and create pull requests
+  #   whenever an oas3.yaml and the data.yaml files are in place.
+  #
+  ci-api:
+    needs: [detect-changes]
+    # if: false  # Temporarily disabled
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        asset: >-
+          ${{ fromJson(needs.detect-changes.outputs.assets) }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: true
+        ref: ${{ env.CHECKOUT_REF }}
+    - name: Set up Python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Download schema_gov_it_tools.bin
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -e
+        ARTIFACT_URL=https://github.com/par-tec/dati-semantic-csv-apis/releases/download/${{ env.CLI_VERSION }}/schema_gov_it_tools.bin
+
+        curl -L \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          "${ARTIFACT_URL}" \
+          -o /usr/local/bin/schema_gov_it_tools.bin
+
+        chmod +x /usr/local/bin/schema_gov_it_tools.bin
+        /usr/local/bin/schema_gov_it_tools.bin --version
+    - name: Check oas3 exists
+      id: check-oas3
+      working-directory: ${{ matrix.asset }}
+      shell: bash
+      run: |
+        shopt -s nullglob
+        pwd
+        ls -l
+        python --version
+        OAS3_FILE=( *.oas3.yaml )
+
+        if (( ${#OAS3_FILE[@]} == 0 )); then
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+          echo "No .oas3.yaml file found in $(pwd)"
+          exit 0
+        fi
+        # Use the first OAS3 file found
+        OAS3_FILE="${OAS3_FILE[0]}"
+        echo "exists=true" >> "$GITHUB_OUTPUT"
+        echo "oas3_file=$OAS3_FILE" >> "$GITHUB_OUTPUT"
+
+        echo "Found OAS3 file: $OAS3_FILE"
+
+    - name: Check frame file exists
+      id: check-frame
+      working-directory: ${{ matrix.asset }}
+      shell: bash
+      run: |
+        shopt -s nullglob
+
+        # Find frame files
+        FRAME_FILES=( *.frame.yamlld )
+
+        if (( ${#FRAME_FILES[@]} == 0 )); then
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+          echo "No .frame.yamlld file found in $(pwd)"
+          exit 0
+        fi
+
+        # Use the first frame file found
+        FRAME_FILE="${FRAME_FILES[0]}"
+        echo "exists=true" >> "$GITHUB_OUTPUT"
+        echo "frame_file=$FRAME_FILE" >> "$GITHUB_OUTPUT"
+
+        echo "Found frame file: $FRAME_FILE"
+
+    - name: Warn missing frame
+      if: steps.check-frame.outputs.exists == 'false'
+      run: |
+        echo "::warning title=Missing frame file::No frame file found for asset '${MATRIX_ASSET}'. This asset will be skipped."
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+    - name: Generate and validate APIStore DB
+      if: steps.check-oas3.outputs.exists == 'true' && steps.check-frame.outputs.exists
+        == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
+      working-directory: >-
+        ${{ matrix.asset }}
+      run: |
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+
+        /usr/local/bin/schema_gov_it_tools.bin \
+          apistore create \
+          --ttl "${ASSET_NAME}.ttl" \
+          --jsonld "${ASSET_NAME}.data.yaml" \
+          --oas "${ASSET_NAME}.oas3.yaml" \
+          --output "${ASSET_NAME}.db" --force
+
+        echo "Generated API for ${MATRIX_ASSET}"
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+    - name: Check for DB files
+      id: check-db
+      if: steps.check-oas3.outputs.exists == 'true' && !contains(matrix.asset,
+        'theme-subtheme-mapping')
+      working-directory: >-
+        ${{ matrix.asset }}
+      run: |
+        if ls *.db 1> /dev/null 2>&1; then
+          echo "db_exists=true" >> "$GITHUB_OUTPUT"
+          DB_FILE=$(ls *.db | head -1)
+          echo "db_file=$DB_FILE" >> "$GITHUB_OUTPUT"
+        else
+          echo "db_exists=false" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Create Pull Request
+      if: steps.check-db.outputs.db_exists == 'true'
+      uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0  # v8.1.0
+      with:
+        base: ${{ env.CHECKOUT_REF }}
+        commit-message: >-
+          feat: add generated DB for ${{ matrix.asset }}
+        title: >-
+          feat: DB generation for ${{ matrix.asset }}
+        body: |
+          # DB Generation for ${{ matrix.asset }}
+
+          This PR contains the auto-generated DB file for the `${{ matrix.asset }}` controlled vocabulary.
+
+          ## Generated Files
+          - `${{ matrix.asset }}/${{ steps.check-db.outputs.db_file }}`
+
+          ## Validation
+          The DB has been generated from the RDF vocabulary and validated against the datapackage metadata.
+
+          Generated by the [Asset DB Generation workflow](.github/workflows/publish-api.yml).
+        branch: >-
+          feat/db-${{ matrix.asset }}
+        delete-branch: true
+        labels: 'automated,db-generation'
