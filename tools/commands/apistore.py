@@ -132,6 +132,75 @@ def create_apistore(
     log.info("APIStore database created: %s", output)
 
 
+def _resolve_db_sources(
+    sources: tuple[str, ...],
+    skip_not_found: bool,
+    tmpdir: Path,
+) -> list[Path]:
+    """Resolve a mix of local paths and HTTPS URLs to local Path objects.
+
+    For each source:
+    - Local path/directory: expanded as before.
+    - HTTPS URL: HEAD first; download on 200, skip or fail on 404.
+
+    Each URL is downloaded into its own subdirectory of tmpdir to avoid
+    filename collisions across different remote sources.
+
+    Returns list of resolved .db Paths.
+    """
+    import urllib.error
+    import urllib.request
+
+    resolved: list[Path] = []
+
+    for idx, source in enumerate(sources):
+        if source.startswith("https://") or source.startswith("http://"):
+            url = source
+            try:
+                req = urllib.request.Request(url, method="HEAD")
+                with urllib.request.urlopen(req) as resp:
+                    status = resp.status
+            except urllib.error.HTTPError as e:
+                status = e.code
+
+            if status == 404:
+                msg = f"Resource not found (404): {url}"
+                if skip_not_found:
+                    log.warning("Skipping: %s", msg)
+                    continue
+                click.secho(f"✗ {msg}", fg="red", err=True)
+                raise click.Abort()
+
+            if status != 200:
+                msg = f"Unexpected HTTP {status} for: {url}"
+                if skip_not_found:
+                    log.warning("Skipping: %s", msg)
+                    continue
+                click.secho(f"✗ {msg}", fg="red", err=True)
+                raise click.Abort()
+
+            filename = url.rsplit("/", 1)[-1] or "downloaded.db"
+            dest = tmpdir / str(idx) / filename
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            log.debug("Downloading %s -> %s", url, dest)
+            urllib.request.urlretrieve(url, dest)
+            resolved.append(dest)
+
+        else:
+            local = Path(source).resolve()
+            if local.is_dir():
+                resolved.extend(
+                    f
+                    for f in local.glob("**/*.db")
+                    if f.with_suffix(".ttl").exists()
+                )
+                log.debug("Collecting from directory: %s", local)
+            else:
+                resolved.append(local)
+
+    return resolved
+
+
 @apistore.command(name="collect")
 @click.option(
     "--output",
@@ -146,33 +215,41 @@ def create_apistore(
     default=False,
     help="Overwrite output file if it already exists.",
 )
-@click.argument(
-    "db_paths",
-    nargs=-1,
-    type=click.Path(
-        exists=True, dir_okay=True, resolve_path=True, path_type=Path
-    ),
+@click.option(
+    "--skip-not-found",
+    is_flag=True,
+    default=False,
+    help="Ignore 404 / missing URLs instead of failing.",
 )
-def collect_command(output: Path, force: bool, db_paths: tuple[Path, ...]):
-    """Merge multiple APIStore databases into a single aggregate database."""
+@click.argument("sources", nargs=-1)
+def collect_command(
+    output: Path, force: bool, skip_not_found: bool, sources: tuple[str, ...]
+):
+    """Merge multiple APIStore databases into a single aggregate database.
+
+    SOURCES can be local file paths, directories, or HTTPS URLs pointing to .db files.
+    """
+    import tempfile
+
     from tools.harvest.collect import collect_databases
 
-    if len(db_paths) == 1 and db_paths[0].is_dir():
-        # If a single directory is provided, collect all .db files within it.
-        db_dir = db_paths[0]
-        db_paths = tuple(
-            f for f in db_dir.glob("**/*.db") if f.with_suffix(".ttl").exists()
-        )
-        log.debug("Collecting from directory: %s, files: %s", db_dir, db_paths)
-    try:
-        stats = collect_databases(output, db_paths, force=force)
-        click.secho(
-            f"✓ Collected into: {output} (processed: {stats['processed']}, skipped: {stats['skipped']}, metadata: {stats['metadata_count']}, tables copied: {stats['copied_tables']}, tables skipped: {stats['skipped_tables']})",
-            fg="green",
-        )
-    except FileExistsError as e:
-        click.secho(f"✗ {e}", fg="red", err=True)
-        raise click.Abort() from e
+    with tempfile.TemporaryDirectory() as tmpdir:
+        try:
+            db_paths = _resolve_db_sources(
+                sources, skip_not_found, Path(tmpdir)
+            )
+        except click.Abort:
+            raise
+
+        try:
+            stats = collect_databases(output, db_paths, force=force)
+            click.secho(
+                f"✓ Collected into: {output} (processed: {stats['processed']}, skipped: {stats['skipped']}, metadata: {stats['metadata_count']}, tables copied: {stats['copied_tables']}, tables skipped: {stats['skipped_tables']})",
+                fg="green",
+            )
+        except FileExistsError as e:
+            click.secho(f"✗ {e}", fg="red", err=True)
+            raise click.Abort() from e
 
 
 @apistore.command(name="validate")
