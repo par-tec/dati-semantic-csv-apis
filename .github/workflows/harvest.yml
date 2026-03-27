@@ -56,14 +56,13 @@ jobs:
       id: harvest
       shell: bash
       run: |
-        xargs /usr/local/bin/schema_gov_it_tools.bin \
+        sed 's/^[[:space:]]*//' repositories.txt | xargs /usr/local/bin/schema_gov_it_tools.bin \
           --log-level debug \
           apistore \
           collect \
           --skip-not-found \
           --force \
-          --output "${RUNNER_TEMP}/vocabularies.db" \
-          < repositories.txt
+          --output "${RUNNER_TEMP}/vocabularies.db"
 
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       if: github.event_name != 'pull_request'
