@@ -36,8 +36,7 @@ components:
           https://w3id.org/italia/onto/CLV/
         dct: >-
           http://purl.org/dc/terms/
-        id:
-          '@id': dct:identifier
+        id: dct:identifier
         label_it:
           '@id': rdfs:label
           '@language': it

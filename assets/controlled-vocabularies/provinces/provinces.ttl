@@ -1,0 +1,3079 @@
+#lang rdf/turtle
+@prefix : <https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ns1: <http://www.w3.org/2006/vcard/ns#> .
+@prefix ns2: <http://rdf-vocabulary.ddialliance.org/xkos#> .
+@prefix ns3: <https://w3id.org/italia/onto/NDC/> .
+@prefix ns4: <http://www.w3.org/ns/adms#> .
+@prefix ns5: <https://w3id.org/italia/onto/CLV/> .
+@prefix ns6: <https://w3id.org/italia/onto/l0/> .
+@prefix nuts: <http://nuts.geovocab.org/id/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix province_code: <https://w3id.org/italia/data/identifiers/provinces-identifiers/province-code/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix regions: <https://w3id.org/italia/controlled-vocabulary/territorial-classifications/regions/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix tc: <https://w3id.org/italia/controlled-vocabulary/territorial-classifications/> .
+@prefix vehicle_code: <https://w3id.org/italia/data/identifiers/provinces-identifiers/vehicle-code/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+### Annotations
+
+:001 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Torino"@it ;
+    skos:prefLabel "Torino"@it ;
+    ns5:acronym "TO" ;
+    ns5:hasDirectHigherRank regions:01 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/201>,
+        province_code:001,
+        vehicle_code:TO ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:01 ;
+    ns6:name "Torino"@it ;
+    owl:sameAs nuts:ITC11 ;
+    skos:broader regions:01 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "001" .
+
+:002 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Vercelli"@it ;
+    skos:prefLabel "Vercelli"@it ;
+    ns5:acronym "VC" ;
+    ns5:hasDirectHigherRank regions:01 ;
+    ns5:hasIdentifier province_code:002,
+        vehicle_code:VC ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:01 ;
+    ns6:name "Vercelli"@it ;
+    owl:sameAs nuts:ITC12 ;
+    skos:broader regions:01 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "002" .
+
+:003 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Novara"@it ;
+    skos:prefLabel "Novara"@it ;
+    ns5:acronym "NO" ;
+    ns5:hasDirectHigherRank regions:01 ;
+    ns5:hasIdentifier province_code:003,
+        vehicle_code:NO ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:01 ;
+    ns6:name "Novara"@it ;
+    owl:sameAs nuts:ITC15 ;
+    skos:broader regions:01 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "003" .
+
+:004 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Cuneo"@it ;
+    skos:prefLabel "Cuneo"@it ;
+    ns5:acronym "CN" ;
+    ns5:hasDirectHigherRank regions:01 ;
+    ns5:hasIdentifier province_code:004,
+        vehicle_code:CN ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:01 ;
+    ns6:name "Cuneo"@it ;
+    owl:sameAs nuts:ITC16 ;
+    skos:broader regions:01 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "004" .
+
+:005 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Asti"@it ;
+    skos:prefLabel "Asti"@it ;
+    ns5:acronym "AT" ;
+    ns5:hasDirectHigherRank regions:01 ;
+    ns5:hasIdentifier province_code:005,
+        vehicle_code:AT ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:01 ;
+    ns6:name "Asti"@it ;
+    owl:sameAs nuts:ITC17 ;
+    skos:broader regions:01 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "005" .
+
+:006 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Alessandria"@it ;
+    skos:prefLabel "Alessandria"@it ;
+    ns5:acronym "AL" ;
+    ns5:hasDirectHigherRank regions:01 ;
+    ns5:hasIdentifier province_code:006,
+        vehicle_code:AL ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:01 ;
+    ns6:name "Alessandria"@it ;
+    owl:sameAs nuts:ITC18 ;
+    skos:broader regions:01 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "006" .
+
+:007 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Valle d'Aosta/Vallée d'Aoste"@it ;
+    skos:prefLabel "Valle d'Aosta/Vallée d'Aoste"@it ;
+    ns5:acronym "AO" ;
+    ns5:hasDirectHigherRank regions:02 ;
+    ns5:hasIdentifier province_code:007,
+        vehicle_code:AO ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:02 ;
+    ns6:name "Valle d'Aosta/Vallée d'Aoste"@it ;
+    owl:sameAs nuts:ITC20 ;
+    skos:broader regions:02 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "007" .
+
+:008 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Imperia"@it ;
+    skos:prefLabel "Imperia"@it ;
+    ns5:acronym "IM" ;
+    ns5:hasDirectHigherRank regions:07 ;
+    ns5:hasIdentifier province_code:008,
+        vehicle_code:IM ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:07 ;
+    ns6:name "Imperia"@it ;
+    owl:sameAs nuts:ITC31 ;
+    skos:broader regions:07 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "008" .
+
+:009 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Savona"@it ;
+    skos:prefLabel "Savona"@it ;
+    ns5:acronym "SV" ;
+    ns5:hasDirectHigherRank regions:07 ;
+    ns5:hasIdentifier province_code:009,
+        vehicle_code:SV ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:07 ;
+    ns6:name "Savona"@it ;
+    owl:sameAs nuts:ITC32 ;
+    skos:broader regions:07 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "009" .
+
+:010 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Genova"@it ;
+    skos:prefLabel "Genova"@it ;
+    ns5:acronym "GE" ;
+    ns5:hasDirectHigherRank regions:07 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/210>,
+        province_code:010,
+        vehicle_code:GE ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:07 ;
+    ns6:name "Genova"@it ;
+    owl:sameAs nuts:ITC33 ;
+    skos:broader regions:07 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "010" .
+
+:011 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "La Spezia"@it ;
+    skos:prefLabel "La Spezia"@it ;
+    ns5:acronym "SP" ;
+    ns5:hasDirectHigherRank regions:07 ;
+    ns5:hasIdentifier province_code:011,
+        vehicle_code:SP ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:07 ;
+    ns6:name "La Spezia"@it ;
+    owl:sameAs nuts:ITC34 ;
+    skos:broader regions:07 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "011" .
+
+:012 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Varese"@it ;
+    skos:prefLabel "Varese"@it ;
+    ns5:acronym "VA" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:012,
+        vehicle_code:VA ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Varese"@it ;
+    owl:sameAs nuts:ITC41 ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "012" .
+
+:013 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Como"@it ;
+    skos:prefLabel "Como"@it ;
+    ns5:acronym "CO" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:013,
+        vehicle_code:CO ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Como"@it ;
+    owl:sameAs nuts:ITC42 ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "013" .
+
+:014 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Sondrio"@it ;
+    skos:prefLabel "Sondrio"@it ;
+    ns5:acronym "SO" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:014,
+        vehicle_code:SO ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Sondrio"@it ;
+    owl:sameAs nuts:ITC44 ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "014" .
+
+:015 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Milano"@it ;
+    skos:prefLabel "Milano"@it ;
+    ns5:acronym "MI" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/215>,
+        province_code:015,
+        vehicle_code:MI ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Milano"@it ;
+    owl:sameAs nuts:ITC45 ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "015" .
+
+:016 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Bergamo"@it ;
+    skos:prefLabel "Bergamo"@it ;
+    ns5:acronym "BG" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:016,
+        vehicle_code:BG ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Bergamo"@it ;
+    owl:sameAs nuts:ITC43,
+        nuts:ITC46 ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "016" .
+
+:017 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Brescia"@it ;
+    skos:prefLabel "Brescia"@it ;
+    ns5:acronym "BS" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:017,
+        vehicle_code:BS ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Brescia"@it ;
+    owl:sameAs nuts:ITC47 ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "017" .
+
+:018 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Pavia"@it ;
+    skos:prefLabel "Pavia"@it ;
+    ns5:acronym "PV" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:018,
+        vehicle_code:PV ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Pavia"@it ;
+    owl:sameAs nuts:ITC48 ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "018" .
+
+:019 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Cremona"@it ;
+    skos:prefLabel "Cremona"@it ;
+    ns5:acronym "CR" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:019,
+        vehicle_code:CR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Cremona"@it ;
+    owl:sameAs nuts:ITC4A ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "019" .
+
+:020 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Mantova"@it ;
+    skos:prefLabel "Mantova"@it ;
+    ns5:acronym "MN" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:020,
+        vehicle_code:MN ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Mantova"@it ;
+    owl:sameAs nuts:ITC4B ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "020" .
+
+:021 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Bolzano/Bozen"@it ;
+    skos:prefLabel "Bolzano/Bozen"@it ;
+    ns5:acronym "BZ" ;
+    ns5:hasDirectHigherRank regions:04 ;
+    ns5:hasIdentifier province_code:021,
+        vehicle_code:BZ ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:04 ;
+    ns6:name "Bolzano/Bozen"@it ;
+    owl:sameAs nuts:ITD10 ;
+    skos:broader regions:04 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "021" .
+
+:022 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Trento"@it ;
+    skos:prefLabel "Trento"@it ;
+    ns5:acronym "TN" ;
+    ns5:hasDirectHigherRank regions:04 ;
+    ns5:hasIdentifier province_code:022,
+        vehicle_code:TN ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:04 ;
+    ns6:name "Trento"@it ;
+    owl:sameAs nuts:ITD20 ;
+    skos:broader regions:04 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "022" .
+
+:023 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Verona"@it ;
+    skos:prefLabel "Verona"@it ;
+    ns5:acronym "VR" ;
+    ns5:hasDirectHigherRank regions:05 ;
+    ns5:hasIdentifier province_code:023,
+        vehicle_code:VR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:05 ;
+    ns6:name "Verona"@it ;
+    owl:sameAs nuts:ITD31 ;
+    skos:broader regions:05 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "023" .
+
+:024 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Vicenza"@it ;
+    skos:prefLabel "Vicenza"@it ;
+    ns5:acronym "VI" ;
+    ns5:hasDirectHigherRank regions:05 ;
+    ns5:hasIdentifier province_code:024,
+        vehicle_code:VI ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:05 ;
+    ns6:name "Vicenza"@it ;
+    owl:sameAs nuts:ITD32 ;
+    skos:broader regions:05 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "024" .
+
+:025 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Belluno"@it ;
+    skos:prefLabel "Belluno"@it ;
+    ns5:acronym "BL" ;
+    ns5:hasDirectHigherRank regions:05 ;
+    ns5:hasIdentifier province_code:025,
+        vehicle_code:BL ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:05 ;
+    ns6:name "Belluno"@it ;
+    owl:sameAs nuts:ITD33 ;
+    skos:broader regions:05 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "025" .
+
+:026 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Treviso"@it ;
+    skos:prefLabel "Treviso"@it ;
+    ns5:acronym "TV" ;
+    ns5:hasDirectHigherRank regions:05 ;
+    ns5:hasIdentifier province_code:026,
+        vehicle_code:TV ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:05 ;
+    ns6:name "Treviso"@it ;
+    owl:sameAs nuts:ITD34 ;
+    skos:broader regions:05 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "026" .
+
+:027 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Venezia"@it ;
+    skos:prefLabel "Venezia"@it ;
+    ns5:acronym "VE" ;
+    ns5:hasDirectHigherRank regions:05 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/227>,
+        province_code:027,
+        vehicle_code:VE ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:05 ;
+    ns6:name "Venezia"@it ;
+    owl:sameAs nuts:ITD35 ;
+    skos:broader regions:05 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "027" .
+
+:028 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Padova"@it ;
+    skos:prefLabel "Padova"@it ;
+    ns5:acronym "PD" ;
+    ns5:hasDirectHigherRank regions:05 ;
+    ns5:hasIdentifier province_code:028,
+        vehicle_code:PD ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:05 ;
+    ns6:name "Padova"@it ;
+    owl:sameAs nuts:ITD36 ;
+    skos:broader regions:05 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "028" .
+
+:029 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Rovigo"@it ;
+    skos:prefLabel "Rovigo"@it ;
+    ns5:acronym "RO" ;
+    ns5:hasDirectHigherRank regions:05 ;
+    ns5:hasIdentifier province_code:029,
+        vehicle_code:RO ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:05 ;
+    ns6:name "Rovigo"@it ;
+    owl:sameAs nuts:ITD37 ;
+    skos:broader regions:05 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "029" .
+
+:030 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Udine"@it ;
+    skos:prefLabel "Udine"@it ;
+    ns5:acronym "UD" ;
+    ns5:hasDirectHigherRank regions:06 ;
+    ns5:hasIdentifier province_code:030,
+        vehicle_code:UD ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:06 ;
+    ns6:name "Udine"@it ;
+    owl:sameAs nuts:ITD33,
+        nuts:ITD42 ;
+    skos:broader regions:06 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "030" .
+
+:031 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Gorizia"@it ;
+    skos:prefLabel "Gorizia"@it ;
+    ns5:acronym "GO" ;
+    ns5:hasDirectHigherRank regions:06 ;
+    ns5:hasIdentifier province_code:031,
+        vehicle_code:GO ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:06 ;
+    ns6:name "Gorizia"@it ;
+    owl:sameAs nuts:ITD43 ;
+    skos:broader regions:06 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "031" .
+
+:032 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Trieste"@it ;
+    skos:prefLabel "Trieste"@it ;
+    ns5:acronym "TS" ;
+    ns5:hasDirectHigherRank regions:06 ;
+    ns5:hasIdentifier province_code:032,
+        vehicle_code:TS ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:06 ;
+    ns6:name "Trieste"@it ;
+    owl:sameAs nuts:ITD44 ;
+    skos:broader regions:06 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "032" .
+
+:033 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Piacenza"@it ;
+    skos:prefLabel "Piacenza"@it ;
+    ns5:acronym "PC" ;
+    ns5:hasDirectHigherRank regions:08 ;
+    ns5:hasIdentifier province_code:033,
+        vehicle_code:PC ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:08 ;
+    ns6:name "Piacenza"@it ;
+    owl:sameAs nuts:ITD51 ;
+    skos:broader regions:08 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "033" .
+
+:034 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Parma"@it ;
+    skos:prefLabel "Parma"@it ;
+    ns5:acronym "PR" ;
+    ns5:hasDirectHigherRank regions:08 ;
+    ns5:hasIdentifier province_code:034,
+        vehicle_code:PR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:08 ;
+    ns6:name "Parma"@it ;
+    owl:sameAs nuts:ITD52 ;
+    skos:broader regions:08 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "034" .
+
+:035 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Reggio nell'Emilia"@it ;
+    skos:prefLabel "Reggio nell'Emilia"@it ;
+    ns5:acronym "RE" ;
+    ns5:hasDirectHigherRank regions:08 ;
+    ns5:hasIdentifier province_code:035,
+        vehicle_code:RE ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:08 ;
+    ns6:name "Reggio nell'Emilia"@it ;
+    owl:sameAs nuts:ITD53 ;
+    skos:broader regions:08 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "035" .
+
+:036 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Modena"@it ;
+    skos:prefLabel "Modena"@it ;
+    ns5:acronym "MO" ;
+    ns5:hasDirectHigherRank regions:08 ;
+    ns5:hasIdentifier province_code:036,
+        vehicle_code:MO ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:08 ;
+    ns6:name "Modena"@it ;
+    owl:sameAs nuts:ITD54 ;
+    skos:broader regions:08 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "036" .
+
+:037 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Bologna"@it ;
+    skos:prefLabel "Bologna"@it ;
+    ns5:acronym "BO" ;
+    ns5:hasDirectHigherRank regions:08 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/237>,
+        province_code:037,
+        vehicle_code:BO ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:08 ;
+    ns6:name "Bologna"@it ;
+    owl:sameAs nuts:ITD55 ;
+    skos:broader regions:08 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "037" .
+
+:038 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Ferrara"@it ;
+    skos:prefLabel "Ferrara"@it ;
+    ns5:acronym "FE" ;
+    ns5:hasDirectHigherRank regions:08 ;
+    ns5:hasIdentifier province_code:038,
+        vehicle_code:FE ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:08 ;
+    ns6:name "Ferrara"@it ;
+    owl:sameAs nuts:ITD56 ;
+    skos:broader regions:08 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "038" .
+
+:039 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Ravenna"@it ;
+    skos:prefLabel "Ravenna"@it ;
+    ns5:acronym "RA" ;
+    ns5:hasDirectHigherRank regions:08 ;
+    ns5:hasIdentifier province_code:039,
+        vehicle_code:RA ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:08 ;
+    ns6:name "Ravenna"@it ;
+    owl:sameAs nuts:ITD57 ;
+    skos:broader regions:08 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "039" .
+
+:040 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Forlì-Cesena"@it ;
+    skos:prefLabel "Forlì-Cesena"@it ;
+    ns5:acronym "FC" ;
+    ns5:hasDirectHigherRank regions:08 ;
+    ns5:hasIdentifier province_code:040,
+        vehicle_code:FC ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:08 ;
+    ns6:name "Forlì-Cesena"@it ;
+    owl:sameAs nuts:ITD58 ;
+    skos:broader regions:08 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "040" .
+
+:041 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Pesaro e Urbino"@it ;
+    skos:prefLabel "Pesaro e Urbino"@it ;
+    ns5:acronym "PU" ;
+    ns5:hasDirectHigherRank regions:11 ;
+    ns5:hasIdentifier province_code:041,
+        vehicle_code:PU ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:11 ;
+    ns6:name "Pesaro e Urbino"@it ;
+    owl:sameAs nuts:ITE31 ;
+    skos:broader regions:11 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "041" .
+
+:042 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Ancona"@it ;
+    skos:prefLabel "Ancona"@it ;
+    ns5:acronym "AN" ;
+    ns5:hasDirectHigherRank regions:11 ;
+    ns5:hasIdentifier province_code:042,
+        vehicle_code:AN ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:11 ;
+    ns6:name "Ancona"@it ;
+    owl:sameAs nuts:ITE32 ;
+    skos:broader regions:11 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "042" .
+
+:043 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Macerata"@it ;
+    skos:prefLabel "Macerata"@it ;
+    ns5:acronym "MC" ;
+    ns5:hasDirectHigherRank regions:11 ;
+    ns5:hasIdentifier province_code:043,
+        vehicle_code:MC ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:11 ;
+    ns6:name "Macerata"@it ;
+    owl:sameAs nuts:ITE33 ;
+    skos:broader regions:11 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "043" .
+
+:044 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Ascoli Piceno"@it ;
+    skos:prefLabel "Ascoli Piceno"@it ;
+    ns5:acronym "AP" ;
+    ns5:hasDirectHigherRank regions:11 ;
+    ns5:hasIdentifier province_code:044,
+        vehicle_code:AP ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:11 ;
+    ns6:name "Ascoli Piceno"@it ;
+    owl:sameAs nuts:ITE34 ;
+    skos:broader regions:11 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "044" .
+
+:045 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Massa-Carrara"@it ;
+    skos:prefLabel "Massa-Carrara"@it ;
+    ns5:acronym "MS" ;
+    ns5:hasDirectHigherRank regions:09 ;
+    ns5:hasIdentifier province_code:045,
+        vehicle_code:MS ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:09 ;
+    ns6:name "Massa-Carrara"@it ;
+    owl:sameAs nuts:ITE11 ;
+    skos:broader regions:09 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "045" .
+
+:046 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Lucca"@it ;
+    skos:prefLabel "Lucca"@it ;
+    ns5:acronym "LU" ;
+    ns5:hasDirectHigherRank regions:09 ;
+    ns5:hasIdentifier province_code:046,
+        vehicle_code:LU ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:09 ;
+    ns6:name "Lucca"@it ;
+    owl:sameAs nuts:ITE12 ;
+    skos:broader regions:09 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "046" .
+
+:047 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Pistoia"@it ;
+    skos:prefLabel "Pistoia"@it ;
+    ns5:acronym "PT" ;
+    ns5:hasDirectHigherRank regions:09 ;
+    ns5:hasIdentifier province_code:047,
+        vehicle_code:PT ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:09 ;
+    ns6:name "Pistoia"@it ;
+    owl:sameAs nuts:ITE13 ;
+    skos:broader regions:09 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "047" .
+
+:048 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Firenze"@it ;
+    skos:prefLabel "Firenze"@it ;
+    ns5:acronym "FI" ;
+    ns5:hasDirectHigherRank regions:09 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/248>,
+        province_code:048,
+        vehicle_code:FI ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:09 ;
+    ns6:name "Firenze"@it ;
+    owl:sameAs nuts:ITE14 ;
+    skos:broader regions:09 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "048" .
+
+:049 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Livorno"@it ;
+    skos:prefLabel "Livorno"@it ;
+    ns5:acronym "LI" ;
+    ns5:hasDirectHigherRank regions:09 ;
+    ns5:hasIdentifier province_code:049,
+        vehicle_code:LI ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:09 ;
+    ns6:name "Livorno"@it ;
+    owl:sameAs nuts:ITE16 ;
+    skos:broader regions:09 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "049" .
+
+:050 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Pisa"@it ;
+    skos:prefLabel "Pisa"@it ;
+    ns5:acronym "PI" ;
+    ns5:hasDirectHigherRank regions:09 ;
+    ns5:hasIdentifier province_code:050,
+        vehicle_code:PI ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:09 ;
+    ns6:name "Pisa"@it ;
+    owl:sameAs nuts:ITE17 ;
+    skos:broader regions:09 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "050" .
+
+:051 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Arezzo"@it ;
+    skos:prefLabel "Arezzo"@it ;
+    ns5:acronym "AR" ;
+    ns5:hasDirectHigherRank regions:09 ;
+    ns5:hasIdentifier province_code:051,
+        vehicle_code:AR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:09 ;
+    ns6:name "Arezzo"@it ;
+    owl:sameAs nuts:ITE18 ;
+    skos:broader regions:09 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "051" .
+
+:052 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Siena"@it ;
+    skos:prefLabel "Siena"@it ;
+    ns5:acronym "SI" ;
+    ns5:hasDirectHigherRank regions:09 ;
+    ns5:hasIdentifier province_code:052,
+        vehicle_code:SI ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:09 ;
+    ns6:name "Siena"@it ;
+    owl:sameAs nuts:ITE19 ;
+    skos:broader regions:09 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "052" .
+
+:053 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Grosseto"@it ;
+    skos:prefLabel "Grosseto"@it ;
+    ns5:acronym "GR" ;
+    ns5:hasDirectHigherRank regions:09 ;
+    ns5:hasIdentifier province_code:053,
+        vehicle_code:GR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:09 ;
+    ns6:name "Grosseto"@it ;
+    owl:sameAs nuts:ITE1A ;
+    skos:broader regions:09 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "053" .
+
+:054 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Perugia"@it ;
+    skos:prefLabel "Perugia"@it ;
+    ns5:acronym "PG" ;
+    ns5:hasDirectHigherRank regions:10 ;
+    ns5:hasIdentifier province_code:054,
+        vehicle_code:PG ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:10 ;
+    ns6:name "Perugia"@it ;
+    owl:sameAs nuts:ITE21 ;
+    skos:broader regions:10 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "054" .
+
+:055 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Terni"@it ;
+    skos:prefLabel "Terni"@it ;
+    ns5:acronym "TR" ;
+    ns5:hasDirectHigherRank regions:10 ;
+    ns5:hasIdentifier province_code:055,
+        vehicle_code:TR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:10 ;
+    ns6:name "Terni"@it ;
+    owl:sameAs nuts:ITE22 ;
+    skos:broader regions:10 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "055" .
+
+:056 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Viterbo"@it ;
+    skos:prefLabel "Viterbo"@it ;
+    ns5:acronym "VT" ;
+    ns5:hasDirectHigherRank regions:12 ;
+    ns5:hasIdentifier province_code:056,
+        vehicle_code:VT ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:12 ;
+    ns6:name "Viterbo"@it ;
+    owl:sameAs nuts:ITE41 ;
+    skos:broader regions:12 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "056" .
+
+:057 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Rieti"@it ;
+    skos:prefLabel "Rieti"@it ;
+    ns5:acronym "RI" ;
+    ns5:hasDirectHigherRank regions:12 ;
+    ns5:hasIdentifier province_code:057,
+        vehicle_code:RI ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:12 ;
+    ns6:name "Rieti"@it ;
+    owl:sameAs nuts:ITE42 ;
+    skos:broader regions:12 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "057" .
+
+:058 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Roma"@it ;
+    skos:prefLabel "Roma"@it ;
+    ns5:acronym "RM" ;
+    ns5:hasDirectHigherRank regions:12 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/258>,
+        province_code:058,
+        vehicle_code:RM ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:12 ;
+    ns6:name "Roma"@it ;
+    owl:sameAs nuts:ITE43 ;
+    skos:broader regions:12 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "058" .
+
+:059 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Latina"@it ;
+    skos:prefLabel "Latina"@it ;
+    ns5:acronym "LT" ;
+    ns5:hasDirectHigherRank regions:12 ;
+    ns5:hasIdentifier province_code:059,
+        vehicle_code:LT ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:12 ;
+    ns6:name "Latina"@it ;
+    owl:sameAs nuts:ITE44 ;
+    skos:broader regions:12 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "059" .
+
+:060 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Frosinone"@it ;
+    skos:prefLabel "Frosinone"@it ;
+    ns5:acronym "FR" ;
+    ns5:hasDirectHigherRank regions:12 ;
+    ns5:hasIdentifier province_code:060,
+        vehicle_code:FR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:12 ;
+    ns6:name "Frosinone"@it ;
+    owl:sameAs nuts:ITE45 ;
+    skos:broader regions:12 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "060" .
+
+:061 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Caserta"@it ;
+    skos:prefLabel "Caserta"@it ;
+    ns5:acronym "CE" ;
+    ns5:hasDirectHigherRank regions:15 ;
+    ns5:hasIdentifier province_code:061,
+        vehicle_code:CE ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:15 ;
+    ns6:name "Caserta"@it ;
+    owl:sameAs nuts:ITF31 ;
+    skos:broader regions:15 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "061" .
+
+:062 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Benevento"@it ;
+    skos:prefLabel "Benevento"@it ;
+    ns5:acronym "BN" ;
+    ns5:hasDirectHigherRank regions:15 ;
+    ns5:hasIdentifier province_code:062,
+        vehicle_code:BN ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:15 ;
+    ns6:name "Benevento"@it ;
+    owl:sameAs nuts:ITF32 ;
+    skos:broader regions:15 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "062" .
+
+:063 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Napoli"@it ;
+    skos:prefLabel "Napoli"@it ;
+    ns5:acronym "NA" ;
+    ns5:hasDirectHigherRank regions:15 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/263>,
+        province_code:063,
+        vehicle_code:NA ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:15 ;
+    ns6:name "Napoli"@it ;
+    owl:sameAs nuts:ITF33 ;
+    skos:broader regions:15 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "063" .
+
+:064 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Avellino"@it ;
+    skos:prefLabel "Avellino"@it ;
+    ns5:acronym "AV" ;
+    ns5:hasDirectHigherRank regions:15 ;
+    ns5:hasIdentifier province_code:064,
+        vehicle_code:AV ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:15 ;
+    ns6:name "Avellino"@it ;
+    owl:sameAs nuts:ITF34 ;
+    skos:broader regions:15 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "064" .
+
+:065 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Salerno"@it ;
+    skos:prefLabel "Salerno"@it ;
+    ns5:acronym "SA" ;
+    ns5:hasDirectHigherRank regions:15 ;
+    ns5:hasIdentifier province_code:065,
+        vehicle_code:SA ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:15 ;
+    ns6:name "Salerno"@it ;
+    owl:sameAs nuts:ITF35 ;
+    skos:broader regions:15 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "065" .
+
+:066 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "L'Aquila"@it ;
+    skos:prefLabel "L'Aquila"@it ;
+    ns5:acronym "AQ" ;
+    ns5:hasDirectHigherRank regions:13 ;
+    ns5:hasIdentifier province_code:066,
+        vehicle_code:AQ ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:13 ;
+    ns6:name "L'Aquila"@it ;
+    owl:sameAs nuts:ITF11 ;
+    skos:broader regions:13 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "066" .
+
+:067 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Teramo"@it ;
+    skos:prefLabel "Teramo"@it ;
+    ns5:acronym "TE" ;
+    ns5:hasDirectHigherRank regions:13 ;
+    ns5:hasIdentifier province_code:067,
+        vehicle_code:TE ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:13 ;
+    ns6:name "Teramo"@it ;
+    owl:sameAs nuts:ITF12 ;
+    skos:broader regions:13 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "067" .
+
+:068 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Pescara"@it ;
+    skos:prefLabel "Pescara"@it ;
+    ns5:acronym "PE" ;
+    ns5:hasDirectHigherRank regions:13 ;
+    ns5:hasIdentifier province_code:068,
+        vehicle_code:PE ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:13 ;
+    ns6:name "Pescara"@it ;
+    owl:sameAs nuts:ITF13 ;
+    skos:broader regions:13 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "068" .
+
+:069 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Chieti"@it ;
+    skos:prefLabel "Chieti"@it ;
+    ns5:acronym "CH" ;
+    ns5:hasDirectHigherRank regions:13 ;
+    ns5:hasIdentifier province_code:069,
+        vehicle_code:CH ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:13 ;
+    ns6:name "Chieti"@it ;
+    owl:sameAs nuts:ITF14 ;
+    skos:broader regions:13 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "069" .
+
+:070 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Campobasso"@it ;
+    skos:prefLabel "Campobasso"@it ;
+    ns5:acronym "CB" ;
+    ns5:hasDirectHigherRank regions:14 ;
+    ns5:hasIdentifier province_code:070,
+        vehicle_code:CB ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:14 ;
+    ns6:name "Campobasso"@it ;
+    owl:sameAs nuts:ITF22 ;
+    skos:broader regions:14 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "070" .
+
+:071 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Foggia"@it ;
+    skos:prefLabel "Foggia"@it ;
+    ns5:acronym "FG" ;
+    ns5:hasDirectHigherRank regions:16 ;
+    ns5:hasIdentifier province_code:071,
+        vehicle_code:FG ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:16 ;
+    ns6:name "Foggia"@it ;
+    owl:sameAs nuts:ITF41 ;
+    skos:broader regions:16 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "071" .
+
+:072 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Bari"@it ;
+    skos:prefLabel "Bari"@it ;
+    ns5:acronym "BA" ;
+    ns5:hasDirectHigherRank regions:16 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/272>,
+        province_code:072,
+        vehicle_code:BA ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:16 ;
+    ns6:name "Bari"@it ;
+    owl:sameAs nuts:ITF42 ;
+    skos:broader regions:16 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "072" .
+
+:073 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Taranto"@it ;
+    skos:prefLabel "Taranto"@it ;
+    ns5:acronym "TA" ;
+    ns5:hasDirectHigherRank regions:16 ;
+    ns5:hasIdentifier province_code:073,
+        vehicle_code:TA ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:16 ;
+    ns6:name "Taranto"@it ;
+    owl:sameAs nuts:ITF43 ;
+    skos:broader regions:16 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "073" .
+
+:074 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Brindisi"@it ;
+    skos:prefLabel "Brindisi"@it ;
+    ns5:acronym "BR" ;
+    ns5:hasDirectHigherRank regions:16 ;
+    ns5:hasIdentifier province_code:074,
+        vehicle_code:BR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:16 ;
+    ns6:name "Brindisi"@it ;
+    owl:sameAs nuts:ITF44 ;
+    skos:broader regions:16 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "074" .
+
+:075 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Lecce"@it ;
+    skos:prefLabel "Lecce"@it ;
+    ns5:acronym "LE" ;
+    ns5:hasDirectHigherRank regions:16 ;
+    ns5:hasIdentifier province_code:075,
+        vehicle_code:LE ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:16 ;
+    ns6:name "Lecce"@it ;
+    owl:sameAs nuts:ITF45 ;
+    skos:broader regions:16 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "075" .
+
+:076 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Potenza"@it ;
+    skos:prefLabel "Potenza"@it ;
+    ns5:acronym "PZ" ;
+    ns5:hasDirectHigherRank regions:17 ;
+    ns5:hasIdentifier province_code:076,
+        vehicle_code:PZ ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:17 ;
+    ns6:name "Potenza"@it ;
+    owl:sameAs nuts:ITF51 ;
+    skos:broader regions:17 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "076" .
+
+:077 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Matera"@it ;
+    skos:prefLabel "Matera"@it ;
+    ns5:acronym "MT" ;
+    ns5:hasDirectHigherRank regions:17 ;
+    ns5:hasIdentifier province_code:077,
+        vehicle_code:MT ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:17 ;
+    ns6:name "Matera"@it ;
+    owl:sameAs nuts:ITF52 ;
+    skos:broader regions:17 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "077" .
+
+:078 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Cosenza"@it ;
+    skos:prefLabel "Cosenza"@it ;
+    ns5:acronym "CS" ;
+    ns5:hasDirectHigherRank regions:18 ;
+    ns5:hasIdentifier province_code:078,
+        vehicle_code:CS ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:18 ;
+    ns6:name "Cosenza"@it ;
+    owl:sameAs nuts:ITF61 ;
+    skos:broader regions:18 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "078" .
+
+:079 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Catanzaro"@it ;
+    skos:prefLabel "Catanzaro"@it ;
+    ns5:acronym "CZ" ;
+    ns5:hasDirectHigherRank regions:18 ;
+    ns5:hasIdentifier province_code:079,
+        vehicle_code:CZ ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:18 ;
+    ns6:name "Catanzaro"@it ;
+    owl:sameAs nuts:ITF63 ;
+    skos:broader regions:18 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "079" .
+
+:080 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Reggio di Calabria"@it ;
+    skos:prefLabel "Reggio di Calabria"@it ;
+    ns5:acronym "RC" ;
+    ns5:hasDirectHigherRank regions:18 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/280>,
+        province_code:080,
+        vehicle_code:RC ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:18 ;
+    ns6:name "Reggio di Calabria"@it ;
+    owl:sameAs nuts:ITF65 ;
+    skos:broader regions:18 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "080" .
+
+:081 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Trapani"@it ;
+    skos:prefLabel "Trapani"@it ;
+    ns5:acronym "TP" ;
+    ns5:hasDirectHigherRank regions:19 ;
+    ns5:hasIdentifier province_code:081,
+        vehicle_code:TP ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:19 ;
+    ns6:name "Trapani"@it ;
+    owl:sameAs nuts:ITG11 ;
+    skos:broader regions:19 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "081" .
+
+:082 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Palermo"@it ;
+    skos:prefLabel "Palermo"@it ;
+    ns5:acronym "PA" ;
+    ns5:hasDirectHigherRank regions:19 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/282>,
+        province_code:082,
+        vehicle_code:PA ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:19 ;
+    ns6:name "Palermo"@it ;
+    owl:sameAs nuts:ITG12 ;
+    skos:broader regions:19 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "082" .
+
+:083 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Messina"@it ;
+    skos:prefLabel "Messina"@it ;
+    ns5:acronym "ME" ;
+    ns5:hasDirectHigherRank regions:19 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/283>,
+        province_code:083,
+        vehicle_code:ME ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:19 ;
+    ns6:name "Messina"@it ;
+    owl:sameAs nuts:ITG13 ;
+    skos:broader regions:19 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "083" .
+
+:084 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Agrigento"@it ;
+    skos:prefLabel "Agrigento"@it ;
+    ns5:acronym "AG" ;
+    ns5:hasDirectHigherRank regions:19 ;
+    ns5:hasIdentifier province_code:084,
+        vehicle_code:AG ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:19 ;
+    ns6:name "Agrigento"@it ;
+    owl:sameAs nuts:ITG14 ;
+    skos:broader regions:19 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "084" .
+
+:085 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Caltanissetta"@it ;
+    skos:prefLabel "Caltanissetta"@it ;
+    ns5:acronym "CL" ;
+    ns5:hasDirectHigherRank regions:19 ;
+    ns5:hasIdentifier province_code:085,
+        vehicle_code:CL ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:19 ;
+    ns6:name "Caltanissetta"@it ;
+    owl:sameAs nuts:ITG15 ;
+    skos:broader regions:19 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "085" .
+
+:086 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Enna"@it ;
+    skos:prefLabel "Enna"@it ;
+    ns5:acronym "EN" ;
+    ns5:hasDirectHigherRank regions:19 ;
+    ns5:hasIdentifier province_code:086,
+        vehicle_code:EN ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:19 ;
+    ns6:name "Enna"@it ;
+    owl:sameAs nuts:ITG16 ;
+    skos:broader regions:19 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "086" .
+
+:087 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Catania"@it ;
+    skos:prefLabel "Catania"@it ;
+    ns5:acronym "CT" ;
+    ns5:hasDirectHigherRank regions:19 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/287>,
+        province_code:087,
+        vehicle_code:CT ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:19 ;
+    ns6:name "Catania"@it ;
+    owl:sameAs nuts:ITG17 ;
+    skos:broader regions:19 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "087" .
+
+:088 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Ragusa"@it ;
+    skos:prefLabel "Ragusa"@it ;
+    ns5:acronym "RG" ;
+    ns5:hasDirectHigherRank regions:19 ;
+    ns5:hasIdentifier province_code:088,
+        vehicle_code:RG ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:19 ;
+    ns6:name "Ragusa"@it ;
+    owl:sameAs nuts:ITG18 ;
+    skos:broader regions:19 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "088" .
+
+:089 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Siracusa"@it ;
+    skos:prefLabel "Siracusa"@it ;
+    ns5:acronym "SR" ;
+    ns5:hasDirectHigherRank regions:19 ;
+    ns5:hasIdentifier province_code:089,
+        vehicle_code:SR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:19 ;
+    ns6:name "Siracusa"@it ;
+    owl:sameAs nuts:ITG19 ;
+    skos:broader regions:19 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "089" .
+
+:090 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Sassari"@it ;
+    skos:prefLabel "Sassari"@it ;
+    ns5:acronym "SS" ;
+    ns5:hasDirectHigherRank regions:20 ;
+    ns5:hasIdentifier province_code:090,
+        vehicle_code:SS ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:20 ;
+    ns6:name "Sassari"@it ;
+    owl:sameAs nuts:ITG25,
+        nuts:ITG29 ;
+    skos:broader regions:20 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "090" .
+
+:091 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Nuoro"@it ;
+    skos:prefLabel "Nuoro"@it ;
+    ns5:acronym "NU" ;
+    ns5:hasDirectHigherRank regions:20 ;
+    ns5:hasIdentifier province_code:091,
+        vehicle_code:NU ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:20 ;
+    ns6:name "Nuoro"@it ;
+    owl:sameAs nuts:ITG2A,
+        nuts:ITG26 ;
+    skos:broader regions:20 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "091" .
+
+:092 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Cagliari"@it ;
+    skos:prefLabel "Cagliari"@it ;
+    ns5:acronym "CA" ;
+    ns5:hasDirectHigherRank regions:20 ;
+    ns5:hasIdentifier <https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/292>,
+        province_code:092,
+        vehicle_code:CA ;
+    ns5:hasRankOrder "4" ;
+    ns5:situatedWithin regions:20 ;
+    ns6:name "Cagliari"@it ;
+    owl:sameAs nuts:ITG27 ;
+    skos:broader regions:20 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "092" .
+
+:093 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Pordenone"@it ;
+    skos:prefLabel "Pordenone"@it ;
+    ns5:acronym "PN" ;
+    ns5:hasDirectHigherRank regions:06 ;
+    ns5:hasIdentifier province_code:093,
+        vehicle_code:PN ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:06 ;
+    ns6:name "Pordenone"@it ;
+    owl:sameAs nuts:ITD41 ;
+    skos:broader regions:06 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "093" .
+
+:094 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Isernia"@it ;
+    skos:prefLabel "Isernia"@it ;
+    ns5:acronym "IS" ;
+    ns5:hasDirectHigherRank regions:14 ;
+    ns5:hasIdentifier province_code:094,
+        vehicle_code:IS ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:14 ;
+    ns6:name "Isernia"@it ;
+    owl:sameAs nuts:ITF21 ;
+    skos:broader regions:14 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "094" .
+
+:095 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Oristano"@it ;
+    skos:prefLabel "Oristano"@it ;
+    ns5:acronym "OR" ;
+    ns5:hasDirectHigherRank regions:20 ;
+    ns5:hasIdentifier province_code:095,
+        vehicle_code:OR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:20 ;
+    ns6:name "Oristano"@it ;
+    owl:sameAs nuts:ITG28 ;
+    skos:broader regions:20 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "095" .
+
+:096 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Biella"@it ;
+    skos:prefLabel "Biella"@it ;
+    ns5:acronym "BI" ;
+    ns5:hasDirectHigherRank regions:01 ;
+    ns5:hasIdentifier province_code:096,
+        vehicle_code:BI ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:01 ;
+    ns6:name "Biella"@it ;
+    owl:sameAs nuts:ITC13 ;
+    skos:broader regions:01 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "096" .
+
+:097 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Lecco"@it ;
+    skos:prefLabel "Lecco"@it ;
+    ns5:acronym "LC" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:097,
+        vehicle_code:LC ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Lecco"@it ;
+    owl:sameAs nuts:ITC43 ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "097" .
+
+:098 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Lodi"@it ;
+    skos:prefLabel "Lodi"@it ;
+    ns5:acronym "LO" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:098,
+        vehicle_code:LO ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Lodi"@it ;
+    owl:sameAs nuts:ITC49 ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "098" .
+
+:099 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Rimini"@it ;
+    skos:prefLabel "Rimini"@it ;
+    ns5:acronym "RN" ;
+    ns5:hasDirectHigherRank regions:08 ;
+    ns5:hasIdentifier province_code:099,
+        vehicle_code:RN ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:08 ;
+    ns6:name "Rimini"@it ;
+    owl:sameAs nuts:ITD59,
+        nuts:ITE31 ;
+    skos:broader regions:08 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "099" .
+
+:100 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Prato"@it ;
+    skos:prefLabel "Prato"@it ;
+    ns5:acronym "PO" ;
+    ns5:hasDirectHigherRank regions:09 ;
+    ns5:hasIdentifier province_code:100,
+        vehicle_code:PO ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:09 ;
+    ns6:name "Prato"@it ;
+    owl:sameAs nuts:ITE15 ;
+    skos:broader regions:09 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "100" .
+
+:101 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Crotone"@it ;
+    skos:prefLabel "Crotone"@it ;
+    ns5:acronym "KR" ;
+    ns5:hasDirectHigherRank regions:18 ;
+    ns5:hasIdentifier province_code:101,
+        vehicle_code:KR ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:18 ;
+    ns6:name "Crotone"@it ;
+    owl:sameAs nuts:ITF62 ;
+    skos:broader regions:18 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "101" .
+
+:102 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Vibo Valentia"@it ;
+    skos:prefLabel "Vibo Valentia"@it ;
+    ns5:acronym "VV" ;
+    ns5:hasDirectHigherRank regions:18 ;
+    ns5:hasIdentifier province_code:102,
+        vehicle_code:VV ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:18 ;
+    ns6:name "Vibo Valentia"@it ;
+    owl:sameAs nuts:ITF64 ;
+    skos:broader regions:18 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "102" .
+
+:103 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Verbano-Cusio-Ossola"@it ;
+    skos:prefLabel "Verbano-Cusio-Ossola"@it ;
+    ns5:acronym "VB" ;
+    ns5:hasDirectHigherRank regions:01 ;
+    ns5:hasIdentifier province_code:103,
+        vehicle_code:VB ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:01 ;
+    ns6:name "Verbano-Cusio-Ossola"@it ;
+    owl:sameAs nuts:ITC14 ;
+    skos:broader regions:01 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "103" .
+
+:108 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Monza e della Brianza"@it ;
+    skos:prefLabel "Monza e della Brianza"@it ;
+    ns5:acronym "MB" ;
+    ns5:hasDirectHigherRank regions:03 ;
+    ns5:hasIdentifier province_code:108,
+        vehicle_code:MB ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:03 ;
+    ns6:name "Monza e della Brianza"@it ;
+    owl:sameAs <http://nuts.geovocab.org/id/-> ;
+    skos:broader regions:03 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "108" .
+
+:109 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Fermo"@it ;
+    skos:prefLabel "Fermo"@it ;
+    ns5:acronym "FM" ;
+    ns5:hasDirectHigherRank regions:11 ;
+    ns5:hasIdentifier province_code:109,
+        vehicle_code:FM ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:11 ;
+    ns6:name "Fermo"@it ;
+    owl:sameAs <http://nuts.geovocab.org/id/-> ;
+    skos:broader regions:11 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "109" .
+
+:110 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Barletta-Andria-Trani"@it ;
+    skos:prefLabel "Barletta-Andria-Trani"@it ;
+    ns5:acronym "BT" ;
+    ns5:hasDirectHigherRank regions:16 ;
+    ns5:hasIdentifier province_code:110,
+        vehicle_code:BT ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:16 ;
+    ns6:name "Barletta-Andria-Trani"@it ;
+    owl:sameAs <http://nuts.geovocab.org/id/-> ;
+    skos:broader regions:16 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "110" .
+
+:111 a ns5:AdminUnitComponent,
+        ns5:Feature,
+        ns5:Province,
+        skos:Concept ;
+    rdfs:label "Sud Sardegna"@it ;
+    skos:prefLabel "Sud Sardegna"@it ;
+    ns5:acronym "SU" ;
+    ns5:hasDirectHigherRank regions:20 ;
+    ns5:hasIdentifier province_code:111,
+        vehicle_code:SU ;
+    ns5:hasRankOrder "3" ;
+    ns5:situatedWithin regions:20 ;
+    ns6:name "Sud Sardegna"@it ;
+    owl:sameAs nuts:ITG2A,
+        nuts:ITG2B,
+        nuts:ITG2C,
+        nuts:ITG27,
+        nuts:ITG28 ;
+    skos:broader regions:20 ;
+    skos:inScheme tc:provinces ;
+    skos:notation "111" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/201> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "201" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/210> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "210" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/215> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "215" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/227> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "227" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/237> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "237" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/248> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "248" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/258> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "258" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/263> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "263" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/272> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "272" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/280> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "280" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/282> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "282" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/283> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "283" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/287> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "287" .
+
+<https://w3id.org/italia/data/identifiers/provinces-identifiers/metropolitan-city-code/292> a ns5:Identifier ;
+    ns5:identifierType "Codice Città Metropolitana"@it ;
+    ns6:identifier "292" .
+
+<https://w3id.org/italia/data/public-organization/agid> a foaf:Agent,
+        <http://dati.gov.it/onto/dcatapit#Agent> ;
+    dcterms:identifier "agid" ;
+    foaf:name "Agenzia per l'Italia Digitale"@it,
+        "Italian Digital Agency"@en .
+
+<https://w3id.org/italia/data/resource/Amministrazione/td_PCM> a foaf:Agent,
+        <http://dati.gov.it/onto/dcatapit#Agent> ;
+    dcterms:identifier "PCM" ;
+    foaf:name "Digital Transformation Team"@en,
+        "Team per la Trasformazione Digitale"@it .
+
+<https://w3id.org/italia/data/resource/ContactPoint/voc_AgID> a <http://dati.gov.it/onto/dcatapit#Organization>,
+        ns1:Kind,
+        ns1:Organization ;
+    ns1:fn "banche dati e open data" ;
+    ns1:hasEmail <mailto:info@dati.gov.it> .
+
+<https://w3id.org/italia/data/resource/Distribution/provinces_JSON_LD> a <http://dati.gov.it/onto/dcatapit#Distribution> ;
+    dcat:accessURL <https://github.com/italia/dati-semantic-assets/blob/master/VocabolariControllati/territorial-classifications/provinces> ;
+    dcat:downloadURL <https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/territorial-classifications/provinces/provinces.jsonld> ;
+    dcterms:description "Questa è la distribuzione JSON-LD del dataset Linked Open Data del vocabolario controllato sulle province d'Italia"@it,
+        "This is the distribution in JSON-LD of the Linked Open Dataset of the Italian Provinces controlled vocabulary "@en ;
+    dcterms:format <http://publications.europa.eu/resource/authority/file-type/JSON_LD> ;
+    dcterms:license <https://w3id.org/italia/controlled-vocabulary/licences/A21_CCBY40> ;
+    dcterms:title "Distribuzione JSON-LD del vocabolario controllato sulle regioni d'Italia"@it,
+        "JSON-LD distribution of the Italian provinces controlled vocabulary"@en .
+
+<https://w3id.org/italia/data/resource/Distribution/provinces_RDF_Turtle> a <http://dati.gov.it/onto/dcatapit#Distribution> ;
+    dcat:accessURL <https://github.com/italia/dati-semantic-assets/blob/master/VocabolariControllati/territorial-classifications/provinces> ;
+    dcat:downloadURL <https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/territorial-classifications/provinces/provinces.ttl> ;
+    dcterms:description "Questa è la distribuzione RDF/Turtle del dataset Linked Open Data del vocabolario controllato sulle province d'Italia"@it,
+        "This is the distribution in RDF/turtle of the Linked Open Dataset of the Italian Provinces controlled vocabulary "@en ;
+    dcterms:format <http://publications.europa.eu/resource/authority/file-type/RDF_TURTLE> ;
+    dcterms:license <https://w3id.org/italia/controlled-vocabulary/licences/A21_CCBY40> ;
+    dcterms:title "Distribuzione RDF/Turtle del vocabolario controllato sulle province d'Italia"@it,
+        "RDF/Turtle distribution of the Italian provinces controlled vocabulary"@en .
+
+<https://w3id.org/italia/data/resource/Distribution/provinces_RDF_XML> a <http://dati.gov.it/onto/dcatapit#Distribution> ;
+    dcat:accessURL <https://github.com/italia/dati-semantic-assets/blob/master/VocabolariControllati/territorial-classifications/provinces> ;
+    dcat:downloadURL <https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/territorial-classifications/provinces/provinces.rdf> ;
+    dcterms:description "Questa è la distribuzione RDF/XML del dataset Linked Open Data del vocabolario controllato sulle province d'Italia"@it,
+        "This is the distribution in RDF/XML of the Linked Open Dataset of the Italian Provinces controlled vocabulary "@en ;
+    dcterms:format <http://publications.europa.eu/resource/authority/file-type/RDF_XML> ;
+    dcterms:license <https://w3id.org/italia/controlled-vocabulary/licences/A21_CCBY40> ;
+    dcterms:title "Distribuzione RDF/XML del vocabolario controllato sulle regioni d'Italia"@it,
+        "RDF/XML distribution of the Italian provinces controlled vocabulary"@en .
+
+<https://w3id.org/italia/data/resource/Standard/SKOS> a dcterms:Standard,
+        <http://dati.gov.it/onto/dcatapit#Standard> ;
+    dcterms:description "The Simple Knowledge Organization System (SKOS) is a common data model for sharing and linking knowledge organization systems via the Web" ;
+    dcterms:identifier "SKOS" ;
+    dcterms:title "Simple Knowledge Organization System - SKOS" .
+
+province_code:001 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "001" .
+
+province_code:002 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "002" .
+
+province_code:003 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "003" .
+
+province_code:004 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "004" .
+
+province_code:005 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "005" .
+
+province_code:006 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "006" .
+
+province_code:007 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "007" .
+
+province_code:008 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "008" .
+
+province_code:009 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "009" .
+
+province_code:010 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "010" .
+
+province_code:011 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "011" .
+
+province_code:012 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "012" .
+
+province_code:013 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "013" .
+
+province_code:014 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "014" .
+
+province_code:015 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "015" .
+
+province_code:016 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "016" .
+
+province_code:017 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "017" .
+
+province_code:018 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "018" .
+
+province_code:019 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "019" .
+
+province_code:020 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "020" .
+
+province_code:021 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "021" .
+
+province_code:022 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "022" .
+
+province_code:023 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "023" .
+
+province_code:024 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "024" .
+
+province_code:025 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "025" .
+
+province_code:026 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "026" .
+
+province_code:027 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "027" .
+
+province_code:028 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "028" .
+
+province_code:029 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "029" .
+
+province_code:030 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "030" .
+
+province_code:031 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "031" .
+
+province_code:032 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "032" .
+
+province_code:033 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "033" .
+
+province_code:034 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "034" .
+
+province_code:035 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "035" .
+
+province_code:036 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "036" .
+
+province_code:037 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "037" .
+
+province_code:038 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "038" .
+
+province_code:039 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "039" .
+
+province_code:040 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "040" .
+
+province_code:041 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "041" .
+
+province_code:042 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "042" .
+
+province_code:043 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "043" .
+
+province_code:044 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "044" .
+
+province_code:045 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "045" .
+
+province_code:046 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "046" .
+
+province_code:047 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "047" .
+
+province_code:048 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "048" .
+
+province_code:049 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "049" .
+
+province_code:050 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "050" .
+
+province_code:051 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "051" .
+
+province_code:052 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "052" .
+
+province_code:053 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "053" .
+
+province_code:054 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "054" .
+
+province_code:055 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "055" .
+
+province_code:056 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "056" .
+
+province_code:057 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "057" .
+
+province_code:058 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "058" .
+
+province_code:059 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "059" .
+
+province_code:060 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "060" .
+
+province_code:061 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "061" .
+
+province_code:062 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "062" .
+
+province_code:063 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "063" .
+
+province_code:064 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "064" .
+
+province_code:065 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "065" .
+
+province_code:066 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "066" .
+
+province_code:067 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "067" .
+
+province_code:068 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "068" .
+
+province_code:069 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "069" .
+
+province_code:070 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "070" .
+
+province_code:071 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "071" .
+
+province_code:072 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "072" .
+
+province_code:073 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "073" .
+
+province_code:074 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "074" .
+
+province_code:075 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "075" .
+
+province_code:076 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "076" .
+
+province_code:077 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "077" .
+
+province_code:078 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "078" .
+
+province_code:079 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "079" .
+
+province_code:080 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "080" .
+
+province_code:081 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "081" .
+
+province_code:082 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "082" .
+
+province_code:083 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "083" .
+
+province_code:084 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "084" .
+
+province_code:085 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "085" .
+
+province_code:086 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "086" .
+
+province_code:087 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "087" .
+
+province_code:088 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "088" .
+
+province_code:089 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "089" .
+
+province_code:090 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "090" .
+
+province_code:091 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "091" .
+
+province_code:092 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "092" .
+
+province_code:093 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "093" .
+
+province_code:094 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "094" .
+
+province_code:095 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "095" .
+
+province_code:096 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "096" .
+
+province_code:097 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "097" .
+
+province_code:098 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "098" .
+
+province_code:099 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "099" .
+
+province_code:100 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "100" .
+
+province_code:101 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "101" .
+
+province_code:102 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "102" .
+
+province_code:103 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "103" .
+
+province_code:108 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "108" .
+
+province_code:109 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "109" .
+
+province_code:110 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "110" .
+
+province_code:111 a ns5:Identifier ;
+    ns5:identifierType "Codice Provincia Alfanumerico"@it ;
+    ns6:identifier "111" .
+
+tc:provinces a <http://dati.gov.it/onto/dcatapit#Dataset>,
+        ns4:Asset,
+        skos:ConceptScheme ;
+    owl:versionInfo "2.0 - allineamento all'ontologia e alle pratiche di gestione dei vocabolari controllati di OntoPiA"@it ;
+    rdfs:isDefinedBy tc:provinces ;
+    dcat:contactPoint <https://w3id.org/italia/data/resource/ContactPoint/voc_AgID> ;
+    dcat:distribution <https://w3id.org/italia/data/resource/Distribution/provinces_JSON_LD>,
+        <https://w3id.org/italia/data/resource/Distribution/provinces_RDF_Turtle>,
+        <https://w3id.org/italia/data/resource/Distribution/provinces_RDF_XML> ;
+    dcat:keyword "Province"@en,
+        "Province"@it,
+        "Provinces"@en,
+        "Provincia"@it ;
+    dcat:theme <http://publications.europa.eu/resource/authority/data-theme/REGI> ;
+    dcterms:accrualPeriodicity <http://publications.europa.eu/resource/authority/frequency/IRREG> ;
+    dcterms:conformsTo <https://w3id.org/italia/data/resource/Standard/SKOS> ;
+    dcterms:creator <https://w3id.org/italia/data/public-organization/agid>,
+        <https://w3id.org/italia/data/resource/Amministrazione/td_PCM> ;
+    dcterms:description "Controlled Vocabulary for describing Italy's Provinces"@en,
+        "Vocabolario controllato delle province d'Italia e relativo codice regione"@it ;
+    dcterms:identifier "agid:D.14" ;
+    dcterms:issued "2018-06-19"^^xsd:date ;
+    dcterms:language <http://publications.europa.eu/resource/authority/language/ITA> ;
+    dcterms:modified "2019-04-03"^^xsd:date ;
+    dcterms:publisher <https://w3id.org/italia/data/public-organization/agid> ;
+    dcterms:rightsHolder <https://w3id.org/italia/data/public-organization/agid> ;
+    dcterms:title "Controlled Vocabulary for Italian Provinces"@en,
+        "Vocabolario Controllato delle Province d'Italia"@it ;
+    dcterms:type <http://purl.org/adms/assettype/CodeList> ;
+    ns2:numberOfLevels "1" ;
+    ns3:keyConcept "provinces" ;
+    ns4:representationTechnique <http://purl.org/adms/representationtechnique/SKOS> ;
+    skos:hasTopConcept :001,
+        :002,
+        :003,
+        :004,
+        :005,
+        :006,
+        :007,
+        :008,
+        :009,
+        :010,
+        :011,
+        :012,
+        :013,
+        :014,
+        :015,
+        :016,
+        :017,
+        :018,
+        :019,
+        :020,
+        :021,
+        :022,
+        :023,
+        :024,
+        :025,
+        :026,
+        :027,
+        :028,
+        :029,
+        :030,
+        :031,
+        :032,
+        :033,
+        :034,
+        :035,
+        :036,
+        :037,
+        :038,
+        :039,
+        :040,
+        :041,
+        :042,
+        :043,
+        :044,
+        :045,
+        :046,
+        :047,
+        :048,
+        :049,
+        :050,
+        :051,
+        :052,
+        :053,
+        :054,
+        :055,
+        :056,
+        :057,
+        :058,
+        :059,
+        :060,
+        :061,
+        :062,
+        :063,
+        :064,
+        :065,
+        :066,
+        :067,
+        :068,
+        :069,
+        :070,
+        :071,
+        :072,
+        :073,
+        :074,
+        :075,
+        :076,
+        :077,
+        :078,
+        :079,
+        :080,
+        :081,
+        :082,
+        :083,
+        :084,
+        :085,
+        :086,
+        :087,
+        :088,
+        :089,
+        :090,
+        :091,
+        :092,
+        :093,
+        :094,
+        :095,
+        :096,
+        :097,
+        :098,
+        :099,
+        :100,
+        :101,
+        :102,
+        :103,
+        :108,
+        :109,
+        :110,
+        :111 .
+
+vehicle_code:AG a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "AG" .
+
+vehicle_code:AL a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "AL" .
+
+vehicle_code:AN a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "AN" .
+
+vehicle_code:AO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "AO" .
+
+vehicle_code:AP a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "AP" .
+
+vehicle_code:AQ a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "AQ" .
+
+vehicle_code:AR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "AR" .
+
+vehicle_code:AT a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "AT" .
+
+vehicle_code:AV a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "AV" .
+
+vehicle_code:BA a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "BA" .
+
+vehicle_code:BG a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "BG" .
+
+vehicle_code:BI a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "BI" .
+
+vehicle_code:BL a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "BL" .
+
+vehicle_code:BN a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "BN" .
+
+vehicle_code:BO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "BO" .
+
+vehicle_code:BR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "BR" .
+
+vehicle_code:BS a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "BS" .
+
+vehicle_code:BT a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "BT" .
+
+vehicle_code:BZ a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "BZ" .
+
+vehicle_code:CA a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CA" .
+
+vehicle_code:CB a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CB" .
+
+vehicle_code:CE a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CE" .
+
+vehicle_code:CH a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CH" .
+
+vehicle_code:CL a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CL" .
+
+vehicle_code:CN a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CN" .
+
+vehicle_code:CO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CO" .
+
+vehicle_code:CR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CR" .
+
+vehicle_code:CS a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CS" .
+
+vehicle_code:CT a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CT" .
+
+vehicle_code:CZ a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "CZ" .
+
+vehicle_code:EN a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "EN" .
+
+vehicle_code:FC a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "FC" .
+
+vehicle_code:FE a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "FE" .
+
+vehicle_code:FG a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "FG" .
+
+vehicle_code:FI a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "FI" .
+
+vehicle_code:FM a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "FM" .
+
+vehicle_code:FR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "FR" .
+
+vehicle_code:GE a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "GE" .
+
+vehicle_code:GO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "GO" .
+
+vehicle_code:GR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "GR" .
+
+vehicle_code:IM a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "IM" .
+
+vehicle_code:IS a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "IS" .
+
+vehicle_code:KR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "KR" .
+
+vehicle_code:LC a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "LC" .
+
+vehicle_code:LE a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "LE" .
+
+vehicle_code:LI a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "LI" .
+
+vehicle_code:LO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "LO" .
+
+vehicle_code:LT a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "LT" .
+
+vehicle_code:LU a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "LU" .
+
+vehicle_code:MB a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "MB" .
+
+vehicle_code:MC a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "MC" .
+
+vehicle_code:ME a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "ME" .
+
+vehicle_code:MI a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "MI" .
+
+vehicle_code:MN a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "MN" .
+
+vehicle_code:MO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "MO" .
+
+vehicle_code:MS a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "MS" .
+
+vehicle_code:MT a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "MT" .
+
+vehicle_code:NA a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "NA" .
+
+vehicle_code:NO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "NO" .
+
+vehicle_code:NU a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "NU" .
+
+vehicle_code:OR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "OR" .
+
+vehicle_code:PA a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PA" .
+
+vehicle_code:PC a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PC" .
+
+vehicle_code:PD a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PD" .
+
+vehicle_code:PE a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PE" .
+
+vehicle_code:PG a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PG" .
+
+vehicle_code:PI a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PI" .
+
+vehicle_code:PN a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PN" .
+
+vehicle_code:PO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PO" .
+
+vehicle_code:PR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PR" .
+
+vehicle_code:PT a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PT" .
+
+vehicle_code:PU a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PU" .
+
+vehicle_code:PV a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PV" .
+
+vehicle_code:PZ a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "PZ" .
+
+vehicle_code:RA a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "RA" .
+
+vehicle_code:RC a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "RC" .
+
+vehicle_code:RE a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "RE" .
+
+vehicle_code:RG a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "RG" .
+
+vehicle_code:RI a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "RI" .
+
+vehicle_code:RM a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "RM" .
+
+vehicle_code:RN a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "RN" .
+
+vehicle_code:RO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "RO" .
+
+vehicle_code:SA a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "SA" .
+
+vehicle_code:SI a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "SI" .
+
+vehicle_code:SO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "SO" .
+
+vehicle_code:SP a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "SP" .
+
+vehicle_code:SR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "SR" .
+
+vehicle_code:SS a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "SS" .
+
+vehicle_code:SU a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "SU" .
+
+vehicle_code:SV a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "SV" .
+
+vehicle_code:TA a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "TA" .
+
+vehicle_code:TE a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "TE" .
+
+vehicle_code:TN a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "TN" .
+
+vehicle_code:TO a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "TO" .
+
+vehicle_code:TP a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "TP" .
+
+vehicle_code:TR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "TR" .
+
+vehicle_code:TS a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "TS" .
+
+vehicle_code:TV a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "TV" .
+
+vehicle_code:UD a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "UD" .
+
+vehicle_code:VA a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "VA" .
+
+vehicle_code:VB a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "VB" .
+
+vehicle_code:VC a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "VC" .
+
+vehicle_code:VE a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "VE" .
+
+vehicle_code:VI a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "VI" .
+
+vehicle_code:VR a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "VR" .
+
+vehicle_code:VT a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "VT" .
+
+vehicle_code:VV a ns5:Identifier ;
+    ns5:identifierType "Sigla Automobilistica"@it ;
+    ns6:identifier "VV" .
+
+### Serialized using the ttlser deterministic serializer v1.2.3

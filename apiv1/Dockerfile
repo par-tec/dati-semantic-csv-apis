@@ -29,9 +29,9 @@ COPY tools/store/__init__.py /app/tools/store/__init__.py
 RUN chown -R appuser:appuser /app
 
 FROM api-base AS data-api
-COPY apiv1/data /app/data
-COPY apiv1/openapi/data.yaml /app/data/openapi.yaml
-COPY apiv1/components.oas3.yaml /app/data/components.oas3.yaml
+COPY apiv1/vocabularies /app/vocabularies
+COPY apiv1/openapi/vocabularies.yaml /app/vocabularies/openapi.yaml
+COPY apiv1/components.oas3.yaml /app/vocabularies/components.oas3.yaml
 
 RUN chown -R appuser:appuser /app
 
@@ -39,4 +39,4 @@ USER appuser
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD ["python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8080/status')"]
 ENTRYPOINT ["python"]
-CMD ["-m", "data"]
+CMD ["-m", "vocabularies"]

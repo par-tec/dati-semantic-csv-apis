@@ -599,7 +599,7 @@ Tramite l'RDF Helper dello Schema Editor, è possibile
 trovare un link all'interfaccia di verifica del framing.
 
 ![Lo Schema Editor ha un puntamento alla UI di framing](schema-editor-rdf-helper-agente-causale.png)
-Si veda la PR: <https://teamdigitale.github.io/dati-semantic-schema-editor/stefanone91-26-feat-tool-for-payload-conversion/>
+Si veda la PR: <https://teamdigitale.github.io/dati-semantic-schema-editor/>
 
 Quando si esplora un vocabolario controllato,
 la UI mostra un estratto dei dati in JSON-LD
@@ -714,6 +714,26 @@ Ottengo
 Il tool permette di escludere forzosamente i campi non mappati,
 anche quando fanno riferimento alla stessa proprietà RDF presente nel grafo RDF originale, tramite l'opzione `--frame-only`.
 
+### Pre-filtro per tipo nel framing
+
+Quando il framing viene applicato a vocabolari con molte
+relazioni inverse o risorse non rilevanti, è possibile
+ridurre il payload prima del framing usando
+`--pre-filter-by-type`.
+
+Questa opzione pre-filtra il JSON-LD includendo solo i
+campi compatibili con i tipi attesi, con i seguenti
+effetti:
+
+1. riduce memoria e tempo di elaborazione;
+1. migliora la stabilità su dataset grandi;
+1. può rimuovere nodi necessari a risolvere alcuni
+   riferimenti `@embed`.
+
+Quando l'opzione è attiva, la CLI emette un warning per
+segnalare il possibile impatto sulla completezza della
+proiezione.
+
 ### Datapackage
 
 Il file di metadatazione Frictionless Data Package
@@ -756,12 +776,12 @@ La mappatura dei metadati tra le rdf:Property e le property del datapackage
 è definita nel modulo [tools.tabular.metatada](tools/tabular/metatada.py).
 I campi principali sono:
 
-| Datapackage   | RDF Property                                            | Note                                                                                                                                                                                        |
-| ------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`        | `NDC:keyConcept`                                        | Questo valore identifica univocamenteo il vocabolario all'interno di tutto il catalogo schema.gov.it. Se questo campo non è definito, il processo di generazione del CSV non può procedere. |
-| `title`       | `dcterms:title` o `skos:prefLabel`                      | In aggiunta ai vocabolari skos, la PoC supporta anche l'utilizzo di `dcterms:title`.                                                                                                        |
-| `id`          | `dcterms:identifier` o il nome del file del vocabolario | Questo identificativo deve essere un semplice testo.                                                                                                                                        |
-| `description` | `dcterms:description` o `skos:definition`               | In aggiunta ai vocabolari skos, la PoC supporta anche l'utilizzo di `dcterms:description`.                                                                                                  |
+| Datapackage   | RDF Property                              | Note                                                                                                                                                                                        |
+| ------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | `NDC:keyConcept`                          | Questo valore identifica univocamenteo il vocabolario all'interno di tutto il catalogo schema.gov.it. Se questo campo non è definito, il processo di generazione del CSV non può procedere. |
+| `title`       | `dcterms:title` o `skos:prefLabel`        | In aggiunta ai vocabolari skos, la PoC supporta anche l'utilizzo di `dcterms:title`.                                                                                                        |
+| `id`          | `URI` della risorsa                       |                                                                                                                                                                                             |
+| `description` | `dcterms:description` o `skos:definition` | In aggiunta ai vocabolari skos, la PoC supporta anche l'utilizzo di `dcterms:description`.                                                                                                  |
 
 Visto che i metadati dei vocabolari controllati possono essere
 o meno localizzati, mentre i datapackage richiedono
@@ -934,6 +954,9 @@ e la validazione dei file.
 Inoltre, la sovrascrittura dei file generati è disabilitata di default
 e deve essere abilitata tramite l'opzione `--force` per ogni comando.
 
+Tutti i comandi supportano l'opzione `-l` o `--log-level`
+per configurare il livello di dettaglio dei log (e.g., DEBUG, INFO, WARNING, ERROR).
+
 Esempio:
 
 ```bash
@@ -973,6 +996,8 @@ La CLI jsonld fornisce i seguenti comandi:
   i campi non mappati, anche quando fanno riferimento alla stessa
   proprietà RDF presente nel grafo RDF originale
   (vedi [filtro campi non mappati](#filtro-campi-non-mappati)).
+  Inoltre supporta `--pre-filter-by-type` per ridurre
+  i dati prima del framing.
 - validate: che verifica le condizioni descritte
   in [Validazione JSON-LD](#validazione-json-ld).
 
@@ -980,6 +1005,19 @@ La CLI jsonld fornisce i seguenti comandi:
 
 La CLI datapackage crea un file di metadatazione Frictionless Data Package
 a partire da un file di framing JSON-LD e da un file di proiezione JSON-LD.
+
+### CLI csv
+
+La CLI csv permette di generare un file CSV
+a partire da una proiezione JSON-LD e da un file di metadatazione datapackage.
+
+Modificando i campi disponibili nel datapackage
+è possibile eliminare dal CSV i campi presenti nella proiezione JSON-LD
+che non è possibile mappare in modo coerente in CSV (e.g., campi con
+valori complessi come oggetti o array).
+
+Questi campi potranno ancora essere pubblicati
+tramite API REST.
 
 ## Conclusioni
 

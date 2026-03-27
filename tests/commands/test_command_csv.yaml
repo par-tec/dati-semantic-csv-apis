@@ -82,6 +82,55 @@
       - >-
         CSV roundtrip validation passed with 2922 rows and 8766
         triples
+
+- id: csv_create_validate_provinces
+  description: |-
+    Given:
+    - a TTL file
+    - a JSON-LD data snapshot
+    - a datapackage.yaml
+
+    When:
+    - I run `csv validate`
+
+    Then:
+    - the command exits successfully
+  steps:
+  - command:
+    - csv
+    - create
+    - --jsonld
+    - tests/data/snapshots/provinces/provinces.data.yamlld
+    - --datapackage
+    - assets/controlled-vocabularies/provinces/datapackage.yaml
+    - --output
+    - tests/data/snapshots/provinces/provinces.csv
+    - --force
+    expected:
+      files:
+      - path: tests/data/snapshots/provinces/provinces.csv
+        snapshot: tests/data/snapshots/provinces/provinces.csv
+        #compare: data
+  - command:
+    - csv
+    - validate
+    - --vocabulary-uri
+    - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+    # Arguments
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --datapackage
+    - assets/controlled-vocabularies/provinces/datapackage.yaml
+    expected:
+      logs:
+      - >-
+        INFO CSV data loaded and validated successfully
+      - >-
+        Original RDF graph loaded with 2712 triples
+      stdout:
+      - >-
+        CSV roundtrip validation passed with 107 rows and 321
+        triples
 #
 # Not supported for now
 #

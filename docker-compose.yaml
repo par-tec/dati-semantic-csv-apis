@@ -37,7 +37,7 @@ services:
       dockerfile: apiv1/Dockerfile
       target: data-api
     environment:
-    - HARVEST_DB=/data/aggregate.db
+    - HARVEST_DB=/data/harvest.db
     - API_BASE_URL=http://localhost:8001
     ports:
     - "8001:8080"

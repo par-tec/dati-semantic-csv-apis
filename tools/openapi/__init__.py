@@ -85,8 +85,7 @@ class Apiable(Vocabulary):
         else:
             raise ValueError(f"Unsupported rdf_data type: {type(rdf_data)}")
 
-        if not frame.validate(strict=True):
-            raise ValueError(f"Invalid frame: {frame}")
+        frame.validate(strict=True)
 
         self.frame = frame
         self._already_framed = bool(format == APPLICATION_LD_JSON_FRAMED)
@@ -321,8 +320,7 @@ def create_schema_from_frame_and_data(
         OpenAPI: OpenAPI schema inferred from framed samples
     """
 
-    if not frame.validate(strict=True):
-        raise ValueError(f"Invalid frame: {frame}")
+    frame.validate(strict=True)
 
     if not framed:
         raise ValueError(f"No framed data: {framed}")
@@ -379,17 +377,6 @@ def create_schema_from_frame_and_data(
                 )
 
     return cast(OpenAPI, schema)
-
-
-def remove_jsonld_key(obj: Any, key: str) -> Any:
-    """Return a deep copy of `obj` removing `key` recursively from objects."""
-    if isinstance(obj, dict):
-        return {
-            k: remove_jsonld_key(v, key) for k, v in obj.items() if k != key
-        }
-    if isinstance(obj, list):
-        return [remove_jsonld_key(item, key) for item in obj]
-    return obj
 
 
 def infer_schema_from_samples(samples):

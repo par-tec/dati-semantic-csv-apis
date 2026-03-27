@@ -135,7 +135,7 @@ class TabularValidator:
         extra_triples = csv_graph - original_graph
         if len(extra_triples) > 0:
             raise ValueError(
-                f"CSV-derived RDF graph contains {len(extra_triples)} triples not present in original RDF graph"
+                f"CSV-derived RDF graph contains {len(extra_triples)} triples not present in original RDF graph. Hint: does the CSV contain serialized structured data?"
             )
         self.stats.update(
             {

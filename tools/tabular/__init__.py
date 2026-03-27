@@ -65,7 +65,7 @@ class Tabular(Vocabulary):
         self.frame: JsonLDFrame = (
             frame if isinstance(frame, JsonLDFrame) else JsonLDFrame(frame)
         )
-        self.frame.validate(strict=True)
+        self.frame.validate(strict=True, require_type=False)
         self.ignore_rdf_properties = ignore_rdf_properties
         self.sort_by = sort_by
 
@@ -279,7 +279,6 @@ class Tabular(Vocabulary):
                 if actual_iri in self.ignore_rdf_properties:
                     continue  # Skip ignored RDF properties
 
-            # breakpoint()  # Debugging: check field extraction logic
             # Determine field type based on @type in context or use string as default
             field_type = "string"
             if isinstance(value, dict):

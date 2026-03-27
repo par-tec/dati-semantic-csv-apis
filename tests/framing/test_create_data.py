@@ -7,7 +7,7 @@ import yaml
 from rdflib.compare import IsomorphicGraph
 
 from tests.constants import ASSETS, TESTCASES
-from tests.harness import compare_data
+from tests.harness import assert_snapshot_matches_data
 from tools.base import TEXT_TURTLE, JsonLDFrame
 from tools.projector import select_fields
 from tools.utils import IGraph
@@ -32,10 +32,21 @@ def _test_should_fail(obj):
             id=testcase["name"],
         )
         for testcase in TESTCASES
+        if "invalid" not in testcase
     ],
 )
+@pytest.mark.parametrize(
+    "pre_filter_by_type",
+    [False, True],
+    ids=["non_pre_filtered", "pre_filtered"],
+)
 def test_can_project_data(
-    data, frame, expected_payload, snapshot, request: pytest.FixtureRequest
+    data,
+    frame,
+    expected_payload,
+    snapshot,
+    request: pytest.FixtureRequest,
+    pre_filter_by_type,
 ):
     """
     Given:
@@ -62,6 +73,7 @@ def test_can_project_data(
         framed = vocabulary.project(
             frame,
             callbacks=[lambda framed: select_fields(framed, selected_fields)],
+            pre_filter_by_type=pre_filter_by_type,
         )
     if _test_should_fail(expected_payload):
         return
@@ -74,9 +86,12 @@ def test_can_project_data(
         )
 
     base = snapshot / "base"
-    snapshot_path = base / f"{request.node.callspec.id}.data.yaml"
+    snapshot_file_name = request.node.callspec.id.replace(
+        "non_pre_filtered-", ""
+    ).replace("pre_filtered-", "")
+    snapshot_path = base / f"{snapshot_file_name}.data.yaml"
 
-    compare_data(snapshot_path, current_data=graph, update=True)
+    assert_snapshot_matches_data(snapshot_path, current_data=graph, update=True)
 
 
 @pytest.mark.parametrize(

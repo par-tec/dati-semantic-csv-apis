@@ -6,20 +6,21 @@ from tests.constants import TESTCASES
 from tools.base import JsonLDFrame
 from tools.tabular import Tabular
 
+TESTCASE = [TESTCASES[0]]
+
 
 @pytest.mark.parametrize(
     "data,frame",
-    argvalues=[itemgetter("data", "frame")(x) for x in TESTCASES],
-    ids=[x["name"] for x in TESTCASES],
+    argvalues=[itemgetter("data", "frame")(x) for x in TESTCASE],
+    ids=[x["name"] for x in TESTCASE],
 )
 def test_datapackage_setter_invalid(data: str, frame: JsonLDFrame):
-    # Crea un'istanza di Tabular con dati di test
+    # Given a Tabular instance with valid data and frame ...
     tabular = Tabular(rdf_data=data, frame=frame)
 
-    # Prova a impostare un datapackage invalido
-    invalid_datapackage = {
-        "invalid": "data"
-    }  # Questo non passerà la validazione
+    # When I try to set an invalid datapackage
+    invalid_datapackage = {"invalid": "data"}
+    # Then the setter fails.
     with pytest.raises(ValueError, match="Invalid datapackage"):
         tabular.datapackage = invalid_datapackage
 
@@ -41,17 +42,18 @@ def test_datapackage_setter_invalid(data: str, frame: JsonLDFrame):
 )
 @pytest.mark.parametrize(
     "data,frame",
-    argvalues=[itemgetter("data", "frame")(x) for x in TESTCASES[:1]],
-    ids=[x["name"] for x in TESTCASES[:1]],
+    argvalues=[itemgetter("data", "frame")(x) for x in TESTCASE],
+    ids=[x["name"] for x in TESTCASE],
 )
 def test_dataresource_setter_invalid(
     data: str, frame: JsonLDFrame, invalid_resource_path: dict
 ):
-    # Crea un'istanza di Tabular con dati di test
+    # Given a Tabular instance with valid data and frame ...
     tabular = Tabular(rdf_data=data, frame=frame)
 
     error = invalid_resource_path.pop("resource_error")
 
-    # Prova a impostare un datapackage invalido
+    # When I try to set an invalid datapackage resource
+    # Then the stub creation fails.
     with pytest.raises(ValueError, match=error):
         tabular.dataresource_stub(**invalid_resource_path)

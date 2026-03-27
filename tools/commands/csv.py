@@ -166,11 +166,14 @@ def create_csv_from_jsonld(
     log.debug(f"Loading datapackage metadata from {datapackage}")
     datapackage_dict = yaml.safe_load(datapackage.read_text())
 
-    # Extract the frame (context) from the datapackage
+    # Extract the frame's @context from the datapackage
     resource = datapackage_dict.get("resources", [{}])[0]
     context = resource.get("schema", {}).get("x-jsonld-context", {})
+
+    # This is not a valid frame for projection because
+    #  it lacks "@type", so we don't validate it.
     frame = JsonLDFrame({"@context": context})
-    frame.validate(strict=True)
+
     log.debug("Extracted frame context from datapackage")
 
     # Extract the CSV dialect from the datapackage

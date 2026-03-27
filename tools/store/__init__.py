@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sqlite3
 from hashlib import sha256
 from pathlib import Path
@@ -41,6 +42,26 @@ CREATE TABLE IF NOT EXISTS _metadata (
 CREATE_METADATA_UNIQUE_INDEX_SQL = """
 CREATE UNIQUE INDEX IF NOT EXISTS agency_id_key_concept_unique
 ON _metadata (agency_id, key_concept)
+"""
+
+FTS_TABLE = "_metadata_fts"
+
+# Consider tweaking `tokenize` option.
+CREATE_FTS_TABLE_SQL = f"""
+CREATE VIRTUAL TABLE IF NOT EXISTS {FTS_TABLE}
+USING fts5(title, description);
+"""
+
+POPULATE_FTS_TABLE_SQL = f"""
+INSERT INTO {FTS_TABLE}(rowid, title, description)
+SELECT rowid,
+       json_extract(openapi, '$.info.title'),
+       json_extract(openapi, '$.info.description')
+FROM _metadata
+"""
+
+DELETE_FTS_TABLE_CONTENT_SQL = f"""
+DELETE FROM {FTS_TABLE}
 """
 
 
@@ -104,6 +125,11 @@ class APIStore:
     def _quoted_identifier(identifier: str) -> str:
         return '"' + identifier.replace('"', '""') + '"'
 
+    @staticmethod
+    def _table_name(agency_id: str, key_concept: str) -> str:
+        """Return the physical SQLite table name for a vocabulary."""
+        return build_vocabulary_uuid(agency_id, key_concept)
+
     def __enter__(self) -> APIStore:
         self.connect()
         return self
@@ -131,10 +157,22 @@ class APIStore:
             self.connection.close()
             self.connection = None
 
+    #
+    # Metadata and vocabulary management.
+    #
     def create_metadata_table(self) -> None:
         conn = self.connect()
         conn.execute(CREATE_METADATA_TABLE_SQL)
         conn.execute(CREATE_METADATA_UNIQUE_INDEX_SQL)
+        conn.commit()
+
+    def create_fts_table(self) -> None:
+        """Create and populate the FTS5 index on openapi title/description."""
+        conn = self.connect()
+        conn.execute(CREATE_FTS_TABLE_SQL)
+        # Keep it safe across repeated calls (eg request-time refresh).
+        conn.execute(DELETE_FTS_TABLE_CONTENT_SQL)
+        conn.execute(POPULATE_FTS_TABLE_SQL)
         conn.commit()
 
     def validate_metadata_schema(self) -> None:
@@ -236,13 +274,55 @@ class APIStore:
         if commit:
             conn.commit()
 
-    @staticmethod
-    def _table_name(agency_id: str, key_concept: str) -> str:
-        """Return the physical SQLite table name for a vocabulary."""
-        return build_vocabulary_uuid(agency_id, key_concept)
+    def search_metadata(
+        self,
+        query: str,
+        *,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> list[sqlite3.Row]:
+        """Full-text search over openapi ``info.title`` and ``info.description``.
+
+        Returns ``_metadata`` rows ranked by FTS5 relevance (best match first).
+        Common FTS5 query syntax is supported: ``term``, ``term1 term2``,
+        ``"exact phrase"``, ``term*`` (prefix), ``term1 OR term2``.
+        """
+        conn = self.connect()
+        qp = {}
+        # Ensure query respects FTS5 syntax.
+        query = re.sub('[^a-zA-Z0-9*" ]', " ", query).strip() if query else ""
+
+        if query:
+            qp["query"] = query
+            q = f"""
+                    SELECT m.*
+                    FROM _metadata m
+                    JOIN {FTS_TABLE} f ON f.rowid = m.rowid
+                    WHERE {FTS_TABLE} MATCH :query
+                    ORDER BY rank
+            """
+        else:
+            q = "SELECT * FROM _metadata WHERE 1=1 "
+
+        if limit:
+            qp["limit"] = str(limit)
+            q += " LIMIT :limit "
+        if offset:
+            qp["offset"] = str(offset)
+            q += " OFFSET :offset "
+
+        return cast(
+            list[sqlite3.Row],
+            conn.execute(
+                q,
+                qp,
+            ).fetchall(),
+        )
 
     def get_metadata(
-        self, agency_id: str, key_concept: str
+        self,
+        agency_id: str,
+        key_concept: str,
     ) -> sqlite3.Row | None:
         conn = self.connect()
         return cast(
@@ -253,6 +333,9 @@ class APIStore:
             ).fetchone(),
         )
 
+    #
+    # Vocabulary table management.
+    #
     def update_vocabulary_table(
         self,
         agency_id: str,
@@ -264,14 +347,14 @@ class APIStore:
         quoted_table_name = self._quoted_identifier(vocabulary_uuid)
         conn.execute(f"DROP TABLE IF EXISTS {quoted_table_name}")
 
-        if not rows:
-            conn.execute(f"CREATE TABLE {quoted_table_name} (_text TEXT)")
-            conn.commit()
-            return
-
         columns = ["id", "url", "label", "level", "_text"]
         quoted_columns = [self._quoted_identifier(column) for column in columns]
         column_defs = ", ".join(f"{column} TEXT" for column in quoted_columns)
+        if not rows:
+            conn.execute(f"CREATE TABLE {quoted_table_name} ({column_defs})")
+            conn.commit()
+            return
+
         placeholders = ", ".join("?" for _ in columns)
         insert_columns = ", ".join(quoted_columns)
 
@@ -281,65 +364,6 @@ class APIStore:
             [tuple(row.get(column) for column in columns) for row in rows],
         )
         conn.commit()
-
-    def get_vocabulary_item_by_id(
-        self, agency_id: str, key_concept: str, item_id: str
-    ) -> dict[str, Any] | None:
-        conn = self.connect()
-        vocabulary_uuid = self._table_name(agency_id, key_concept)
-        quoted_table_name = self._quoted_identifier(vocabulary_uuid)
-        try:
-            row = cast(
-                sqlite3.Row | None,
-                conn.execute(
-                    f"SELECT _text FROM {quoted_table_name} WHERE id = ?",
-                    (item_id,),
-                ).fetchone(),
-            )
-        except sqlite3.OperationalError as e:
-            if "no such table" in str(e).lower():
-                log.info(
-                    "Vocabulary table %s not found for agency_id=%s, key_concept=%s",
-                    quoted_table_name,
-                    agency_id,
-                    key_concept,
-                )
-                return None
-            raise
-        if row is None:
-            return None
-        payload = json.loads(row["_text"])
-        return (
-            cast(dict[str, Any], payload) if isinstance(payload, dict) else None
-        )
-
-    def get_vocabulary_dataset(
-        self,
-        agency_id: str,
-        key_concept: str,
-    ) -> list[dict[str, Any]]:
-        conn = self.connect()
-        vocabulary_uuid = self._table_name(agency_id, key_concept)
-        quoted_table_name = self._quoted_identifier(vocabulary_uuid)
-        try:
-            rows = cast(
-                list[sqlite3.Row],
-                conn.execute(
-                    f"SELECT _text FROM {quoted_table_name} ORDER BY id"
-                ).fetchall(),
-            )
-        except sqlite3.OperationalError as e:
-            if "no such table" in str(e).lower():
-                log.info(
-                    "Vocabulary table %s not found for agency_id=%s, key_concept=%s",
-                    quoted_table_name,
-                    agency_id,
-                    key_concept,
-                )
-                return []
-            raise
-
-        return [json.loads(row["_text"]) for row in rows]
 
     @staticmethod
     def _remove_jsonld_keys(obj: Any) -> Any:
@@ -380,6 +404,79 @@ class APIStore:
         """Serialize *graph* items to DB rows and write the vocabulary table."""
         rows = [self.jsonld_item_to_row(item) for item in graph]
         self.update_vocabulary_table(agency_id, key_concept, rows)
+
+    def get_vocabulary_item_by_id(
+        self, agency_id: str, key_concept: str, item_id: str
+    ) -> dict[str, Any] | None:
+        conn = self.connect()
+        vocabulary_uuid = self._table_name(agency_id, key_concept)
+        quoted_table_name = self._quoted_identifier(vocabulary_uuid)
+        try:
+            row = cast(
+                sqlite3.Row | None,
+                conn.execute(
+                    f"SELECT _text FROM {quoted_table_name} WHERE id = ?",
+                    (item_id,),
+                ).fetchone(),
+            )
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e).lower():
+                log.info(
+                    "Vocabulary table %s not found for agency_id=%s, key_concept=%s",
+                    quoted_table_name,
+                    agency_id,
+                    key_concept,
+                )
+                return None
+            raise
+        if row is None:
+            return None
+        payload = json.loads(row["_text"])
+        return (
+            cast(dict[str, Any], payload) if isinstance(payload, dict) else None
+        )
+
+    def get_vocabulary_dataset(
+        self,
+        agency_id: str,
+        key_concept: str,
+        *,
+        params: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
+        conn = self.connect()
+        vocabulary_uuid = self._table_name(agency_id, key_concept)
+        quoted_table_name = self._quoted_identifier(vocabulary_uuid)
+
+        params = params or {}
+        qs = f"SELECT _text FROM {quoted_table_name} WHERE 1=1 "
+        query_params: dict[str, Any] = {}
+
+        if params.get("cursor", ""):
+            query_params |= {"cursor": params["cursor"]}
+            qs += " AND id > :cursor "
+
+        if "limit" in params:
+            query_params |= {"limit": params["limit"]}
+            qs += " LIMIT :limit "
+
+        log.info("Executing SQL query %s with params %s", qs, query_params)
+        try:
+            rows = cast(
+                list[sqlite3.Row],
+                conn.execute(qs, query_params).fetchall(),
+            )
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e).lower():
+                log.info(
+                    "Vocabulary table %s not found for agency_id=%s, key_concept=%s",
+                    quoted_table_name,
+                    agency_id,
+                    key_concept,
+                )
+                return []
+            raise
+
+        return [json.loads(row["_text"]) for row in rows]
 
     def get_vocabulary_jsonld(
         self,

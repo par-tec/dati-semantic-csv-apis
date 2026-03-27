@@ -367,8 +367,7 @@ testcases:
       # Mappings
       #
       url: "@id"
-      id:
-        "@id": "dct:identifier"
+      id: "dct:identifier"
       label_it:
         "@id": rdfs:label
         "@language": it
@@ -886,8 +885,7 @@ testcases:
 
     "@requireAll": true
     # Matching on type works.
-    "@type":
-    - "skos:Concept"
+    "@type": "skos:Concept"
     url: {}
     id: {}
     label:
@@ -918,7 +916,7 @@ testcases:
       "@requireAll": false
   expected_payload: ValueError
 - name: tipo_mansione_lavoratore_domestico
-  data: |-
+  data: &tipo_mansione_lavoratore_domestico_ttl |-
     @prefix : <https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/tipo_mansione_lavoratore_domestico/> .
     @prefix NDC: <https://w3id.org/italia/onto/NDC/> .
     @prefix adms: <http://www.w3.org/ns/adms#> .
