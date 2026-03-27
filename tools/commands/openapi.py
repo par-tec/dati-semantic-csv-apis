@@ -130,7 +130,11 @@ def create_oas_spec(
     elif jsonld is not None:
         log.debug(f"Creating OpenAPI spec from JSON-LD file: {jsonld}")
         jsonld_data = yaml.safe_load(jsonld.read_text(encoding="utf-8"))
-        apiable = Apiable(rdf_data=jsonld_data, frame=frame_data)
+        apiable = Apiable(
+            rdf_data=jsonld_data,
+            frame=frame_data,
+            format="application/ld+json",
+        )
     else:
         raise ValueError("Either jsonld or ttl must be provided")
 

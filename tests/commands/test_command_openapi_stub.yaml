@@ -130,54 +130,57 @@
       stdout:
       - >-
         ✓ openapi validation passed
-
-- id: create_validate_openapi_provinces
+# Test for creating openapi stub from JSON-LD framed file.
+- id: create_validate_openapi_ateco_2025_jsonld
+  marks:
+  - asset
   description: |-
     Given:
-    - a TTL file in assets/
+    - a JSON-LD framed file in assets/
     - a JSON-LD frame in assets/
 
     When:
-    - I run `openapi create`
+    - I run `openapi create` with --jsonld
 
     Then:
     - the command exits successfully
-    - a openapi stub YAML file is created
+    - an openapi stub YAML file is created
     - logs show the openapi stub was created
   steps:
   - description: |-
       When:
-      - I run `openapi create`
+      - I run `openapi create` with --jsonld
 
       Then:
       - the command exits successfully
-      - a openapi stub YAML file is created
+      - an openapi stub YAML file is created
       - logs show the openapi stub was created
     command:
     - openapi
     - create
-    - --ttl
-    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --jsonld
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.data.yamlld
     - --frame
-    - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
     - --vocabulary-uri
-    - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
     - --output
-    - tests/data/snapshots/provinces/provinces.oas3.yaml
+    - tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
     - --force
     expected:
       files:
-      - path: tests/data/snapshots/provinces/provinces.oas3.yaml
-        snapshot: tests/data/snapshots/provinces/provinces.oas3.yaml
+      - path: tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+        snapshot: tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
         compare: data
       logs:
       - >-
-        openapi stub created: .*tests/data/snapshots/provinces/provinces.oas3.yaml
+        openapi stub created: .*tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
       stdout:
       - >-
-        Creating openapi metadata for https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+        Creating openapi metadata for https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
       - >-
-        ✓ Created: .*tests/data/snapshots/provinces/provinces.oas3.yaml
+        ✓ Created: .*tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+
   - description: |-
       When:
       - I run `openapi validate` on the created openapi stub
@@ -189,7 +192,7 @@
     - openapi
     - validate
     - --openapi
-    - tests/data/snapshots/provinces/provinces.oas3.yaml
+    - tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
     expected:
       stdout:
       - >-
