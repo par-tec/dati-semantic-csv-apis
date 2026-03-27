@@ -49,7 +49,7 @@ jobs:
       shell: bash
       run: |
         cat > repositories.txt << 'EOF'
-        https://github.com/par-tec/dati-semantic-csv-apis/raw/refs/heads/assets/assets/controlled-vocabularies/provinces/provinces.db
+        https://github.com/par-tec/dati-semantic-csv-apis/raw/refs/heads/main/assets/controlled-vocabularies/provinces/provinces.db
         EOF
 
     - name: Harvest vocabularies
