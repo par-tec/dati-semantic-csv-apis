@@ -90,7 +90,13 @@ def _process_repository_node(
     if not jsonld_output.exists():
         try:
             create_jsonld_framed(
-                ttl_path, frame_path, node["@id"], jsonld_output, True, 0
+                ttl_path,
+                frame_path,
+                node["@id"],
+                jsonld_output,
+                frame_only=True,
+                batch_size=0,
+                pre_filter_by_type=True,
             )
             log.info("Created JSON-LD payload %s/%s", agency_id, key_concept)
         except Exception as exc:
@@ -106,12 +112,7 @@ def _process_repository_node(
     if not openapi_output.exists():
         try:
             apiable = create_oas_spec(
-                None,
-                ttl_path,
-                frame_path,
-                node["@id"],
-                openapi_output,
-                input_format=None,
+                None, ttl_path, frame_path, node["@id"], openapi_output
             )
             log.info("Created OpenAPI spec %s/%s", agency_id, key_concept)
 

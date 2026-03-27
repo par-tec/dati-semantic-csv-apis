@@ -60,12 +60,6 @@ def openapi():
     help="Output path for OpenAPI specification",
 )
 @click.option(
-    "--input-format",
-    type=str,
-    required=False,
-    help="Format of the input file (e.g., application/ld+json, text/turtle)",
-)
-@click.option(
     "--force",
     "-f",
     is_flag=True,
@@ -79,7 +73,6 @@ def create_command(
     vocabulary_uri: str,
     output: Path,
     force: bool,
-    input_format: str | None,
 ):
     """Create OpenAPI specification from framed JSON-LD or RDF vocabulary."""
     if jsonld is None and ttl is None:
@@ -88,10 +81,6 @@ def create_command(
     if jsonld is not None and ttl is not None:
         raise click.UsageError(
             "Please provide only one of --jsonld or --ttl, not both."
-        )
-    if jsonld is not None and input_format is None:
-        raise click.UsageError(
-            "Please provide --input-format when using --jsonld (e.g., application/ld+json)."
         )
 
     click.echo(f"Creating openapi metadata for {vocabulary_uri}")
@@ -108,7 +97,7 @@ def create_command(
         else:
             log.debug(f"Overwriting existing file: {output}")
 
-    create_oas_spec(jsonld, ttl, frame, vocabulary_uri, output, input_format)
+    create_oas_spec(jsonld, ttl, frame, vocabulary_uri, output)
     click.echo(f"✓ Created: {output}")
 
 
@@ -118,7 +107,6 @@ def create_oas_spec(
     frame: Path,
     vocabulary_uri: str,
     output: Path,
-    input_format: str | None,
 ) -> Apiable | None:
     """Create OpenAPI specification from framed JSON-LD or RDF vocabulary.
 
@@ -145,7 +133,7 @@ def create_oas_spec(
         apiable = Apiable(
             rdf_data=jsonld_data,
             frame=frame_data,
-            format=input_format or "application/ld+json",
+            format="application/ld+json",
         )
     else:
         raise ValueError("Either jsonld or ttl must be provided")

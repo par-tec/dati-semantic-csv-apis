@@ -65,6 +65,12 @@ def jsonld():
     default=False,
 )
 @click.option(
+    "--pre-filter-by-type",
+    is_flag=True,
+    help="If set, the framed JSON-LD will be stripped of any fields not matching the specified types *before* the framing process.",
+    default=False,
+)
+@click.option(
     "--batch-size",
     type=int,
     default=0,
@@ -86,6 +92,7 @@ def create_command(
     frame_only: bool,
     batch_size: int,
     force: bool,
+    pre_filter_by_type: bool,
 ):
     """
     Create JSON-LD framed representation from RDF vocabulary.
@@ -111,7 +118,13 @@ def create_command(
             log.debug(f"Overwriting existing file: {output}")
 
     create_jsonld_framed(
-        ttl, frame, vocabulary_uri, output, frame_only, batch_size
+        ttl,
+        frame,
+        vocabulary_uri,
+        output,
+        frame_only,
+        batch_size,
+        pre_filter_by_type,
     )
     click.echo(f"✓ Created: {output}")
 
@@ -167,6 +180,7 @@ def create_jsonld_framed(
     output: Path,
     frame_only: bool,
     batch_size: int,
+    pre_filter_by_type: bool,
 ) -> None:
     """Create JSON-LD framed representation from TTL and frame."""
     # Click checks file existence.
@@ -189,11 +203,18 @@ def create_jsonld_framed(
     log.debug(
         f"Creating framed JSON-LD with batch size {batch_size} and callbacks: {[cb.__name__ for cb in callbacks]}"
     )
+    if pre_filter_by_type:
+        click.echo(
+            "⚠️  --pre-filter-by-type is set: "
+            "the framed JSON-LD will be stripped of any fields not matching the specified types *before* the framing process."
+        )
+
     vocabulary: Vocabulary = Vocabulary(ttl)
     framed = vocabulary.project(
         frame_data,
         callbacks=callbacks,
         batch_size=batch_size,
+        pre_filter_by_type=pre_filter_by_type,
     )
     log.debug(
         f"Framed JSON-LD created successfully with {len(framed.get('@graph', []))} items"

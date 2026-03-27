@@ -130,61 +130,36 @@
       stdout:
       - >-
         ✓ openapi validation passed
-# The following test checks that the command fails when --jsonld is used without --input-format
-- id: openapi_jsonld_requires_input_format
-  marks:
-  - cli
-  description: |
-    When:
-    - I run `openapi create` with --jsonld but without --input-format
-
-    Then:
-    - the command fails with a UsageError
-    - the error message explains that --input-format is required
-  steps:
-  - description: |
-      Running openapi create without --input-format
-    command:
-    - openapi
-    - create
-    - --jsonld
-    - assets/controlled-vocabularies/ateco-2025/ateco-2025.data.yamlld
-    - --frame
-    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
-    - --vocabulary-uri
-    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
-    - --output
-    - tests/data/tmp/ateco-2025.oas3.yaml
-    expected:
-      exit_status: 2
-      stderr:
-      - "Please provide --input-format when using --jsonld (e.g.,
-        application/ld+json)."
-# The following test checks that the command succeeds when --jsonld is used with --input-format
-- id: create_validate_openapi_jsonld_ateco_2025
+# Test for creating openapi stub from JSON-LD framed file.
+- id: create_validate_openapi_ateco_2025_jsonld
   marks:
   - asset
-  description: |
+  description: |-
     Given:
     - a JSON-LD framed file in assets/
     - a JSON-LD frame in assets/
 
     When:
-    - I run `openapi create` with --jsonld and --input-format
+    - I run `openapi create` with --jsonld
 
     Then:
     - the command exits successfully
-    - an OpenAPI stub is created
+    - an openapi stub YAML file is created
+    - logs show the openapi stub was created
   steps:
-  - description: |
-      Running openapi create with JSON-LD input
+  - description: |-
+      When:
+      - I run `openapi create` with --jsonld
+
+      Then:
+      - the command exits successfully
+      - an openapi stub YAML file is created
+      - logs show the openapi stub was created
     command:
     - openapi
     - create
     - --jsonld
     - assets/controlled-vocabularies/ateco-2025/ateco-2025.data.yamlld
-    - --input-format
-    - application/ld+json
     - --frame
     - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
     - --vocabulary-uri
@@ -195,7 +170,30 @@
     expected:
       files:
       - path: tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
-        compare: exists
+        snapshot: tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+        compare: data
+      logs:
+      - >-
+        openapi stub created: .*tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
       stdout:
-      - "Creating openapi metadata"
-      - "✓ Created:"
+      - >-
+        Creating openapi metadata for https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+      - >-
+        ✓ Created: .*tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+
+  - description: |-
+      When:
+      - I run `openapi validate` on the created openapi stub
+
+      Then:
+      - the command exits successfully
+      - validation passes
+    command:
+    - openapi
+    - validate
+    - --openapi
+    - tests/data/snapshots/ateco-2025/ateco-2025-jsonld.oas3.yaml
+    expected:
+      stdout:
+      - >-
+        ✓ openapi validation passed
