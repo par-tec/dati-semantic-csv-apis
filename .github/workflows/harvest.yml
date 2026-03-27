@@ -65,14 +65,14 @@ jobs:
           --output "${RUNNER_TEMP}/vocabularies.db"
 
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      if: github.event_name != 'pull_request'
+      # if: github.event_name != 'pull_request'
       with:
         ref: harvest
         path: harvest-branch
         persist-credentials: true
 
     - name: Publish to harvest branch
-      if: github.event_name != 'pull_request'
+      # if: github.event_name != 'pull_request'
       shell: bash
       run: |
         cp "${RUNNER_TEMP}/vocabularies.db" harvest-branch/vocabularies.db

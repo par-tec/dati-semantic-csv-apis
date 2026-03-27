@@ -119,12 +119,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -e
-        REPO="par-tec/dati-semantic-csv-apis"
-        echo "Fetching latest workflow run..."
-
         ARTIFACT_URL=https://github.com/par-tec/dati-semantic-csv-apis/releases/download/${{ env.CLI_VERSION }}/schema_gov_it_tools.bin
-
-        echo "Fetching artifacts..."
 
         curl -L \
           -H "Authorization: Bearer ${GH_TOKEN}" \
