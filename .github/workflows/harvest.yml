@@ -57,8 +57,9 @@ jobs:
       shell: bash
       run: |
         xargs /usr/local/bin/schema_gov_it_tools.bin \
-          apistore collect \
-          --log-level debug --skip-not-found \
+          apistore --log-level debug \
+          collect \
+          --skip-not-found \
           --force \
           --output "${RUNNER_TEMP}/vocabularies.db" \
           < repositories.txt
