@@ -19,11 +19,13 @@ on:
     - '*'
     paths-ignore:
     - '**.md'
+    - '**.db'
   pull_request:
     branches:
     - main
     paths-ignore:
     - '**.md'
+    - '**.db'
 
 env:
   CI: true

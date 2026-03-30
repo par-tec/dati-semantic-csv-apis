@@ -1,0 +1,86 @@
+---
+#
+# Workflow that creates an aggregated store of all harvested vocabulary databases
+#   from a list of sources either defined a json file, eventually created from
+#   a SparQL query.
+#
+name: Harvest Vocabularies
+permissions: {}
+on:
+  schedule:
+  - cron: '0 4 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+    paths:
+    - '.github/workflows/harvest.yml'
+  pull_request:
+    branches:
+    - main
+    paths:
+    - '.github/workflows/harvest.yml'
+env:
+  CI: true
+  CLI_VERSION: '0.0.6'
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Download schema_gov_it_tools.bin
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -e
+        ARTIFACT_URL=https://github.com/par-tec/dati-semantic-csv-apis/releases/download/${{ env.CLI_VERSION }}/schema_gov_it_tools.bin
+
+        curl -L \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          "${ARTIFACT_URL}" \
+          -o /usr/local/bin/schema_gov_it_tools.bin
+
+        chmod +x /usr/local/bin/schema_gov_it_tools.bin
+        /usr/local/bin/schema_gov_it_tools.bin --version
+
+    - name: List repositories to harvest
+      id: list-repos
+      shell: bash
+      run: |
+        cat > repositories.txt << 'EOF'
+        https://github.com/par-tec/dati-semantic-csv-apis/raw/refs/heads/main/assets/controlled-vocabularies/provinces/provinces.db
+        https://github.com/par-tec/dati-semantic-csv-apis/raw/refs/heads/main/assets/controlled-vocabularies/ateco-2025/ateco-2025.db
+        EOF
+
+    - name: Harvest vocabularies
+      id: harvest
+      shell: bash
+      run: |
+        sed 's/^[[:space:]]*//' repositories.txt | xargs /usr/local/bin/schema_gov_it_tools.bin \
+          --log-level debug \
+          apistore \
+          collect \
+          --skip-not-found \
+          --force \
+          --output "${RUNNER_TEMP}/vocabularies.db"
+
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      # if: github.event_name != 'pull_request'
+      with:
+        ref: harvest
+        path: harvest-branch
+        persist-credentials: true
+
+    - name: Publish to harvest branch
+      # if: github.event_name != 'pull_request'
+      shell: bash
+      run: |
+        cp "${RUNNER_TEMP}/vocabularies.db" harvest-branch/vocabularies.db
+        cd harvest-branch
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add vocabularies.db
+        git diff --cached --quiet && echo "No changes to publish." && exit 0
+        git commit -m "chore: update vocabularies.db [$(date -u +%Y-%m-%dT%H:%MZ)]"
+        git push

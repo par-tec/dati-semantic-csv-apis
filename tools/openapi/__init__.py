@@ -417,7 +417,7 @@ def infer_schema_from_samples(samples):
     return schema
 
 
-def validate_data_against_schema(data, schema):
+def validate_data_against_schema(data, schema, limit_errors=10):
     """
     Validate JSON data against a JSON Schema.
 
@@ -434,9 +434,19 @@ def validate_data_against_schema(data, schema):
     items = data if isinstance(data, list) else [data]
 
     for idx, item in enumerate(items):
+        if limit_errors <= 0:
+            log.warning("Error limit reached, stopping validation")
+            errors.append(
+                {
+                    "index": idx,
+                    "message": "Error limit reached, further errors not shown",
+                }
+            )
+            break
         try:
             validate(instance=item, schema=schema)
         except ValidationError as e:
+            limit_errors -= 1
             errors.append(
                 {
                     "index": idx,

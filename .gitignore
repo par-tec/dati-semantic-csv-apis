@@ -139,6 +139,6 @@ dmypy.json
 .idea
 
 # built docs
-doc/*pdf
-doc/*.db
+docs/*pdf
+docs/*.db
 tests/**/*.db

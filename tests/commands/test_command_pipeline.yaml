@@ -217,6 +217,53 @@
     - --jsonld
     - tests/data/snapshots/provinces/provinces.data.yamlld
     expected: {}
+  #
+  # API Workflow.
+  #
+  - description: |-
+      When:
+      - I run the `apistore create` command
+
+      Then:
+      - the command exits successfully
+      - the database file is created
+    command:
+    - apistore
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --jsonld
+    - tests/data/snapshots/provinces/provinces.data.yamlld
+    - --oas
+    - assets/controlled-vocabularies/provinces/provinces.oas3.yaml
+    - --output
+    - tests/data/snapshots/provinces/provinces.db
+    - --force
+    expected:
+      files:
+      - path: tests/data/snapshots/provinces/provinces.db
+      logs:
+      - >-
+        APIStore database created: .*/provinces.db
+
+  - description: |-
+      When:
+      - I run the `apistore validate` command on the created database file
+
+      Then:
+      - the command exits successfully
+      - validation passes
+    command:
+    - apistore
+    - validate
+    - --oas
+    - assets/controlled-vocabularies/provinces/provinces.oas3.yaml
+    - --db
+    - tests/data/snapshots/provinces/provinces.db
+    expected: {}
+  #
+  # CSV workflow.
+  #
   - description: |-
       When:
       - I run `datapackage create`

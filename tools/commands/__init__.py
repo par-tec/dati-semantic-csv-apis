@@ -14,6 +14,7 @@ from importlib.metadata import PackageNotFoundError, version
 import click
 
 from tools._build_info import BUILD_COMMIT
+from tools.commands.apistore import apistore
 from tools.commands.csv import csv
 from tools.commands.datapackage import datapackage
 from tools.commands.jsonld import jsonld
@@ -61,5 +62,6 @@ cli.add_command(jsonld)
 cli.add_command(datapackage)
 cli.add_command(csv)
 cli.add_command(openapi)
+cli.add_command(apistore)
 
 __all__ = ["cli"]

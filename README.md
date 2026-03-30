@@ -38,7 +38,7 @@ docker compose up test
 Build and run the API with:
 
 ```bash
-docker compose up catalog-api
+docker compose up api-data
 ```
 
 ## Contributing

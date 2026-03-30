@@ -240,45 +240,7 @@ testcases:
       "@requireAll": false
       "@embed": "@always"
   expected_payload: agente_causale_skos.data.yaml
-  expected_jsonschema: &agente_causale_skos_jsonschema
-    x-jsonld-context: *agente_causale_skos_context
-    type: object
-    properties:
-      url: *URL
-      id:
-        type: string
-        minLength: 1
-        pattern: '^[A-Za-z0-9._-]+$'
-      label_it: *Label
-      vocab:
-        type: array
-
-        items:
-          type: object
-          required:
-          - url
-          properties:
-            url: *URL
-      parent:
-        type: array
-
-        items:
-          type: object
-          required:
-          - url
-          properties:
-            url: *URL
-      level:
-        type: integer
-        minimum: 0
-        maximum: 10
-    required:
-    - id
-    - label_it
-    - level
-    - parent
-    - url
-    - vocab
+  expected_jsonschema: agente_causale_skos.oas3.yaml
   expected_csv: |
     id,label_it,level,parent,url,vocab
     11110101,Idrogeno,3,gruppo/1.1,agente/11110101,../agente_causale
@@ -333,7 +295,7 @@ testcases:
       #   all @id fields are serialized as full URIs.
       "@base": null
   expected_payload: agente_causale_skos_uri.data.yaml
-  expected_jsonschema: *agente_causale_skos_jsonschema
+  expected_jsonschema: agente_causale_skos_uri.oas3.yaml
 - name: agente_causale_rdfs
   data: *agente_causale_ttl
   frame:
@@ -387,23 +349,7 @@ testcases:
       "@language": ["it", "en"]
       "@value": {}
   expected_payload: agente_causale_rdfs.data.yaml
-  expected_jsonschema:
-    x-jsonld-context: *agente_causale_rdfs_context
-    type: object
-    properties:
-      url: *URL
-      id:
-        type: string
-        minLength: 1
-        pattern: '^[A-Za-z0-9._-]+$'
-      label_it: *Label
-      level:
-        type: string
-    required:
-    - id
-    - label_it
-    - level
-    - url
+  expected_jsonschema: agente_causale_rdfs.oas3.yaml
 
 - name: ateco-2025-skos
   data: |-

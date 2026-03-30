@@ -49,7 +49,7 @@ FTS_TABLE = "_metadata_fts"
 # Consider tweaking `tokenize` option.
 CREATE_FTS_TABLE_SQL = f"""
 CREATE VIRTUAL TABLE IF NOT EXISTS {FTS_TABLE}
-USING fts5(title, description);
+USING fts5(title, description, tokenize = 'trigram');
 """
 
 POPULATE_FTS_TABLE_SQL = f"""
