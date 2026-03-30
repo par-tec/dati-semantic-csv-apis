@@ -169,12 +169,12 @@
 
     When:
     - I execute the `jsonld create` command
-    - I execute the `datapackage create` command
-    - I execute the `csv create` command
+    - I execute the `apistore create` command
+    - I execute the `apistore validate` command
 
     Then:
     - all commands exit successfully
-    - the output CSV file contains the expected number of items
+    - the output db file contains the expected number of items
   steps:
   - description: |-
       When:
