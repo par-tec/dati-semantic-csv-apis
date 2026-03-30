@@ -131,22 +131,21 @@ jobs:
     - name: Check oas3 exists
       id: check-oas3
       working-directory: ${{ matrix.asset }}
-      shell: bash
+      shell: python {0}
       run: |
-        shopt -s nullglob
-        OAS3_FILES=( *.oas3.yaml )
-
-        if (( ${#OAS3_FILES[@]} == 0 )); then
-          echo "exists=false" >> "$GITHUB_OUTPUT"
-          echo "No .oas3.yaml file found in $(pwd)"
-          exit 0
-        fi
-        # Use the first OAS3 file found
-        OAS3_FILE="${OAS3_FILES[0]}"
-        echo "exists=true" >> "$GITHUB_OUTPUT"
-        echo "oas3_file=$OAS3_FILE" >> "$GITHUB_OUTPUT"
-
-        echo "Found OAS3 file: $OAS3_FILE"
+        import glob, os, sys
+        files = glob.glob("*.oas3.yaml")
+        github_output = os.environ["GITHUB_OUTPUT"]
+        if not files:
+            with open(github_output, "a") as f:
+                f.write("exists=false\n")
+            print(f"No .oas3.yaml file found in {os.getcwd()}")
+            sys.exit(0)
+        oas3_file = files[0]
+        with open(github_output, "a") as f:
+            f.write("exists=true\n")
+            f.write(f"oas3_file={oas3_file}\n")
+        print(f"Found OAS3 file: {oas3_file}")
 
     - name: Check frame file exists
       id: check-frame
