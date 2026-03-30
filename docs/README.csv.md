@@ -1,8 +1,8 @@
-# Generazione e metadatazione dei CSV
+# Generazione e metadatazione dei CSV (#generazione-e-metadatazione-dei-csv)
 
 [Glossario](glossario.md)
 
-## Introduzione
+## Introduzione (#introduzione)
 
 Il progetto schema.gov.it (National Data Catalog for
 Semantic Interoperability) è, insieme alla PDND (Piattaforma
@@ -28,7 +28,7 @@ YAML-LD, a partire dai dataset RDF a grafo.
 Inoltre, mette a disposizione uno strumento in PoC
 per la generare automaticamente tali dataset.
 
-## Obiettivo
+## Obiettivo (#obiettivo)
 
 Questo documento definisce i requisiti di un sistema di
 generazione e di metadatazione dei CSV su cui basare dei
@@ -37,7 +37,7 @@ controllati in formato RDF (text/turtle) in rappresentazioni
 lineari (CSV) e strutturate (YAML-LD/JSON) più accessibili e
 utilizzabili.
 
-## Descrizione generale
+## Descrizione generale (#descrizione-generale)
 
 Il meccanismo di metadatazione ha questi obiettivi:
 
@@ -63,7 +63,7 @@ dando priorità ai metadati in italiano.
 
 Ad oggi gli Erogatori pubblicano vocabolari controllati in
 formato RDF (Turtle) JSON e CSV. Spesso questi CSV sono
-generati manualmente, tramite query SparQL o script ad-hoc.
+generati manualmente, tramite query SPARQL o script ad-hoc.
 Talvolta vengono pre-elaborati tramite strumenti interattivi
 (e.g., Microsoft Excel) portandosi dietro incongruenze o
 specifiche idiosincrasie. A regime quindi, si vuole evitare
@@ -76,7 +76,7 @@ Si è deciso quindi di adottare un approccio più strutturato
 dove i dati RDF vengono proiettati in un formato strutturato
 (YAML-LD/JSON); e in un secondo momento, da questa
 rappresentazione strutturata, gli Erogatori che lo
-desiderano possono generare CSV standardizzati segueno il
+desiderano possono generare CSV standardizzati seguendo il
 processo descritto in questo documento.
 
 ```mermaid
@@ -130,7 +130,7 @@ graph
   end
 ```
 
-### Relazione tra proiezioni JSON e CSV
+### Relazione tra proiezioni JSON e CSV (#relazione-tra-proiezioni-json-e-csv)
 
 1. Gli Erogatori che lo desiderano, possono continuare a
    pubblicare i CSV legacy in modo da mantenere la
@@ -152,7 +152,7 @@ graph
    grafo RDF originale, incluse le proprietà SKOS e i
    riferimenti alle ontologie.
 
-### Modalità di funzionamento
+### Modalità di funzionamento (#modalita-di-funzionamento)
 
 1. Generare metadati strutturati conformi agli standard
    Frictionless Data per facilitare la validazione e l'uso
@@ -162,9 +162,9 @@ Questo approccio garantisce l'interoperabilità tra il mondo
 semantico (RDF/SKOS) e quello applicativo (CSV/JSON),
 mantenendo la tracciabilità e la coerenza dei dati.
 
-## Requisiti utente
+## Requisiti utente (#requisiti-utente)
 
-### Limitazioni
+### Limitazioni (#limitazioni)
 
 1. I vocabolari controllati devono essere espressi in RDF
    utilizzando la terminologia SKOS; ulteriori modelli
@@ -310,7 +310,7 @@ mantenendo la tracciabilità e la coerenza dei dati.
        skos:inScheme other:differentVocabulary .
    ```
 
-### Requisiti di base
+### Requisiti di base (#requisiti-di-base)
 
 La specifica:
 
@@ -328,7 +328,7 @@ La specifica:
 - permette di aggiungere ulteriori informazioni al JSON-LD
   e al CSV, ma tali informazioni non avranno una
   corrispondenza diretta nel grafo RDF originale.
-- definisce un file di metadatazione Frictilonless Data
+- definisce un file di metadatazione Frictionless Data
   Package (datapackage.yaml/json) utile a processare il
   CSV;
 - definisce le regole di serializzazione in CSV (encoding,
@@ -346,7 +346,7 @@ La PoC:
 ### Requisiti opzionali
 
 - Gestione delle gerarchie parent-child estraendo
-  l'identificatore dal campo skos:broader
+  l'identificatore dal campo `skos:broader`
 - Localizzazione delle label in multiple lingue (it, en,
   de) ove presenti nel grafo RDF
 - Generazione di uno stub del datapackage con campi
@@ -370,7 +370,7 @@ Le principali decisioni architetturali vengono tracciate
 nella forma di Architecture Decision Records (ADR)
 e sono presenti in [docs/adr](../adr/).
 
-Il processo di sviluppo è test driven
+Il processo di sviluppo è test driven.
 Ogni commit è accompagnato da test automatici che verificano
 la correttezza del codice e la conformità alle specifiche.
 (Vedi [Test](#test)).
@@ -505,44 +505,8 @@ che dà luogo al grafo RDF:
   secondo le regole definite in un file di framing
   JSON-LD.
 
-La specifica:
-
-- descrive come processare un vocabolario controllato RDF
-  in formato Turtle (.ttl) modellato secondo l'ontologia
-  SKOS per generare un sottoinsieme dei dati in formato
-  JSON-LD;
-- definisce la mappatura di base tra un sottoinsieme delle
-  proprietà SKOS e i campi del JSON-LD risultante;
-- definisce la mappatura di base tra un sottoinsieme delle
-  proprietà SKOS e le colonne del CSV risultante;
-- permette all'Erogatore di definire ulteriori campi
-  personalizzati, senza che per tali campi sia necessario
-  un mapping diretto in RDF e/o SKOS;
-- permette di aggiungere ulteriori informazioni al JSON-LD
-  e al CSV, ma tali informazioni non avranno una
-  corrispondenza diretta nel grafo RDF originale.
-- definisce un file di metadatazione Frictilonless Data
-  Package (datapackage.yaml/json) utile a processare il
-  CSV;
-- definisce le regole di serializzazione in CSV (encoding,
-  separatori, ecc.) per i file con un datapackage
-  associato.
-
-La PoC implementa queste funzionalità in Python, utilizzando
-librerie open source e può essere usata come riferimento per
-la generazione automatica dei CSV e YAML-LD a partire dai
-vocabolari controllati RDF.
-
-### Requisiti opzionali
-
-- Gestione delle gerarchie parent-child estraendo
-  l'identificatore dal campo skos:broader
-- Localizzazione delle label in multiple lingue (it, en,
-  de) ove presenti nel grafo RDF
-- Generazione di uno stub del datapackage con campi
-  indicati dall'Erogatore nel file di framing JSON-LD
-- Gestione di chiavi univoce derivate dall'URI del
-  concetto (es. estraendo la parte finale dell'URI)
+Vedi [Requisiti di base](#requisiti-di-base)
+e [Requisiti opzionali](#requisiti-opzionali).
 
 ### Funzionalità della PoC
 
