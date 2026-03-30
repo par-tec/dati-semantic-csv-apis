@@ -73,7 +73,7 @@ jobs:
         FILTERED_ASSETS=()
 
         for DIR in $RAW_ASSETS; do
-        TTL_FILES=($(find "$DIR" -maxdepth 3 -type f -name "*.ttl"))
+        mapfile -t TTL_FILES < <(find "$DIR" -maxdepth 3 -type f -name "*.ttl")
         COUNT=${#TTL_FILES[@]}
 
         if [ "$COUNT" -gt 1 ]; then
@@ -134,18 +134,15 @@ jobs:
       shell: bash
       run: |
         shopt -s nullglob
-        pwd
-        ls -l
-        python --version
-        OAS3_FILE=( *.oas3.yaml )
+        OAS3_FILES=( *.oas3.yaml )
 
-        if (( ${#OAS3_FILE[@]} == 0 )); then
+        if (( ${#OAS3_FILES[@]} == 0 )); then
           echo "exists=false" >> "$GITHUB_OUTPUT"
           echo "No .oas3.yaml file found in $(pwd)"
           exit 0
         fi
         # Use the first OAS3 file found
-        OAS3_FILE="${OAS3_FILE[0]}"
+        OAS3_FILE="${OAS3_FILES[0]}"
         echo "exists=true" >> "$GITHUB_OUTPUT"
         echo "oas3_file=$OAS3_FILE" >> "$GITHUB_OUTPUT"
 
@@ -159,7 +156,7 @@ jobs:
         shopt -s nullglob
 
         # Find frame files
-        FRAME_FILES=( *.frame.yamlld )
+        mapfile -t FRAME_FILES < <(find . -maxdepth 1 -type f -name "*.frame.yamlld")
 
         if (( ${#FRAME_FILES[@]} == 0 )); then
           echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -186,7 +183,7 @@ jobs:
       working-directory: >-
         ${{ matrix.asset }}
       run: |
-        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+        ASSET_NAME=$(find . -maxdepth 1 -name "*.ttl" -printf "%f\n" | sed 's/\.ttl$//')
 
         /usr/local/bin/schema_gov_it_tools.bin \
           apistore create \
@@ -205,9 +202,9 @@ jobs:
       working-directory: >-
         ${{ matrix.asset }}
       run: |
-        if ls *.db 1> /dev/null 2>&1; then
+        if find . -maxdepth 1 -name "*.db" | grep -q .; then
           echo "db_exists=true" >> "$GITHUB_OUTPUT"
-          DB_FILE=$(ls *.db | head -1)
+          DB_FILE=$(find . -maxdepth 1 -name "*.db" -printf "%f\n" | head -1)
           echo "db_file=$DB_FILE" >> "$GITHUB_OUTPUT"
         else
           echo "db_exists=false" >> "$GITHUB_OUTPUT"
