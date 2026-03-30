@@ -10,7 +10,7 @@ from pathlib import Path
 import click
 import yaml
 
-from tools.base import JsonLDFrame
+from tools.base import TEXT_TURTLE, JsonLDFrame
 from tools.openapi import Apiable
 
 log = logging.getLogger(__name__)
@@ -67,8 +67,8 @@ def openapi():
     help="Overwrite output file if it already exists. Without this flag, the command fails if the output file exists.",
 )
 def create_command(
+    ttl: Path,
     jsonld: Path | None,
-    ttl: Path | None,
     frame: Path,
     vocabulary_uri: str,
     output: Path,
@@ -97,22 +97,31 @@ def create_command(
         else:
             log.debug(f"Overwriting existing file: {output}")
 
-    create_oas_spec(jsonld, ttl, frame, vocabulary_uri, output)
+    create_oas_spec(
+        ttl=ttl,
+        jsonld=jsonld,
+        frame=frame,
+        vocabulary_uri=vocabulary_uri,
+        output=output,
+    )
     click.echo(f"✓ Created: {output}")
 
 
 def create_oas_spec(
+    ttl: Path,
     jsonld: Path | None,
-    ttl: Path | None,
     frame: Path,
     vocabulary_uri: str,
     output: Path,
 ) -> Apiable | None:
-    """Create OpenAPI specification from framed JSON-LD or RDF vocabulary.
+    """Create OpenAPI specification stub from framed JSON-LD or RDF vocabulary.
+
+    :warning: This stub must be manually edited by the data provider in order to
+    validate its content.
 
     Args:
+        ttl: Path to RDF Turtle file (required)
         jsonld: Path to JSON-LD framed file (optional)
-        ttl: Path to RDF Turtle file (optional)
         frame: Path to JSON-LD frame file
         vocabulary_uri: URI of the vocabulary
         output: Output path for OpenAPI specification
@@ -124,13 +133,16 @@ def create_oas_spec(
     frame_data = JsonLDFrame.load(frame)
 
     # Create Apiable instance from either TTL or JSONLD
-    if ttl is not None:
+    if ttl and not jsonld:
         log.debug(f"Creating OpenAPI spec from TTL file: {ttl}")
-        apiable = Apiable(rdf_data=ttl, frame=frame_data, format="text/turtle")
-    elif jsonld is not None:
-        log.debug(f"Creating OpenAPI spec from JSON-LD file: {jsonld}")
-        jsonld_data = yaml.safe_load(jsonld.read_text(encoding="utf-8"))
-        apiable = Apiable(rdf_data=jsonld_data, frame=frame_data)
+        apiable = Apiable(rdf_data=ttl, frame=frame_data, format=TEXT_TURTLE)
+    elif ttl and jsonld:
+        log.debug(
+            f"Creating OpenAPI spec from TTL file: {ttl} (metadata). Sampling data from JSON-LD file: {jsonld}"
+        )
+        apiable = Apiable(rdf_data=ttl, frame=frame_data, format=TEXT_TURTLE)
+        with jsonld.open() as f:
+            apiable.json_ld = yaml.safe_load(f)
     else:
         raise ValueError("Either jsonld or ttl must be provided")
 

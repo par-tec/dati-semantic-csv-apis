@@ -112,7 +112,11 @@ def _process_repository_node(
     if not openapi_output.exists():
         try:
             apiable = create_oas_spec(
-                None, ttl_path, frame_path, node["@id"], openapi_output
+                ttl=ttl_path,
+                jsonld=jsonld_output,
+                frame=frame_path,
+                vocabulary_uri=node["@id"],
+                output=openapi_output,
             )
             log.info("Created OpenAPI spec %s/%s", agency_id, key_concept)
 
