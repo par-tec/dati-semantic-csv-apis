@@ -122,62 +122,35 @@ jobs:
         ARTIFACT_URL=https://github.com/par-tec/dati-semantic-csv-apis/releases/download/${{ env.CLI_VERSION }}/schema_gov_it_tools.bin
 
         curl -L \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
           "${ARTIFACT_URL}" \
           -o /usr/local/bin/schema_gov_it_tools.bin
 
         chmod +x /usr/local/bin/schema_gov_it_tools.bin
         /usr/local/bin/schema_gov_it_tools.bin --version
-    - name: Check oas3 exists
-      id: check-oas3
+        echo "Downloaded schema_gov_it_tools.bin version $(/usr/local/bin/schema_gov_it_tools.bin --version)"
+    - name: >-
+        Check required files exist: OAS3 and frame
+      id: check-files
       working-directory: ${{ matrix.asset }}
       shell: python {0}
       run: |
-        import glob, os, sys
-        files = glob.glob("*.oas3.yaml")
+        import glob, os
         github_output = os.environ["GITHUB_OUTPUT"]
-        if not files:
-            with open(github_output, "a") as f:
-                f.write("exists=false\n")
-            print(f"No .oas3.yaml file found in {os.getcwd()}")
-            sys.exit(0)
-        oas3_file = files[0]
         with open(github_output, "a") as f:
-            f.write("exists=true\n")
-            f.write(f"oas3_file={oas3_file}\n")
-        print(f"Found OAS3 file: {oas3_file}")
-
-    - name: Check frame file exists
-      id: check-frame
-      working-directory: ${{ matrix.asset }}
-      shell: bash
-      run: |
-        shopt -s nullglob
-
-        # Find frame files
-        mapfile -t FRAME_FILES < <(find . -maxdepth 1 -type f -name "*.frame.yamlld")
-
-        if (( ${#FRAME_FILES[@]} == 0 )); then
-          echo "exists=false" >> "$GITHUB_OUTPUT"
-          echo "No .frame.yamlld file found in $(pwd)"
-          exit 0
-        fi
-
-        # Use the first frame file found
-        FRAME_FILE="${FRAME_FILES[0]}"
-        echo "exists=true" >> "$GITHUB_OUTPUT"
-        echo "frame_file=$FRAME_FILE" >> "$GITHUB_OUTPUT"
-
-        echo "Found frame file: $FRAME_FILE"
-
-    - name: Warn missing frame
-      if: steps.check-frame.outputs.exists == 'false'
-      run: |
-        echo "::warning title=Missing frame file::No frame file found for asset '${MATRIX_ASSET}'. This asset will be skipped."
-      env:
-        MATRIX_ASSET: ${{ matrix.asset }}
+            for pattern, key, file_key in [
+                ("*.oas3.yaml",      "oas3_exists",  "oas3_file"),
+                ("*.frame.yamlld",   "frame_exists", "frame_file"),
+            ]:
+                files = glob.glob(pattern)
+                if files:
+                    f.write(f"{key}=true\n")
+                    f.write(f"{file_key}={files[0]}\n")
+                    print(f"Found {pattern}: {files[0]}")
+                else:
+                    f.write(f"{key}=false\n")
+                    print(f"::warning title=Missing file::No {pattern} found in {os.getcwd()}")
     - name: Generate and validate APIStore DB
-      if: steps.check-oas3.outputs.exists == 'true' && steps.check-frame.outputs.exists
+      if: steps.check-files.outputs.oas3_exists == 'true' && steps.check-files.outputs.frame_exists
         == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
       working-directory: >-
         ${{ matrix.asset }}
@@ -196,7 +169,7 @@ jobs:
         MATRIX_ASSET: ${{ matrix.asset }}
     - name: Check for DB files
       id: check-db
-      if: steps.check-oas3.outputs.exists == 'true' && !contains(matrix.asset,
+      if: steps.check-files.outputs.oas3_exists == 'true' && !contains(matrix.asset,
         'theme-subtheme-mapping')
       working-directory: >-
         ${{ matrix.asset }}
