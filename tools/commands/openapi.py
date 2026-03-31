@@ -24,20 +24,20 @@ def openapi():
 
 @openapi.command(name="create")
 @click.option(
+    "--ttl",
+    type=click.Path(
+        exists=True, dir_okay=False, resolve_path=True, path_type=Path
+    ),
+    required=True,
+    help="Path to the RDF vocabulary file in Turtle format",
+)
+@click.option(
     "--jsonld",
     type=click.Path(
         exists=True, dir_okay=False, resolve_path=True, path_type=Path
     ),
     required=False,
     help="Path to the JSON-LD framed file",
-)
-@click.option(
-    "--ttl",
-    type=click.Path(
-        exists=True, dir_okay=False, resolve_path=True, path_type=Path
-    ),
-    required=False,
-    help="Path to the RDF vocabulary file in Turtle format",
 )
 @click.option(
     "--frame",
@@ -75,14 +75,6 @@ def create_command(
     force: bool,
 ):
     """Create OpenAPI specification from framed JSON-LD or RDF vocabulary."""
-    if jsonld is None and ttl is None:
-        raise click.UsageError("Please provide one of --jsonld or --ttl.")
-
-    if jsonld is not None and ttl is not None:
-        raise click.UsageError(
-            "Please provide only one of --jsonld or --ttl, not both."
-        )
-
     click.echo(f"Creating openapi metadata for {vocabulary_uri}")
 
     # Check if output file exists
@@ -95,7 +87,7 @@ def create_command(
             )
             raise click.Abort()
         else:
-            log.debug(f"Overwriting existing file: {output}")
+            log.info(f"Overwriting existing file: {output}")
 
     create_oas_spec(
         ttl=ttl,
