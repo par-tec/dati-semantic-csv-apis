@@ -45,6 +45,12 @@ vocab:
 
 - <http://www.w3.org/2004/02/skos/core#inScheme>
 
+uri:
+
+- the Resource URI (a.k.a the JSON LD `@id` field).
+  We don't use the `url` field because Resource URIs
+  may not be dereferenceable.
+
 ## Consequences
 
 We can process EU vocabularies
