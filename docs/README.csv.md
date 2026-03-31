@@ -351,7 +351,7 @@ La PoC:
   de) ove presenti nel grafo RDF
 - Generazione di uno stub del datapackage con campi
   indicati dall'Erogatore nel file di framing JSON-LD
-- Gestione di chiavi univoce derivate dall'URI del
+- Gestione di chiavi univoche derivate dall'URI del
   concetto (es. estraendo la parte finale dell'URI)
 
 ## Progettazione
@@ -658,7 +658,7 @@ Ottengo
     "@id": skos:notation
     "@type": euvoc:ISO_639_1
 "@graph":
-  - url: ENG
+  - uri: ENG
     label: English
     id: en
     # La property skos:notation con @type euvoc:ISO_639_3
@@ -668,7 +668,7 @@ Ottengo
     skos:notation:
       "@type": euvoc:ISO_639_3
       "@value": eng
-  - url: SPN
+  - uri: SPN
     label: Sanapaná
     skos:notation:
       "@type": euvoc:ISO_639_3
