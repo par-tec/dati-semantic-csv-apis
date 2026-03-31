@@ -9,6 +9,8 @@ from .errors import (
 )
 from .printable_parameters_middleware import PrintableParametersMiddleware
 
+URI = "uri"
+
 __all__ = [
     "PrintableParametersMiddleware",
     "bad_request",
@@ -16,6 +18,5 @@ __all__ = [
     "handle_not_implemented",
     "handle_problem_safe",
     "safe_problem",
+    "URI",
 ]
-
-URI = "uri"

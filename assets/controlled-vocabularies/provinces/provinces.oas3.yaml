@@ -114,7 +114,7 @@ info:
   contact:
     email: info@dati.gov.it
     name: banche dati e open data
-    uri: https://w3id.org/italia/data/public-organization/agid
+    url: https://w3id.org/italia/data/public-organization/agid
   description: Vocabolario controllato delle province d'Italia
     e relativo codice regione
   title: Vocabolario Controllato delle Province d'Italia
