@@ -4,10 +4,10 @@
   label_de: Englisch
   label_it: inglese
   label_sl: "angle\u0161\u010Dina"
-  url: >-
+  uri: >-
     http://publications.europa.eu/resource/authority/language/ENG
 - '@type': skos:Concept
   id: spn
   label: "Sanapan\xE1"
-  url: >-
+  uri: >-
     http://publications.europa.eu/resource/authority/language/SPN

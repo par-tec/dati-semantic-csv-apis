@@ -15,7 +15,7 @@
   xsd: "http://www.w3.org/2001/XMLSchema#"
   covapit: https://w3id.org/italia/onto/COV/
   # Fields.
-  url: "@id"
+  uri: "@id"
   id:
     "@id": skos:notation
 
@@ -39,13 +39,13 @@
     "@id": skos:broader
     "@container": "@set"
     "@context":
-        url: "@id"
+        uri: "@id"
 
   vocab:
     "@id": skos:inScheme
     "@container": "@set"
     "@context":
-      url: "@id"
+      uri: "@id"
 
   level:
     # Use type coercion to ensure that level is a JSON Number.
@@ -63,7 +63,7 @@
 # Matching on type works.
 "@type":
   - &jsonld_type "covapit:PrivateOrgActivityType"
-url: {}
+uri: {}
 id: {}
 label_de: {}
 label_en: {}
@@ -74,11 +74,11 @@ label:
 level: {}
 
 vocab:
-- url: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+- uri: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
   "@explicit": true
   "@embed": "@never"
 parent:
-- url: {}
+- uri: {}
   id: {}
   # To show further properties, you must
   #   use "@embed": "@always".

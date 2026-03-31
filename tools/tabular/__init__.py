@@ -18,7 +18,7 @@ import pandas as pd
 from frictionless import FrictionlessException, Package
 from rdflib import Graph
 
-from tools.base import TEXT_TURTLE
+from tools.base import TEXT_TURTLE, URI
 from tools.projector import JsonLD, JsonLDFrame
 from tools.tabular.metadata import create_datapackage
 from tools.utils import expand_context_to_absolute_uris
@@ -293,7 +293,7 @@ class Tabular(Vocabulary):
                     field_type = "number"
 
             # Special handling for common fields
-            if key in ["id", "url"]:
+            if key in ["id", URI]:
                 field_type = "string"
             elif key == "level":
                 field_type = "integer"

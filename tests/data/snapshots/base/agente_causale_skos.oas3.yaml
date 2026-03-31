@@ -7,10 +7,10 @@ components:
         level: 3
         parent:
         - id: '1.1'
-          url: gruppo/1.1
-        url: agente/11110101
+          uri: gruppo/1.1
+        uri: agente/11110101
         vocab:
-        - url: >-
+        - uri: >-
             ../agente_causale
       properties:
         id:
@@ -31,27 +31,27 @@ components:
             properties:
               id:
                 type: string
-              url:
+              uri:
                 format: uri-reference
                 type: string
             required:
             - id
-            - url
+            - uri
             type: object
           maxItems: 100
           minItems: 0
           type: array
-        url:
+        uri:
           format: uri-reference
           type: string
         vocab:
           items:
             properties:
-              url:
+              uri:
                 format: uri-reference
                 type: string
             required:
-            - url
+            - uri
             type: object
           maxItems: 100
           minItems: 0
@@ -61,7 +61,7 @@ components:
       - label_it
       - level
       - parent
-      - url
+      - uri
       - vocab
       type: object
       "x-jsonld-context":
@@ -85,15 +85,15 @@ components:
           '@container': '@set'
           '@context':
             id: *id001
-            url: '@id'
+            uri: '@id'
           '@id': skos:broader
         skos: >-
           http://www.w3.org/2004/02/skos/core#
-        url: '@id'
+        uri: '@id'
         vocab:
           '@container': '@set'
           '@context':
-            url: '@id'
+            uri: '@id'
           '@id': skos:inScheme
         xkos: >-
           http://rdf-vocabulary.ddialliance.org/xkos#

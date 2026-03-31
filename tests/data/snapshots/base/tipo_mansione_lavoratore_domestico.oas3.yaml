@@ -5,10 +5,10 @@ components:
         id: '0'
         label: Colf
         parent: []
-        url: >-
+        uri: >-
           https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/tipo_mansione_lavoratore_domestico/0
         vocab:
-        - url: >-
+        - uri: >-
             https://w3id.org/italia/social-security/controlled-vocabulary/domesticWorkServices/tipo_mansione_lavoratore_domestico
         xkos:depth: null
       properties:
@@ -26,17 +26,17 @@ components:
           maxItems: 100
           minItems: 0
           type: array
-        url:
+        uri:
           format: uri-reference
           type: string
         vocab:
           items:
             properties:
-              url:
+              uri:
                 format: uri-reference
                 type: string
             required:
-            - url
+            - uri
             type: object
           maxItems: 100
           minItems: 0
@@ -45,7 +45,7 @@ components:
       - id
       - label
       - parent
-      - url
+      - uri
       - vocab
       type: object
       "x-jsonld-context":
@@ -62,15 +62,15 @@ components:
         parent:
           '@container': '@set'
           '@context':
-            url: '@id'
+            uri: '@id'
           '@id': skos:broader
         skos: >-
           http://www.w3.org/2004/02/skos/core#
-        url: '@id'
+        uri: '@id'
         vocab:
           '@container': '@set'
           '@context':
-            url: '@id'
+            uri: '@id'
           '@id': skos:inScheme
         xkos: >-
           http://rdf-vocabulary.ddialliance.org/xkos#

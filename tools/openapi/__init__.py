@@ -15,6 +15,7 @@ from tools.base import (
     APPLICATION_LD_JSON,
     DATADIR,
     TEXT_TURTLE,
+    URI,
     JsonLD,
     JsonLDFrame,
     JsonLDFunction,
@@ -30,7 +31,6 @@ log = logging.getLogger(__name__)
 type OpenAPI = dict[str, Any]
 OPENAPI_30_SCHEMA_JSON = DATADIR / "openapi_30.schema.json"
 OAS30_SCHEMA = json.loads(OPENAPI_30_SCHEMA_JSON.read_text())
-URI = "url"
 EmptyOpenAPI: OpenAPI = frozendict.frozendict()
 
 
@@ -481,7 +481,7 @@ def validate_data_against_schema(data, schema, limit_errors=10):
 
 def add_url_format_recursively(schema):
     """
-    Recursively add format: uri-reference to all 'url' fields in schema.
+    Recursively add format: uri-reference to all URI fields in schema.
 
     Args:
         schema: JSON Schema (or sub-schema) to process
@@ -526,7 +526,7 @@ def add_constraints_from_context(schema, frame):
     Returns:
         dict: Enhanced schema with constraints
     """
-    # First, recursively add format: uri to all 'url' fields
+    # First, recursively add format: uri to all URI fields
     add_url_format_recursively(schema)
 
     context = frame.context

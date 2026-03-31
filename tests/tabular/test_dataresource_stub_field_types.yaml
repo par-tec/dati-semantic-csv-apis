@@ -157,7 +157,7 @@ testcases:
       xsd: "http://www.w3.org/2001/XMLSchema#"
 
       # Fields.
-      url: "@id"
+      uri: "@id"
       id:
         "@id": "http://www.w3.org/2004/02/skos/core#notation"
 
@@ -172,13 +172,13 @@ testcases:
         "@id": "http://www.w3.org/2004/02/skos/core#broader"
         "@container": "@set"
         "@context":
-          url: "@id"
+          uri: "@id"
 
       vocab:
         "@id": "http://www.w3.org/2004/02/skos/core#inScheme"
         "@container": "@set"
         "@context":
-          url: "@id"
+          uri: "@id"
 
       level:
         # Use type coercion to ensure that level is a JSON Number.
@@ -235,7 +235,7 @@ testcases:
     #
     "@type":
     - "https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL"
-    url: {}
+    uri: {}
     id: {}
     label_it:
       "@language": ["it"]
@@ -255,14 +255,14 @@ testcases:
 
     # Only pick entries in the specified vocabulary.
     vocab:
-    - url: "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale"
+    - uri: "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale"
       "@explicit": true
       # If the referenced vocabulary has further properties,
       #   (e.g., @type), do not embed them.
       "@embed": "@never"
     # If no parent, return an empty list (e.g., when level=1).
     parent:
-    - url: {}
+    - uri: {}
       "@default": "@null"
       "@explicit": true
       "@requireAll": false

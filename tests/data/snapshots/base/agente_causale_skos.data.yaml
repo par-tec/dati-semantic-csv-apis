@@ -11,10 +11,10 @@
       https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
     - skos:Concept
     id: '1.1'
-    url: gruppo/1.1
-  url: agente/11110101
+    uri: gruppo/1.1
+  uri: agente/11110101
   vocab:
-  - url: >-
+  - uri: >-
       ../agente_causale
 - '@type':
   - >-
@@ -29,10 +29,10 @@
       https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
     - skos:Concept
     id: '1.1'
-    url: gruppo/1.1
-  url: agente/11110102
+    uri: gruppo/1.1
+  uri: agente/11110102
   vocab:
-  - url: >-
+  - uri: >-
       ../agente_causale
 - '@type':
   - >-
@@ -43,9 +43,9 @@
     Agenti chimici inorganici
   level: 1
   parent: []
-  url: grande_gruppo/1
+  uri: grande_gruppo/1
   vocab:
-  - url: >-
+  - uri: >-
       ../agente_causale
 - '@type':
   - >-
@@ -61,8 +61,8 @@
       https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
     - skos:Concept
     id: '1'
-    url: grande_gruppo/1
-  url: gruppo/1.1
+    uri: grande_gruppo/1
+  uri: gruppo/1.1
   vocab:
-  - url: >-
+  - uri: >-
       ../agente_causale

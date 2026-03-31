@@ -17,6 +17,8 @@ from typing import Any, cast
 import yaml
 from jsonschema import Draft7Validator, validate
 
+URI = "uri"
+
 log = logging.getLogger(__name__)
 METADATA_TABLE = "_metadata"
 METADATA_UNIQUE_INDEX = "agency_id_key_concept_unique"
@@ -347,7 +349,7 @@ class APIStore:
         quoted_table_name = self._quoted_identifier(vocabulary_uuid)
         conn.execute(f"DROP TABLE IF EXISTS {quoted_table_name}")
 
-        columns = ["id", "url", "label", "level", "_text"]
+        columns = ["id", URI, "label", "level", "_text"]
         quoted_columns = [self._quoted_identifier(column) for column in columns]
         column_defs = ", ".join(f"{column} TEXT" for column in quoted_columns)
         if not rows:

@@ -31,7 +31,7 @@ def test_tabular_metadata(
     - The metadata method should return a valid datapackage descriptor dictionary
     """
     datapackage_yaml = snapshot / request.node.name / "datapackage.yaml"
-
+    datapackage_yaml.parent.mkdir(parents=True, exist_ok=True)
     tabular = Tabular(rdf_data=vocabulary_ttl, frame={"@context": {}})
     try:
         tabular.uri()

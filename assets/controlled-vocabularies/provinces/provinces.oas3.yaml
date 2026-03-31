@@ -7,12 +7,12 @@ components:
         id: '001'
         label_it: Torino
         nuts:
-        - url: http://nuts.geovocab.org/id/ITC11
+        - uri: http://nuts.geovocab.org/id/ITC11
         parent:
-        - url: ../regions/01
-        url: '001'
+        - uri: ../regions/01
+        uri: '001'
         vocab:
-        - url: ../provinces
+        - uri: ../provinces
       properties:
         acronym:
           type: string
@@ -27,11 +27,11 @@ components:
         nuts:
           items:
             properties:
-              url:
+              uri:
                 format: uri-reference
                 type: string
             required:
-            - url
+            - uri
             type: object
           maxItems: 100
           minItems: 0
@@ -39,26 +39,26 @@ components:
         parent:
           items:
             properties:
-              url:
+              uri:
                 format: uri-reference
                 type: string
             required:
-            - url
+            - uri
             type: object
           maxItems: 100
           minItems: 0
           type: array
-        url:
+        uri:
           format: uri-reference
           type: string
         vocab:
           items:
             properties:
-              url:
+              uri:
                 format: uri-reference
                 type: string
             required:
-            - url
+            - uri
             type: object
           maxItems: 100
           minItems: 0
@@ -69,7 +69,7 @@ components:
       - label_it
       - nuts
       - parent
-      - url
+      - uri
       - vocab
       type: object
       x-jsonld-context:
@@ -88,21 +88,21 @@ components:
         nuts:
           '@container': '@set'
           '@context':
-            url: '@id'
+            uri: '@id'
           '@id': owl:sameAs
         owl: http://www.w3.org/2002/07/owl#
         parent:
           '@container': '@set'
           '@context':
-            url: '@id'
+            uri: '@id'
           '@id': skos:broader
         rdfs: http://www.w3.org/2000/01/rdf-schema#
         skos: http://www.w3.org/2004/02/skos/core#
-        url: '@id'
+        uri: '@id'
         vocab:
           '@container': '@set'
           '@context':
-            url: '@id'
+            uri: '@id'
           '@id': skos:inScheme
         xsd: http://www.w3.org/2001/XMLSchema#
       x-jsonld-type: clvapit:Province

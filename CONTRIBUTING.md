@@ -9,20 +9,21 @@ other checks on them.
 
 Once you install it via
 
-```
-    pip3 install pre-commit --user
+```bash
+pip3 install pre-commit --user
 ```
 
 You can run it directly via
 
-```
-    pre-commit run --all-files
+```bash
+pre-commit run --all-files
 ```
 
 Or install it as a pre-commit hook
 
-```
-    pre-commit install
+```bash
+pre-commit install
+pre-commit install --hook-type pre-push
 ```
 
 ## Making a PR

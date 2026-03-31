@@ -23,6 +23,7 @@ from sqlalchemy import create_engine, text
 from tests.constants import ASSETS, DATADIR, TESTCASES
 from tools.base import (
     APPLICATION_LD_JSON_FRAMED,
+    URI,
     JsonLD,
     JsonLDFrame,
 )
@@ -64,9 +65,6 @@ def test_create_db(snapshot):
         for e in validator.iter_errors(json.loads(r["_text"]))
     ]
     assert not errors, "Invalid db._text JSON:\n" + "\n".join(errors[:5])
-
-
-URI = "url"
 
 
 @pytest.mark.skip(reason="TODO: Move to Data API.")

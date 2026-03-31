@@ -668,7 +668,7 @@ Applicando il frame seguente
   "skos": "http://www.w3.org/2004/02/skos/core#"
   euvoc: "http://publications.europa.eu/ontology/euvoc#"
   "@base": "http://publications.europa.eu/resource/authority/language/"
-  url: "@id"
+  uri: "@id"
   label:
     "@id": skos:prefLabel
   id:
@@ -687,7 +687,7 @@ Ottengo
   skos: http://www.w3.org/2004/02/skos/core#
   euvoc: http://publications.europa.eu/ontology/euvoc#
   "@base": http://publications.europa.eu/resource/authority/language/
-  url: "@id"
+  uri: "@id"
   label:
     "@id": skos:prefLabel
   id:

@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from tools.base import JsonLDFrame
+from tools.base import URI, JsonLDFrame
 from tools.tabular import Tabular
 
 TESTCASES_YAML = Path(__file__).with_suffix(".yaml")
@@ -47,7 +47,7 @@ def test_dataresource_stub_field_types(data: str, frame: JsonLDFrame):
     fields = resource["schema"]["fields"]
 
     expected_fields = [
-        {"name": "url", "type": "string"},
+        {"name": URI, "type": "string"},
         {"name": "id", "type": "string"},
         {"name": "label_it", "type": "string"},
         {"name": "level", "type": "integer"},

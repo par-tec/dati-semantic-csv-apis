@@ -48,14 +48,14 @@ def single_entry_db(tmp_path: Path) -> str:
             rows=[
                 {
                     "id": "A01",
-                    "url": "https://example.com/vocabularies/test/A01",
+                    "uri": "https://example.com/vocabularies/test/A01",
                     "label": "Item A01",
                     "level": "1",
                     "_text": json.dumps(
                         {
                             "id": "A01",
                             "label": "Item A01",
-                            "url": "https://example.com/vocabularies/test/A01",
+                            "uri": "https://example.com/vocabularies/test/A01",
                         }
                     ),
                 }

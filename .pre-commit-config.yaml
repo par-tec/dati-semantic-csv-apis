@@ -85,7 +85,7 @@ repos:
   - id: generate-bundles
     name: Generate OAS bundles
     stages:
-    - manual
+    - pre-push
     language: docker_image
     files: >-
       apiv1/vocabularies/open.*yaml

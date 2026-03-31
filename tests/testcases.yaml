@@ -174,7 +174,7 @@ testcases:
       xsd: "http://www.w3.org/2001/XMLSchema#"
 
       # Fields.
-      url: "@id"
+      uri: "@id"
       id:
         "@id": "skos:notation"
 
@@ -189,7 +189,7 @@ testcases:
         "@id": "skos:broader"
         "@container": "@set"
         "@context":
-          url: "@id"
+          uri: "@id"
           id:
             "@id": "skos:notation"
 
@@ -197,7 +197,7 @@ testcases:
         "@id": skos:inScheme
         "@container": "@set"
         "@context":
-          url: "@id"
+          uri: "@id"
 
       level:
         # Use type coercion to ensure that level is a JSON Number.
@@ -217,7 +217,7 @@ testcases:
     #
     "@type":
     - "https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL"
-    url: {}
+    uri: {}
     id: {}
     label_it:
       "@language": ["it"]
@@ -226,14 +226,14 @@ testcases:
 
     # Only pick entries in the specified vocabulary.
     vocab:
-    - url: "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale"
+    - uri: "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale"
       "@explicit": true
       # If the referenced vocabulary has further properties,
       #   (e.g., @type), do not embed them.
       "@embed": "@never"
     # If no parent, return an empty list (e.g., when level=1).
     parent:
-    - url: {}
+    - uri: {}
       id: {}
       "@default": "@null"
       "@explicit": true
@@ -281,7 +281,7 @@ testcases:
           type: string
         - name: level
           type: integer
-        - name: url
+        - name: uri
           type: string
     sources:
     - path: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
@@ -328,7 +328,7 @@ testcases:
       #
       # Mappings
       #
-      url: "@id"
+      uri: "@id"
       id: "dct:identifier"
       label_it:
         "@id": rdfs:label
@@ -454,7 +454,7 @@ testcases:
       xsd: "http://www.w3.org/2001/XMLSchema#"
       covapit: https://w3id.org/italia/onto/COV/
       # Fields.
-      url: "@id"
+      uri: "@id"
       id:
         "@id": skos:notation
         # "@type": "@value"
@@ -479,13 +479,13 @@ testcases:
         "@id": skos:broader
         "@container": "@set"
         "@context":
-          url: "@id"
+          uri: "@id"
 
       vocab:
         "@id": skos:inScheme
         "@container": "@set"
         "@context":
-          url: "@id"
+          uri: "@id"
 
       level:
         # Use type coercion to ensure that level is a JSON Number.
@@ -503,7 +503,7 @@ testcases:
     # Matching on type works.
     "@type":
     - &jsonld_type "covapit:PrivateOrgActivityType"
-    url: {}
+    uri: {}
     id: {}
     label_de: {}
     label_en: {}
@@ -514,11 +514,11 @@ testcases:
     level: {}
 
     vocab:
-    - url: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - uri: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
       "@explicit": true
       "@embed": "@never"
     parent:
-    - url: {}
+    - uri: {}
       id: {}
       "@default": "@null"
       "@embed": "@always"
@@ -615,7 +615,7 @@ testcases:
       xkos: http://rdf-vocabulary.ddialliance.org/xkos#
       xsd: "http://www.w3.org/2001/XMLSchema#"
       euvoc: "http://publications.europa.eu/ontology/euvoc#"
-      url: "@id"
+      uri: "@id"
       id:
         # Use type coercion to select a specific identifier.
         "@id": "skos:notation"
@@ -640,11 +640,11 @@ testcases:
     #
     "@requireAll": true
     "@type": skos:Concept
-    url: {}
+    uri: {}
     deprecated: "false"
     # The vocabularies containing the Concept.
     vocab:
-    - url: {}
+    - uri: {}
       "@embed": "@never"
     # :warning: FIXME: in this vocabulary,
     #   the euvoc:ISO_639_1 is not always present, so we cannot require it.
@@ -671,7 +671,7 @@ testcases:
         type: string
         minLength: 1
         pattern: '^[A-Za-z0-9._-]+$'
-      url: *URL
+      uri: *URL
       label: *Label
       label_it: *Label
       label_de: *Label
@@ -682,15 +682,15 @@ testcases:
         items:
           type: object
           required:
-          - url
+          - uri
           properties:
-            url: *URL
+            uri: *URL
       deprecated:
         type: string
     required:
     - deprecated
     - label
-    - url
+    - uri
     # - label_de
     # - label_it
     # - label_sl
@@ -722,7 +722,7 @@ testcases:
     "@omitDefault": true
     "@requireAll": true
     "@type": skos:Concept
-    url: {}
+    uri: {}
     id: {}
     label:
       "@language": ["sl", "en", "de", "it"]
@@ -802,7 +802,7 @@ testcases:
       skos: http://www.w3.org/2004/02/skos/core#
       xkos: http://rdf-vocabulary.ddialliance.org/xkos#
       xsd: "http://www.w3.org/2001/XMLSchema#"
-      url: "@id"
+      uri: "@id"
       id:
         "@id": dct:identifier
       label:
@@ -815,13 +815,13 @@ testcases:
         "@id": skos:broader
         "@container": "@set"
         "@context":
-          url: "@id"
+          uri: "@id"
 
       vocab:
         "@id": skos:inScheme
         "@container": "@set"
         "@context":
-          url: "@id"
+          uri: "@id"
     # Only show fields listed in @context.
     "@explicit": true
 
@@ -832,7 +832,7 @@ testcases:
     "@requireAll": true
     # Matching on type works.
     "@type": "skos:Concept"
-    url: {}
+    uri: {}
     id: {}
     label:
       "@language": ["it", "en", "de"]
@@ -844,12 +844,12 @@ testcases:
       "@default": "@null"
 
     vocab:
-    - url: {}
+    - uri: {}
       "@explicit": true
       "@embed": "@never"
       "@default": "@null"
     parent:
-    - url: {}
+    - uri: {}
       id: {}
       # To show further properties, you must
       #   use "@embed": "@always".

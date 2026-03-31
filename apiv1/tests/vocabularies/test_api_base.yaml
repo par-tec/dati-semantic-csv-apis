@@ -17,7 +17,7 @@ testcases:
     - "Application startup complete"
     response:
       status_code: 200
-      json: {"id": "A01", "label": "Item A01", "url": "https://example.com/vocabularies/test/A01",
+      json: {"id": "A01", "label": "Item A01", "uri": "https://example.com/vocabularies/test/A01",
         "href": "https://schema.gov.it/api/vocabularies/v1/istat/ateco-2025/A01"}
 - name: get_vocabulary_oas
   description: |-
@@ -169,7 +169,7 @@ testcases:
         items:
         - id: A01
           label: Item A01
-          url: https://example.com/vocabularies/test/A01
+          uri: https://example.com/vocabularies/test/A01
 - name: pagination_data_cursor
   description: |-
     When:
