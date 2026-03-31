@@ -6,7 +6,7 @@ from pathlib import Path
 import pyld
 from pyld import jsonld
 
-from tools.base import JsonLD, JsonLDFrame
+from tools.base import URI, JsonLD, JsonLDFrame
 
 log = logging.getLogger(__name__)
 
@@ -201,7 +201,6 @@ def update_frame_with_key_field(framed: JsonLD, base_uri: str) -> None:
     and this is "uri",
     disassociate the "key" field in the "@context".
     """
-    URI = "url"
     base_uri_len = len(base_uri)
     context, graph = framed["@context"], framed["@graph"]
     # Disassociate "key" field in context.

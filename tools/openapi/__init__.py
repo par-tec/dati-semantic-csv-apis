@@ -15,6 +15,7 @@ from tools.base import (
     APPLICATION_LD_JSON,
     DATADIR,
     TEXT_TURTLE,
+    URI,
     JsonLD,
     JsonLDFrame,
     JsonLDFunction,
@@ -30,7 +31,6 @@ log = logging.getLogger(__name__)
 type OpenAPI = dict[str, Any]
 OPENAPI_30_SCHEMA_JSON = DATADIR / "openapi_30.schema.json"
 OAS30_SCHEMA = json.loads(OPENAPI_30_SCHEMA_JSON.read_text())
-URI = "url"
 EmptyOpenAPI: OpenAPI = frozendict.frozendict()
 
 

@@ -13,8 +13,6 @@ from vocabularies.app import create_app
 
 from tests.harness import OPENAPI_SPEC_PATH, _config, client_harness
 
-URI = "url"
-
 oas_schema: OpenApiSchema = schemathesis.openapi.from_path(
     str(OPENAPI_SPEC_PATH)
 )
