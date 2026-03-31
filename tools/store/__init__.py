@@ -10,6 +10,7 @@ import json
 import logging
 import re
 import sqlite3
+import threading
 from hashlib import sha256
 from pathlib import Path
 from typing import Any, cast
@@ -121,7 +122,15 @@ class APIStore:
         self.sqlite_path = sqlite_path
         self.read_only = read_only
         self.check_same_thread = check_same_thread
-        self.connection: sqlite3.Connection | None = None
+        self._local = threading.local()
+
+    @property
+    def connection(self) -> sqlite3.Connection | None:
+        return getattr(self._local, "connection", None)
+
+    @connection.setter
+    def connection(self, value: sqlite3.Connection | None) -> None:
+        self._local.connection = value
 
     @staticmethod
     def _quoted_identifier(identifier: str) -> str:
