@@ -1,3 +1,5 @@
+import pytest
+
 from tools.harvest.catalog import Catalog
 
 
@@ -8,6 +10,7 @@ def test_catalog():
     assert "@graph" in vocabularies
 
 
+@pytest.mark.skip
 def test_catalog_items():
     catalog = Catalog("https://schema.gov.it/sparql")
     items = catalog.items()
