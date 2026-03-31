@@ -91,7 +91,6 @@ async def load_dataset_handler(
     harvest_database: APIStore = APIStore(
         harvest_db,
         read_only=True,
-        check_same_thread=False,
     )
 
     # Update the FTS table.
