@@ -13,7 +13,6 @@ from rdflib.plugins.parsers.jsonld import to_rdf
 
 from tools.base import (
     APPLICATION_LD_JSON,
-    APPLICATION_LD_JSON_FRAMED,
     DATADIR,
     TEXT_TURTLE,
     JsonLD,
