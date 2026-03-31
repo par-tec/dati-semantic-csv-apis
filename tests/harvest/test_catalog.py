@@ -11,4 +11,4 @@ def test_catalog():
 def test_catalog_items():
     catalog = Catalog("https://schema.gov.it/sparql")
     items = catalog.items()
-    assert len(items) == 106
+    assert len(items) == 111
