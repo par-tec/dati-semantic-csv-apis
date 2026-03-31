@@ -26,7 +26,8 @@ Processing large vocabularies can be resource-intensive.
 Pros:
 
 - Reduces memory usage and processing time when processing large vocabularies.
+
 - Validation is performed over the entire dataset.
-Cons:
+  Cons:
 
 - Sampling could lead to incomplete OpenAPI because embedded resources may reference to nodes that were excluded from the sample.
