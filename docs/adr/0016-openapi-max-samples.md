@@ -1,4 +1,4 @@
-# 15. Add pre-filtering option to JSON-LD framing process
+# 16. Add max-samples option to openapi create
 
 <!-- In vim, use !!date -I to get current date. -->
 
