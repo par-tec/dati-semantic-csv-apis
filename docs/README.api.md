@@ -601,9 +601,34 @@ automaticamente a partire dai file YAML presenti nella cartella.
 Viene testato ed assemblato come container Docker tramite GitHub Actions
 e pubblicato sul Github Container Registry di questo repository.
 
+Il container viene avviato tramite `uvicorn` come server ASGI di produzione:
+
+```bash
+docker run ghcr.io/<org>/dati-semantic-csv-apis-data \
+  --workers 2 --log-level info
+```
+
+Tutte le opzioni di `uvicorn` possono essere passate come argomenti al container
+oppure tramite le variabili d'ambiente `UVICORN_*` (es. `UVICORN_WORKERS=2`).
+
+Le variabili d'ambiente applicative sono:
+
+| Variabile               | Default                 | Descrizione                          |
+| ----------------------- | ----------------------- | ------------------------------------ |
+| `API_BASE_URL`          | `http://localhost:8080` | URL base dell'API                    |
+| `HARVEST_DB`            | `harvest.db`            | Percorso del datastore SQLite        |
+| `CACHE_CONTROL_MAX_AGE` | `3600`                  | Valore `max-age` per `Cache-Control` |
+
 ### Data API (#poc-data-api)
 
-TBD
+La Data API è implementata nella cartella [apiv1/vocabularies/](apiv1/vocabularies/).
+
+Viene avviata tramite uvicorn che esegue il modulo ASGI `vocabularies.asgi:application`.
+Il processo può essere scalato orizzontalmente con `--workers N`:
+ogni worker è un processo OS separato con la propria connessione SQLite in sola lettura,
+quindi non ci sono problemi di thread-safety o locking.
+
+Vedi [ADR 0018](adr/0018-asgi-production-server.md) per i dettagli della scelta.
 
 ### Harvesting PoC (#poc-harvesting)
 

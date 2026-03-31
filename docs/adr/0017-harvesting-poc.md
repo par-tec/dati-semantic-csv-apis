@@ -19,7 +19,12 @@ to populate the datastore with real vocabularies and test the API.
 
 The harvesting process:
 
-- [x] is implemented as a CLI command.
+- [x] is implemented via the CLI `apistore collect` command.
+- [x] collect supports logging and --force options like all commands.
+- [x] collects either files or URLs passed as CLI arguments.
+- [x] tests whether all URLs are reachable before downloading them.
+- [x] if `--skip-not-found` option is passed, URLs returning 404
+  are logged and skipped.
 - [x] is executed in an environment separated from this repository.
 - [x] references a released version of the CLI, to ensure stability and avoid breaking changes during development.
 - [x] is executed periodically.

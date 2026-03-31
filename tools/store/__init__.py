@@ -10,6 +10,7 @@ import json
 import logging
 import re
 import sqlite3
+import threading
 from hashlib import sha256
 from pathlib import Path
 from typing import Any, cast
@@ -116,12 +117,18 @@ class APIStore:
         sqlite_path: str,
         *,
         read_only: bool = False,
-        check_same_thread: bool = True,
     ):
         self.sqlite_path = sqlite_path
         self.read_only = read_only
-        self.check_same_thread = check_same_thread
-        self.connection: sqlite3.Connection | None = None
+        self._local = threading.local()
+
+    @property
+    def connection(self) -> sqlite3.Connection | None:
+        return getattr(self._local, "connection", None)
+
+    @connection.setter
+    def connection(self, value: sqlite3.Connection | None) -> None:
+        self._local.connection = value
 
     @staticmethod
     def _quoted_identifier(identifier: str) -> str:
@@ -142,9 +149,7 @@ class APIStore:
     def connect(self) -> sqlite3.Connection:
         if self.connection is None:
             database_path = self.sqlite_path
-            connect_kwargs: dict[str, Any] = {
-                "check_same_thread": self.check_same_thread,
-            }
+            connect_kwargs: dict[str, Any] = {}
             if self.read_only:
                 database_path = (
                     f"{Path(self.sqlite_path).resolve().as_uri()}?mode=ro"

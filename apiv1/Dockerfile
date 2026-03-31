@@ -37,6 +37,9 @@ RUN chown -R appuser:appuser /app
 
 USER appuser
 
+# Application environment variables.
+# ENV HARVEST_DB=harvest.db
+# ENV CACHE_CONTROL_MAX_AGE=3600
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD ["python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8080/status')"]
-ENTRYPOINT ["python"]
-CMD ["-m", "vocabularies"]
+ENTRYPOINT ["uvicorn"]
+CMD ["vocabularies.asgi:application", "--host", "0.0.0.0", "--port", "8080"]
