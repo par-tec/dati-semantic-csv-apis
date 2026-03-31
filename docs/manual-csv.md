@@ -148,7 +148,7 @@ importante sceglierli con cura e mantenerli stabili
 nel tempo (vedi
 [Nomi dei campi nella proiezione](#nomi-dei-campi-nella-proiezione)).
 
-Inoltre, sono ammessi solo alcuni valori per degli specifici campi. 
+Inoltre, sono ammessi solo alcuni valori per degli specifici campi.
 In caso di errore, il tool suggerisce i valori ammessi.
 Esempio che rompe la validazione del frame:
 
@@ -157,7 +157,9 @@ Esempio che rompe la validazione del frame:
     "@id": skos:altLabel
     "@language": it
 ```
+
 si riceverà un errore simile a :
+
 ```
 ValueError: Frame field 'label' must be one of ['http://www.w3.org/2004/02/skos/core#prefLabel'], got http://www.w3.org/2004/02/skos/core#altLabel.
 Supported fields and their allowed IRIs:
@@ -167,7 +169,6 @@ Supported fields and their allowed IRIs:
   - 'parent': ['http://www.w3.org/2004/02/skos/core#broader']
   - 'vocab': ['http://www.w3.org/2004/02/skos/core#inScheme']
 ```
-
 
 ## Generare lo stub del datapackage {#generare-lo-stub-del-datapackage}
 
