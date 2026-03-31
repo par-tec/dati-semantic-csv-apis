@@ -66,6 +66,13 @@ def openapi():
     default=False,
     help="Overwrite output file if it already exists. Without this flag, the command fails if the output file exists.",
 )
+@click.option(
+    "--max-samples",
+    type=int,
+    default=0,
+    show_default=True,
+    help="Maximum number of records to use for schema inference. 0 means use all records (no sampling).",
+)
 def create_command(
     ttl: Path,
     jsonld: Path | None,
@@ -73,6 +80,7 @@ def create_command(
     vocabulary_uri: str,
     output: Path,
     force: bool,
+    max_samples: int,
 ):
     """Create OpenAPI specification from framed JSON-LD or RDF vocabulary."""
     click.echo(f"Creating openapi metadata for {vocabulary_uri}")
@@ -95,6 +103,7 @@ def create_command(
         frame=frame,
         vocabulary_uri=vocabulary_uri,
         output=output,
+        max_samples=max_samples or None,
     )
     click.echo(f"✓ Created: {output}")
 
@@ -105,6 +114,7 @@ def create_oas_spec(
     frame: Path,
     vocabulary_uri: str,
     output: Path,
+    max_samples: int | None = None,
 ) -> Apiable | None:
     """Create OpenAPI specification stub from framed JSON-LD or RDF vocabulary.
 
@@ -143,6 +153,7 @@ def create_oas_spec(
     openapi_spec = apiable.openapi(
         add_constraints=True,
         validate_output=True,
+        max_samples=max_samples,
     )
 
     # Write to output file
