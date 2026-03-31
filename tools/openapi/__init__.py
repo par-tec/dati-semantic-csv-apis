@@ -88,7 +88,6 @@ class Apiable(Vocabulary):
         frame.validate(strict=True)
 
         self.frame = frame
-        self._already_framed = bool(format == APPLICATION_LD_JSON_FRAMED)
 
     def create_api_data(self, sample=False) -> JsonLD:
         """
@@ -106,7 +105,7 @@ class Apiable(Vocabulary):
                 ],
             },
         ]
-        if not self._already_framed:
+        if not self.is_framed():
             data: JsonLD = self.project(
                 self.frame,
             )
