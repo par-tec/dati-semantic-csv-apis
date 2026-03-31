@@ -1,5 +1,6 @@
 import json
 import logging
+import random
 import time
 from collections.abc import Iterable
 from pathlib import Path
@@ -12,7 +13,6 @@ from rdflib.plugins.parsers.jsonld import to_rdf
 
 from tools.base import (
     APPLICATION_LD_JSON,
-    APPLICATION_LD_JSON_FRAMED,
     DATADIR,
     TEXT_TURTLE,
     JsonLD,
@@ -88,7 +88,6 @@ class Apiable(Vocabulary):
         frame.validate(strict=True)
 
         self.frame = frame
-        self._already_framed = bool(format == APPLICATION_LD_JSON_FRAMED)
 
     def create_api_data(self, sample=False) -> JsonLD:
         """
@@ -106,7 +105,7 @@ class Apiable(Vocabulary):
                 ],
             },
         ]
-        if not self._already_framed:
+        if not self.is_framed():
             data: JsonLD = self.project(
                 self.frame,
             )
@@ -222,6 +221,7 @@ class Apiable(Vocabulary):
         schema_instances: JsonLD,
         add_constraints=True,
         validate_output=True,
+        max_samples: int | None = None,
     ) -> OpenAPI:
         """
         Generate an OpenAPI schema from the framed RDF data.
@@ -244,6 +244,7 @@ class Apiable(Vocabulary):
             schema_instances,
             add_constraints=add_constraints,
             validate_output=validate_output,
+            max_samples=max_samples,
         )
 
     def openapi(self, **kwargs) -> OpenAPI:
@@ -264,6 +265,7 @@ class Apiable(Vocabulary):
         assert schema_instances, "Expected non-empty schema instances"
         schema = self.json_schema(
             schema_instances=schema_instances,
+            max_samples=kwargs.pop("max_samples", None),
             **kwargs,
         )
         openapi = {
@@ -302,6 +304,7 @@ def create_schema_from_frame_and_data(
     framed: JsonLD,
     add_constraints=True,
     validate_output=True,
+    max_samples: int | None = None,
 ) -> OpenAPI:
     """
     Sample-based approach: Frame the RDF data and infer schema from result.
@@ -336,7 +339,7 @@ def create_schema_from_frame_and_data(
         )
 
     # Infer schema from normalized samples
-    schema = infer_schema_from_samples(samples)
+    schema = infer_schema_from_samples(samples, max_samples=max_samples)
 
     # Add constraints from JSON-LD context
     if add_constraints:
@@ -379,14 +382,21 @@ def create_schema_from_frame_and_data(
     return cast(OpenAPI, schema)
 
 
-def infer_schema_from_samples(samples):
+def infer_schema_from_samples(
+    samples, max_samples: int | None = 200, seed: int = 42
+):
     """
     Generate JSON Schema from sample data using genson.
 
-    Idea: Consider subsampling to speed it up.
+    Uses random subsampling for large datasets to speed up schema inference.
+    Schema inference converges quickly, so a subset of 200 records is
+    typically sufficient to capture all field types.
 
     Args:
         samples: A list of sample objects or a single sample object
+        max_samples: Maximum number of samples to use. If None, all samples
+            are used. Defaults to 200.
+        seed: Random seed for reproducible subsampling. Defaults to 42.
 
     Returns:
         dict: JSON Schema (OpenAPI-compatible)
@@ -394,7 +404,17 @@ def infer_schema_from_samples(samples):
     builder = OAS3SchemaBuilder()
 
     if isinstance(samples, list):
-        for sample in samples:
+        total = len(samples)
+        if max_samples is not None and total > max_samples:
+            samples_to_use = random.Random(seed).sample(samples, max_samples)
+            log.info(
+                "Subsampling %d of %d records for schema inference",
+                max_samples,
+                total,
+            )
+        else:
+            samples_to_use = samples
+        for sample in samples_to_use:
             builder.add_object(sample)
     else:
         builder.add_object(samples)

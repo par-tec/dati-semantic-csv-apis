@@ -269,6 +269,9 @@ class Vocabulary:
         log.debug(f"Serialized RDF to {format} in {time.time() - ts:.3f}s")
         return serialized
 
+    def is_framed(self) -> bool:
+        return bool(self._jsonld)
+
     @property
     def json_ld(self) -> JsonLD:
         """
