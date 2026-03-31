@@ -286,22 +286,27 @@ paths:
         results in two API resources:
 
         ```yaml
-        GET /vocab/A
-        Host: example.dom
+        GET /vocabularies/agency/vocab/A
+        Host: api.example.com
 
         id: A
         label: Level 1 - A
         uri: https://example.com/vocab/l1/A
+        ```
 
-        GET /vocab/A.B
-        Host: example.dom
+        and
+
+        ```yaml
+        GET /vocabularies/agency/vocab/A.B
+        Host: api.example.com
 
         HTTP/1.1 200 OK
         id: A.B
         label: Level 2 - B
         uri: https://example.com/vocab/l1/A/B
         parent:
-        - url: https://example.com/vocab/l1/A
+        - uri: https://example.com/vocab/l1/A
+        href: https://api.example.com/vocabularies/agency/vocab/A.B
         ```
       operationId: vocabularies.data.get_item
       security:
@@ -698,10 +703,10 @@ components:
         label: Idrogeno solforato
         level: 3
         parent:
-          - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
-        url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11160204
+          - uri: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
+        uri: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11160204
         vocab:
-          - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+          - uri: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
       properties:
         id:
           minLength: 1
@@ -714,26 +719,28 @@ components:
         parent:
           items:
             properties:
-              url:
+              uri:
                 format: uri-reference
                 type: string
             required:
-              - url
+              - uri
             type: object
           type: array
           maxItems: 100
           minItems: 0
-        url:
+        uri:
           format: uri-reference
           type: string
+        href:
+          $ref: '#/components/schemas/URI'
         vocab:
           items:
             properties:
-              url:
+              uri:
                 format: uri-reference
                 type: string
             required:
-              - url
+              - uri
             type: object
           type: array
           maxItems: 100
@@ -741,7 +748,7 @@ components:
       required:
         - id
         - label
-        - url
+        - uri
       x-jsonld-context:
         '@vocab': https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/
         INAILService: https://w3id.org/italia/work-accident/onto/adm_serv/
@@ -758,13 +765,13 @@ components:
         parent:
           '@container': '@set'
           '@context':
-            url: '@id'
+            uri: '@id'
           '@id': skos:broader
-        url: '@id'
+        uri: '@id'
         vocab:
           '@container': '@set'
           '@context':
-            url: '@id'
+            uri: '@id'
           '@id': skos:inScheme
     ServiceDescription:
       description: |-

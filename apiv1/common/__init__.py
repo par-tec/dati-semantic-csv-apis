@@ -17,3 +17,5 @@ __all__ = [
     "handle_problem_safe",
     "safe_problem",
 ]
+
+URI = "uri"

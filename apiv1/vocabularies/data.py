@@ -13,6 +13,7 @@ import sqlite3
 from typing import Any
 
 import yaml
+from common import URI
 from common.utils import _get_database_or_fail
 from connexion import ProblemException, request
 from connexion.lifecycle import ConnexionResponse
@@ -45,7 +46,7 @@ def _transform_item(obj: Any, api_base_url: str) -> Any:
         # Add href to parent items by extracting ID from their url
         if isinstance(item.get("parent"), list):
             for parent in item["parent"]:
-                if isinstance(parent, dict) and "url" in parent:
+                if isinstance(parent, dict) and URI in parent:
                     parent_id = parent["id"]
                     parent["href"] = "/".join([api_base_url, parent_id])
 

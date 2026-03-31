@@ -17,7 +17,7 @@ from typing import Any, cast
 import yaml
 from jsonschema import Draft7Validator, validate
 
-from tools.base import URI
+URI = "uri"
 
 log = logging.getLogger(__name__)
 METADATA_TABLE = "_metadata"
