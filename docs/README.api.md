@@ -478,10 +478,10 @@ Elementi di migrazione:
    ricostruire il grafo RDF originale a partire dal JSON e
    dall'annotazione semantica..
 
-1. Verranno forniti dei tool per facilitare la generazione
-   delle proiezioni JSON a partire dai dati RDF e per
+1. La CLI facilita la generazione
+   delle proiezioni JSON a partire dai dati RDF e
    l'integrazione delle annotazioni semantiche nelle API
-   REST v1. I tool saranno open source in conformità al
+   REST v1. La CLI è open source in conformità al
    Codice per l'Amministrazione Digitale.
 
 ```mermaid
@@ -591,12 +591,12 @@ ed utilizza il framework Connexion per l'implementazione delle API REST.
 ### Catalog API (#poc-catalog-api)
 
 L'applicativo che implementa la Catalog API è nella cartella
-[apiv1/catalog](apiv1/catalog).
+[apiv1/](apiv1/).
 
 La documentazione dell'API è definita nell'OAS che viene assemblato
 automaticamente a partire dai file YAML presenti nella cartella.
 
-[apiv1/openapi/catalog.yaml](apiv1/openapi/catalog.yaml).
+[apiv1/openapi/vocabularies.yaml](apiv1/openapi/vocabularies.yaml).
 
 Viene testato ed assemblato come container Docker tramite GitHub Actions
 e pubblicato sul Github Container Registry di questo repository.
@@ -604,3 +604,31 @@ e pubblicato sul Github Container Registry di questo repository.
 ### Data API (#poc-data-api)
 
 TBD
+
+### Harvesting PoC (#poc-harvesting)
+
+Per popolare il datastore con i dati dei vocabolari
+controllati pubblicati tramite la Data API,
+viene implementato un harvester che
+itera i repository dei vocabolari controllati
+presenti su schema.gov.it,
+estrae i link ai file turtle e verifica la
+presenza di un file chiamato `{asset_name}.db`.
+
+In tal caso, scarica il file `{asset_name}.db`
+e lo utilizza per popolare il datastore.
+Questo meccanismo permette agli Erogatori di
+pubblicare volontariamente le proprie API
+decidendo i dettagli specifici di pubblicazione,
+che devono comunque essere conformi alle
+specifiche definite in questo documento.
+
+L'harvester:
+
+1. è implementato come comando CLI;
+1. viene eseguito in un ambiente separato
+   da questo repository: <https://github.com/par-tec/dati-semantic-harvest>;
+1. referenzia una versione rilasciata della CLI,
+   per garantire stabilità ed evitare breaking
+   changes durante lo sviluppo;
+1. viene eseguito periodicamente.

@@ -31,17 +31,25 @@ and should not rely on external services (e.g., a separate database container) t
 
 The CLI:
 
-- [x] can generate the datastore via the `openapi` command starting from a vocabulary and an OAS file.
-- [ ] will accept the vocabulary in the `text/turtle` format and a JSON-LD frame.
-- [ ] will accept the vocabulary in the `application/ld+json; profile="http://www.w3.org/ns/json-ld#framed"` format,
-  which is already framed.
-- [ ] will produce a sqlite datafile for each vocabulary.
+- [x] can generate the datastore via the `apistore` command starting from an RDF vocabulary and an OAS file.
+- [x] will accept the vocabulary in the `text/turtle` format, inferring
+  the frame from the OAS file.
+- [x] will accept a framed vocabulary via the `--jsonld` option, which is used as-is without further processing.
+- [x] will produce a sqlite datafile for each vocabulary.
+- [x] will NOT accept the vocabulary in the `application/ld+json; profile="http://www.w3.org/ns/json-ld#framed"` format, because
+  it lacks the necessary metadata to create the datastore.
 
 The Data API:
 
-- [ ] The API will open the sqlite datafile in read-only mode and use it to serve API requests.
+- [x] The API will open the sqlite datafile in read-only mode and use it to serve API requests.
 
 ## Consequences
 
+Pros:
+
 - The datastore will be lightweight and easy to deploy, as it does not require a separate database service.
 - No shared / external database is needed, which simplifies deployment and avoids potential issues with data consistency and access control.
+
+Cons:
+
+- The datastore will be generated periodically via a generation process, that may produce a large artifact in the future.

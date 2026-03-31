@@ -44,7 +44,7 @@ if the PR already exists, you can just start working from it.
 
 1. If you are not a member of the organization, fork the repository and fetch from both your fork and the origin
 
-   ```
+   ```bash
     GH=ioggstream  # use your github username
     git clone -o par-tec https://github.com/par-tec/python-cookiecutter
     cd python-cookiecutter
@@ -54,7 +54,7 @@ if the PR already exists, you can just start working from it.
 1. Create a branch for your PR fetching from the main branch, using your username and issue-number as branch name.
    Before checkout, make sure you have the latest version of the `par-tec/main` branch.
 
-   ```
+   ```bash
     ISSUE=123  # use the issue number
     BRANCH=${GH}-${ISSUE}
     git fetch --all
@@ -65,7 +65,7 @@ if the PR already exists, you can just start working from it.
    and ensuring that your working copy is up to date. Otherwise, you risk to work waste time
    resolving conflicts.
 
-   ```
+   ```bash
     git fetch --all  # Always download latest changes
     git checkout par-tec/${BRANCH}
    ```
@@ -75,7 +75,7 @@ if the PR already exists, you can just start working from it.
    you are working alone or on a large PR. Moreover this allows you to split your changes in multiple commits
    or to discard some of changes that you still want to temporarily keep in your working directory.
 
-   ```
+   ```bash
     git add -p
    ```
 
@@ -83,7 +83,7 @@ if the PR already exists, you can just start working from it.
    the commit message should start with `Fix: #ISSUE` where `ISSUE` is the issue number.
    Otherwise, a reference to the issue can be added in the commit message body.
 
-   ```
+   ```bash
     git add .
     git commit -m "Fix: #$ISSUE. Brief description of the changes."
    ```
@@ -91,7 +91,7 @@ if the PR already exists, you can just start working from it.
    If the PR does not fix the issue, you can always reference it
    in the commit messages.
 
-   ```
+   ```bash
     git commit -m "Brief description of the changes. See #ISSUE."
    ```
 
@@ -99,7 +99,7 @@ if the PR already exists, you can just start working from it.
    If your branch is published on your fork, you can create the PR directly
    from github.
 
-   ```
+   ```bash
     git push origin ${BRANCH}
    ```
 
