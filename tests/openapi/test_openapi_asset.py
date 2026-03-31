@@ -7,7 +7,6 @@ from tests.constants import ASSETS
 from tests.harness import assert_schema
 from tools.base import JsonLDFrame
 from tools.openapi import Apiable
-from tools.utils import SafeQuotedStringDumper
 
 vocabularies: list[Path] = list(ASSETS.glob("**/*.data.yaml"))
 
@@ -74,17 +73,5 @@ def test_schema_with_constraints_and_validation(vocabulary_data_yaml: Path):
         force=True,
     )
 
-    oas_yaml = vocabulary_data_yaml.with_suffix("").with_suffix(".oas3.yaml")
-    oas_yaml.write_text(
-        yaml.dump(
-            {
-                "openapi": "3.0.3",
-                "paths": {},
-                "components": {"schemas": {"Item": json_schema}},
-            },
-            Dumper=SafeQuotedStringDumper,
-            sort_keys=True,
-        )
-    )
     schema_copy = json_schema.copy()
     assert_schema(schema_copy, frame)

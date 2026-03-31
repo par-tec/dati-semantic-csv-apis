@@ -1,0 +1,23 @@
+$schema: >-
+  https://datapackage.org/profiles/2.0/datapackage.json
+created: >-
+  2018-06-19T00:00:00Z
+description: >-
+  Vocabolario controllato delle province d'Italia e relativo codice regione
+id: >-
+  https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+keywords:
+- Province
+- Province
+- Provinces
+- Provincia
+name: provinces
+resources: []
+sources:
+- path: >-
+    https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+title: >-
+  Vocabolario Controllato delle Province d'Italia
+version: >-
+  2.0 - allineamento all'ontologia e alle pratiche di gestione dei vocabolari controllati
+  di OntoPiA

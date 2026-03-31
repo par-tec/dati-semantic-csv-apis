@@ -281,7 +281,7 @@ testcases:
           type: string
         - name: level
           type: integer
-        - name: url
+        - name: uri
           type: string
     sources:
     - path: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
@@ -671,7 +671,7 @@ testcases:
         type: string
         minLength: 1
         pattern: '^[A-Za-z0-9._-]+$'
-      url: *URL
+      uri: *URL
       label: *Label
       label_it: *Label
       label_de: *Label
@@ -682,15 +682,15 @@ testcases:
         items:
           type: object
           required:
-          - url
+          - uri
           properties:
-            url: *URL
+            uri: *URL
       deprecated:
         type: string
     required:
     - deprecated
     - label
-    - url
+    - uri
     # - label_de
     # - label_it
     # - label_sl

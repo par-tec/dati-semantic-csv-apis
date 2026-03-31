@@ -7,10 +7,10 @@ components:
         level: 3
         parent:
         - id: '1.1'
-          url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
-        url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110101
+          uri: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
+        uri: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110101
         vocab:
-        - url: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
+        - uri: https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
       properties:
         id:
           minLength: 1
@@ -29,27 +29,27 @@ components:
             properties:
               id:
                 type: string
-              url:
+              uri:
                 format: uri-reference
                 type: string
             required:
             - id
-            - url
+            - uri
             type: object
           maxItems: 100
           minItems: 0
           type: array
-        url:
+        uri:
           format: uri-reference
           type: string
         vocab:
           items:
             properties:
-              url:
+              uri:
                 format: uri-reference
                 type: string
             required:
-            - url
+            - uri
             type: object
           maxItems: 100
           minItems: 0
@@ -59,7 +59,7 @@ components:
       - label_it
       - level
       - parent
-      - url
+      - uri
       - vocab
       type: object
       x-jsonld-context:
@@ -79,14 +79,14 @@ components:
           '@container': '@set'
           '@context':
             id: skos:notation
-            url: '@id'
+            uri: '@id'
           '@id': skos:broader
         skos: http://www.w3.org/2004/02/skos/core#
-        url: '@id'
+        uri: '@id'
         vocab:
           '@container': '@set'
           '@context':
-            url: '@id'
+            uri: '@id'
           '@id': skos:inScheme
         xkos: http://rdf-vocabulary.ddialliance.org/xkos#
         xsd: http://www.w3.org/2001/XMLSchema#
