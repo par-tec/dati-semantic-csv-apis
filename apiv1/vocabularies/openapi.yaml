@@ -880,10 +880,20 @@ components:
           maxLength: 4000
           pattern: '^[\s\S]{1,4000}$'
         version:
-          description: Version identifier
+          description: |-
+            Version identifier.
+
+            While this should probably be a short,
+            human-readable string
+            such as a semantic version or a date,
+            we allow for longer strings to avoid issues with
+            long text strings.
+
+            Reasonable long version strings could
+            be 68-character sha256 hashes.
           type: string
-          maxLength: 64
-          pattern: '^.{1,64}$'
+          maxLength: 100
+          pattern: '^.{1,100}$'
         service-desc:
           description: Service description links (RFC 8631) referencing
             the OpenAPI specification of the vocabulary API.
