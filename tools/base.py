@@ -172,9 +172,14 @@ class JsonLDFrame(dict):
                 )
 
                 if actual_iri not in expected_iris:
+                    supported_fields = "\n".join(
+                        f"  - '{f}': {iris}"
+                        for f, iris in ALLOWED_VALUES.items()
+                    )
                     raise ValueError(
                         f"Frame field '{field}' must be one of {expected_iris}, "
-                        f"got {actual_iri}"
+                        f"got {actual_iri}.\n"
+                        f"Supported fields and their allowed IRIs:\n{supported_fields}"
                     )
 
         return True

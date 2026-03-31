@@ -13,6 +13,7 @@ Riferimenti: [README.csv.md](README.csv.md) e
 - [Obiettivi](#obiettivi)
 - [Flusso di lavoro](#flusso-di-lavoro)
 - [Creare la proiezione con la UI](#creare-la-proiezione-con-la-ui)
+- [Mappare i valori della proiezione](#mappare-i-valori-della-proiezione)
 - [Generare lo stub del datapackage](#generare-lo-stub-del-datapackage)
 - [Modificare il datapackage.yaml](#modificare-il-datapackageyaml)
 - [Generare il CSV](#generare-il-csv)
@@ -127,6 +128,46 @@ schema_gov_it_tools.bin jsonld create \
   --output agente_causale.data.yamlld \
   --frame-only
 ```
+
+## Mappare i valori della proiezione {#mappare-i-valori-della-proiezione}
+
+Ogni campo inserito nella proiezione deve essere
+mappato nel `@context` del frame: ogni nome di campo
+deve essere associato alla corrispondente proprietà
+RDF.
+
+La mappatura definisce come i valori della proiezione
+vengono interpretati semanticamente. Senza una
+mappatura esplicita, un campo non è riconducibile
+a nessuna proprietà RDF e la proiezione non è
+verificabile rispetto al vocabolario originale.
+
+I nomi scelti nel `@context` diventano i nomi
+delle colonne del CSV risultante: è quindi
+importante sceglierli con cura e mantenerli stabili
+nel tempo (vedi
+[Nomi dei campi nella proiezione](#nomi-dei-campi-nella-proiezione)).
+
+Inoltre, sono ammessi solo alcuni valori per degli specifici campi. 
+In caso di errore, il tool suggerisce i valori ammessi.
+Esempio che rompe la validazione del frame:
+
+```yaml
+  label:
+    "@id": skos:altLabel
+    "@language": it
+```
+si riceverà un errore simile a :
+```
+ValueError: Frame field 'label' must be one of ['http://www.w3.org/2004/02/skos/core#prefLabel'], got http://www.w3.org/2004/02/skos/core#altLabel.
+Supported fields and their allowed IRIs:
+  - 'id': ['http://www.w3.org/2004/02/skos/core#notation', 'http://purl.org/dc/terms/identifier', 'http://purl.org/dc/elements/1.1/identifier']
+  - 'label': ['http://www.w3.org/2004/02/skos/core#prefLabel']
+  - 'level': ['https://w3id.org/italia/onto/CLV/hasRankOrder', 'http://rdf-vocabulary.ddialliance.org/xkos#depth']
+  - 'parent': ['http://www.w3.org/2004/02/skos/core#broader']
+  - 'vocab': ['http://www.w3.org/2004/02/skos/core#inScheme']
+```
+
 
 ## Generare lo stub del datapackage {#generare-lo-stub-del-datapackage}
 
