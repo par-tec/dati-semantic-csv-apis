@@ -10,8 +10,10 @@ def test_catalog():
     assert "@graph" in vocabularies
 
 
-@pytest.mark.skip
+@pytest.mark.skip(
+    reason="Vocabulary count depends on the SPARQL endpoint state."
+)
 def test_catalog_items():
     catalog = Catalog("https://schema.gov.it/sparql")
     items = catalog.items()
-    assert len(items) == 106
+    assert len(items) > 50
