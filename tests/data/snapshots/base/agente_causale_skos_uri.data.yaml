@@ -11,12 +11,12 @@
       https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
     - skos:Concept
     id: '1.1'
-    url: >-
+    uri: >-
       https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
-  url: >-
+  uri: >-
     https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110101
   vocab:
-  - url: >-
+  - uri: >-
       https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
 - '@type':
   - >-
@@ -31,12 +31,12 @@
       https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
     - skos:Concept
     id: '1.1'
-    url: >-
+    uri: >-
       https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
-  url: >-
+  uri: >-
     https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110102
   vocab:
-  - url: >-
+  - uri: >-
       https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
 - '@type':
   - >-
@@ -47,10 +47,10 @@
     Agenti chimici inorganici
   level: 1
   parent: []
-  url: >-
+  uri: >-
     https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/grande_gruppo/1
   vocab:
-  - url: >-
+  - uri: >-
       https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
 - '@type':
   - >-
@@ -66,10 +66,10 @@
       https://w3id.org/italia/work-accident/onto/adm_serv/AgenteCausaleINAIL
     - skos:Concept
     id: '1'
-    url: >-
+    uri: >-
       https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/grande_gruppo/1
-  url: >-
+  uri: >-
     https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/gruppo/1.1
   vocab:
-  - url: >-
+  - uri: >-
       https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale

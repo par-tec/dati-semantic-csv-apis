@@ -24,7 +24,7 @@ resources:
   path: provinces.csv
   schema:
     fields:
-    - name: url
+    - name: uri
       type: string
     - name: id
       type: string
@@ -50,21 +50,21 @@ resources:
       nuts:
         '@container': '@set'
         '@context':
-          url: '@id'
+          uri: '@id'
         '@id': owl:sameAs
       owl: http://www.w3.org/2002/07/owl#
       parent:
         '@container': '@set'
         '@context':
-          url: '@id'
+          uri: '@id'
         '@id': skos:broader
       rdfs: http://www.w3.org/2000/01/rdf-schema#
       skos: http://www.w3.org/2004/02/skos/core#
-      url: '@id'
+      uri: '@id'
       vocab:
         '@container': '@set'
         '@context':
-          url: '@id'
+          uri: '@id'
         '@id': skos:inScheme
       xsd: http://www.w3.org/2001/XMLSchema#
   scheme: file

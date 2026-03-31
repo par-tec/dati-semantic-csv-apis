@@ -168,7 +168,7 @@ def framer(
         #
         framed_items_len = len(framed_batch["@graph"])
         batch_ids = {i["@id"].split("/")[-1] for i in batch}
-        framed_ids = {Path(i["url"]).name for i in framed_batch["@graph"]}
+        framed_ids = {Path(i[URI]).name for i in framed_batch["@graph"]}
 
         if framed_items_len != batch_len:
             statistics["filtered"].extend(list(batch_ids - framed_ids))  # type: ignore
@@ -192,7 +192,7 @@ def framer(
 
 def update_frame_with_key_field(framed: JsonLD, base_uri: str) -> None:
     """
-    If the "url" field of every entry starts with base_uri,
+    If the URI field of every entry starts with base_uri,
     we can safely assume that the relative part of the URI
     can be used as a "key" field.
     So, add the "key" field to every entry containing the relative part of the URI.

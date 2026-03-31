@@ -3,6 +3,7 @@ from hashlib import sha256
 
 import pytest
 
+from tools.base import URI
 from tools.store import APIStore, build_vocabulary_uuid
 
 
@@ -125,18 +126,18 @@ def test_apidatabase_jsonld_graph_roundtrip(tmp_path):
     db_path = tmp_path / "v.db"
     agency_id = "agid"
     key_concept = "test-uuid-rt"
-    context = {"url": "@id", "id": "dct:identifier", "label": "skos:prefLabel"}
+    context = {URI: "@id", "id": "dct:identifier", "label": "skos:prefLabel"}
     graph = [
         {
             "@type": "skos:Concept",
             "id": "A",
-            "url": "https://example.com/A",
+            URI: "https://example.com/A",
             "label": "Àgenti",
             "nested": {
                 "child": "value"
             },  # non-primitive — must not appear as column
         },
-        {"id": "B", "url": "https://example.com/B", "label": "Beta"},
+        {"id": "B", URI: "https://example.com/B", "label": "Beta"},
     ]
 
     with APIStore(db_path.as_posix()) as db:

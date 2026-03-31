@@ -686,13 +686,13 @@ components:
         parent:
           "@container": "@set"
           "@context":
-            url: "@id"
+            uri: "@id"
           "@id": skos:broader
-        url: "@id"
+        uri: "@id"
         vocab:
           "@container": "@set"
           "@context":
-            url: "@id"
+            uri: "@id"
           "@id": skos:inScheme
     ServiceDescription:
       description: |-

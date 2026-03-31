@@ -12,7 +12,7 @@
   xsd: "http://www.w3.org/2001/XMLSchema#"
   covapit: https://w3id.org/italia/onto/COV/
   # Fields.
-  url: "@id"
+  uri: "@id"
   id:
     "@id": skos:notation
     # "@type": "@value"
@@ -37,13 +37,13 @@
     "@id": skos:broader
     "@container": "@set"
     "@context":
-        url: "@id"
+        uri: "@id"
 
   vocab:
     "@id": skos:inScheme
     "@container": "@set"
     "@context":
-      url: "@id"
+      uri: "@id"
 
   level:
     "@id": xkos:depth
@@ -63,7 +63,7 @@
 # Matching on type works.
 "@type":
   - &jsonld_type "skos:Concept"
-url: {}
+uri: {}
 id: {}
 label_de: {}
 label_en: {}
@@ -75,11 +75,11 @@ level:
   "@default": "@null"
 
 vocab:
-- url: {}
+- uri: {}
   "@explicit": true
   "@embed": "@never"
 parent:
-- url: {}
+- uri: {}
   id: {}
   # To show further properties, you must
   #   use "@embed": "@always".

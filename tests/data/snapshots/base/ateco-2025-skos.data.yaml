@@ -15,10 +15,10 @@
     - >-
       covapit:PrivateOrgActivityType
     id: A
-    url: A
-  url: '01'
+    uri: A
+  uri: '01'
   vocab:
-  - url: ../ateco-2025
+  - uri: ../ateco-2025
 - '@type':
   - skos:Concept
   - >-
@@ -36,10 +36,10 @@
     - >-
       covapit:PrivateOrgActivityType
     id: '01'
-    url: '01'
-  url: '012'
+    uri: '01'
+  uri: '012'
   vocab:
-  - url: ../ateco-2025
+  - uri: ../ateco-2025
 - '@type':
   - skos:Concept
   - >-
@@ -53,6 +53,6 @@
     AGRICULTURE, FORESTRY AND FISHING
   level: '1'
   parent: []
-  url: A
+  uri: A
   vocab:
-  - url: ../ateco-2025
+  - uri: ../ateco-2025

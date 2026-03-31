@@ -17,7 +17,7 @@
   xsd: "http://www.w3.org/2001/XMLSchema#"
 
   # Fields.
-  url: "@id"
+  uri: "@id"
   id:
     "@id": skos:notation
 
@@ -35,7 +35,7 @@
     "@id": owl:sameAs
     "@container": "@set"
     "@context":
-      url: "@id"
+      uri: "@id"
 
   # When mapping to a list, use @container: @set
   #   to ensure that JSON-LD framing handles it as an array.
@@ -43,14 +43,14 @@
     "@id": skos:broader
     "@container": "@set"
     "@context":
-      url: "@id"
+      uri: "@id"
       # id: skos:notation
 
   vocab:
     "@id": skos:inScheme
     "@container": "@set"
     "@context":
-      url: "@id"
+      uri: "@id"
 
 # Only show fields listed in @context.
 "@explicit": true
@@ -63,18 +63,18 @@
 # @type is required.
 "@type":
   - &jsonld_type "clvapit:Province"
-url: {}
+uri: {}
 id: {}
 label_it: {}
 acronym: {}
 
 vocab:
-- url: https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+- uri: https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
   "@explicit": true
   "@embed": "@never"
 
 parent:
-- url: {}
+- uri: {}
   # id: {}
   "@embed": "@always"
   "@explicit": true
@@ -82,7 +82,7 @@ parent:
   "@requireAll": false
 
 nuts:
-- url: {}
+- uri: {}
   "@embed": "@never"
   "@explicit": true
   "@default": "@null"

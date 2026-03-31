@@ -101,7 +101,7 @@ def expand_context_to_absolute_uris(context: dict) -> dict:
         if is_prefix_declaration(value):
             continue
 
-        # Skip @id mappings (e.g., "url": "@id")
+        # Skip @id mappings (e.g., "uri": "@id")
         if value == "@id":
             continue
 

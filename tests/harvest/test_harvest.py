@@ -13,7 +13,7 @@ import pytest
 import yaml
 
 from tests.constants import SNAPSHOTS
-from tools.base import JsonLD
+from tools.base import URI, JsonLD
 from tools.harvest import VocabularyRepository
 from tools.harvest.catalog import Catalog
 from tools.store import APIStore
@@ -223,7 +223,7 @@ def test_add_data_to_db(tmp_path: Path):
             conn,
         )
         vocabulary_df: pd.DataFrame = pd.read_sql(
-            f'SELECT id, url, _text FROM "{repository.vocabulary_uuid}" LIMIT 5',
+            f'SELECT id, {URI}, _text FROM "{repository.vocabulary_uuid}" LIMIT 5',
             conn,
         )
 
@@ -242,7 +242,7 @@ def test_add_data_to_db(tmp_path: Path):
 
     assert not vocabulary_df.empty, "Vocabulary table is empty"
     for _, row in vocabulary_df.iterrows():
-        for column in ["id", "url", "_text"]:
+        for column in ["id", URI, "_text"]:
             assert column in row, f"Column {column} missing in vocabulary table"
             assert row[column] is not None, (
                 f"Column {column} is None in vocabulary table"

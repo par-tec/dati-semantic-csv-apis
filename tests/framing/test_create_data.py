@@ -8,7 +8,7 @@ from rdflib.compare import IsomorphicGraph
 
 from tests.constants import ASSETS, TESTCASES
 from tests.harness import assert_snapshot_matches_data
-from tools.base import TEXT_TURTLE, JsonLDFrame
+from tools.base import TEXT_TURTLE, URI, JsonLDFrame
 from tools.projector import select_fields
 from tools.utils import IGraph
 from tools.vocabulary import (
@@ -184,7 +184,7 @@ def test_can_frame_assets(vocabulary_ttl):
 
     # If an URI is in the graph, it shouldn't be in the filtered items :)
     filtered_items = framed["statistics"]["filtered"]
-    for id_ in (x["url"] for x in graph):
+    for id_ in (x[URI] for x in graph):
         if id_ in filtered_items:
             filtered_items.remove(id_)
 

@@ -37,7 +37,7 @@ testcases:
   frame:
     "@context":
       skos: "http://www.w3.org/2004/02/skos/core#"
-      url: "@id"
+      uri: "@id"
       id:
         "@id": "skos:notation"
 
@@ -52,7 +52,7 @@ testcases:
     - A ValueError is raised indicating that multiple @type values are not supported.
   frame:
     "@context":
-      url: "@id"
+      uri: "@id"
     "@type":
     - TypeA
     - TypeB
@@ -70,6 +70,6 @@ testcases:
   frame:
     "@context":
       rdfs: "http://www.w3.org/2000/01/rdf-schema#"
-      url: "@id"
+      uri: "@id"
       id: "http://www.w3.org/2000/01/rdf-schema#label"
     "@type": SomeType

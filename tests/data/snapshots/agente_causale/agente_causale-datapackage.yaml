@@ -29,7 +29,7 @@ resources:
   path: agente_causale.csv
   schema:
     fields:
-    - name: url
+    - name: uri
       type: string
     - name: id
       type: string
@@ -54,14 +54,14 @@ resources:
         '@container': '@set'
         '@context':
           id: skos:notation
-          url: '@id'
+          uri: '@id'
         '@id': skos:broader
       skos: http://www.w3.org/2004/02/skos/core#
-      url: '@id'
+      uri: '@id'
       vocab:
         '@container': '@set'
         '@context':
-          url: '@id'
+          uri: '@id'
         '@id': skos:inScheme
       xkos: http://rdf-vocabulary.ddialliance.org/xkos#
       xsd: http://www.w3.org/2001/XMLSchema#
