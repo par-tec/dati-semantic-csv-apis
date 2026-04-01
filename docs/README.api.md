@@ -588,7 +588,33 @@ La PoC si compone di:
 Il codice della PoC è implementato in Python 3.12+
 ed utilizza il framework Connexion per l'implementazione delle API REST.
 
-### Catalog API (#poc-catalog-api)
+#### CLI {#cli-api}
+
+Il progetto fornisce una CLI che permette di:
+
+- generare lo stub OAS3 a partire dai dati e dai metadati
+  dei vocabolari controllati;
+- popolare il database SQLite a partire dai dati e dai
+  metadati dei vocabolari controllati.
+
+### Struttura del database SQLite {#struttura-del-database}
+
+Il database APIStore ha una struttura
+standardizzata:
+
+- `_metadata`: tabella di catalogo con
+  una riga per vocabolario. Le colonne
+  contengono sia una chiave basata su `agency_id` e `key_concept`
+  come già presente nella v0, sia tutta una serie
+  di metadati presi dal TTL, nonché l'OAS generato a partire dal file di descrizione del mapping.
+  La tabella supporta un indice full-text configurabile
+  in fase di harvesting.
+- Tabelle dei vocabolari: una tabella
+  per ogni vocabolario, con nome univocamente generato,
+  che contiene i record ed il payload completo
+  di ogni voce del vocabolario.
+
+### Vocabulary API (#poc-catalog-api)
 
 L'applicativo che implementa la Catalog API è nella cartella
 [apiv1/](apiv1/).

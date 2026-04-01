@@ -16,7 +16,7 @@ Riferimenti: [README.api.md](README.api.md),
 - [Creare la proiezione JSON-LD](#creare-la-proiezione-json-ld)
 - [Generare lo stub dell'OAS](#generare-lo-stub-delloas)
 - [Modificare il file OAS](#modificare-il-file-oas)
-- [Validare l'OAS](#validare-loas)
+- [Validare l'OAS](#validare-oas)
 - [Creare il database APIStore](#creare-il-database-apistore)
 - [Validare il database APIStore](#validare-il-database-apistore)
 - [Aggregare più database](#aggregare-piu-database)
@@ -39,6 +39,16 @@ permette di:
    prodotto rispetto allo schema OAS.
 1. Aggregare più database in un unico
    APIStore da pubblicare.
+
+## Note editoriali
+
+I diagrammi usano i seguenti simboli per indicare:
+
+- ✏ (U+270F) - interazioni e modifiche manuali (modifica, pubblicazione)
+- ⚙ (U+2699) — comandi CLI per creazione/generazione
+- ✔ (U+2714) — comandi di validazione
+
+Il simbolo `$` indica un comando da eseguire in terminale.
 
 ## Panoramica e similitudini con il flusso CSV {#panoramica}
 
@@ -104,9 +114,8 @@ flowchart TD
     openapi-create["⚙ openapi create<br>genera lo stub OAS dal grafo RDF e dal frame"]
     oas-stub-yaml[/"/assets/../vocabolario.oas3.yaml<br>con metadati e x-jsonld-context"/]
     edit-oas-stub-yaml["✏ Modifica manuale: completa proprietà, vincoli e annotazioni semantiche"]
-    oas-yaml[/"/assets/../vocabolario.oas3.yaml<br>definitivo"/]
     oas-validate["✔ openapi validate: verifica la conformità del JSON-LD allo schema OAS 3.0"]
-    CreateDB["⚙ apistore create: popola il database SQLite con i dati proiettati"]
+    apistore-create["⚙ apistore create: popola il database SQLite con i dati proiettati"]
     DB[/"/assets/../vocabolario.db"/]
     ValidateDB["✔ apistore validate: verifica integrità e conformità allo schema Item"]
     Publish["✏ Pubblicazione: revisione e approvazione della PR nel repository"]
@@ -117,13 +126,14 @@ flowchart TD
     -.->|d3f:read-by| openapi-create
     -->|d3f:creates| oas-stub-yaml
     --> edit-oas-stub-yaml
-    --> oas-yaml
     --> oas-validate -->|invalid| edit-oas-stub-yaml
-    oas-validate -->|valid| CreateDB
-    data-yaml --> CreateDB
-    CreateDB -->|d3f:creates| DB
+    oas-validate -->|valid| apistore-create
+    apistore-create -->|d3f:creates| DB
     DB --> ValidateDB
-    ValidateDB --> Publish
+    ValidateDB -->|valid| Publish
+
+    data-yaml -.->|d3f:read-by| apistore-create
+    edit-oas-stub-yaml -.->|d3f:modifies| oas-stub-yaml
 ```
 
 ## Creare la proiezione JSON-LD {#creare-la-proiezione-json-ld}
@@ -131,9 +141,15 @@ flowchart TD
 La proiezione JSON-LD si genera dal vocabolario
 RDF e dal frame JSON-LD, esattamente come
 nel flusso CSV.
-Se la proiezione è già stata prodotta per la
-distribuzione CSV, può essere riusata senza
-rigenerarla.
+Se la proiezione prodotta per la
+distribuzione CSV contiene tutti i campi necessari,
+può essere riusata senza rigenerarla:
+si potranno poi selezionare i soli campi da includere
+nel CSV configurando opportunamente il `datapackage.yaml`.
+
+:warning: Il passaggio di proiezione è sempre necessario,
+perché `jsonld create` supporta una serie di opzioni
+utili a gestire la variabilità di modellazione dei vocabolari RDF.
 
 ```bash
 schema_gov_it_tools.bin jsonld create \
@@ -148,9 +164,7 @@ mappati nel `@context` del frame, aggiungere
 `--frame-only`.
 
 La proiezione prodotta (`provinces.data.yamlld`)
-è l'input opzionale per `apistore create`:
-se fornita, il comando la usa direttamente
-senza eseguire il framing sul momento.
+sarà uno degli input per `apistore create`.
 
 ## Generare lo stub dell'OAS {#generare-lo-stub-delloas}
 
@@ -159,17 +173,6 @@ vocabolario RDF, dal frame e dall'URI del
 vocabolario.
 Lo stub contiene i metadati estratti dal grafo
 RDF e il `x-jsonld-context` derivato dal frame.
-
-```bash
-schema_gov_it_tools.bin openapi create \
-  --ttl provinces.ttl \
-  --frame provinces.frame.yamlld \
-  --vocabulary-uri https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces \
-  --output provinces.oas3.yaml
-```
-
-Per usare una proiezione JSON-LD già generata
-come campione per l'inferenza dello schema:
 
 ```bash
 schema_gov_it_tools.bin openapi create \
@@ -190,7 +193,7 @@ la CLI non lo sovrascrive.
 Per sovrascrivere usare il flag `--force`.
 
 Esempio di stub generato a partire dal
-vocabolario `provinces`:
+vocabolario <https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces>:
 
 ```yaml
 components:
@@ -357,7 +360,14 @@ Operazioni tipiche di modifica manuale:
    al tipo RDF del concetto (ad esempio
    `skos:Concept` o un tipo dell'ontologia).
 
-## Validare l'OAS {#validare-loas}
+:warning: Se si usa lo stesso JSON-LD frame per
+generare sia CSV che OAS, è importante che il `@context`
+sia compatibile con entrambi i flussi,
+e che il datapackage non contenga campi non scalari
+(e.g., array o oggetti) che non possono essere rappresentati
+in CSV.
+
+## Validare l'OAS {#validare-oas}
 
 Prima di creare il database, è possibile
 verificare che l'OAS sia conforme allo
@@ -378,31 +388,15 @@ Con l'OAS completato, creare il database:
 ```bash
 schema_gov_it_tools.bin apistore create \
   --ttl provinces.ttl \
-  --oas provinces.oas3.yaml \
-  --output provinces.db
-```
-
-Il comando estrae automaticamente il frame
-JSON-LD dal campo `x-jsonld-context` dell'OAS.
-
-Per usare una proiezione JSON-LD già generata
-ed evitare il framing al momento della
-creazione:
-
-```bash
-schema_gov_it_tools.bin apistore create \
-  --ttl provinces.ttl \
   --jsonld provinces.data.yamlld \
   --oas provinces.oas3.yaml \
   --output provinces.db
 ```
 
-Il parametro `--ttl` è sempre richiesto anche
-quando si fornisce `--jsonld`, perché il TTL
-è necessario per estrarre i metadati del
+I parametri `--ttl` e `--jsonld` sono entrambi necessari,
+dal TTL si estraggono i metadati del
 vocabolario (titolo, descrizione, versione,
-`agencyId`, `keyConcept`) da inserire nella
-tabella `_metadata` del database.
+`agencyId`, `keyConcept`) inseriti nel database.
 
 Di default, se il file di destinazione esiste,
 la CLI non lo sovrascrive.
@@ -425,7 +419,7 @@ Il processo di validazione:
 
 1. Verifica l'integrità SQLite del database.
 1. Controlla la struttura e il contenuto
-   della tabella `_metadata`.
+   delle tabelle.
 1. Per ogni vocabolario registrato nel
    database, recupera tutte le voci e le
    valida rispetto allo schema JSON Schema
@@ -541,32 +535,6 @@ L'Erogatore deve:
    per pubblicare il database.
 
 ## Scelte di progettazione {#scelte-di-progettazione}
-
-### Struttura del database SQLite {#struttura-del-database}
-
-Il database APIStore ha una struttura
-standardizzata:
-
-- **`_metadata`**: tabella principale con
-  una riga per vocabolario. Colonne:
-  `vocabulary_uuid` (PRIMARY KEY, SHA256 di
-  `agency_id|key_concept`), `vocabulary_uri`,
-  `agency_id`, `key_concept`, `openapi`
-  (spec OAS serializzata come JSON),
-  `catalog` (metadati di catalogo).
-  L'indice unico su `(agency_id, key_concept)`
-  garantisce l'unicità del routing.
-
-- **Tabelle dei vocabolari**: una tabella
-  per ogni vocabolario, con nome uguale al
-  `vocabulary_uuid` (SHA256 esadecimale di
-  `agency_id|key_concept`). Colonne:
-  `id`, `url`, `label`, `level`, `_text`
-  (tutte TEXT). Il campo `_text` contiene
-  il JSON completo della voce; gli altri
-  campi sono popolati direttamente per
-  consentire query SQL semplici
-  (es. `WHERE id = ?`).
 
 ### Relazione tra OAS e frame JSON-LD {#oas-e-frame}
 
