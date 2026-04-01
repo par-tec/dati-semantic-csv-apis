@@ -2,10 +2,10 @@
 Validate tabular data and metadata reading from a frictionless datapackage.
 """
 
-import json
 import logging
 from pathlib import Path
 
+import orjson as json
 from frictionless import FrictionlessException, Package, Resource
 from rdflib.compare import IsomorphicGraph
 

@@ -1,10 +1,10 @@
-import json
 import logging
 import time
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, cast
 
+import orjson
 from rdflib import DCTERMS, OWL, SKOS, Graph, Namespace
 
 # from rdflib.plugins.serializers.jsonld import from_rdf
@@ -265,12 +265,24 @@ class Vocabulary:
 
     def serialize(self, format=APPLICATION_LD_JSON) -> str:
         ts: float = time.time()
+
+        # from rdflib.plugins.serializers.jsonld import from_rdf
+        #
+        # data = from_rdf(self.graph,
+        #                 use_native_types=True, auto_compact=True)  # .json_ld()
+
         serialized: str = self.graph.serialize(format=format)
         log.debug(f"Serialized RDF to {format} in {time.time() - ts:.3f}s")
         return serialized
 
     def is_framed(self) -> bool:
         return bool(self._jsonld)
+
+    def _json_serialize(self):
+        ts: float = time.time()
+        json_data = orjson.loads(self.serialize(format=APPLICATION_LD_JSON))
+        log.debug(f"Serialized JSON-LD in {time.time() - ts:.3f}s")
+        return json_data
 
     @property
     def json_ld(self) -> JsonLD:
@@ -285,8 +297,7 @@ class Vocabulary:
         if self._jsonld is not None:
             return self._jsonld
         if self.graph:
-            # data = from_rdf(self.graph, auto_compact=True) # .json_ld()
-            data = json.loads(self.serialize(format=APPLICATION_LD_JSON))
+            data = self._json_serialize()
             if isinstance(data, dict):
                 if "@graph" not in data:
                     raise ValueError(

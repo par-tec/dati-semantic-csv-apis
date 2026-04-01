@@ -5,11 +5,11 @@ Commands for creating and validating JSON-LD artifacts.
 - Validate: Verify framed JSON-LD is a subset of original RDF vocabulary (graph isomorphism check)
 """
 
-import json
 import logging
 from pathlib import Path
 
 import click
+import orjson as json
 import yaml
 from rdflib.compare import IsomorphicGraph
 

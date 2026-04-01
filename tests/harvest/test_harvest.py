@@ -151,7 +151,7 @@ def _db_row(item: dict) -> dict:
         for key, value in sanitized_item.items()
         if isinstance(value, (int, float, bool, str, type(None)))
     }
-    row["_text"] = json.dumps(sanitized_item, ensure_ascii=False)
+    row["_text"] = json.dumps(sanitized_item)
     return row
 
 
