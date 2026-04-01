@@ -75,8 +75,65 @@ def get_status():
 
 def list_vocabularies_by_agency(
     agencyId: str,
+    title: str | None = None,
+    description: str | None = None,
+    author: str | None = None,
+    hreflang: str | None = None,
+    concept: str | None = None,
+    type: str | None = None,
+    limit: int = 10,
+    offset: int = 0,
+    **kwargs: Any,
 ) -> tuple[dict[str, Any], int, dict[str, str]]:
-    raise NotImplementedError("This endpoint is not implemented yet.")
+    if kwargs:
+        raise ValueError(f"Unexpected query parameters: {kwargs}")
+
+    db: APIStore = _get_database_or_fail()
+
+    rows = db.search_metadata(
+        query=description or "", agency_id=agencyId, limit=limit, offset=offset
+    )
+
+    items: list[dict[str, Any]] = [
+        item
+        for x in rows
+        if (
+            item := _to_catalog_item(
+                dict(x),
+                request.state.api_base_url,
+                request.state.predecessor_base_url,
+            )
+        )
+        is not None
+    ]
+
+    filtered_items = list(
+        filter_vocabularies(
+            items,
+            author=author,
+            hreflang=hreflang,
+            concept=concept,
+            type_=type,
+            title=title,
+            description=description,
+        )
+    )
+
+    result = {
+        "linkset": [
+            {
+                "anchor": request.state.api_base_url,
+                "api-catalog": request.state.api_base_url,
+                "item": filtered_items[offset : offset + limit],
+                "total_count": len(filtered_items),
+                "count": len(filtered_items[offset : offset + limit]),
+                "limit": limit,
+                "offset": offset,
+            }
+        ]
+    }
+
+    return result, 200, {"Content-Type": "application/linkset+json"}
 
 
 def _to_catalog_item(

@@ -117,10 +117,12 @@ class APIStore:
         sqlite_path: str,
         *,
         read_only: bool = False,
+        row_factory: Any = sqlite3.Row,
     ):
         self.sqlite_path = sqlite_path
         self.read_only = read_only
         self._local = threading.local()
+        self.row_factory = row_factory
 
     @property
     def connection(self) -> sqlite3.Connection | None:
@@ -156,7 +158,7 @@ class APIStore:
                 )
                 connect_kwargs["uri"] = True
             self.connection = sqlite3.connect(database_path, **connect_kwargs)
-            self.connection.row_factory = sqlite3.Row
+            self.connection.row_factory = self.row_factory
         return self.connection
 
     def close(self) -> None:
@@ -283,8 +285,9 @@ class APIStore:
 
     def search_metadata(
         self,
-        query: str,
         *,
+        query: str = "",
+        agency_id: str = "",
         limit: int = 20,
         offset: int = 0,
     ) -> list[sqlite3.Row]:
@@ -295,9 +298,16 @@ class APIStore:
         ``"exact phrase"``, ``term*`` (prefix), ``term1 OR term2``.
         """
         conn = self.connect()
+        conn.row_factory = self.row_factory
+
         qp = {}
         # Ensure query respects FTS5 syntax.
         query = re.sub('[^a-zA-Z0-9*" ]', " ", query).strip() if query else ""
+
+        agency_clause = ""
+        if agency_id:
+            qp["agency_id"] = agency_id.lower()
+            agency_clause = " AND LOWER(m.agency_id) = :agency_id "
 
         if query:
             qp["query"] = query
@@ -306,10 +316,11 @@ class APIStore:
                     FROM _metadata m
                     JOIN {FTS_TABLE} f ON f.rowid = m.rowid
                     WHERE {FTS_TABLE} MATCH :query
+                    {agency_clause}
                     ORDER BY rank
             """
         else:
-            q = "SELECT * FROM _metadata WHERE 1=1 "
+            q = f"SELECT * FROM _metadata m WHERE 1=1 {agency_clause}"
 
         if limit:
             qp["limit"] = str(limit)
