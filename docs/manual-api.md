@@ -40,6 +40,44 @@ permette di:
 1. Aggregare più database in un unico
    APIStore da pubblicare.
 
+## Panoramica e similitudini con il flusso CSV {#panoramica}
+
+Il flusso di lavoro per generare i dati per le API
+è simile a quello per generare i CSV, come indica
+questo diagramma:
+
+```mermaid
+---
+title: Flussi di lavoro a confronto
+config:
+  layout: elk
+---
+graph
+  subgraph flusso-base[Flusso JSON-LD]
+    crea-frame[Crea Frame]
+    --> crea-proiezione-jsonld[Crea Proiezione JSON-LD<br>jsonld create]
+    --> valida-proiezione-jsonld[Valida Proiezione JSON-LD<br>jsonld validate]
+  end
+
+  flusso-base --> flusso-csv & flusso-api
+
+  subgraph flusso-csv["Flusso CSV"]
+    direction TB
+    crea-datapackage-stub[Crea Datapackage Stub<br>datapackage create]
+    --> modifica-datapackage-stub[Modifica Datapackage Stub]
+    --> crea-csv[Crea CSV<br>csv create]
+    --> valida-csv[Valida CSV<br>csv validate]
+  end
+
+  subgraph flusso-api["Flusso APIStore"]
+    direction TB
+    crea-oas-stub[Crea OAS Stub<br>openapi create]
+    --> modifica-oas-stub[Modifica OAS Stub]
+    --> crea-db[Crea Database<br>apistore create]
+    --> valida-db[Valida Database<br>apistore validate]
+  end
+```
+
 ## Flusso di lavoro {#flusso-di-lavoro}
 
 Il flusso è articolato in questi passi:
@@ -397,7 +435,7 @@ fosse applicato al campo `acronym`
 (che in `provinces` vale "TO", "VC", ecc.),
 l'output sarebbe:
 
-```
+```bash
 ✗ APIStore validation failed: 10 entry validation error(s):
 agid/provinces[0] ['acronym']: 'TO' is too short
 agid/provinces[1] ['acronym']: 'VC' is too short
