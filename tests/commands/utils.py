@@ -9,6 +9,8 @@ from click.testing import CliRunner
 from tests.harness import assert_file
 from tools.commands import cli
 
+log = logging.getLogger(__name__)
+
 
 def make_fixtures(testfile) -> list:
     """
@@ -22,7 +24,7 @@ def make_fixtures(testfile) -> list:
     fixtures = []
     for tc in _testcases:
         if tc.get("skip", False):
-            logging.warning(f"Skipping test case: {tc['id']}")
+            log.warning(f"Skipping test case: {tc['id']}")
             continue
         params: dict = {}
         params["steps"] = tc["steps"]
@@ -33,11 +35,12 @@ def make_fixtures(testfile) -> list:
 
 def harness_step(step, runner: CliRunner, caplog: pytest.LogCaptureFixture):
     if step.get("skip", False):
-        logging.warning(
+        log.warning(
             f"Skipping step: {step.get('description', 'No description')}"
         )
         return
 
+    log.info(f"Executing step: {step.get('description', 'No description')}")
     expected = step["expected"]
 
     # When I execute the command ...

@@ -37,8 +37,8 @@ def apistore():
     type=click.Path(
         exists=True, dir_okay=False, resolve_path=True, path_type=Path
     ),
-    required=False,
-    help="Path to an already-framed JSON-LD data file; skips framing when provided",
+    required=True,
+    help="Path to the pre-framed JSON-LD data file",
 )
 @click.option(
     "--oas",
@@ -63,17 +63,12 @@ def apistore():
 )
 def create_command(
     ttl: Path,
-    jsonld: Path | None,
+    jsonld: Path,
     oas: Path,
     output: Path,
     force: bool,
 ):
-    """Create an APIStore SQLite database from a TTL vocabulary and OAS spec.
-
-    The frame is derived from the OAS spec's x-jsonld-context/x-jsonld-type.
-    When --jsonld is provided the pre-framed data is stored directly;
-    otherwise the TTL is framed on the fly.
-    """
+    """Create an APIStore SQLite database from a TTL vocabulary, JSON-LD data, and OAS spec."""
     check_output_file(output, force)
 
     create_apistore(ttl, jsonld, oas, output)
@@ -86,24 +81,25 @@ def _frame_from_oas(oas_spec: dict) -> JsonLDFrame:
     frame: dict = {"@context": item_schema["x-jsonld-context"]}
     if "x-jsonld-type" in item_schema:
         frame["@type"] = item_schema["x-jsonld-type"]
+
+    # Only item properties should be included in the frame.
+    for property in item_schema.get("properties", {}).keys():
+        frame[property] = {}
+    frame["@explicit"] = True
     return JsonLDFrame(frame)
 
 
 def create_apistore(
     ttl: Path,
-    jsonld: Path | None,
+    jsonld: Path,
     oas: Path,
     output: Path,
 ) -> None:
     """Populate an APIStore SQLite database.
 
-    The JSON-LD frame is derived from the OAS spec (x-jsonld-context,
-    x-jsonld-type).  When jsonld is provided the pre-framed data is used
-    directly; otherwise the TTL is framed via create_api_data().
-
     Args:
-        ttl: Path to RDF Turtle file (always required — source of vocabulary metadata)
-        jsonld: Path to already-framed JSON-LD file (optional)
+        ttl: Path to RDF Turtle file (source of vocabulary metadata)
+        jsonld: Path to pre-framed JSON-LD file
         oas: Path to OpenAPI specification file
         output: Output path for the SQLite database
     """
@@ -113,13 +109,8 @@ def create_apistore(
     frame_data = _frame_from_oas(oas_spec)
 
     apiable = Apiable(rdf_data=ttl, frame=frame_data, format="text/turtle")
-
-    if jsonld is not None:
-        log.debug("Using pre-framed JSON-LD data from: %s", jsonld)
-        data = yaml.safe_load(jsonld.read_text(encoding="utf-8"))
-    else:
-        log.debug("Framing TTL data from: %s", ttl)
-        data = apiable.create_api_data()
+    log.debug("Using pre-framed JSON-LD data from: %s", jsonld)
+    data = yaml.safe_load(jsonld.read_text(encoding="utf-8"))
 
     apiable.to_db(data=data, datafile=output, force=False, openapi=oas_spec)
     log.info("APIStore database created: %s", output)

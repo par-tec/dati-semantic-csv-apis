@@ -414,7 +414,9 @@ def infer_schema_from_samples(
             )
         else:
             samples_to_use = samples
-        for sample in samples_to_use:
+        # Always include the first sample to ensure
+        #   a consistent output in OAS3.
+        for sample in [samples[0], *samples_to_use]:
             builder.add_object(sample)
     else:
         builder.add_object(samples)

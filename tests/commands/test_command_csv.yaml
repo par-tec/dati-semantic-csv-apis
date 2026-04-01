@@ -131,6 +131,112 @@
       - >-
         CSV roundtrip validation passed with 107 rows and 321
         triples
+- id: csv_create_no_output
+  description: |-
+    Given:
+    - a JSON-LD file and datapackage
+
+    When:
+    - I run `csv create` without --output
+
+    Then:
+    - output path is inferred from datapackage (covers log line 78)
+  steps:
+  - command:
+    - csv
+    - create
+    - --jsonld
+    - tests/data/snapshots/agente_causale/agente_causale.data.yamlld
+    - --datapackage
+    - tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+    - --force
+    expected:
+      exit_status: 0
+      logs:
+      - >-
+        Using output path from datapackage
+
+- id: csv_create_different_output
+  description: |-
+    Given:
+    - a JSON-LD file and datapackage
+
+    When:
+    - I run `csv create` with --output pointing to a different path than the datapackage
+
+    Then:
+    - a warning is printed (covers branch 81->87)
+  steps:
+  - command:
+    - csv
+    - create
+    - --jsonld
+    - tests/data/snapshots/agente_causale/agente_causale.data.yamlld
+    - --datapackage
+    - tests/data/snapshots/agente_causale/agente_causale-datapackage.yaml
+    - --output
+    - tests/data/snapshots/agente_causale/agente_causale-alt-output.csv
+    - --force
+    expected:
+      exit_status: 0
+      stdout:
+      - >-
+        ⚠ Warning: Output path.*differs from datapackage path
+
+- id: csv_create_no_dialect
+  description: |-
+    Given:
+    - a JSON-LD file and a datapackage with no dialect section
+
+    When:
+    - I run `csv create`
+
+    Then:
+    - the command succeeds without setting dialect (covers branch 186->190)
+  steps:
+  - command:
+    - csv
+    - create
+    - --jsonld
+    - tests/data/snapshots/provinces/provinces.data.yamlld
+    - --datapackage
+    - tests/data/no-dialect-datapackage.yaml
+    - --output
+    - tests/data/snapshots/provinces/provinces-no-dialect.deleteme.csv
+    - --force
+    expected:
+      exit_status: 0
+      logs:
+      - >-
+        CSV file created successfully
+
+- id: csv_validate_error
+  description: |-
+    Given:
+    - a datapackage referencing a nonexistent CSV
+
+    When:
+    - I run `csv validate`
+
+    Then:
+    - the command exits with error code 1
+    - an error message is shown (covers exception handler 137-141)
+  steps:
+  - command:
+    - csv
+    - validate
+    - --vocabulary-uri
+    - https://any-uri.example.com
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --datapackage
+    - tests/data/invalid-datapackage.yaml
+    expected:
+      exit_status: 1
+      stdout:
+      - >-
+        ✗ CSV roundtrip validation failed
+
 #
 # Not supported for now
 #

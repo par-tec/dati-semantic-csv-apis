@@ -151,12 +151,6 @@ def create_datapackage_metadata(
     - Reviewed and completed with all necessary metadata fields
     - Renamed to datapackage.json before use for CSV generation
     """
-    if not ttl.exists():
-        raise FileNotFoundError(f"TTL file not found: {ttl}")
-
-    if not frame.exists():
-        raise FileNotFoundError(f"Frame file not found: {frame}")
-
     if not output.parent.exists():
         raise FileNotFoundError(
             f"Output directory {output.parent} does not exist"
@@ -194,11 +188,7 @@ def validate_datapackage_metadata(datapackage: Path) -> None:
 
     Raises:
         ValueError: If datapackage is invalid
-        FileNotFoundError: If datapackage file doesn't exist
     """
-    if not datapackage.exists():
-        raise FileNotFoundError(f"Datapackage file not found: {datapackage}")
-
     # Load the datapackage file
     log.debug(f"Loading datapackage from {datapackage}")
     datapackage_dict = yaml.safe_load(datapackage.read_text(encoding="utf-8"))
@@ -207,9 +197,6 @@ def validate_datapackage_metadata(datapackage: Path) -> None:
     log.debug("Validating datapackage structure")
     basepath = datapackage.parent.as_posix()
     package = Package(datapackage_dict, basepath=basepath)
-
-    if not package:
-        raise ValueError(f"Invalid datapackage structure: {datapackage}")
 
     # Check that it has a valid schema
     if not package.validate():

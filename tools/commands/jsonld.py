@@ -247,9 +247,6 @@ def validate_jsonld_subset(
         )
     log.debug(f"Vocabulary URI {vocabulary_uri} found in original RDF graph")
 
-    if not jsonld.exists():
-        raise ValueError(f"JSON-LD framed file not found: {jsonld.absolute()}")
-
     #
     # These extra steps are needed to strip out
     #   any extra fields beyond `@context` and `@graph`.

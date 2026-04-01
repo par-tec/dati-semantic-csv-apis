@@ -256,3 +256,61 @@
       stdout:
       - >-
         JSON-LD validation passed
+
+- id: jsonld_create_without_frame_only
+  description: |-
+    Given:
+    - a TTL and frame
+
+    When:
+    - I run `jsonld create` without --frame-only
+
+    Then:
+    - the command exits successfully (covers the frame_only=False branch)
+  steps:
+  - command:
+    - jsonld
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --frame
+    - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+    - --output
+    - tests/data/snapshots/provinces/provinces-unfiltered.deleteme.data.yamlld
+    - --force
+    expected:
+      exit_status: 0
+      stdout:
+      - >-
+        ✓ Created
+
+- id: jsonld_validate_wrong_uri
+  description: |-
+    Given:
+    - a TTL file
+    - a vocabulary URI that does not exist in the TTL
+
+    When:
+    - I run `jsonld validate`
+
+    Then:
+    - the command exits with error code 1
+    - an error message is shown (covers exception handler and URI-not-found branch)
+  steps:
+  - command:
+    - jsonld
+    - validate
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --vocabulary-uri
+    - https://not-in-graph.example.com
+    - --jsonld
+    - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
+    expected:
+      exit_status: 1
+      stdout:
+      - >-
+        ✗ JSON-LD validation failed.*not found in original RDF
+        graph

@@ -28,6 +28,8 @@
     - create
     - --ttl
     - assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
+    - --jsonld
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.data.yaml
     - --frame
     - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
     - --vocabulary-uri
@@ -94,6 +96,8 @@
     - create
     - --ttl
     - assets/controlled-vocabularies/agente_causale/latest/agente_causale.ttl
+    - --jsonld
+    - assets/controlled-vocabularies/agente_causale/latest/agente_causale.data.yaml
     - --frame
     - assets/controlled-vocabularies/agente_causale/latest/agente_causale.frame.yamlld
     - --vocabulary-uri
@@ -158,30 +162,32 @@
     - create
     - --ttl
     - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --jsonld
+    - assets/controlled-vocabularies/provinces/provinces.data.yaml
     - --frame
     - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
     - --vocabulary-uri
     - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
     - --output
-    - tests/data/snapshots/provinces/provinces.samples2.oas3.yaml
+    - tests/data/snapshots/provinces/provinces.samples2.deleteme.oas3.yaml
     - --force
     - --max-samples
     - "2"
     expected:
       files:
-      - path: tests/data/snapshots/provinces/provinces.samples2.oas3.yaml
+      - path: tests/data/snapshots/provinces/provinces.samples2.deleteme.oas3.yaml
         snapshot: tests/data/snapshots/provinces/provinces.oas3.yaml
         compare: data
       logs:
       - >-
         Subsampling 2 of \d+ records for schema inference
       - >-
-        openapi stub created: .*tests/data/snapshots/provinces/provinces.samples2.oas3.yaml
+        openapi stub created: .*tests/data/snapshots/provinces/provinces.samples2.deleteme.oas3.yaml
       stdout:
       - >-
         Creating openapi metadata for https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
       - >-
-        ✓ Created: .*tests/data/snapshots/provinces/provinces.samples2.oas3.yaml
+        ✓ Created: .*tests/data/snapshots/provinces/provinces.samples2.deleteme.oas3.yaml
   - description: |-
       When:
       - I run `openapi validate` on the created openapi stub
@@ -193,7 +199,7 @@
     - openapi
     - validate
     - --openapi
-    - tests/data/snapshots/provinces/provinces.samples2.oas3.yaml
+    - tests/data/snapshots/provinces/provinces.samples2.deleteme.oas3.yaml
     expected:
       stdout:
       - >-
@@ -226,6 +232,8 @@
     - create
     - --ttl
     - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --jsonld
+    - assets/controlled-vocabularies/provinces/provinces.data.yaml
     - --frame
     - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
     - --vocabulary-uri
@@ -262,3 +270,57 @@
       stdout:
       - >-
         ✓ openapi validation passed
+
+- id: openapi_create_with_jsonld
+  description: |-
+    Given:
+    - a TTL file and a pre-framed JSON-LD file
+
+    When:
+    - I run `openapi create` with both --ttl and --jsonld
+
+    Then:
+    - the command exits successfully (covers the elif ttl and jsonld branch)
+  steps:
+  - command:
+    - openapi
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --jsonld
+    - tests/data/snapshots/provinces/provinces.data.yamlld
+    - --frame
+    - assets/controlled-vocabularies/provinces/provinces.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces
+    - --output
+    - tests/data/snapshots/provinces/provinces-from-jsonld.oas3.yaml
+    - --force
+    expected:
+      exit_status: 0
+      stdout:
+      - >-
+        ✓ Created
+
+- id: openapi_validate_invalid_spec
+  description: |-
+    Given:
+    - a YAML file that is not a valid OpenAPI 3.0 spec
+
+    When:
+    - I run `openapi validate`
+
+    Then:
+    - the command exits with error code 1
+    - an error message is shown (covers exception handler and ValidationError branch)
+  steps:
+  - command:
+    - openapi
+    - validate
+    - --openapi
+    - tests/data/invalid-openapi.yaml
+    expected:
+      exit_status: 1
+      stdout:
+      - >-
+        ✗ openapi validation failed
