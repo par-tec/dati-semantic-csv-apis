@@ -12,6 +12,7 @@ import click
 import yaml
 
 from tools.base import JsonLDFrame
+from tools.commands.utils import check_output_file
 
 log = logging.getLogger(__name__)
 
@@ -73,15 +74,7 @@ def create_command(
     When --jsonld is provided the pre-framed data is stored directly;
     otherwise the TTL is framed on the fly.
     """
-    if output.exists():
-        if not force:
-            click.secho(
-                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
-                fg="red",
-                err=True,
-            )
-            raise click.Abort()
-        log.debug("Overwriting existing file: %s", output)
+    check_output_file(output, force)
 
     create_apistore(ttl, jsonld, oas, output)
     click.echo(f"✓ Created: {output}")

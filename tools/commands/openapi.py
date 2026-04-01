@@ -11,6 +11,7 @@ import click
 import yaml
 
 from tools.base import TEXT_TURTLE, JsonLDFrame
+from tools.commands.utils import check_output_file
 from tools.openapi import Apiable
 
 log = logging.getLogger(__name__)
@@ -85,17 +86,7 @@ def create_command(
     """Create OpenAPI specification from framed JSON-LD or RDF vocabulary."""
     click.echo(f"Creating openapi metadata for {vocabulary_uri}")
 
-    # Check if output file exists
-    if output.exists():
-        if not force:
-            click.secho(
-                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
-                fg="red",
-                err=True,
-            )
-            raise click.Abort()
-        else:
-            log.info(f"Overwriting existing file: {output}")
+    check_output_file(output, force)
 
     create_oas_spec(
         ttl=ttl,

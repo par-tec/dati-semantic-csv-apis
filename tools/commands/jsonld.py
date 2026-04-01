@@ -14,6 +14,7 @@ import yaml
 from rdflib.compare import IsomorphicGraph
 
 from tools.base import URI, JsonLDFrame
+from tools.commands.utils import check_output_file
 from tools.projector import select_fields_inplace
 from tools.utils import IGraph
 from tools.vocabulary import Vocabulary
@@ -105,17 +106,7 @@ def create_command(
     """
     click.echo(f"Framing vocabulary {vocabulary_uri} from {ttl}")
 
-    # Check if output file exists
-    if output.exists():
-        if not force:
-            click.secho(
-                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
-                fg="red",
-                err=True,
-            )
-            raise click.Abort()
-        else:
-            log.debug(f"Overwriting existing file: {output}")
+    check_output_file(output, force)
 
     create_jsonld_framed(
         ttl,

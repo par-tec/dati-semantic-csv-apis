@@ -17,6 +17,7 @@ import click
 import yaml
 from frictionless import Package
 
+from tools.commands.utils import check_output_file
 from tools.tabular import Tabular
 
 log = logging.getLogger(__name__)
@@ -90,17 +91,7 @@ def create_command(
     """
     click.echo(f"Creating datapackage metadata for {vocabulary_uri}")
 
-    # Check if output file exists
-    if output.exists():
-        if not force:
-            click.secho(
-                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
-                fg="red",
-                err=True,
-            )
-            raise click.Abort()
-        else:
-            log.debug(f"Overwriting existing file: {output}")
+    check_output_file(output, force)
 
     create_datapackage_metadata(ttl, frame, vocabulary_uri, output, lang)
     click.echo(f"✓ Created: {output}")

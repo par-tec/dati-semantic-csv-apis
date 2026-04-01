@@ -170,3 +170,136 @@
       - path: tests/data/snapshots/provinces/stub-datapackage.yaml
         snapshot: tests/data/snapshots/provinces/stub-datapackage.yaml
         compare: data
+
+- id: create_fail_output_exists_no_force
+  description: |-
+    Given:
+    - an output file already exists
+
+    When:
+    - I run `datapackage create` without --force
+
+    Then:
+    - the command exits with error code 1
+    - an error message is shown indicating --force is required
+  steps:
+  - description: Create the output file first
+    command:
+    - datapackage
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
+    - --frame
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - --output
+    - tests/data/snapshots/ateco-2025/no-force-test-stub.yaml
+    - --force
+    expected:
+      exit_status: 0
+  - description: |-
+      When:
+      - I run `datapackage create` without --force on an existing output file
+
+      Then:
+      - the command exits with error code 1
+      - an error message is shown
+    command:
+    - datapackage
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
+    - --frame
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - --output
+    - tests/data/snapshots/ateco-2025/no-force-test-stub.yaml
+    expected:
+      exit_status: 1
+      stdout:
+      - >-
+        ✗ Error: Output file.*already exists.*Use --force
+
+- id: create_overwrite_existing_with_force
+  description: |-
+    Given:
+    - an output file already exists
+
+    When:
+    - I run `datapackage create` with --force
+
+    Then:
+    - the command exits successfully
+    - a debug log shows the existing file is being overwritten
+  steps:
+  - description: Create the output file first
+    command:
+    - datapackage
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
+    - --frame
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - --output
+    - tests/data/snapshots/ateco-2025/overwrite-test-stub.yaml
+    - --force
+    expected:
+      exit_status: 0
+  - description: |-
+      When:
+      - I run `datapackage create` with --force on an existing output file
+
+      Then:
+      - the command exits successfully
+      - a debug log shows the file is being overwritten
+    command:
+    - datapackage
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.ttl
+    - --frame
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.frame.yamlld
+    - --vocabulary-uri
+    - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+    - --output
+    - tests/data/snapshots/ateco-2025/overwrite-test-stub.yaml
+    - --force
+    expected:
+      exit_status: 0
+      logs:
+      - >-
+        Overwriting existing file
+
+- id: validate_fail_invalid_datapackage
+  description: |-
+    Given:
+    - an invalid datapackage file with a resource pointing to a nonexistent CSV
+
+    When:
+    - I run `datapackage validate`
+
+    Then:
+    - the command exits with error code 1
+    - an error message is shown indicating validation failed
+  steps:
+  - description: |-
+      When:
+      - I run `datapackage validate` on an invalid datapackage
+
+      Then:
+      - the command exits with error code 1
+      - an error message is shown
+    command:
+    - datapackage
+    - validate
+    - --datapackage
+    - tests/data/invalid-datapackage.yaml
+    expected:
+      exit_status: 1
+      stdout:
+      - >-
+        ✗ Datapackage validation failed
