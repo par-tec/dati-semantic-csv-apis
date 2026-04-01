@@ -95,27 +95,33 @@ Il flusso è articolato in questi passi:
 
 ```mermaid
 flowchart TD
-    Input[/"File sorgente: vocabolario.ttl + vocabolario.frame.yamlld"/]
-    jsonld-create["⚙ jsonld create: proietta il vocabolario RDF in JSON-LD strutturato"]
-    data-yaml[/"File generato: vocabolario.data.yamlld"/]
-    openapi-create["⚙ openapi create: genera lo stub OAS dal grafo RDF e dal frame"]
-    oas-stub-yaml[/"File generato: vocabolario.oas3.yaml con metadati e x-jsonld-context"/]
-    ManualEdit["✏ Modifica manuale: completa proprietà, vincoli e annotazioni semantiche"]
-    ValidateOAS["✔ openapi validate: verifica la conformità dell'OAS allo schema OAS 3.0"]
+    subgraph Input
+      vocabolario-ttl[/"/assets/../vocabolario.ttl"/]
+      vocabolario-frame[/"/assets/../vocabolario.frame.yamlld"/]
+    end
+    jsonld-create["⚙ jsonld create<br>proietta il vocabolario RDF in JSON-LD strutturato"]
+    data-yaml[/"/assets/../vocabolario.data.yamlld"/]
+    openapi-create["⚙ openapi create<br>genera lo stub OAS dal grafo RDF e dal frame"]
+    oas-stub-yaml[/"/assets/../vocabolario.oas3.yaml<br>con metadati e x-jsonld-context"/]
+    edit-oas-stub-yaml["✏ Modifica manuale: completa proprietà, vincoli e annotazioni semantiche"]
+    oas-yaml[/"/assets/../vocabolario.oas3.yaml<br>definitivo"/]
+    oas-validate["✔ openapi validate: verifica la conformità del JSON-LD allo schema OAS 3.0"]
     CreateDB["⚙ apistore create: popola il database SQLite con i dati proiettati"]
-    DB[/"File generato: vocabolario.db"/]
+    DB[/"/assets/../vocabolario.db"/]
     ValidateDB["✔ apistore validate: verifica integrità e conformità allo schema Item"]
     Publish["✏ Pubblicazione: revisione e approvazione della PR nel repository"]
 
     Input -.->|d3f:read-by| jsonld-create
-    jsonld-create -->|d3f:creates| data-yaml
-    data-yaml -.->|d3f:read-by| openapi-create
-    openapi-create -->|d3f:creates| oas-stub-yaml
-    oas-stub-yaml --> ManualEdit
-    ManualEdit --> ValidateOAS
-    ValidateOAS --> CreateDB
+    jsonld-create
+    -->|d3f:creates| data-yaml
+    -.->|d3f:read-by| openapi-create
+    -->|d3f:creates| oas-stub-yaml
+    --> edit-oas-stub-yaml
+    --> oas-yaml
+    --> oas-validate -->|invalid| edit-oas-stub-yaml
+    oas-validate -->|valid| CreateDB
     data-yaml --> CreateDB
-    CreateDB --> DB
+    CreateDB -->|d3f:creates| DB
     DB --> ValidateDB
     ValidateDB --> Publish
 ```
