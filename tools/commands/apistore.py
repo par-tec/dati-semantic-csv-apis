@@ -7,11 +7,13 @@ Commands for creating and validating an APIStore SQLite database.
 
 import logging
 from pathlib import Path
+from typing import TypedDict
 
 import click
 import yaml
 
 from tools.base import JsonLDFrame
+from tools.commands.utils import check_output_file
 
 log = logging.getLogger(__name__)
 
@@ -36,8 +38,8 @@ def apistore():
     type=click.Path(
         exists=True, dir_okay=False, resolve_path=True, path_type=Path
     ),
-    required=False,
-    help="Path to an already-framed JSON-LD data file; skips framing when provided",
+    required=True,
+    help="Path to the pre-framed JSON-LD data file",
 )
 @click.option(
     "--oas",
@@ -62,26 +64,13 @@ def apistore():
 )
 def create_command(
     ttl: Path,
-    jsonld: Path | None,
+    jsonld: Path,
     oas: Path,
     output: Path,
     force: bool,
 ):
-    """Create an APIStore SQLite database from a TTL vocabulary and OAS spec.
-
-    The frame is derived from the OAS spec's x-jsonld-context/x-jsonld-type.
-    When --jsonld is provided the pre-framed data is stored directly;
-    otherwise the TTL is framed on the fly.
-    """
-    if output.exists():
-        if not force:
-            click.secho(
-                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
-                fg="red",
-                err=True,
-            )
-            raise click.Abort()
-        log.debug("Overwriting existing file: %s", output)
+    """Create an APIStore SQLite database from a TTL vocabulary, JSON-LD data, and OAS spec."""
+    check_output_file(output, force)
 
     create_apistore(ttl, jsonld, oas, output)
     click.echo(f"✓ Created: {output}")
@@ -93,24 +82,25 @@ def _frame_from_oas(oas_spec: dict) -> JsonLDFrame:
     frame: dict = {"@context": item_schema["x-jsonld-context"]}
     if "x-jsonld-type" in item_schema:
         frame["@type"] = item_schema["x-jsonld-type"]
+
+    # Only item properties should be included in the frame.
+    for property in item_schema.get("properties", {}).keys():
+        frame[property] = {}
+    frame["@explicit"] = True
     return JsonLDFrame(frame)
 
 
 def create_apistore(
     ttl: Path,
-    jsonld: Path | None,
+    jsonld: Path,
     oas: Path,
     output: Path,
 ) -> None:
     """Populate an APIStore SQLite database.
 
-    The JSON-LD frame is derived from the OAS spec (x-jsonld-context,
-    x-jsonld-type).  When jsonld is provided the pre-framed data is used
-    directly; otherwise the TTL is framed via create_api_data().
-
     Args:
-        ttl: Path to RDF Turtle file (always required — source of vocabulary metadata)
-        jsonld: Path to already-framed JSON-LD file (optional)
+        ttl: Path to RDF Turtle file (source of vocabulary metadata)
+        jsonld: Path to pre-framed JSON-LD file
         oas: Path to OpenAPI specification file
         output: Output path for the SQLite database
     """
@@ -120,23 +110,23 @@ def create_apistore(
     frame_data = _frame_from_oas(oas_spec)
 
     apiable = Apiable(rdf_data=ttl, frame=frame_data, format="text/turtle")
-
-    if jsonld is not None:
-        log.debug("Using pre-framed JSON-LD data from: %s", jsonld)
-        data = yaml.safe_load(jsonld.read_text(encoding="utf-8"))
-    else:
-        log.debug("Framing TTL data from: %s", ttl)
-        data = apiable.create_api_data()
+    log.debug("Using pre-framed JSON-LD data from: %s", jsonld)
+    data = yaml.safe_load(jsonld.read_text(encoding="utf-8"))
 
     apiable.to_db(data=data, datafile=output, force=False, openapi=oas_spec)
     log.info("APIStore database created: %s", output)
+
+
+class _ResolveResult(TypedDict):
+    resolved: list[Path]
+    skipped: list[str]
 
 
 def _resolve_db_sources(
     sources: tuple[str, ...],
     skip_not_found: bool,
     tmpdir: Path,
-) -> list[Path]:
+) -> _ResolveResult:
     """Resolve a mix of local paths and HTTPS URLs to local Path objects.
 
     For each source:
@@ -152,9 +142,10 @@ def _resolve_db_sources(
     import urllib.request
 
     resolved: list[Path] = []
+    skipped: list[str] = []
 
     for idx, source in enumerate(sources):
-        if source.startswith("https://") or source.startswith("http://"):
+        if source.startswith(("https://", "http://")):
             url = source
             try:
                 req = urllib.request.Request(url, method="HEAD")
@@ -167,15 +158,13 @@ def _resolve_db_sources(
                 msg = f"Resource not found (404): {url}"
                 if skip_not_found:
                     log.warning("Skipping: %s", msg)
+                    skipped.append(url)
                     continue
                 click.secho(f"✗ {msg}", fg="red", err=True)
                 raise click.Abort()
 
             if status != 200:
                 msg = f"Unexpected HTTP {status} for: {url}"
-                if skip_not_found:
-                    log.warning("Skipping: %s", msg)
-                    continue
                 click.secho(f"✗ {msg}", fg="red", err=True)
                 raise click.Abort()
 
@@ -198,7 +187,7 @@ def _resolve_db_sources(
             else:
                 resolved.append(local)
 
-    return resolved
+    return {"resolved": resolved, "skipped": skipped}
 
 
 @apistore.command(name="collect")
@@ -231,20 +220,20 @@ def collect_command(
     """
     import tempfile
 
-    from tools.harvest.collect import collect_databases
+    from tools.store.collect import collect_databases
 
     with tempfile.TemporaryDirectory() as tmpdir:
         try:
-            db_paths = _resolve_db_sources(
-                sources, skip_not_found, Path(tmpdir)
-            )
+            result = _resolve_db_sources(sources, skip_not_found, Path(tmpdir))
+            db_paths: list[Path] = result["resolved"]
+            skipped: list[str] = result["skipped"]
         except click.Abort:
             raise
 
         try:
             stats = collect_databases(output, db_paths, force=force)
             click.secho(
-                f"✓ Collected into: {output} (processed: {stats['processed']}, skipped: {stats['skipped']}, metadata: {stats['metadata_count']}, tables copied: {stats['copied_tables']}, tables skipped: {stats['skipped_tables']})",
+                f"✓ Collected into: {output} (processed: {stats['processed']}, skipped: {stats['skipped']}, metadata: {stats['metadata_count']}, tables copied: {stats['copied_tables']}, tables skipped: {stats['skipped_tables']}, skipped URLs: {len(skipped)})",
                 fg="green",
             )
         except FileExistsError as e:

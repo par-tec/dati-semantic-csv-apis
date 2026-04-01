@@ -17,6 +17,7 @@ import click
 import yaml
 from frictionless import Package
 
+from tools.commands.utils import check_output_file
 from tools.tabular import Tabular
 
 log = logging.getLogger(__name__)
@@ -90,17 +91,7 @@ def create_command(
     """
     click.echo(f"Creating datapackage metadata for {vocabulary_uri}")
 
-    # Check if output file exists
-    if output.exists():
-        if not force:
-            click.secho(
-                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
-                fg="red",
-                err=True,
-            )
-            raise click.Abort()
-        else:
-            log.debug(f"Overwriting existing file: {output}")
+    check_output_file(output, force)
 
     create_datapackage_metadata(ttl, frame, vocabulary_uri, output, lang)
     click.echo(f"✓ Created: {output}")
@@ -160,12 +151,6 @@ def create_datapackage_metadata(
     - Reviewed and completed with all necessary metadata fields
     - Renamed to datapackage.json before use for CSV generation
     """
-    if not ttl.exists():
-        raise FileNotFoundError(f"TTL file not found: {ttl}")
-
-    if not frame.exists():
-        raise FileNotFoundError(f"Frame file not found: {frame}")
-
     if not output.parent.exists():
         raise FileNotFoundError(
             f"Output directory {output.parent} does not exist"
@@ -203,11 +188,7 @@ def validate_datapackage_metadata(datapackage: Path) -> None:
 
     Raises:
         ValueError: If datapackage is invalid
-        FileNotFoundError: If datapackage file doesn't exist
     """
-    if not datapackage.exists():
-        raise FileNotFoundError(f"Datapackage file not found: {datapackage}")
-
     # Load the datapackage file
     log.debug(f"Loading datapackage from {datapackage}")
     datapackage_dict = yaml.safe_load(datapackage.read_text(encoding="utf-8"))
@@ -216,9 +197,6 @@ def validate_datapackage_metadata(datapackage: Path) -> None:
     log.debug("Validating datapackage structure")
     basepath = datapackage.parent.as_posix()
     package = Package(datapackage_dict, basepath=basepath)
-
-    if not package:
-        raise ValueError(f"Invalid datapackage structure: {datapackage}")
 
     # Check that it has a valid schema
     if not package.validate():

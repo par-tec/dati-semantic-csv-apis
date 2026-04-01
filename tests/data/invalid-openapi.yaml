@@ -1,0 +1,3 @@
+---
+invalid: true
+not-a-real-spec: missing required openapi/info/paths fields

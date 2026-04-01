@@ -1,0 +1,128 @@
+---
+- id: apistore_create_validate_provinces
+  steps:
+  - description: Create the APIStore database
+    command:
+    - apistore
+    - create
+    - --ttl
+    - assets/controlled-vocabularies/provinces/provinces.ttl
+    - --jsonld
+    - assets/controlled-vocabularies/provinces/provinces.data.yaml
+    - --oas
+    - tests/data/snapshots/provinces/provinces.oas3.yaml
+    - --output
+    - tests/data/snapshots/provinces/apistore-deleteme.db
+    - --force
+    expected:
+      exit_status: 0
+      stdout:
+      - >-
+        ✓ Created: .*apistore-deleteme\.db
+      logs:
+      - >-
+        APIStore database created
+  - description: Validate the created database
+    command:
+    - apistore
+    - validate
+    - --db
+    - tests/data/snapshots/provinces/apistore-deleteme.db
+    - --oas
+    - tests/data/snapshots/provinces/provinces.oas3.yaml
+    expected:
+      exit_status: 0
+      stdout:
+      - >-
+        ✓ APIStore validation passed
+
+- id: apistore_validate_error
+  steps:
+  - description: Validate a non-SQLite file as APIStore database
+    command:
+    - apistore
+    - validate
+    - --db
+    - tests/data/invalid-datapackage.yaml
+    - --oas
+    - tests/data/snapshots/provinces/provinces.oas3.yaml
+    expected:
+      exit_status: 1
+      stdout:
+      - >-
+        ✗ APIStore validation failed
+
+- id: apistore_collect_from_files
+  steps:
+  - description: Collect from individual .db files
+    command:
+    - apistore
+    - collect
+    - --output
+    - tests/data/snapshots/aggregate-deleteme.db
+    - --force
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.db
+    - assets/controlled-vocabularies/provinces/provinces.db
+    expected:
+      exit_status: 0
+      stdout:
+      - >-
+        ✓ Collected into: .*aggregate-deleteme\.db
+  - description: Collect again without --force fails
+    command:
+    - apistore
+    - collect
+    - --output
+    - tests/data/snapshots/aggregate-deleteme.db
+    - assets/controlled-vocabularies/ateco-2025/ateco-2025.db
+    expected:
+      exit_status: 1
+      stdout:
+      - >-
+        ✗ .*aggregate-deleteme\.db
+
+- id: apistore_collect_from_directory
+  steps:
+  - description: Collect from a directory source
+    command:
+    - apistore
+    - collect
+    - --output
+    - tests/data/snapshots/aggregate-from-dir-deleteme.db
+    - --force
+    - assets/controlled-vocabularies/ateco-2025
+    expected:
+      exit_status: 0
+      stdout:
+      - >-
+        ✓ Collected into: .*aggregate-from-dir-deleteme\.db
+      logs:
+      - >-
+        Collecting from directory
+
+- id: apistore_collect_from_urls
+  steps:
+  - description: Collect from URL sources
+    command:
+    - apistore
+    - collect
+    - --output
+    - tests/data/snapshots/aggregate-from-urls-deleteme.db
+    - --skip-not-found
+    - --force
+    - https://github.com/par-tec/dati-semantic-csv-apis/raw/refs/heads/main/assets/controlled-vocabularies/provinces/provinces.db
+    - https://github.com/par-tec/dati-semantic-csv-apis/raw/refs/heads/main/assets/controlled-vocabularies/ateco-2025/ateco-2025.db
+    - https://github.com/par-tec/dati-semantic-csv-apis/raw/refs/heads/main/assets/controlled-vocabularies/ateco-2025/MISSING.db
+    expected:
+      exit_status: 0
+      stdout:
+      - >-
+        ✓ Collected into: .*aggregate-from-urls-deleteme\.db
+      logs:
+      - >-
+        Collect from URL sources
+      - >-
+        Skipping: Resource not found .*MISSING.db
+      - >-
+        Collect summary: 2 processed, 0 skipped, 2 metadata rows,
+        2 tables copied, 0 tables skipped

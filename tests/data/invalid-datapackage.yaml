@@ -1,0 +1,9 @@
+---
+name: invalid-test
+resources:
+- name: test-resource
+  path: some.csv
+  schema:
+    fields:
+    - name: id
+      type: not-a-valid-frictionless-type

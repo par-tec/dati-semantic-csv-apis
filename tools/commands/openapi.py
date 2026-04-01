@@ -11,6 +11,7 @@ import click
 import yaml
 
 from tools.base import TEXT_TURTLE, JsonLDFrame
+from tools.commands.utils import check_output_file
 from tools.openapi import Apiable
 
 log = logging.getLogger(__name__)
@@ -36,8 +37,8 @@ def openapi():
     type=click.Path(
         exists=True, dir_okay=False, resolve_path=True, path_type=Path
     ),
-    required=False,
-    help="Path to the JSON-LD framed file",
+    required=True,
+    help="Path to the pre-framed JSON-LD data file",
 )
 @click.option(
     "--frame",
@@ -75,27 +76,17 @@ def openapi():
 )
 def create_command(
     ttl: Path,
-    jsonld: Path | None,
+    jsonld: Path,
     frame: Path,
     vocabulary_uri: str,
     output: Path,
     force: bool,
     max_samples: int,
 ):
-    """Create OpenAPI specification from framed JSON-LD or RDF vocabulary."""
+    """Create OpenAPI specification from pre-framed JSON-LD and RDF vocabulary metadata."""
     click.echo(f"Creating openapi metadata for {vocabulary_uri}")
 
-    # Check if output file exists
-    if output.exists():
-        if not force:
-            click.secho(
-                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
-                fg="red",
-                err=True,
-            )
-            raise click.Abort()
-        else:
-            log.info(f"Overwriting existing file: {output}")
+    check_output_file(output, force)
 
     create_oas_spec(
         ttl=ttl,
@@ -110,43 +101,32 @@ def create_command(
 
 def create_oas_spec(
     ttl: Path,
-    jsonld: Path | None,
+    jsonld: Path,
     frame: Path,
     vocabulary_uri: str,
     output: Path,
     max_samples: int | None = None,
 ) -> Apiable | None:
-    """Create OpenAPI specification stub from framed JSON-LD or RDF vocabulary.
+    """Create OpenAPI specification stub from pre-framed JSON-LD and RDF vocabulary metadata.
 
     :warning: This stub must be manually edited by the data provider in order to
     validate its content.
 
     Args:
-        ttl: Path to RDF Turtle file (required)
-        jsonld: Path to JSON-LD framed file (optional)
+        ttl: Path to RDF Turtle file (for vocabulary metadata)
+        jsonld: Path to pre-framed JSON-LD data file
         frame: Path to JSON-LD frame file
         vocabulary_uri: URI of the vocabulary
         output: Output path for OpenAPI specification
-
-    Raises:
-        ValueError: If neither jsonld nor ttl is provided
     """
-    # Load the frame
     frame_data = JsonLDFrame.load(frame)
 
-    # Create Apiable instance from either TTL or JSONLD
-    if ttl and not jsonld:
-        log.debug(f"Creating OpenAPI spec from TTL file: {ttl}")
-        apiable = Apiable(rdf_data=ttl, frame=frame_data, format=TEXT_TURTLE)
-    elif ttl and jsonld:
-        log.debug(
-            f"Creating OpenAPI spec from TTL file: {ttl} (metadata). Sampling data from JSON-LD file: {jsonld}"
-        )
-        apiable = Apiable(rdf_data=ttl, frame=frame_data, format=TEXT_TURTLE)
-        with jsonld.open() as f:
-            apiable.json_ld = yaml.safe_load(f)
-    else:
-        raise ValueError("Either jsonld or ttl must be provided")
+    log.debug(
+        f"Loading vocabulary metadata from TTL: {ttl}, data from JSON-LD: {jsonld}"
+    )
+    apiable = Apiable(rdf_data=ttl, frame=frame_data, format=TEXT_TURTLE)
+    with jsonld.open() as f:
+        apiable.json_ld = yaml.safe_load(f)
 
     # Generate OpenAPI specification
     log.debug("Generating OpenAPI specification")
@@ -208,9 +188,6 @@ def validate_openapi_spec(openapi_path: Path) -> None:
     from jsonschema import ValidationError, validate
 
     from tools.openapi import OAS30_SCHEMA
-
-    if not openapi_path.exists():
-        raise FileNotFoundError(f"OpenAPI file not found: {openapi_path}")
 
     # Load the OpenAPI file
     log.debug(f"Loading OpenAPI spec from {openapi_path}")

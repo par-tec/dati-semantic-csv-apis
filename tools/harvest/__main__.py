@@ -16,8 +16,8 @@ from tools.commands.jsonld import create_jsonld_framed
 from tools.commands.openapi import create_oas_spec
 from tools.harvest import VocabularyRepository
 from tools.harvest.catalog import Catalog
-from tools.harvest.collect import collect_databases
 from tools.openapi import Apiable
+from tools.store.collect import collect_databases
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)

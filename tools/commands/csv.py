@@ -12,6 +12,7 @@ import click
 import yaml
 
 from tools.base import JsonLDFrame
+from tools.commands.utils import check_output_file
 from tools.tabular.validate import TabularValidator
 from tools.utils import IGraph
 
@@ -83,17 +84,7 @@ def create_command(jsonld: Path, datapackage: Path, output: Path, force: bool):
                 err=True,
             )
 
-    # Check if output file exists
-    if output.exists():
-        if not force:
-            click.secho(
-                f"✗ Error: Output file {output} already exists. Use --force/-f to overwrite.",
-                fg="red",
-                err=True,
-            )
-            raise click.Abort()
-        else:
-            log.warning(f"Overwriting existing file: {output}")
+    check_output_file(output, force)
 
     create_csv_from_jsonld(jsonld, datapackage, output)
     click.echo(f"✓ Created: {output}")

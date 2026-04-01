@@ -16,6 +16,8 @@ from tools.openapi import (
 )
 from tools.utils import SafeQuotedStringDumper
 
+log = logging.getLogger(__name__)
+
 
 def assert_file(fileinfo: dict):
     path = Path(fileinfo["path"])
@@ -80,7 +82,7 @@ def assert_snapshot_matches_data(
             ),
             encoding="utf-8",
         )
-        logging.warning(f"Updated snapshot file: {snapshot_file}")
+        log.warning(f"Updated snapshot file: {snapshot_file}")
     if delta:
         assert not delta, (
             f"{current_source} differs from {snapshot_file}."
@@ -150,15 +152,13 @@ def assert_schema(schema_copy: OpenAPI, frame: JsonLDFrame) -> None:
     assert validation is not None, "Schema should include x-validation results"
 
     # Log validation results for inspection
-    logging.info("Validation results for %s:", frame.get("@type"))
-    logging.info("  Valid: %s", validation["valid"])
-    logging.info("  Errors: %d", validation["error_count"])
+    log.info("Validation results for %s:", frame.get("@type"))
+    log.info("  Valid: %s", validation["valid"])
+    log.info("  Errors: %d", validation["error_count"])
 
     if validation["errors"]:
         for error in validation["errors"][:5]:  # Log first 5 errors
-            logging.warning(
-                "  - %s at path %s", error["message"], error["path"]
-            )
+            log.warning("  - %s at path %s", error["message"], error["path"])
 
     # Check that constraints were added where expected
     properties = schema_copy.get("properties", {})
@@ -175,7 +175,7 @@ def assert_schema(schema_copy: OpenAPI, frame: JsonLDFrame) -> None:
                 assert "maximum" in prop_schema, (
                     "Level field should have maximum constraint"
                 )
-                logging.info(
+                log.info(
                     "Field '%s' has constraints: minimum=%s, maximum=%s",
                     field_name,
                     prop_schema.get("minimum"),
@@ -196,7 +196,7 @@ def assert_schema(schema_copy: OpenAPI, frame: JsonLDFrame) -> None:
                     assert "minLength" in prop_schema, (
                         f"Notation field '{field_name}' should have minLength constraint"
                     )
-                    logging.info(
+                    log.info(
                         "Field '%s' (notation) has pattern: %s",
                         field_name,
                         prop_schema.get("pattern"),
@@ -205,7 +205,7 @@ def assert_schema(schema_copy: OpenAPI, frame: JsonLDFrame) -> None:
     # The validation should ideally pass, but if there are errors,
     # they should be specific and actionable
     if not validation["valid"]:
-        logging.warning(
+        log.warning(
             "Validation failed with %d errors", validation["error_count"]
         )
         assert validation["error_count"] > 0, "If not valid, should have errors"
@@ -214,6 +214,6 @@ def assert_schema(schema_copy: OpenAPI, frame: JsonLDFrame) -> None:
             assert "message" in error, "Error should have message"
             assert "path" in error, "Error should have path"
     else:
-        logging.info(
+        log.info(
             "✓ All framed vocabulary data validates against the enhanced schema"
         )
