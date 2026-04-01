@@ -1,8 +1,8 @@
 # API dependencies
-connexion>=3.3.0
-connexion[swagger-ui]>=3.0.0,<4.0.0
-pyyaml>=6.0.0,<7.0.0
-# ASGI production server
-uvicorn[standard]>=0.30.0
+connexion==3.3.0
+connexion[swagger-ui]==3.3.0
 # Async HTTP client for remote DB downloads
-httpx>=0.27.0
+httpx==0.27.0
+pyyaml==6.0.3
+# ASGI production server
+uvicorn[standard]==0.30.0
