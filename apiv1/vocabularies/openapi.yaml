@@ -214,6 +214,10 @@ paths:
         The URL must be one of those
         retrieved from the `/vocabularies` endpoint.
 
+        This endpoint is experimental
+        and may be subject to change or removal
+        in future versions of the API.
+
         Alternatively, this endpoint
         may return a 300 Redirect response
         to static files containing the whole dataset

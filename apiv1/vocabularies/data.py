@@ -6,7 +6,9 @@ defined in openapi.yaml for serving vocabulary data items.
 """
 
 import copy
+import datetime
 import gzip
+import io
 import json
 import logging
 import sqlite3
@@ -231,35 +233,35 @@ async def dump_vocabulary_dataset(
         and response headers.
     """
     harvest_db = _get_database_or_fail()
+    _get_metadata_or_fail(harvest_db, agencyId, keyConcept)
     vocabulary_items = harvest_db.get_vocabulary_dataset(agencyId, keyConcept)
-    if not vocabulary_items:
-        raise ProblemException(
-            title="Not Found",
-            status=404,
-            instance=str(request.url),
+
+    api_url = "/".join(
+        [request.state.api_base_url.rstrip("/"), agencyId, keyConcept]
+    )
+    dump_date = datetime.datetime.now(datetime.UTC).strftime(
+        "%Y-%m-%dT%H:%M:%SZ"
+    )
+
+    buf = io.BytesIO()
+    with gzip.GzipFile(fileobj=buf, mode="wb") as gz:
+        gz.write(b'{"items":[')
+        for i, item in enumerate(vocabulary_items):
+            if i > 0:
+                gz.write(b",")
+            gz.write(json.dumps(_transform_item(item, api_url)).encode())
+        gz.write(
+            f'],"metadata":{{"totalItems":{len(vocabulary_items)},"dumpDate":"{dump_date}"}}}}'.encode()
         )
-
-    # Create a compressed dump of the dataset
-    data = {
-        "items": vocabulary_items,
-        "metadata": {
-            "totalItems": len(vocabulary_items),
-            "dumpDate": "2026-01-30T00:00:00Z",
-        },
-    }
-
-    # Compress the JSON data
-    json_data = json.dumps(data).encode("utf-8")
-    compressed_data = gzip.compress(json_data)
 
     headers = {
         "Content-Type": "application/octet-stream",
         "Content-Encoding": "gzip",
-        "Content-Disposition": f'attachment; filename="vocabulary_{keyConcept}_dump.json.gz"',
+        "Content-Disposition": f'attachment; filename="{agencyId}_{keyConcept}_dump.json.gz"',
     }
 
     return ConnexionResponse(
-        status_code=200, headers=headers, body=compressed_data
+        status_code=200, headers=headers, body=buf.getvalue()
     )
 
 

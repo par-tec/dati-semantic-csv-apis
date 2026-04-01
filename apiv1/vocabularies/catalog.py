@@ -103,10 +103,7 @@ def _to_catalog_item(
             )
         )
         oas_url = "/".join((api_url, "openapi.yaml"))
-        pre_url = "/".join(
-            (predecessor_base_url, item["agency_id"], item["key_concept"])
-        )
-        return {
+        ret = {
             "href": api_url,
             "about": vocabulary_uri,
             "title": catalog["title"],
@@ -124,12 +121,17 @@ def _to_catalog_item(
                     "type": "application/ld+json",
                 }
             ],
-            "predecessor-version": [
+        }
+        if predecessor_base_url:
+            pre_url = "/".join(
+                (predecessor_base_url, item["agency_id"], item["key_concept"])
+            )
+            ret["predecessor-version"] = [
                 {
                     "href": pre_url,
                 }
-            ],
-        }
+            ]
+        return ret
     except (KeyError, json.JSONDecodeError) as e:
         log.exception(
             f"Skipping invalid catalog entry in database for agency_id={item['agency_id']} "

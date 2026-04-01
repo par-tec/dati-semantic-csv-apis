@@ -21,6 +21,7 @@ OPENAPI_SPEC_PATH = APIDIR / "openapi.yaml"
 def _config(harvest_db: str) -> Config:
     return Config(
         API_BASE_URL="https://schema.gov.it/api/vocabularies/v1/",
+        PREDECESSOR_BASE_URL="https://old.example.com",
         HARVEST_DB=harvest_db,
     )
 
