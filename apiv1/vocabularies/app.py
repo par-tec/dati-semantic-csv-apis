@@ -43,21 +43,6 @@ class Config:
 logger = logging.getLogger(__name__)
 
 
-def _validate_db(harvest_db: str) -> None:
-    """Validate that the datastore file exists and has the expected structure."""
-    try:
-        with APIStore(harvest_db, read_only=True) as db:
-            db.validate_metadata_schema()
-            db.validate_metadata_content()
-    except Exception as e:
-        logger.error(
-            "Error validating datastore %s: %s", Path(harvest_db).absolute(), e
-        )
-        raise ValueError(
-            f"Invalid datastore {Path(harvest_db).absolute()}: {e}"
-        ) from e
-
-
 @contextlib.asynccontextmanager
 async def load_dataset_handler(
     api_base_url: str,
@@ -69,9 +54,8 @@ async def load_dataset_handler(
     and makes it available via request.state in all handlers.
 
     Args:
-        datafile: Path to the vocabulary data file.
         api_base_url: Base URL for the API.
-        harvest_db: Path to the harvest.db SQLite file, or None.
+        harvest_db: Local path to the harvest.db SQLite file.
         app: The ConnexionMiddleware application instance.
 
     Yields:
@@ -84,8 +68,6 @@ async def load_dataset_handler(
     # Load base OAS spec once for use in show_vocabulary_spec
     with open(Path(__file__).parent / "openapi.yaml") as f:
         base_spec = yaml.safe_load(f)
-
-    _validate_db(harvest_db)
 
     # Open a single read-only APIStore instance reused across requests.
     harvest_database: APIStore = APIStore(

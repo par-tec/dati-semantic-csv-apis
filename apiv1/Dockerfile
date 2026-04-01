@@ -32,6 +32,7 @@ FROM api-base AS data-api
 COPY apiv1/vocabularies /app/vocabularies
 COPY apiv1/openapi/vocabularies.yaml /app/vocabularies/openapi.yaml
 COPY apiv1/components.oas3.yaml /app/vocabularies/components.oas3.yaml
+COPY apiv1/entrypoint.py /app/entrypoint.py
 
 RUN chown -R appuser:appuser /app
 
@@ -41,5 +42,5 @@ USER appuser
 # ENV HARVEST_DB=harvest.db
 # ENV CACHE_CONTROL_MAX_AGE=3600
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD ["python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8080/status')"]
-ENTRYPOINT ["uvicorn"]
+ENTRYPOINT ["python", "/app/entrypoint.py"]
 CMD ["vocabularies.asgi:application", "--host", "0.0.0.0", "--port", "8080"]
