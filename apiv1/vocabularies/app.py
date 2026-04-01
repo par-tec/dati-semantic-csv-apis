@@ -27,6 +27,7 @@ from common.printable_parameters_middleware import (
 from connexion import AsyncApp, ConnexionMiddleware
 from connexion.exceptions import ProblemException
 from connexion.middleware.main import MiddlewarePosition
+from starlette.middleware.cors import CORSMiddleware
 
 from tools.store import APIStore
 
@@ -36,6 +37,8 @@ class Config:
     API_BASE_URL: str
     HARVEST_DB: str
     CACHE_CONTROL_MAX_AGE: int = 3600
+    PREDECESSOR_BASE_URL: str = ""
+    CORS_ORIGINS: list[str] | None = None
 
 
 # Configure logging
@@ -48,6 +51,7 @@ async def load_dataset_handler(
     api_base_url: str,
     harvest_db: str,
     app: ConnexionMiddleware,
+    predecessor_base_url: str = "",
 ) -> AsyncIterator[dict[str, Any]]:
     """
     Load the vocabulary dataset at startup
@@ -88,6 +92,7 @@ async def load_dataset_handler(
         "harvest_db": harvest_database,
         "base_spec": base_spec,
         "api_base_url": api_base_url,
+        "predecessor_base_url": predecessor_base_url,
     }
 
     logger.info("Application shutdown")
@@ -125,6 +130,7 @@ def create_app(config: Config | None = None) -> AsyncApp:
             api_base_url,
             harvest_db=config.HARVEST_DB,
             app=app,
+            predecessor_base_url=config.PREDECESSOR_BASE_URL,
         ),
     )
     app.add_api(
@@ -141,6 +147,12 @@ def create_app(config: Config | None = None) -> AsyncApp:
             max_age=config.CACHE_CONTROL_MAX_AGE
         ),
         position=MiddlewarePosition.BEFORE_CONTEXT,
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=config.CORS_ORIGINS or [],
+        allow_methods=["GET"],
+        allow_headers=["*"],
     )
 
     # Register exception handler for generic exceptions

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 import yaml
 
@@ -5,6 +7,13 @@ from tests.constants import DATADIR, TESTCASES
 from tools.base import JsonLDFrame
 from tools.openapi import Apiable
 from tools.store import APIStore
+
+TESTCASES_YAML = Path(__file__).with_suffix(".yaml")
+SEARCH_TESTCASES = yaml.safe_load(TESTCASES_YAML.read_text())["testcases"]
+
+
+def _human_readable_row_factory(cursor, row):
+    return dict(zip([col[0] for col in cursor.description], row, strict=True))
 
 
 @pytest.fixture
@@ -50,36 +59,26 @@ def sample_search_db(tmp_path):
     return db_path.as_posix(), loaded_vocabularies
 
 
-def test_search_metadata_matches_title(sample_search_db):
+@pytest.fixture
+def apistore(sample_search_db):
     db_path, loaded_vocabularies = sample_search_db
-
-    with APIStore(db_path) as db:
-        results = db.search_metadata("mansione")
-
-    assert len(results) == 1
-    assert results[0]["agency_id"] == "inps"
-    assert results[0]["key_concept"] == "tipo_mansione_lavoratore_domestico"
-    assert len(loaded_vocabularies) >= 2
+    with APIStore(db_path, row_factory=_human_readable_row_factory) as db:
+        yield db, loaded_vocabularies
 
 
-def test_search_metadata_matches_description(sample_search_db):
-    db_path, _ = sample_search_db
+@pytest.mark.parametrize(
+    "testcase",
+    SEARCH_TESTCASES,
+    ids=[tc["id"] for tc in SEARCH_TESTCASES],
+)
+def test_search_metadata(apistore, testcase):
+    db, _ = apistore
+    search = testcase["search"]
+    expected = testcase["results"]
 
-    with APIStore(db_path) as db:
-        results = db.search_metadata("concausa")
+    results = db.search_metadata(**search)
 
-    assert len(results) == 1
-    assert results[0]["agency_id"] == "inail"
-    assert results[0]["key_concept"] == "agente_causale"
-
-
-def test_search_metadata_applies_limit(sample_search_db):
-    db_path, loaded_vocabularies = sample_search_db
-
-    with APIStore(db_path) as db:
-        results = db.search_metadata("vocabolario", limit=1)
-
-    assert len(results) == 1
-    assert results[0]["key_concept"] in {
-        key_concept for _, key_concept in loaded_vocabularies
-    }
+    assert len(results) == len(expected)
+    for result, exp in zip(results, expected, strict=True):
+        assert result["agency_id"] == exp["agency_id"]
+        assert result["key_concept"] == exp["key_concept"]

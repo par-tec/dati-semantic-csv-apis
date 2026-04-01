@@ -194,7 +194,7 @@
     - --vocabulary-uri
     - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
     - --output
-    - tests/data/snapshots/ateco-2025/no-force-test-stub.yaml
+    - tests/data/snapshots/ateco-2025/no-for-ce-test-stub.deleteme.yaml
     - --force
     expected:
       exit_status: 0
@@ -215,7 +215,7 @@
     - --vocabulary-uri
     - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
     - --output
-    - tests/data/snapshots/ateco-2025/no-force-test-stub.yaml
+    - tests/data/snapshots/ateco-2025/no-for-ce-test-stub.deleteme.yaml
     expected:
       exit_status: 1
       stdout:
@@ -245,7 +245,7 @@
     - --vocabulary-uri
     - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
     - --output
-    - tests/data/snapshots/ateco-2025/overwrite-test-stub.yaml
+    - tests/data/snapshots/ateco-2025/overwrite-test-stub.deleteme.yaml
     - --force
     expected:
       exit_status: 0
@@ -266,7 +266,7 @@
     - --vocabulary-uri
     - https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
     - --output
-    - tests/data/snapshots/ateco-2025/overwrite-test-stub.yaml
+    - tests/data/snapshots/ateco-2025/overwrite-test-stub.deleteme.yaml
     - --force
     expected:
       exit_status: 0

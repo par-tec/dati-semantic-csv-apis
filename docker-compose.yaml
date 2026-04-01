@@ -38,9 +38,12 @@ services:
       target: data-api
     restart: no
     environment:
+    # App configuration.
     - HARVEST_DB=https://raw.githubusercontent.com/par-tec/dati-semantic-harvest/refs/heads/harvest/vocabularies.db
-    # - HARVEST_DB=https://github.com/par-tec/dati-semantic-harvest/raw/refs/heads/harvest/vocabularies.db
-    - API_BASE_URL=http://localhost:8001
+    - API_BASE_URL=https://localhost
+    - PREDECESSOR_BASE_URL=https://schema.gov.it/api
+    - CORS_ORIGINS=*
+    # Uvicorn configuration.
     - UVICORN_WORKERS=4
     - UVICORN_LOG_LEVEL=debug
     ports:
@@ -54,3 +57,17 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+
+  api-data-tls:
+    image: docker.io/caddy:2
+    ports:
+    - "80:80"
+    - "443:443"
+    volumes:
+    - ./tests/data/Caddyfile:/etc/caddy/Caddyfile:ro
+    - caddy_deleteme:/data
+    depends_on:
+    - api-data
+
+volumes:
+  caddy_deleteme:

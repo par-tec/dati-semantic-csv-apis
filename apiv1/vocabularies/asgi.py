@@ -15,6 +15,13 @@ _config = Config(
     ),
     HARVEST_DB=os.environ.get("HARVEST_DB", "harvest.db"),
     CACHE_CONTROL_MAX_AGE=int(os.environ.get("CACHE_CONTROL_MAX_AGE", 3600)),
+    PREDECESSOR_BASE_URL=os.environ.get("PREDECESSOR_BASE_URL", "").rstrip("/"),
+    CORS_ORIGINS=[
+        o.strip()
+        for o in os.environ.get("CORS_ORIGINS", "").split(",")
+        if o.strip()
+    ]
+    or None,
 )
 
 application = create_app(config=_config)

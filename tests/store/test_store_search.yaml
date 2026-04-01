@@ -1,0 +1,74 @@
+---
+description: |-
+  Given:
+  - an APIStore with metadata for multiple vocabularies
+
+  When:
+  - I run `search_metadata()` with a query string
+
+  Then:
+  - the results match expected items based on the query
+  - results are ordered as returned by the query (FTS5 rank or insertion order)
+  - an empty results list means zero rows expected
+
+testcases:
+- id: match_title_token
+  search:
+    query: mansione
+  results:
+  - agency_id: inps
+    key_concept: tipo_mansione_lavoratore_domestico
+
+- id: match_description_token
+  search:
+    query: concausa
+  results:
+  - agency_id: inail
+    key_concept: agente_causale
+
+- id: match_shared_token_both_vocabs
+  search:
+    query: vocabolario
+  results:
+  - agency_id: inps
+    key_concept: tipo_mansione_lavoratore_domestico
+  - agency_id: inail
+    key_concept: agente_causale
+
+- id: match_case_insensitive
+  search:
+    query: lAVor
+  results:
+  - agency_id: inps
+    key_concept: tipo_mansione_lavoratore_domestico
+  - agency_id: inail
+    key_concept: agente_causale
+
+- id: match_case_insensitive_and_agency
+  search:
+    query: lAVor
+    agency_id: inps
+  results:
+  - agency_id: inps
+    key_concept: tipo_mansione_lavoratore_domestico
+
+- id: no_match_unknown_token
+  search:
+    query: nonexistenttoken
+  results: []
+
+- id: limit_reduces_results
+  search:
+    query: vocabolario
+    limit: 1
+  results:
+  - agency_id: inps
+    key_concept: tipo_mansione_lavoratore_domestico
+
+- id: agency_filter_narrows_results
+  search:
+    query: vocabolario
+    agency_id: inps
+  results:
+  - agency_id: inps
+    key_concept: tipo_mansione_lavoratore_domestico
