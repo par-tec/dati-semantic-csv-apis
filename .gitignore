@@ -142,3 +142,6 @@ dmypy.json
 docs/*pdf
 docs/*.db
 tests/**/*.db
+
+# Temp files
+*.deleteme*

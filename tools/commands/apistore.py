@@ -7,6 +7,7 @@ Commands for creating and validating an APIStore SQLite database.
 
 import logging
 from pathlib import Path
+from typing import TypedDict
 
 import click
 import yaml
@@ -116,11 +117,16 @@ def create_apistore(
     log.info("APIStore database created: %s", output)
 
 
+class _ResolveResult(TypedDict):
+    resolved: list[Path]
+    skipped: list[str]
+
+
 def _resolve_db_sources(
     sources: tuple[str, ...],
     skip_not_found: bool,
     tmpdir: Path,
-) -> list[Path]:
+) -> _ResolveResult:
     """Resolve a mix of local paths and HTTPS URLs to local Path objects.
 
     For each source:
@@ -136,9 +142,10 @@ def _resolve_db_sources(
     import urllib.request
 
     resolved: list[Path] = []
+    skipped: list[str] = []
 
     for idx, source in enumerate(sources):
-        if source.startswith("https://") or source.startswith("http://"):
+        if source.startswith(("https://", "http://")):
             url = source
             try:
                 req = urllib.request.Request(url, method="HEAD")
@@ -151,15 +158,13 @@ def _resolve_db_sources(
                 msg = f"Resource not found (404): {url}"
                 if skip_not_found:
                     log.warning("Skipping: %s", msg)
+                    skipped.append(url)
                     continue
                 click.secho(f"✗ {msg}", fg="red", err=True)
                 raise click.Abort()
 
             if status != 200:
                 msg = f"Unexpected HTTP {status} for: {url}"
-                if skip_not_found:
-                    log.warning("Skipping: %s", msg)
-                    continue
                 click.secho(f"✗ {msg}", fg="red", err=True)
                 raise click.Abort()
 
@@ -182,7 +187,7 @@ def _resolve_db_sources(
             else:
                 resolved.append(local)
 
-    return resolved
+    return {"resolved": resolved, "skipped": skipped}
 
 
 @apistore.command(name="collect")
@@ -215,20 +220,20 @@ def collect_command(
     """
     import tempfile
 
-    from tools.harvest.collect import collect_databases
+    from tools.store.collect import collect_databases
 
     with tempfile.TemporaryDirectory() as tmpdir:
         try:
-            db_paths = _resolve_db_sources(
-                sources, skip_not_found, Path(tmpdir)
-            )
+            result = _resolve_db_sources(sources, skip_not_found, Path(tmpdir))
+            db_paths: list[Path] = result["resolved"]
+            skipped: list[str] = result["skipped"]
         except click.Abort:
             raise
 
         try:
             stats = collect_databases(output, db_paths, force=force)
             click.secho(
-                f"✓ Collected into: {output} (processed: {stats['processed']}, skipped: {stats['skipped']}, metadata: {stats['metadata_count']}, tables copied: {stats['copied_tables']}, tables skipped: {stats['skipped_tables']})",
+                f"✓ Collected into: {output} (processed: {stats['processed']}, skipped: {stats['skipped']}, metadata: {stats['metadata_count']}, tables copied: {stats['copied_tables']}, tables skipped: {stats['skipped_tables']}, skipped URLs: {len(skipped)})",
                 fg="green",
             )
         except FileExistsError as e:
