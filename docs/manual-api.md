@@ -49,32 +49,31 @@ questo diagramma:
 ```mermaid
 ---
 title: Flussi di lavoro a confronto
-config:
-  layout: elk
 ---
-graph
+graph LR
   subgraph flusso-base[Flusso JSON-LD]
-    crea-frame[Crea Frame]
-    --> crea-proiezione-jsonld[Crea Proiezione JSON-LD<br>jsonld create]
-    --> valida-proiezione-jsonld[Valida Proiezione JSON-LD<br>jsonld validate]
+    direction TB
+    edit-frame["✏ Modifica Frame"]
+    --> crea-proiezione-jsonld["⚙ Crea Proiezione JSON-LD<br>$ jsonld create"]
+    --> valida-proiezione-jsonld["✔ Valida Proiezione JSON-LD<br>$ jsonld validate"]
   end
 
   flusso-base --> flusso-csv & flusso-api
 
   subgraph flusso-csv["Flusso CSV"]
     direction TB
-    crea-datapackage-stub[Crea Datapackage Stub<br>datapackage create]
-    --> modifica-datapackage-stub[Modifica Datapackage Stub]
-    --> crea-csv[Crea CSV<br>csv create]
-    --> valida-csv[Valida CSV<br>csv validate]
+    crea-datapackage-stub["⚙ Crea Datapackage Stub<br>$ datapackage create"]
+    --> edit-datapackage-stub["✏ Modifica Datapackage Stub"]
+    --> crea-csv["⚙ Crea CSV<br>$ csv create"]
+    --> valida-csv["✔ Valida CSV<br>$ csv validate"]
   end
 
   subgraph flusso-api["Flusso APIStore"]
     direction TB
-    crea-oas-stub[Crea OAS Stub<br>openapi create]
-    --> modifica-oas-stub[Modifica OAS Stub]
-    --> crea-db[Crea Database<br>apistore create]
-    --> valida-db[Valida Database<br>apistore validate]
+    crea-oas-stub["⚙ Crea OAS Stub<br>$ openapi create"]
+    --> edit-oas-stub["✏ Modifica OAS Stub"]
+    --> crea-db["⚙ Crea Database<br>$ apistore create"]
+    --> valida-db["✔ Valida Database<br>$ apistore validate"]
   end
 ```
 
@@ -97,25 +96,25 @@ Il flusso è articolato in questi passi:
 ```mermaid
 flowchart TD
     Input[/"File sorgente: vocabolario.ttl + vocabolario.frame.yamlld"/]
-    GenJsonLD["jsonld create: proietta il vocabolario RDF in JSON-LD strutturato"]
-    Projection[/"File generato: vocabolario.data.yamlld"/]
-    GenOAS["openapi create: genera lo stub OAS dal grafo RDF e dal frame"]
-    Stub[/"File generato: vocabolario.oas3.yaml con metadati e x-jsonld-context"/]
-    ManualEdit["Modifica manuale: completa proprietà, vincoli e annotazioni semantiche"]
-    ValidateOAS["openapi validate: verifica la conformità dell'OAS allo schema OAS 3.0"]
-    CreateDB["apistore create: popola il database SQLite con i dati proiettati"]
+    jsonld-create["⚙ jsonld create: proietta il vocabolario RDF in JSON-LD strutturato"]
+    data-yaml[/"File generato: vocabolario.data.yamlld"/]
+    openapi-create["⚙ openapi create: genera lo stub OAS dal grafo RDF e dal frame"]
+    oas-stub-yaml[/"File generato: vocabolario.oas3.yaml con metadati e x-jsonld-context"/]
+    ManualEdit["✏ Modifica manuale: completa proprietà, vincoli e annotazioni semantiche"]
+    ValidateOAS["✔ openapi validate: verifica la conformità dell'OAS allo schema OAS 3.0"]
+    CreateDB["⚙ apistore create: popola il database SQLite con i dati proiettati"]
     DB[/"File generato: vocabolario.db"/]
-    ValidateDB["apistore validate: verifica integrità e conformità allo schema Item"]
-    Publish["Pubblicazione: revisione e approvazione della PR nel repository"]
+    ValidateDB["✔ apistore validate: verifica integrità e conformità allo schema Item"]
+    Publish["✏ Pubblicazione: revisione e approvazione della PR nel repository"]
 
-    Input --> GenJsonLD
-    GenJsonLD --> Projection
-    Projection --> GenOAS
-    GenOAS --> Stub
-    Stub --> ManualEdit
+    Input -.->|d3f:read-by| jsonld-create
+    jsonld-create -->|d3f:creates| data-yaml
+    data-yaml -.->|d3f:read-by| openapi-create
+    openapi-create -->|d3f:creates| oas-stub-yaml
+    oas-stub-yaml --> ManualEdit
     ManualEdit --> ValidateOAS
     ValidateOAS --> CreateDB
-    Projection --> CreateDB
+    data-yaml --> CreateDB
     CreateDB --> DB
     DB --> ValidateDB
     ValidateDB --> Publish
