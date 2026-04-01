@@ -632,7 +632,9 @@ testcases:
       label:
         "@id": skos:prefLabel
         "@language": en
-      vocab: skos:inScheme
+      vocab:
+        "@id": skos:inScheme
+        "@container": "@set"
       deprecated:
         "@id": at:deprecated
     #

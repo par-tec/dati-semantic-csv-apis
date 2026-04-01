@@ -22,6 +22,10 @@ def _validate_id_field(item: dict) -> None:
             raise ValueError(
                 f"Unexpected '@language' in an identifier field: {id_value} in item {item}. See SKOS https://www.w3.org/TR/skos-reference/#L2655 for details."
             )
+        if id_value.get("@type") == "xsd:string":
+            raise ValueError(
+                f"Unexpected '@type' of 'xsd:string' in an identifier field: {id_value} in item {item}. See SKOS https://www.w3.org/TR/skos-reference/#L2655 for details."
+            )
 
 
 def _validate_vocab_entries(item: dict) -> None:
@@ -74,7 +78,7 @@ def framer(
         JsonLD: Framed JSON-LD document containing @context and @graph fields.
     """
 
-    original_context = frame.context
+    original_context = ld_doc.get("@context", frame.context)
 
     # Determine items to process
     if isinstance(ld_doc, dict) and "@graph" in ld_doc:
@@ -139,6 +143,13 @@ def framer(
         framed_batch = jsonld.frame(
             batch_doc, frame, options={"processingMode": "json-ld-1.1"}
         )
+        # for item in framed_batch["@graph"]:
+        #     for k in item:
+        #         if isinstance(item[k], dict) and item[k].get(
+        #             "@type", ""
+        #         ).endswith((":string", "#string")):
+        #             item[k] = item[k]["@value"]
+
         batch_frame_time = time.time() - batch_frame_start
         log.info(f"Batch framing took {batch_frame_time:.3f}s")
 

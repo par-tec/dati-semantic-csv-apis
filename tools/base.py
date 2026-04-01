@@ -166,6 +166,22 @@ class JsonLDFrame(dict):
                     continue
                 expected_iris = ALLOWED_VALUES[field]
 
+                # parent and vocab must be dicts with @container: @set
+                # and must not have @type: @vocab or @type: @id
+                if field in ("parent", "vocab"):
+                    if not isinstance(definition, dict):
+                        raise ValueError(
+                            f"Frame field '{field}' must be a dict, got {type(definition).__name__}"
+                        )
+                    if definition.get("@container") not in ("@set", "@list"):
+                        raise ValueError(
+                            f"Frame field '{field}' must contain '@container': '@set' or '@list', got {definition.get('@container')}"
+                        )
+                    if definition.get("@type") in ("@vocab", "@id"):
+                        raise ValueError(
+                            f"Frame field '{field}' must not contain '@type': '@vocab' or '@type': '@id'"
+                        )
+
                 # Extract @id from dict if definition is a dict (e.g., {"@id": "...", "@container": "@set"})
                 actual_iri = (
                     definition["@id"]

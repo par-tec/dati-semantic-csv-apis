@@ -15,4 +15,3 @@ rdflib>=7.4
 #
 orjson
 sqlalchemy==2.0.48
-# sqlite3==3.14.3
