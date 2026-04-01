@@ -36,8 +36,10 @@ services:
       context: .
       dockerfile: apiv1/Dockerfile
       target: data-api
+    restart: no
     environment:
-    - HARVEST_DB=/data/harvest.db
+    - HARVEST_DB=https://raw.githubusercontent.com/par-tec/dati-semantic-harvest/refs/heads/harvest/vocabularies.db
+    # - HARVEST_DB=https://github.com/par-tec/dati-semantic-harvest/raw/refs/heads/harvest/vocabularies.db
     - API_BASE_URL=http://localhost:8001
     - UVICORN_WORKERS=4
     - UVICORN_LOG_LEVEL=debug
