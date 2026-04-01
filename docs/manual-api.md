@@ -282,13 +282,13 @@ servers: []
 I metadati principali sono estratti dalle
 seguenti proprietà RDF:
 
-| Campo OAS              | Proprietà RDF                         |
-| ---------------------- | ------------------------------------- |
-| `info.title`           | `dct:title` o `skos:prefLabel`        |
-| `info.description`     | `dct:description` o `skos:definition` |
-| `info.version`         | `owl:versionInfo`                     |
-| `info.x-agencyId`      | identificatore dell'ente erogatore    |
-| `info.x-keyConcept`    | `ndc:keyConcept`                      |
+| Campo OAS           | Proprietà RDF                         |
+| ------------------- | ------------------------------------- |
+| `info.title`        | `dct:title` o `skos:prefLabel`        |
+| `info.description`  | `dct:description` o `skos:definition` |
+| `info.version`      | `owl:versionInfo`                     |
+| `info.x-agencyId`   | identificatore dell'ente erogatore    |
+| `info.x-keyConcept` | `ndc:keyConcept`                      |
 
 ## Modificare il file OAS {#modificare-il-file-oas}
 
@@ -313,7 +313,6 @@ Operazioni tipiche di modifica manuale:
 1. Verificare che `x-jsonld-type` corrisponda
    al tipo RDF del concetto (ad esempio
    `skos:Concept` o un tipo dell'ontologia).
-
 
 ## Validare l'OAS {#validare-loas}
 
@@ -554,13 +553,13 @@ il vocabolario RDF sorgente e il frame
 JSON-LD, ma producono distribuzioni
 indipendenti:
 
-| Aspetto             | CSV                         | APIStore                    |
-| ------------------- | --------------------------- | --------------------------- |
-| Output              | File CSV + datapackage.yaml | Database SQLite (.db) + OAS |
-| Metadati            | Frictionless Data Package   | OpenAPI Specification       |
-| Struttura dati      | Righe piatte                | Documenti JSON con schema   |
-| Validazione         | Roundtrip CSV → RDF         | JSON Schema da OAS          |
-| Aggregazione        | N/A                         | `apistore collect`          |
+| Aspetto        | CSV                         | APIStore                    |
+| -------------- | --------------------------- | --------------------------- |
+| Output         | File CSV + datapackage.yaml | Database SQLite (.db) + OAS |
+| Metadati       | Frictionless Data Package   | OpenAPI Specification       |
+| Struttura dati | Righe piatte                | Documenti JSON con schema   |
+| Validazione    | Roundtrip CSV → RDF         | JSON Schema da OAS          |
+| Aggregazione   | N/A                         | `apistore collect`          |
 
 La proiezione JSON-LD (`.data.yamlld`)
 è compatibile con entrambi i flussi:
