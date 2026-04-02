@@ -148,7 +148,8 @@ jobs:
         persist-credentials: true
         # Checkout the actual head that triggered this run so we work on the
         # changed files (PR head or push SHA).
-        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        ref: ${{ github.event.pull_request.head.sha || github.sha
+          }}
     - name: Set up Python
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
@@ -250,9 +251,11 @@ jobs:
       with:
         base: main
         commit-message: >-
-          feat: regenerate artifacts for ${{ matrix.asset.path }}
+          feat: regenerate artifacts for ${{ matrix.asset.path
+          }}
         title: >-
-          feat: artifact regeneration for ${{ matrix.asset.path }}
+          feat: artifact regeneration for ${{ matrix.asset.path
+          }}
         body: |
           # Artifact Regeneration for `${{ matrix.asset.path }}`
 
