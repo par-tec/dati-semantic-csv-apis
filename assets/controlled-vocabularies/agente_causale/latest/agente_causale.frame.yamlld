@@ -1,7 +1,7 @@
 ---
 #
 # Content-Type: application/ld+yaml; profile="http://www.w3.org/ns/json-ld#frame"
-#
+# time: 17.34
 # Only show fields listed in @context.
 "@explicit": true
 
@@ -31,7 +31,7 @@
   label_it:
     "@id": skos:prefLabel
     "@language": it
-
+  
   # When mapping to a list, use @container: @set
   #   to ensure that JSON-LD framing handles it as an array.
   parent:
