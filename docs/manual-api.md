@@ -21,7 +21,6 @@ Riferimenti: [README.api.md](README.api.md),
 - [Validare il database APIStore](#validare-il-database-apistore)
 - [Aggregare più database](#aggregare-piu-database)
 - [Pubblicare il database](#pubblicare-il-database)
-- [Scelte di progettazione](#scelte-di-progettazione)
 
 ## Obiettivi {#obiettivi}
 
@@ -533,8 +532,6 @@ L'Erogatore deve:
 1. Revisionare il database generato.
 1. Approvare la PR generata dal workflow
    per pubblicare il database.
-
-## Scelte di progettazione {#scelte-di-progettazione}
 
 ### Relazione tra OAS e frame JSON-LD {#oas-e-frame}
 
