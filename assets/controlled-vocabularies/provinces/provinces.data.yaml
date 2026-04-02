@@ -1,4 +1,3 @@
----
 '@context':
   '@base': https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces/
   '@vocab': https://w3id.org/italia/onto/CLV/
@@ -130,7 +129,7 @@
   - skos:Concept
   acronym: AO
   id: '007'
-  label_it: "Valle d'Aosta/Vallée d'Aoste"
+  label_it: Valle d'Aosta/Vallée d'Aoste
   nuts:
   - uri: http://nuts.geovocab.org/id/ITC20
   parent:
@@ -627,7 +626,7 @@
   - skos:Concept
   acronym: FC
   id: '040'
-  label_it: "Forlì-Cesena"
+  label_it: Forlì-Cesena
   nuts:
   - uri: http://nuts.geovocab.org/id/ITD58
   parent:
