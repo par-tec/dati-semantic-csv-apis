@@ -61,8 +61,7 @@ def cli(log_level):
       jsonld create
           |
           +--> datapackage create --> csv create
-          +--> openapi create
-          +--> apistore create
+          +--> openapi create --> apistore create
     """
     logging.basicConfig(level=getattr(logging, log_level))
 
