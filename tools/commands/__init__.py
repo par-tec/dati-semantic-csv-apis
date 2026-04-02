@@ -54,7 +54,16 @@ def common_options(func):
 @click.version_option(version=_cli_version_string())
 @common_options
 def cli(log_level):
-    """CLI for creating and validating vocabulary artifacts."""
+    """CLI for creating and validating vocabulary artifacts.
+
+    \b
+    Standard workflow:
+      jsonld create
+          |
+          +--> datapackage create --> csv create
+          +--> openapi create
+          +--> apistore create
+    """
     logging.basicConfig(level=getattr(logging, log_level))
 
 
