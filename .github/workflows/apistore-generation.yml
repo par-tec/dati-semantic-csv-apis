@@ -152,6 +152,14 @@ jobs:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       with:
         persist-credentials: true
+        ref: assets
+        fetch-depth: 0
+    - name: Fetch source files from triggering commit
+      run: |
+        git fetch origin ${{ github.sha }}
+        git checkout ${{ github.sha }} -- "${{ matrix.asset.path }}"
+      env:
+        MATRIX_ASSET: ${{ matrix.asset.path }}
     - name: Set up Python
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
