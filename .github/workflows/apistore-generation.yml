@@ -145,10 +145,7 @@ jobs:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       with:
         persist-credentials: true
-        # Checkout the actual head that triggered this run so we work on the
-        # changed files (PR head or push SHA).
-        ref: ${{ github.event.pull_request.head.sha || github.sha
-          }}
+        ref: assets
     - name: Set up Python
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
