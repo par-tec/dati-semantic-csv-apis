@@ -1,0 +1,62 @@
+"@type": "skos:Concept"
+
+"@explicit": true
+"@embed": "@never"
+"@omitDefault": true
+"@requireAll": true
+
+"@context":
+  skos: "http://www.w3.org/2004/02/skos/core#"
+  clvapit: "https://w3id.org/italia/onto/CLV/"
+
+  uri: "@id"
+
+  id: skos:notation
+
+  label_it:
+    "@id": skos:prefLabel
+    "@language": it
+
+  label_en:
+    "@id": skos:prefLabel
+    "@language": en
+
+  definition_it:
+    "@id": skos:definition
+    "@language": it
+
+  broader:
+    "@id": skos:broader
+    "@container": "@set"
+    "@context":
+      uri: "@id"
+      id: skos:notation
+
+  level:
+    "@id": clvapit:hasRankOrder
+
+  scheme:
+    "@id": skos:inScheme
+    "@container": "@set"
+    "@context":
+      uri: "@id"
+
+scheme:
+  - uri: "https://w3id.org/italia/controlled-vocabulary/classifications-for-culture/subject-disciplines"
+    "@explicit": true
+    "@embed": "@never"
+
+uri: {}
+id: {}
+label_it: {}
+label_en: {}
+definition_it: {}
+level: {}
+
+broader:
+  - uri: {}
+    id: {}
+    "@embed": "@always"
+    "@explicit": true
+    "@default": "@null"
+    "@requireAll": false

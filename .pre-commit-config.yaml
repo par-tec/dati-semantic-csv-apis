@@ -6,8 +6,16 @@
 #
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+#
+# Note: Use docker images with specific digests to ensure reproducibility and security.
 default_stages:
   - pre-commit
+  - manual
+  - pre-push
+# Override language hinting because we need mypy to use python3.12,
+#   even if some hooks don't support it yet.
+default_language_version:
+  python: python3.12
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
@@ -19,6 +27,7 @@ repos:
   - id: check-symlinks
   - id: mixed-line-ending
     args: [--fix=lf]
+    exclude: 'tests/data/snapshots/.*\.csv'
   # Check file syntax/format
   - id: check-xml
   - id: check-json
@@ -35,13 +44,21 @@ repos:
   hooks:
   - id: yamlfmt
     files: \.(yaml|yml)$
-    exclude: 'config\.yaml'
+    exclude: '.spectral|config\.yaml|apiv1/openapi|tests/data/snapshots/.*\.yaml'
+- repo: https://github.com/executablebooks/mdformat
+  rev: 0.7.17
+  hooks:
+  - id: mdformat
+    exclude: '.github/.*|docs/glossario.md'
+    additional_dependencies:
+    - mdformat-tables
+    - mdformat-gfm
 #
 # Python linters.
 #
 - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
-  rev: v0.15.1
+  rev: v0.15.4
   hooks:
   # Run the linter.
   - id: ruff
@@ -52,24 +69,82 @@ repos:
   rev: v1.19.1
   hooks:
   - id: mypy
+    name: mypy (root)
     additional_dependencies: [types-PyYAML]
-    exclude: ^tests/
+    exclude: ^(tests/|apiv1/)
+  - id: mypy
+    name: mypy (apiv1)
+    additional_dependencies: [types-PyYAML]
+    pass_filenames: false
+    exclude: ^(tests/|tools|openapi)
+    entry: >-
+      bash -c 'cd apiv1 && mypy -p common -p vocabularies --ignore-missing-imports' --
+#
+# Generators.
+#
+- repo: local
+  hooks:
+  - id: generate-bundles
+    name: Generate OAS bundles v2.20.3
+    stages:
+    - pre-push
+    language: docker_image
+    files: >-
+      apiv1/vocabularies/open.*yaml
+    entry: |-
+      --entrypoint sh
+      docker.io/redocly/cli@sha256:78fa111b6c84522383d419a0631c984aefa76c5fbd39d8904a201b86e3b44168
+      -c
+      'mkdir -p apiv1/openapi/
+      for f in $0 $@; \
+      do
+        DIR=${f%/*}
+        redocly bundle \
+          "$f" \
+        -o "apiv1/openapi/${DIR##*/}.yaml"
+      done'
 #
 # Security linters.
 #
 - repo: https://github.com/bridgecrewio/checkov.git
-  rev: 3.2.504  # change to tag or sha
+  rev: 3.2.507  # change to tag or sha
   hooks:
   - id: checkov
+    stages: ["pre-push"]
+    files: '^Dockerfile$'
+    entry: >-
+      checkov
+        -d .
+        --skip-path assets/
+        --skip-path apiv1/openapi/
+        --skip-path apiv1/data/
+        --skip-path tests
   - id: checkov_secrets
     stages: ["pre-push"]
+- repo: https://github.com/zizmorcore/zizmor-pre-commit
+  rev: v1.22.0
+  hooks:
+    - id: zizmor
 - repo: local
   hooks:
   - id: trufflehog
-    name: TruffleHog
+    name: TruffleHog v3.93.3
     description: Detect secrets in your data.
-    entry: bash -c 'docker run --rm -v "$(pwd):/workdir" -i --rm
-      trufflesecurity/trufflehog:latest git file:///workdir --since-commit
+    entry: bash -c 'docker run -c 2 --rm -v "$(pwd):/workdir" -i --rm
+      docker.io/trufflesecurity/trufflehog@sha256:06c1f230512cbb694954716fa5e0adbfb95809c7bfb5a50c25110847417b69db git file:///workdir --since-commit
       HEAD --results=verified,unknown --fail'
     language: system
     stages: ["pre-push"]
+  - id: spectral
+    name: Spectral v6
+    language: system
+    description: Validate OpenAPI specifications with Spectral.
+    # choices: "error", "warn", "info", "hint"
+    entry: >-
+      bash -c 'docker run --rm -v "$(pwd):/workdir" -w /workdir -i --rm
+      docker.io/stoplight/spectral@sha256:b3d5a530f83c4a72df69e682c5ac928bc9821b5ca3c42529e81d926c80fa50ab
+      lint -F hint -vvv --ruleset .spectral/rulesets/.openapirc.yml "$@"' --
+    files: >-
+      apiv1/openapi/.*\.(yaml|yml)$
+    stages:
+    - manual

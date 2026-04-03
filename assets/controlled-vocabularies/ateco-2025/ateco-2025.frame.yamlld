@@ -2,12 +2,6 @@
 #
 # Content-Type: application/ld+yaml; profile="http://www.w3.org/ns/json-ld#frame"
 #
-# Only show fields listed in @context.
-"@explicit": true
-
-# Always embed external references.
-"@embed": "@never"
-"@omitDefault": true
 
 # Use context.
 "@context": &jsonld_context
@@ -21,10 +15,9 @@
   xsd: "http://www.w3.org/2001/XMLSchema#"
   covapit: https://w3id.org/italia/onto/COV/
   # Fields.
-  url: "@id"
+  uri: "@id"
   id:
     "@id": skos:notation
-    # "@type": "@value"
 
   #Localize labels. Order is relevant.
   label:
@@ -46,24 +39,31 @@
     "@id": skos:broader
     "@container": "@set"
     "@context":
-        url: "@id"
+        uri: "@id"
 
   vocab:
     "@id": skos:inScheme
     "@container": "@set"
     "@context":
-      url: "@id"
+      uri: "@id"
 
   level:
     # Use type coercion to ensure that level is a JSON Number.
     "@id": clvapit:hasRankOrder
     "@type": xsd:int
 
+# Only show fields listed in @context.
+"@explicit": true
+
+# Always embed external references.
+"@embed": "@never"
+"@omitDefault": true
+
 "@requireAll": true
 # Matching on type works.
 "@type":
   - &jsonld_type "covapit:PrivateOrgActivityType"
-url: {}
+uri: {}
 id: {}
 label_de: {}
 label_en: {}
@@ -74,12 +74,18 @@ label:
 level: {}
 
 vocab:
-- url: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
+- uri: https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2025
   "@explicit": true
   "@embed": "@never"
 parent:
-- url: {}
-  "@default": "@null"
-  "@embed": "@never"
+- uri: {}
+  id: {}
+  # To show further properties, you must
+  #   use "@embed": "@always".
+  "@embed": "@always"
   "@explicit": true
+  # If @requireAll is true, you must
+  #   @default @null to avoid filtering out items
+  #   missing the field.
+  "@default": "@null"
   "@requireAll": false
