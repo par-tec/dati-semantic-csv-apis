@@ -13,6 +13,13 @@
 name: CI APIStore Create
 permissions: {}
 on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: 'Python version to use'
+        required: false
+        type: string
+        default: '3.13'
   workflow_dispatch:
   push:
     branches:
@@ -28,7 +35,7 @@ on:
     - '.github/workflows/apistore-generation.yml'
 env:
   CI: true
-  PYTHON_VERSION: '3.14'
+  PYTHON_VERSION: ${{ inputs.python_version || '3.13' }}
   VOCABULARY_DIR: 'assets/controlled-vocabularies'
   CLI_VERSION: '0.0.8'
 jobs:
