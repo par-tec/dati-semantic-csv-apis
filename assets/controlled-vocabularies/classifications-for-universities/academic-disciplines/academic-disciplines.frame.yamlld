@@ -1,0 +1,67 @@
+"@type": "skos:Concept"
+
+"@explicit": true
+"@embed": "@never"
+"@omitDefault": true
+"@requireAll": true
+
+"@context":
+  skos: "http://www.w3.org/2004/02/skos/core#"
+  clvapit: "https://w3id.org/italia/onto/CLV/"
+  herapit: "https://w3id.org/italia/onto/HER/"
+
+  uri: "@id"
+
+  id: skos:notation
+
+  label_it:
+    "@id": skos:prefLabel
+    "@language": it
+
+  label_en:
+    "@id": skos:prefLabel
+    "@language": en
+
+  definition_it:
+    "@id": skos:definition
+    "@language": it
+
+  definition_en:
+    "@id": skos:definition
+    "@language": en
+
+  broader:
+    "@id": skos:broader
+    "@container": "@set"
+    "@context":
+      uri: "@id"
+
+  level:
+    "@id": clvapit:hasRankOrder
+
+  scheme:
+    "@id": skos:inScheme
+    "@container": "@set"
+    "@context":
+      uri: "@id"
+
+scheme:
+  - uri: "https://w3id.org/italia/controlled-vocabulary/classifications-for-universities/academic-disciplines"
+    "@explicit": true
+    "@embed": "@never"
+
+uri: {}
+id: {}
+label_it: {}
+label_en: {}
+definition_it: {}
+definition_en: {}
+level: {}
+
+broader:
+  - uri: {}
+    id: {}
+    "@embed": "@always"
+    "@explicit": true
+    "@default": "@null"
+    "@requireAll": false
