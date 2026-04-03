@@ -19,7 +19,7 @@ on:
         description: 'Python version to use'
         required: false
         type: string
-        default: '3.13'
+        default: '3.14'
       checkout_ref:
         description: 'Branch/ref to checkout'
         required: false
@@ -44,7 +44,7 @@ on:
     - '.github/workflows/ci-pre-tabular.yml'
 env:
   CI: true
-  PYTHON_VERSION: ${{ inputs.python_version || '3.13' }}
+  PYTHON_VERSION: ${{ inputs.python_version || '3.14' }}
   SOURCE_REF: ${{ github.event.pull_request.head.sha || github.sha
     }}
   CHECKOUT_REF: ${{ inputs.checkout_ref || 'assets' }}

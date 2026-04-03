@@ -19,7 +19,7 @@ on:
         description: 'Python version to use'
         required: false
         type: string
-        default: '3.13'
+        default: '3.14'
   workflow_dispatch:
   push:
     branches:
@@ -35,7 +35,7 @@ on:
     - '.github/workflows/apistore-generation.yml'
 env:
   CI: true
-  PYTHON_VERSION: ${{ inputs.python_version || '3.13' }}
+  PYTHON_VERSION: ${{ inputs.python_version || '3.14' }}
   VOCABULARY_DIR: 'assets/controlled-vocabularies'
   CLI_VERSION: '0.0.8'
 jobs:
@@ -152,7 +152,6 @@ jobs:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       with:
         persist-credentials: true
-        ref: assets
     - name: Set up Python
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
