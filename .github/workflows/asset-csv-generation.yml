@@ -2,25 +2,32 @@
 # Asset CSV Generation Workflow
 #
 # This workflow manages the creation and validation of CSV files from RDF vocabularies
-# stored in the assets/controlled-vocabularies directory.
-#
-# Triggers:
-#  - Commits to assets/ directory
-#  - Manual workflow dispatch
-#
-# Jobs:
-#  1. ci-pre-tabular: Creates Frictionless Data Package metadata from RDF vocabularies
-#  2. ci-tabular: Generates CSV files and creates pull requests with the results
-#
-# Run this workflow manually with:
-#
-# $ gh workflow run --ref assets
+# stored in the assets/controlled-vocabularies directory, by calling internal workflows
+# in sequence.
 #
 name: Asset CSV Generation
 permissions: {}
 on:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Repository to fetch the cli-binary artifact
+          from (owner/repo)'
+        required: false
+        default: 'teamdigitale/dati-semantic-csv-apis'
+      python_version:
+        description: 'Python version to use'
+        required: false
+        default: '3.14'
+      checkout_ref:
+        description: 'Branch/ref to checkout'
+        required: false
+        default: 'assets'
+      max_parallel_jobs:
+        description: 'Maximum number of parallel jobs to run'
+        required: true
+        type: number
+        default: 1
   push:
     branches:
     - assets
@@ -33,419 +40,23 @@ on:
     paths:
     - 'assets/controlled-vocabularies/**'
     - '.github/workflows/asset-csv-generation.yml'
-env:
-  CI: true
-  PYTHON_VERSION: '3.14'
-  SOURCE_REF: ${{ github.event.pull_request.head.sha || github.sha
-    }}
-  CHECKOUT_REF: assets
-  VOCABULARY_DIR: 'assets/controlled-vocabularies'
 jobs:
-  # Detect which assets changed in this push
-  detect-changes:
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    outputs:
-      assets: ${{ steps.detect.outputs.assets }}
-    steps:
-    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      with:
-        persist-credentials: false
-        fetch-depth: 0
-    - name: Detect changed assets
-      id: detect
-      shell: bash
-      run: |
-        set -x
-        # Get the list of changed files in the assets directory
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          # For manual dispatch, detect all assets
-          RAW_ASSETS=$(find "$VOCABULARY_DIR" -maxdepth 3 -type f -name "*.ttl" -exec dirname {} \; | sort -u)
-          echo "Detected assets for manual dispatch:"
-          echo "$RAW_ASSETS"
-        else
-          true # XXX: uncomment
-          # For push events, detect changed assets
-          # CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD | grep "^${VOCABULARY_DIR}/")
-          # ASSETS=$(echo "$CHANGED_FILES" | cut -d/ -f3 | sort -u | jq -R -s -c 'split("\n")[:-1] | map(select(length > 0))')
-        fi
-        #Fallback if RAW_ASSETS is empty.
-        if [ -z "$RAW_ASSETS" ]; then
-          RAW_ASSETS=$(find "$VOCABULARY_DIR" -type f -name "*.ttl" -exec dirname {} \; | sort -u)
-          echo "Fallback RAW_ASSETS:"
-          echo "$RAW_ASSETS"
-        fi
-        #filtered assets
-        FILTERED_ASSETS=()
-
-        for DIR in $RAW_ASSETS; do
-        TTL_FILES=($(find "$DIR" -maxdepth 3 -type f -name "*.ttl"))
-        COUNT=${#TTL_FILES[@]}
-
-        if [ "$COUNT" -gt 1 ]; then
-          echo "::warning::Directory $DIR contains multiple TTL files ($COUNT). Skipping."
-        continue
-        fi
-        # Exactly one TTL file found, include this asset
-        FILTERED_ASSETS+=("$DIR")
-        done
-
-        ASSETS=$(printf "%s\n" "${FILTERED_ASSETS[@]}" | jq -R -s -c 'split("\n")[:-1]')
-
-        echo "assets=${ASSETS}" >> "$GITHUB_OUTPUT"
-        echo "Detected assets: ${ASSETS}"
-  #
-  # Job 1: Create Frictionless Data Package metadata
-  #   only if it is not already present.
-  #   This is just a test workflow to create datapackage
-  #   stubs.
-  #
   ci-pre-tabular:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.assets != '[]' && needs.detect-changes.outputs.assets
-      != ''
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      actions: read
-    strategy:
-      fail-fast: false
-      matrix:
-        asset: >-
-          ${{ fromJson(needs.detect-changes.outputs.assets) }}
-    steps:
-    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      with:
-        persist-credentials: true
-        ref: ${{ env.CHECKOUT_REF }}
-    - name: Set up Python
-      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    - name: Download binary artifact
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        set -e
-        REPO="par-tec/dati-semantic-csv-apis"
-        echo "Fetching latest workflow run..."
-        
-        RUN_ID=$(curl -s \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          https://api.github.com/repos/${REPO}/actions/runs \
-          | jq -r '
-            .workflow_runs
-            | map(select(.name=="Test"))
-            | first
-            | .id
-          ')
-  
-        echo "Latest run ID: ${RUN_ID}"
+    uses: ./.github/workflows/ci-pre-tabular.yml
+    with:
+      repo: ${{ inputs.repo || 'teamdigitale/dati-semantic-csv-apis'
+        }}
+      python_version: ${{ inputs.python_version || '3.14' }}
+      checkout_ref: ${{ inputs.checkout_ref || 'assets' }}
+      # secrets: inherit
 
-        if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-          echo "No run found for workflow Test"
-          exit 1
-        fi
-
-        echo "Fetching artifacts..."
-
-        ARTIFACT_URL=$(curl -s \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          https://api.github.com/repos/${REPO}/actions/runs/${RUN_ID}/artifacts \
-          | jq -r '.artifacts[]
-            | select(.name=="cli-binary")
-            | select(.expired==false)
-            | .archive_download_url')
-
-        echo "Artifact URL: ${ARTIFACT_URL}"
-
-        if [ -z "$ARTIFACT_URL" ] || [ "$ARTIFACT_URL" = "null" ]; then
-          echo "No artifact found in run ${RUN_ID}"
-          exit 1
-        fi
-
-        curl -L \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          "${ARTIFACT_URL}" \
-          -o /tmp/artifact.zip
-
-        if [ ! -f /tmp/artifact.zip ]; then
-          echo "Artifact download failed"
-          exit 1
-        fi
-
-        unzip /tmp/artifact.zip -d /usr/local/bin/
-        chmod +x /usr/local/bin/schema_gov_it_tools.bin
-        /usr/local/bin/schema_gov_it_tools.bin --version
-    
-    - name: Debug matrix asset
-      run: |
-        echo "Processing directory: '${{ matrix.asset }}'"
-
-    - name: Check frame file exists
-      id: check-frame
-      working-directory: ${{ matrix.asset }}
-      shell: bash
-      run: |
-        shopt -s nullglob
-
-        # Find frame files
-        FRAME_FILES=( *.frame.yamlld )
-
-        if (( ${#FRAME_FILES[@]} == 0 )); then
-          echo "exists=false" >> "$GITHUB_OUTPUT"
-          echo "No .frame.yamlld file found in $(pwd)"
-          exit 0
-        fi
-
-        # Use the first frame file found
-        FRAME_FILE="${FRAME_FILES[0]}"
-        echo "exists=true" >> "$GITHUB_OUTPUT"
-        echo "frame_file=$FRAME_FILE" >> "$GITHUB_OUTPUT"
-
-        echo "Found frame file: $FRAME_FILE"
-
-    - name: Warn missing frame
-      if: steps.check-frame.outputs.exists == 'false'
-      run: |
-        echo "::warning title=Missing frame file::No frame file found for asset '${{ matrix.asset }}'. This asset will be skipped."
-
-    - name: Create datapackage metadata
-      if: steps.check-frame.outputs.exists == 'true'
-      working-directory: >-
-        ${{ matrix.asset }}
-      run: |
-        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
-
-        /usr/local/bin/schema_gov_it_tools.bin datapackage create \
-        --ttl "${ASSET_NAME}.ttl" \
-        --frame "${ASSET_NAME}.frame.yamlld" \
-        --vocabulary-uri "changeme" \
-        --output "datapackage.yaml" \
-        --lang it \
-        --force
-
-        echo "Generated datapackage.yaml for ${MATRIX_ASSET}"
-      env:
-        MATRIX_ASSET: ${{ matrix.asset }}
-    - name: Create OAS metadata
-      if: steps.check-frame.outputs.exists == 'true'
-      working-directory: >-
-        ${{ matrix.asset }}
-      run: |
-        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
-
-        /usr/local/bin/schema_gov_it_tools.bin openapi create \
-        --ttl "${ASSET_NAME}.ttl" \
-        --frame "${ASSET_NAME}.frame.yamlld" \
-        --vocabulary-uri "changeme" \
-        --output "${ASSET_NAME}.oas3.yaml" \
-        --force
-
-        echo "Generated ${ASSET_NAME}.oas3.yaml for ${MATRIX_ASSET}"
-      env:
-        MATRIX_ASSET: ${{ matrix.asset }}
-    - name: Commit datapackage & OAS changes
-      if: steps.check-frame.outputs.exists == 'true'
-      shell: bash
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-
-        git add "${{ matrix.asset }}/datapackage.yaml"
-        git add "${{ matrix.asset }}/*.oas3.yaml"
-        if git diff --cached --quiet; then
-          echo "No changes to commit"
-          exit 0
-        fi
-
-        git commit -m "ci: generate datapackage for ${{ matrix.asset }} [skip ci]"
-        git push origin HEAD:assets
-  #
-  # Job 2: Generate CSV files and create pull requests
-  #   whenever a datapackage.yaml is in place.
-  #
   ci-tabular:
-    needs: [detect-changes]
-    # if: false  # Temporarily disabled
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    strategy:
-      fail-fast: false
-      max-parallel: 6
-      matrix:
-        asset: >-
-          ${{ fromJson(needs.detect-changes.outputs.assets) }}
-    steps:
-    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      with:
-        persist-credentials: true
-        ref: ${{ env.CHECKOUT_REF }}
-    - name: Set up Python
-      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    - name: Download binary artifact
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        set -e
-        REPO="par-tec/dati-semantic-csv-apis"
-        echo "Fetching latest workflow run..."
-        
-        RUN_ID=$(curl -s \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          https://api.github.com/repos/${REPO}/actions/runs \
-          | jq -r '
-            .workflow_runs
-            | map(select(.name=="Test"))
-            | first
-            | .id
-          ')
-
-        echo "Latest run ID: ${RUN_ID}"
-
-        if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-          echo "No run found for workflow Test"
-          exit 1
-        fi        
-
-        echo "Fetching artifacts..."
-
-        ARTIFACT_URL=$(curl -s \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          https://api.github.com/repos/${REPO}/actions/runs/${RUN_ID}/artifacts \
-          | jq -r '.artifacts[]
-            | select(.name=="cli-binary")
-            | select(.expired==false)
-            | .archive_download_url')
-
-        echo "Artifact URL: ${ARTIFACT_URL}"
-
-        if [ -z "$ARTIFACT_URL" ] || [ "$ARTIFACT_URL" = "null" ]; then
-          echo "No artifact found in run ${RUN_ID}"
-          exit 1
-        fi
-        curl -L \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          "${ARTIFACT_URL}" \
-          -o /tmp/artifact.zip
-
-        if [ ! -f /tmp/artifact.zip ]; then
-          echo "Artifact download failed"
-          exit 1
-        fi
-        
-        unzip /tmp/artifact.zip -d /usr/local/bin/
-        chmod +x /usr/local/bin/schema_gov_it_tools.bin
-        /usr/local/bin/schema_gov_it_tools.bin --version
-    - name: Check datapackage exists
-      id: check-datapackage
-      working-directory: ${{ matrix.asset }}
-      run: |
-        if [ -f "datapackage.yaml" ]; then
-          echo "exists=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "exists=false" >> "$GITHUB_OUTPUT"
-          echo "datapackage.yaml not found, skipping CSV generation"
-        fi
-    - name: Check frame file exists
-      id: check-frame
-      working-directory: ${{ matrix.asset }}
-      shell: bash
-      run: |
-        shopt -s nullglob
-
-        # Find frame files
-        FRAME_FILES=( *.frame.yamlld )
-
-        if (( ${#FRAME_FILES[@]} == 0 )); then
-          echo "exists=false" >> "$GITHUB_OUTPUT"
-          echo "No .frame.yamlld file found in $(pwd)"
-          exit 0
-        fi
-
-        # Use the first frame file found
-        FRAME_FILE="${FRAME_FILES[0]}"
-        echo "exists=true" >> "$GITHUB_OUTPUT"
-        echo "frame_file=$FRAME_FILE" >> "$GITHUB_OUTPUT"
-
-        echo "Found frame file: $FRAME_FILE"
-
-    - name: Warn missing frame
-      if: steps.check-frame.outputs.exists == 'false'
-      run: |
-        echo "::warning title=Missing frame file::No frame file found for asset '${{ matrix.asset }}'. This asset will be skipped."
-    - name: Generate and validate CSV
-      if: steps.check-datapackage.outputs.exists == 'true' && steps.check-frame.outputs.exists == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
-      working-directory: >-
-        ${{ matrix.asset }}
-      run: |
-        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
-
-        # Generate CSV from JSON-LD and datapackage
-        /usr/local/bin/schema_gov_it_tools.bin \
-          jsonld create \
-          --ttl "${ASSET_NAME}.ttl" \
-          --frame "${ASSET_NAME}.frame.yamlld" \
-          --vocabulary-uri changeme \
-          --frame-only \
-          --output "${ASSET_NAME}.data.yamlld" --force
-
-        /usr/local/bin/schema_gov_it_tools.bin \
-           csv create \
-          --jsonld "${ASSET_NAME}.data.yamlld" \
-          --datapackage datapackage.yaml \
-          --force
-
-        # Validate the CSV
-        /usr/local/bin/schema_gov_it_tools.bin \
-          csv validate \
-          --ttl "${ASSET_NAME}.ttl" \
-          --datapackage datapackage.yaml \
-          --vocabulary-uri changeme
-
-        echo "Generated and validated CSV for ${MATRIX_ASSET}"
-      env:
-        MATRIX_ASSET: ${{ matrix.asset }}
-    - name: Check for CSV files
-      id: check-csv
-      if: steps.check-datapackage.outputs.exists == 'true' && !contains(matrix.asset, 'theme-subtheme-mapping')
-      working-directory: >-
-        ${{ matrix.asset }}
-      run: |
-        if ls *.csv 1> /dev/null 2>&1; then
-          echo "csv_exists=true" >> "$GITHUB_OUTPUT"
-          CSV_FILE=$(ls *.csv | head -1)
-          echo "csv_file=$CSV_FILE" >> "$GITHUB_OUTPUT"
-        else
-          echo "csv_exists=false" >> "$GITHUB_OUTPUT"
-        fi
-    - name: Create Pull Request
-      if: steps.check-csv.outputs.csv_exists == 'true'
-      uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0  # v8.1.0
-      with:
-        base: ${{ env.CHECKOUT_REF }}
-        commit-message: >-
-          feat: add generated CSV for ${{ matrix.asset }}
-        title: >-
-          feat: CSV generation for ${{ matrix.asset }}
-        body: |
-          # CSV Generation for ${{ matrix.asset }}
-
-          This PR contains the auto-generated CSV file for the `${{ matrix.asset }}` controlled vocabulary.
-
-          ## Generated Files
-          - `${{ env.VOCABULARY_DIR }}/${{ matrix.asset }}/${{ steps.check-csv.outputs.csv_file }}`
-
-          ## Validation
-          The CSV has been generated from the RDF vocabulary and validated against the datapackage metadata.
-
-          Generated by the [Asset CSV Generation workflow](.github/workflows/asset-csv-generation.yml).
-        branch: >-
-          feat/csv-${{ matrix.asset }}
-        delete-branch: true
-        labels: 'automated,csv-generation'
+    needs: ci-pre-tabular
+    uses: ./.github/workflows/ci-tabular.yml
+    with:
+      repo: ${{ inputs.repo || 'teamdigitale/dati-semantic-csv-apis'
+        }}
+      python_version: ${{ inputs.python_version || '3.14' }}
+      checkout_ref: ${{ inputs.checkout_ref || 'assets' }}
+      max_parallel_jobs: ${{ inputs.max_parallel_jobs || 1 }}
+    # secrets: inherit

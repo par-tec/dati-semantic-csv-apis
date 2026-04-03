@@ -1,0 +1,190 @@
+components:
+  schemas:
+    Item:
+      example:
+        broader: []
+        definition_en: Area CUN
+        definition_it: Area CUN
+        id: Area 01
+        label_en: Mathematics and informatics
+        label_it: Scienze matematiche e informatiche
+        level: '1'
+        scheme:
+        - uri: https://w3id.org/italia/controlled-vocabulary/classifications-for-universities/academic-disciplines
+        uri: https://w3id.org/italia/controlled-vocabulary/classifications-for-universities/academic-disciplines/Area-01
+      properties:
+        broader:
+          items:
+            properties:
+              id:
+                type: string
+              uri:
+                format: uri-reference
+                type: string
+            required:
+            - id
+            - uri
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+        definition_en:
+          minLength: 1
+          type: string
+        definition_it:
+          minLength: 1
+          type: string
+        id:
+          minLength: 1
+          pattern: ^[A-Za-z0-9._-]+$
+          type: string
+        label_en:
+          maxLength: 500
+          minLength: 1
+          type: string
+        label_it:
+          maxLength: 500
+          minLength: 1
+          type: string
+        level:
+          type: string
+        scheme:
+          items:
+            properties:
+              uri:
+                format: uri-reference
+                type: string
+            required:
+            - uri
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+        uri:
+          format: uri-reference
+          type: string
+      required:
+      - broader
+      - definition_en
+      - definition_it
+      - id
+      - label_en
+      - label_it
+      - level
+      - scheme
+      - uri
+      type: object
+      x-jsonld-context:
+        broader:
+          '@container': '@set'
+          '@context':
+            uri: '@id'
+          '@id': skos:broader
+        clvapit: https://w3id.org/italia/onto/CLV/
+        definition_en:
+          '@id': skos:definition
+          '@language': en
+        definition_it:
+          '@id': skos:definition
+          '@language': it
+        herapit: https://w3id.org/italia/onto/HER/
+        id: skos:notation
+        label_en:
+          '@id': skos:prefLabel
+          '@language': en
+        label_it:
+          '@id': skos:prefLabel
+          '@language': it
+        level:
+          '@id': clvapit:hasRankOrder
+        scheme:
+          '@container': '@set'
+          '@context':
+            uri: '@id'
+          '@id': skos:inScheme
+        skos: http://www.w3.org/2004/02/skos/core#
+        uri: '@id'
+      x-jsonld-type: skos:Concept
+      x-validation:
+        error_count: 11
+        errors:
+        - index: 0
+          message: '''Area 01'' does not match ''^[A-Za-z0-9._-]+$'''
+          path:
+          - id
+          validator: pattern
+        - index: 1
+          message: '''Area 02'' does not match ''^[A-Za-z0-9._-]+$'''
+          path:
+          - id
+          validator: pattern
+        - index: 2
+          message: '''Area 03'' does not match ''^[A-Za-z0-9._-]+$'''
+          path:
+          - id
+          validator: pattern
+        - index: 3
+          message: '''Area 04'' does not match ''^[A-Za-z0-9._-]+$'''
+          path:
+          - id
+          validator: pattern
+        - index: 4
+          message: '''Area 05'' does not match ''^[A-Za-z0-9._-]+$'''
+          path:
+          - id
+          validator: pattern
+        - index: 5
+          message: '''Area 06'' does not match ''^[A-Za-z0-9._-]+$'''
+          path:
+          - id
+          validator: pattern
+        - index: 6
+          message: '''Area 07'' does not match ''^[A-Za-z0-9._-]+$'''
+          path:
+          - id
+          validator: pattern
+        - index: 7
+          message: '''Area 08'' does not match ''^[A-Za-z0-9._-]+$'''
+          path:
+          - id
+          validator: pattern
+        - index: 8
+          message: '''Area 09'' does not match ''^[A-Za-z0-9._-]+$'''
+          path:
+          - id
+          validator: pattern
+        - index: 9
+          message: '''Area 10'' does not match ''^[A-Za-z0-9._-]+$'''
+          path:
+          - id
+          validator: pattern
+        valid: false
+info:
+  contact:
+    email: info@dati.gov.it
+    name: banche dati e open data
+    url: https://w3id.org/italia/data/public-organization/m_pi
+  description: I settori scientifico-disciplinari (S.S.D.) sono una distinzione disciplinare
+    utilizzata in Italia per organizzare l'insegnamento superiore. I settori sono
+    introdotti dalla legge n. 341 del 19 novembre 1990, anche se un raggruppamento
+    per aree tematiche esisteva già dal 1973. I settori attuali sono stabiliti dal
+    decreto ministeriale n. 855 del 30 ottobre 2015 e sono in vigore dal 20 novembre
+    2015, data di pubblicazione sulla Gazzetta Ufficiale. - la versione Linked Open
+    Data del vocabolario dei settori scientifico-disciplinari delle università italiane
+    è stata creata da Giovanni Pirrotta (@gpirrotta), attivista della comunità Open
+    Data Sicilia. Tale versione è stata poi integrata con una serie di allineamenti
+    anche ad altri vocabolari controllati del settore Alta formazione e ricerca, come
+    per esempio i vocabolari ERC panel del framework programme europeo Horizon 2020
+    e 'fields of research and development (FORD)'. Si noti che gli allineamenti al
+    vocabolario ERC panel non sono ufficiali ma elaborati nel corso degli anni nel
+    contesto del progetto Toscana Open Research dai quali i vocabolari su Alta formazione
+    e ricerca derivano.
+  title: Vocabolario delle Aree CUN, dei Macrosettori, dei Settori Concorsuali e dei
+    Settori Scientifico-Disciplinari delle Università Italiane
+  version: 0.3 - incluso mapping con vocabolario ERC Panel
+  x-agencyId: m_pi
+  x-keyConcept: academic-disciplines
+  x-summary: ''
+openapi: 3.0.0
+paths: {}
+servers: []
