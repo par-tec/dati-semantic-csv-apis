@@ -16,7 +16,6 @@
 @prefix xkos: <http://rdf-vocabulary.ddialliance.org/xkos#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-#time: 15.06
 ### Annotations
 
 agentcaus:11110101 a INAILService:AgenteCausaleINAIL,
