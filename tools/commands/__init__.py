@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 def _cli_version_string() -> str:
     """Return CLI version string (base version only)."""
     try:
-        return Version(version("dati-semantic-apis")).base_version
+        return str(Version(version("dati-semantic-apis")).base_version)
     except PackageNotFoundError:
         return "0+unknown"
 
