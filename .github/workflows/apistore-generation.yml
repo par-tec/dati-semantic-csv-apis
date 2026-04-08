@@ -197,7 +197,7 @@ jobs:
                     print(f"::warning title=Missing file::No {pattern} found in {os.getcwd()}")
     - name: Run jsonld create
       if: >-
-        matrix.asset.needs_jsonld &&
+        (matrix.asset.needs_jsonld || steps.check-files.outputs.data_exists == 'false') &&
         steps.check-files.outputs.ttl_exists == 'true' &&
         steps.check-files.outputs.frame_exists == 'true' &&
         !contains(matrix.asset.path, 'theme-subtheme-mapping')
