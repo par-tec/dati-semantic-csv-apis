@@ -185,7 +185,7 @@ jobs:
                 ("*.oas3.yaml",    "oas3_exists",  "oas3_file"),
                 ("*.frame.yamlld", "frame_exists", "frame_file"),
                 ("*.ttl",          "ttl_exists",   "ttl_file"),
-                ("*.data.yaml",    "data_exists",  "data_file"),
+                ("*.data.yaml*",   "data_exists",  "data_file"),
             ]:
                 files = glob.glob(pattern)
                 if files:
