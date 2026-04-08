@@ -76,7 +76,7 @@ components:
             - id
             - uri
             type: object
-          maxItems: 1000
+          maxItems: 100
           minItems: 0
           type: array
         uri:
