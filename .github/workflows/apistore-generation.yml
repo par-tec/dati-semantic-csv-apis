@@ -236,10 +236,13 @@ jobs:
         set -e
         ASSET_NAME=$(find . -maxdepth 1 -name "*.ttl" -printf "%f\n" | sed 's/\.ttl$//')
 
+        # Use the data file found by check-files (supports both .data.yaml and .data.yamlld)
+        JSONLD_FILE="${{ steps.check-files.outputs.data_file }}"
+
         /usr/local/bin/schema_gov_it_tools.bin \
           apistore create \
           --ttl "${ASSET_NAME}.ttl" \
-          --jsonld "${ASSET_NAME}.data.yaml" \
+          --jsonld "${JSONLD_FILE}" \
           --oas "${ASSET_NAME}.oas3.yaml" \
           --output "${ASSET_NAME}.db" --force
 
