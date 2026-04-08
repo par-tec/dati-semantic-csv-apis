@@ -12,8 +12,8 @@ import logging
 from importlib.metadata import PackageNotFoundError, version
 
 import click
+from packaging.version import Version
 
-from tools._build_info import BUILD_COMMIT
 from tools.commands.apistore import apistore
 from tools.commands.csv import csv
 from tools.commands.datapackage import datapackage
@@ -24,16 +24,11 @@ log = logging.getLogger(__name__)
 
 
 def _cli_version_string() -> str:
-    """Return CLI version string including build commit if available."""
+    """Return CLI version string (base version only)."""
     try:
-        pkg_version = version("dati-semantic-apis")
+        return Version(version("dati-semantic-apis")).base_version
     except PackageNotFoundError:
-        pkg_version = "0+unknown"
-
-    if BUILD_COMMIT and BUILD_COMMIT != "unknown":
-        return f"{pkg_version}+{BUILD_COMMIT}"
-
-    return pkg_version
+        return "0+unknown"
 
 
 LOG_LEVELS = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]
