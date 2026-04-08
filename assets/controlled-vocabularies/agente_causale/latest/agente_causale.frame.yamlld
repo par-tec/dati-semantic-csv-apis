@@ -22,7 +22,7 @@
   INAILService: https://w3id.org/italia/work-accident/onto/adm_serv/
 
   # Fields.
-  url: "@id"
+  uri: "@id"
   id:
     "@id": skos:notation
     # "@type": "@value"
@@ -38,14 +38,14 @@
     "@id": skos:broader
     "@container": "@set"
     "@context":
-        url: "@id"
+        uri: "@id"
         id: skos:notation
 
   vocab:
     "@id": skos:inScheme
     "@container": "@set"
     "@context":
-      url: "@id"
+      uri: "@id"
 
   level:
     # Use type coercion to ensure that level is a JSON Number.
@@ -56,7 +56,7 @@
 # Matching on type works.
 "@type":
   - &jsonld_type "INAILService:AgenteCausaleINAIL"
-url: {}
+uri: {}
 id: {}
 label_it:
   "@language": ["it"]
@@ -64,13 +64,13 @@ label_it:
 level: {}
 
 vocab:
-- url: "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale"
+- uri: "https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale"
   "@explicit": true
   "@embed": "@never"
 parent:
-- url: {}
-  "@type": INAILService:AgenteCausaleINAIL
+- uri: {}
   id: {}
+  "@type": INAILService:AgenteCausaleINAIL
   "@default": "@null"
   "@embed": "@always"
   "@explicit": true
