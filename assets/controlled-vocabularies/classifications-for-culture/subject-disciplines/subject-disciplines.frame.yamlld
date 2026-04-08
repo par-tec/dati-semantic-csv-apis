@@ -8,7 +8,7 @@
 "@context":
   skos: "http://www.w3.org/2004/02/skos/core#"
   clvapit: "https://w3id.org/italia/onto/CLV/"
-
+#time:15.35
   uri: "@id"
 
   id: skos:notation
