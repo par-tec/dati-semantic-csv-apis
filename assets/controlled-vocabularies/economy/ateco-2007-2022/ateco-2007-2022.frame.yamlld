@@ -1,7 +1,7 @@
 ---
 #
 # Content-Type: application/ld+yaml; profile="http://www.w3.org/ns/json-ld#frame"
-#
+#time:17.00
 
 "@context": &jsonld_context
   "@base": "https://w3id.org/italia/stat/controlled-vocabulary/economy/ateco-2007-2022/"
