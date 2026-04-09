@@ -23,13 +23,13 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - EricaCandido-188
+    - assets
     paths:
     - 'assets/controlled-vocabularies/**'
     - '.github/workflows/apistore-generation.yml'
   pull_request:
     branches:
-    - EricaCandido-188
+    - assets
     paths:
     - 'assets/controlled-vocabularies/**'
     - '.github/workflows/apistore-generation.yml'
