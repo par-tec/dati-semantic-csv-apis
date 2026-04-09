@@ -1,0 +1,130 @@
+---
+components:
+  schemas:
+    Item:
+      example:
+        id: '001001'
+        label_it: AGLIÈ
+        name_it: AGLIÈ
+        same_as: http://dati.isprambiente.it/id/place/1001
+        uri: https://w3id.org/italia/controlled-vocabulary/territorial-classifications/cities/001001-(1861-03-17)
+        vocab:
+        - uri: https://w3id.org/italia/controlled-vocabulary/territorial-classifications/cities
+      properties:
+        id:
+          minLength: 1
+          pattern: ^[A-Za-z0-9._-]+$
+          type: string
+        label:
+          maxLength: 500
+          minLength: 1
+          type: string
+        label_de:
+          maxLength: 500
+          minLength: 1
+          type: string
+        same_as:
+          type: string
+        uri:
+          format: uri-reference
+          type: string
+        vocab:
+          items:
+            properties:
+              uri:
+                format: uri-reference
+                type: string
+            required:
+            - uri
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+      required:
+      - id
+      - label
+      - same_as
+      - uri
+      - vocab
+      type: object
+      x-jsonld-context:
+        skos: "http://www.w3.org/2004/02/skos/core#"
+        clvapit: "https://w3id.org/italia/onto/CLV/"
+        l0: "https://w3id.org/italia/onto/l0/"
+        owl: "http://www.w3.org/2002/07/owl#"
+
+        uri: "@id"
+
+        id: skos:notation
+
+        label:
+          "@id": skos:prefLabel
+          "@language": it
+        label_de:
+          "@id": skos:prefLabel
+          "@language": de
+
+        parent:
+          "@id": skos:broader
+          "@container": "@set"
+          "@context":
+            uri: "@id"
+
+        vocab:
+          "@id": skos:inScheme
+          "@container": "@set"
+          "@context":
+            uri: "@id"
+
+        region:
+          "@id": clvapit:hasHigherRank
+          "@type": "@id"
+          "@context":
+            "@base": https://w3id.org/italia/controlled-vocabulary/territorial-classifications/regions/
+        province:
+          "@id": clvapit:hasDirectHigherRank
+          "@type": "@id"
+          "@context":
+            "@base": https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces/
+
+        same_as:
+          "@id": owl:sameAs
+          "@type": "@id"
+      x-jsonld-type: clvapit:City
+      x-validation:
+        error_count: 0
+        errors: []
+        valid: true
+info:
+  contact:
+    url: https://w3id.org/italia/data/public-organization/ISTAT
+  description: 'L’archivio contiene l’elenco dei codici e delle
+    denominazioni dei comuni esistiti ed esistenti a partire dal
+    1861, la cui fonte è il Sistema informativo territoriale delle
+    unità amministrative e statistiche (Situas) dell’Istituto
+    Nazionale di Statistica. Per ogni comune noto, nell’ambito
+    di ogni intervallo temporale definito da una data inizio (inclusa)
+    e una data fine (esclusa), sono espressi i valori identificativi
+    quali: il codice Istat, le denominazioni (italiana e/o straniera),
+    nonché le relazioni gerarchiche di appartenenza ai livelli
+    territoriali superiori. Sono inoltre disponibili le elaborazioni
+    Istat sul codice catastale e la sigla automobilistica ricostruiti
+    a partire dal 1861. Poiché convenzionalmente la data di istituzione
+    delle regioni è fissata a partire dal 1° gennaio 1948, coerentemente
+    con la promulgazione della carta costituzionale della Repubblica
+    italiana, per prassi si assegna il valore “00” per identificare
+    “Regione non esistente prima del 1948”.  Il vocabolario è
+    stato creato automaticamente mediante uno script dello standard
+    W3C chiamato R2RML, che consente di definire script di conversione
+    da database relazionali a RDF. Il presente dataset è modellato
+    secondo skos e l''ontologia dei luoghi di OntoPiA CLV - Core
+    Location Vocabulary.'
+  title: Vocabolario Controllato dei Comuni d'Italia
+  version: 1.3 - include i dati aggiornati dalla fonte Situas
+    - Istat al 22 gennaio 2024
+  x-agencyId: istat
+  x-keyConcept: cities
+  x-summary: ''
+openapi: 3.0.0
+paths: {}
+servers: []

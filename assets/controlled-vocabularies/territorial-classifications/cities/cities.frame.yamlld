@@ -1,0 +1,73 @@
+---
+#
+# Content-Type: application/ld+yaml; profile="http://www.w3.org/ns/json-ld#frame"
+#
+
+"@context":
+  skos: "http://www.w3.org/2004/02/skos/core#"
+  clvapit: "https://w3id.org/italia/onto/CLV/"
+  l0: "https://w3id.org/italia/onto/l0/"
+  owl: "http://www.w3.org/2002/07/owl#"
+
+  uri: "@id"
+
+  id: skos:notation
+
+  label:
+    "@id": skos:prefLabel
+    "@language": it
+  label_de:
+    "@id": skos:prefLabel
+    "@language": de
+
+  parent:
+    "@id": skos:broader
+    "@container": "@set"
+    "@context":
+      uri: "@id"
+
+  vocab:
+    "@id": skos:inScheme
+    "@container": "@set"
+    "@context":
+      uri: "@id"
+
+  region:
+    "@id": clvapit:hasHigherRank
+    "@type": "@id"
+    "@context":
+      "@base": https://w3id.org/italia/controlled-vocabulary/territorial-classifications/regions/
+  province:
+    "@id": clvapit:hasDirectHigherRank
+    "@type": "@id"
+    "@context":
+      "@base": https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces/
+
+  same_as:
+    "@id": owl:sameAs
+    "@type": "@id"
+
+#
+# Filter directives.
+#
+"@explicit": true
+"@embed": "@never"
+"@omitDefault": true
+"@requireAll": true
+
+# Filter values.
+"@type": "clvapit:City"
+
+vocab:
+- "uri": "https://w3id.org/italia/controlled-vocabulary/territorial-classifications/cities"
+
+uri: {}
+id: {}
+label_it: {}
+label_de:
+  "@requireAll": false
+  "@default": "@null"
+parent: {}
+province: {}
+region: {}
+same_as: {}
