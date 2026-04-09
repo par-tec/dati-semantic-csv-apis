@@ -44,6 +44,12 @@ jobs:
   #   Outputs a JSON array of objects: [{path, needs_jsonld, needs_apistore}, ...]
   #
   detect-changes:
+    if: >-
+      github.event_name != 'push' ||
+      (
+        !startsWith(github.event.head_commit.message, 'feat: regenerate artifacts for') &&
+        !contains(github.event.head_commit.message, 'feat/apistore-generation')
+      )
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
