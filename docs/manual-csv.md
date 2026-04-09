@@ -13,6 +13,7 @@ Riferimenti: [README.csv.md](README.csv.md) e
 - [Obiettivi](#obiettivi)
 - [Flusso di lavoro](#flusso-di-lavoro)
 - [Creare la proiezione con la UI](#creare-la-proiezione-con-la-ui)
+- [Requisiti del file di frame](#requisiti-del-frame)
 - [Mappare i valori della proiezione](#mappare-i-valori-della-proiezione)
 - [Generare lo stub del datapackage](#generare-lo-stub-del-datapackage)
 - [Modificare il datapackage.yaml](#modificare-il-datapackageyaml)
@@ -129,6 +130,146 @@ schema_gov_it_tools.bin jsonld create \
   --frame-only
 ```
 
+## Requisiti del file di frame {#requisiti-del-frame}
+
+Il file di frame (`*.frame.yamlld`) è validato
+automaticamente da tutti i comandi CLI che
+accettano il parametro `--frame`.
+La struttura richiesta è definita nello schema
+`tools/data/frame.schema.yaml`.
+
+### Struttura obbligatoria del `@context`
+
+Il `@context` deve essere un dizionario:
+i contesti remoti (stringa URI) non sono supportati.
+
+Il `@context` deve contenere obbligatoriamente
+i seguenti campi:
+
+| Campo   | Valore richiesto | Descrizione                               |
+| ------- | ---------------- | ----------------------------------------- |
+| `uri`   | `"@id"`          | URI del concetto (identificatore JSON-LD) |
+| `label` | qualsiasi        | Etichetta principale del concetto         |
+
+Il campo `uri` identifica univocamente ogni
+concetto nella proiezione e diventa una colonna
+nel CSV risultante.
+
+Esempio minimale valido:
+
+```yaml
+"@context":
+  uri: "@id"
+  label:
+    "@id": skos:prefLabel
+    "@language": it
+"@type": skos:Concept
+uri: {}
+label: {}
+```
+
+Frame non valido — campo `uri` mancante:
+
+```yaml
+"@context":
+  label:
+    "@id": skos:prefLabel
+    "@language": it
+```
+
+```
+✗ Invalid frame: 'uri' is a required property
+```
+
+### `@type` obbligatorio e singolo
+
+Il frame deve specificare esattamente un tipo RDF
+con il campo `@type`. Una lista con più valori
+non è ammessa.
+
+```yaml
+# Valido: valore singolo
+"@type": skos:Concept
+
+# Valido: lista con un solo elemento
+"@type":
+  - skos:Concept
+
+# Non valido: lista con più valori
+"@type":
+  - skos:Concept
+  - owl:Thing
+```
+
+```
+✗ Invalid frame: Frame must specify a single @type, found list: ['skos:Concept', 'owl:Thing']
+```
+
+### Campi gerarchici: `parent` e `vocab`
+
+I campi `parent` e `vocab`, se presenti nel
+`@context`, devono rispettare questi vincoli:
+
+- `@container` obbligatorio: valore `"@set"` o
+  `"@list"`.
+- `@type` non può essere `"@vocab"` o `"@id"`.
+- Il `@context` annidato, se presente, deve
+  mappare `uri: "@id"`.
+
+Esempio valido:
+
+```yaml
+parent:
+  "@id": skos:broader
+  "@container": "@set"
+  "@context":
+    uri: "@id"
+```
+
+Frame non valido — `@container` mancante su `parent`:
+
+```yaml
+parent:
+  "@id": skos:broader
+```
+
+```
+✗ Invalid frame: '@container' is a required property
+```
+
+### Valori ammessi in modalità strict
+
+Quando la CLI elabora il frame in modalità
+strict (attivata automaticamente durante la
+generazione e la validazione di CSV e API), i
+campi con nome riservato devono mappare solo le
+proprietà RDF elencate. La violazione produce
+un errore con i valori ammessi.
+
+| Campo    | Proprietà RDF ammesse                                                  |
+| -------- | ---------------------------------------------------------------------- |
+| `id`     | `skos:notation`, `dct:identifier`, `dc:identifier`                     |
+| `label`  | `skos:prefLabel`, `rdfs:label`                                         |
+| `level`  | `clvapit:hasRankOrder`, `xkos:depth`                                   |
+| `parent` | `skos:broader`                                                         |
+| `vocab`  | `skos:inScheme`                                                        |
+
+I campi aggiuntivi per label localizzate
+(`label_it`, `label_en`, `label_de` ecc.) non
+sono soggetti a questa restrizione.
+
+Frame non valido — `label` mappato su `altLabel`:
+
+```yaml
+label:
+  "@id": skos:altLabel
+  "@language": it
+```
+
+```
+✗ Invalid frame: Frame field 'label' must be one of ['http://www.w3.org/2004/02/skos/core#prefLabel', 'http://www.w3.org/2000/01/rdf-schema#label'], got http://www.w3.org/2004/02/skos/core#altLabel.
+```
+
 ## Mappare i valori della proiezione {#mappare-i-valori-della-proiezione}
 
 Ogni campo inserito nella proiezione deve essere
@@ -161,10 +302,10 @@ Esempio che rompe la validazione del frame:
 si riceverà un errore simile a :
 
 ```
-ValueError: Frame field 'label' must be one of ['http://www.w3.org/2004/02/skos/core#prefLabel'], got http://www.w3.org/2004/02/skos/core#altLabel.
+ValueError: Frame field 'label' must be one of ['http://www.w3.org/2004/02/skos/core#prefLabel', 'http://www.w3.org/2000/01/rdf-schema#label'], got http://www.w3.org/2004/02/skos/core#altLabel.
 Supported fields and their allowed IRIs:
   - 'id': ['http://www.w3.org/2004/02/skos/core#notation', 'http://purl.org/dc/terms/identifier', 'http://purl.org/dc/elements/1.1/identifier']
-  - 'label': ['http://www.w3.org/2004/02/skos/core#prefLabel']
+  - 'label': ['http://www.w3.org/2004/02/skos/core#prefLabel', 'http://www.w3.org/2000/01/rdf-schema#label']
   - 'level': ['https://w3id.org/italia/onto/CLV/hasRankOrder', 'http://rdf-vocabulary.ddialliance.org/xkos#depth']
   - 'parent': ['http://www.w3.org/2004/02/skos/core#broader']
   - 'vocab': ['http://www.w3.org/2004/02/skos/core#inScheme']
@@ -224,14 +365,14 @@ resources:
   schema:
     x-jsonld-context: ...
     fields:
+    - name: uri
+      type: string
     - name: id
       type: string
-    - name: label_it
+    - name: label
       type: string
     - name: level
       type: integer
-    - name: url
-      type: string
 ```
 
 I metadati principali sono estratti dalle
@@ -293,21 +434,21 @@ resources:
         https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/
       dct: http://purl.org/dc/terms/
       skos: http://www.w3.org/2004/02/skos/core#
-      url: "@id"
+      uri: "@id"
       id:
         "@id": skos:notation
-      label_it:
+      label:
         "@id": skos:prefLabel
         "@language": it
     fields:
+    - name: uri
+      type: string
     - name: id
       type: string
-    - name: label_it
+    - name: label
       type: string
     - name: level
       type: integer
-    - name: url
-      type: string
 ```
 
 I campi non inclusi in `schema.fields`
@@ -347,15 +488,16 @@ Esempio di CSV prodotto a partire dal
 vocabolario `agente_causale`:
 
 ```
-id,label_it,level,parent,url,vocab
-11110101,Idrogeno,3,gruppo/1.1,agente/11110101,../agente_causale
-11110102,Tritio,3,gruppo/1.1,agente/11110102,../agente_causale
-1,Agenti chimici inorganici,1,[],grande_gruppo/1,../agente_causale
+"uri","id","label","level"
+"https://.../agente_causale/grande_gruppo/1","1","Agenti chimici inorganici","1"
+"https://.../agente_causale/gruppo/1.1","1.1","Agenti chimici inorganici gruppo a","2"
+"https://.../agente_causale/agente/11110101","11110101","Idrogeno","3"
 ```
 
-I valori nelle colonne `url`, `parent` e
-`vocab` dipendono dalla configurazione
-di `@base` nel frame (vedi
+Il valore della colonna `uri` dipende dalla
+configurazione di `@base` nel frame: senza
+`@base` viene serializzato l'URI completo,
+con `@base` il suffisso relativo (vedi
 [Uso di @base](#uso-di-base)).
 
 ## Validare il CSV {#validare-il-csv}
@@ -431,12 +573,12 @@ Con `@base` impostato:
 "@context":
   "@base": >-
     https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/
-  url: "@id"
+  uri: "@id"
 ```
 
 Gli URI vengono ridotti al suffisso relativo.
 Ad esempio, il concetto
-`agente/11110101` nel campo `url` rappresenta:
+`agente/11110101` nel campo `uri` rappresenta:
 
 ```
 https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/agente/11110101
@@ -447,7 +589,7 @@ Senza `@base` (o con `"@base": null`):
 ```yaml
 "@context":
   "@base": null
-  url: "@id"
+  uri: "@id"
 ```
 
 Gli URI vengono serializzati per intero.
@@ -472,7 +614,7 @@ parent:
   "@id": skos:broader
   "@container": "@set"
   "@context":
-    url: "@id"
+    uri: "@id"
     id:
       "@id": skos:notation
 ```
@@ -488,11 +630,11 @@ vocab:
   "@id": skos:inScheme
   "@container": "@set"
   "@context":
-    url: "@id"
+    uri: "@id"
 
 # Nel corpo del frame:
 vocab:
-- url: >-
+- uri: >-
     https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale
   "@explicit": true
   "@embed": "@never"
@@ -516,46 +658,51 @@ i seguenti vincoli:
   rompe la compatibilità con i Fruitori
   esistenti.
 - Se si usa `@base`, i campi che contengono
-  URI (come `url`, `parent`, `vocab`) avranno
+  URI (come `uri`, `parent`, `vocab`) avranno
   valori relativi; documentarlo nel
   `datapackage.yaml`.
 
 Per le label localizzate, una convenzione
-comune è usare il suffisso della lingua:
-`label_it`, `label_en`, `label_de`.
+comune è usare il suffisso della lingua per i
+campi aggiuntivi: `label_en`, `label_de`, ecc.
+Il campo `label` resta obbligatorio e deve
+corrispondere alla lingua principale del vocabolario.
 
 Esempio dal frame di `agente_causale`:
 
 ```yaml
 "@context":
+  # "@base" con URI del vocabolario rende i valori
+  # di uri, parent e vocab relativi a questo prefisso.
   "@base": >-
     https://w3id.org/italia/work-accident/controlled-vocabulary/adm_serv/agente_causale/
-  url: "@id"
+  uri: "@id"
   id:
     "@id": skos:notation
-  label_it:
+  label:
     "@id": skos:prefLabel
     "@language": it
   parent:
     "@id": skos:broader
     "@container": "@set"
     "@context":
-      url: "@id"
+      uri: "@id"
   vocab:
     "@id": skos:inScheme
     "@container": "@set"
     "@context":
-      url: "@id"
+      uri: "@id"
   level:
     "@id": clvapit:hasRankOrder
     "@type": xsd:int
 ```
 
 Per vocabolari con label in più lingue, aggiungere
-un campo per ciascuna lingua:
+un campo per ciascuna lingua aggiuntiva accanto
+al campo `label` obbligatorio:
 
 ```yaml
-  label_it:
+  label:
     "@id": skos:prefLabel
     "@language": it
   label_en:

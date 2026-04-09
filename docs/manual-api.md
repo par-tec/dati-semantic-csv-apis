@@ -140,6 +140,9 @@ flowchart TD
 La proiezione JSON-LD si genera dal vocabolario
 RDF e dal frame JSON-LD, esattamente come
 nel flusso CSV.
+Il file di frame deve rispettare gli stessi
+requisiti strutturali descritti in
+[Requisiti del file di frame](manual-csv.md#requisiti-del-frame).
 Se la proiezione prodotta per la
 distribuzione CSV contiene tutti i campi necessari,
 può essere riusata senza rigenerarla:
