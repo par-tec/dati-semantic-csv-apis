@@ -30,6 +30,12 @@ on:
         required: true
         type: number
         default: 1
+      frame_prefix:
+        description: 'Prefix appended to asset name when resolving the frame file
+          (e.g. -csv → <asset>-csv.frame.yamlld). Leave empty for the default <asset>.frame.yamlld.'
+        required: false
+        type: string
+        default: ''
   push:
     branches:
     - assets
@@ -49,6 +55,7 @@ env:
     }}
   CHECKOUT_REF: ${{ inputs.checkout_ref || 'assets' }}
   VOCABULARY_DIR: 'assets/controlled-vocabularies'
+  FRAME_PREFIX: ${{ inputs.frame_prefix || '' }}
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
@@ -65,32 +72,56 @@ jobs:
       id: detect
       shell: bash
       run: |
-        set -x
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          RAW_ASSETS=$(find "$VOCABULARY_DIR" -maxdepth 3 -type f -name "*.ttl" -exec dirname {} \; | sort -u)
-          echo "Detected assets for manual dispatch:"
-          echo "$RAW_ASSETS"
-        else
-          true # XXX: uncomment
-        fi
-        if [ -z "$RAW_ASSETS" ]; then
-          RAW_ASSETS=$(find "$VOCABULARY_DIR" -type f -name "*.ttl" -exec dirname {} \; | sort -u)
-          echo "Fallback RAW_ASSETS:"
-          echo "$RAW_ASSETS"
-        fi
-        FILTERED_ASSETS=()
-        for DIR in $RAW_ASSETS; do
-        TTL_FILES=($(find "$DIR" -maxdepth 3 -type f -name "*.ttl"))
-        COUNT=${#TTL_FILES[@]}
-        if [ "$COUNT" -gt 1 ]; then
-          echo "::warning::Directory $DIR contains multiple TTL files ($COUNT). Skipping."
-        continue
-        fi
-        FILTERED_ASSETS+=("$DIR")
+        set -euo pipefail
+        EVENT="${{ github.event_name }}"
+
+        mapfile -t ALL_DIRS < <(find "$VOCABULARY_DIR" -type f -name "*.ttl" -exec dirname {} \; | sort -u)
+
+        FILTERED_DIRS=()
+        for DIR in "${ALL_DIRS[@]}"; do
+          mapfile -t TTL_FILES < <(find "$DIR" -maxdepth 3 -type f -name "*.ttl")
+          COUNT=${#TTL_FILES[@]}
+          if [ "$COUNT" -gt 1 ]; then
+            echo "::warning::Directory $DIR contains $COUNT TTL files. Skipping."
+            continue
+          fi
+          FILTERED_DIRS+=("$DIR")
         done
-        ASSETS=$(printf "%s\n" "${FILTERED_ASSETS[@]}" | jq -R -s -c 'split("\n")[:-1]')
-        echo "assets=${ASSETS}" >> "$GITHUB_OUTPUT"
-        echo "Detected assets: ${ASSETS}"
+
+        CHANGED_FILES=""
+        BASE_SHA=""
+        if [ "$EVENT" != "workflow_dispatch" ]; then
+          if [ "$EVENT" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_SHA="${{ github.event.before }}"
+            HEAD_SHA="${{ github.sha }}"
+            if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+              BASE_SHA=""
+            fi
+          fi
+          if [ -n "${BASE_SHA}" ]; then
+            CHANGED_FILES=$(git diff --name-only "${BASE_SHA}..${HEAD_SHA}" -- "${VOCABULARY_DIR}/" 2>/dev/null || true)
+          fi
+        fi
+
+        ASSETS_JSON="["
+        FIRST=true
+        for DIR in "${FILTERED_DIRS[@]}"; do
+          if [ "$EVENT" != "workflow_dispatch" ] && [ -n "${BASE_SHA}" ]; then
+            RELEVANT=$(echo "$CHANGED_FILES" | grep -cE "^${DIR}/.*(\.ttl|\.frame\.yamlld)$" || true)
+            if [ "$RELEVANT" -eq 0 ]; then
+              continue
+            fi
+          fi
+          if [ "$FIRST" = "false" ]; then ASSETS_JSON+=","; fi
+          ASSETS_JSON+="\"${DIR}\""
+          FIRST=false
+        done
+        ASSETS_JSON+="]"
+        echo "assets=${ASSETS_JSON}" >> "$GITHUB_OUTPUT"
+        echo "Detected assets: ${ASSETS_JSON}"
 
   ci-pre-tabular:
     needs: detect-changes
@@ -181,7 +212,7 @@ jobs:
         ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
         /usr/local/bin/schema_gov_it_tools.bin datapackage create \
         --ttl "${ASSET_NAME}.ttl" \
-        --frame "${ASSET_NAME}.frame.yamlld" \
+        --frame "${ASSET_NAME}${FRAME_PREFIX}.frame.yamlld" \
         --vocabulary-uri "changeme" \
         --output "datapackage.yaml" \
         --lang it \
@@ -196,9 +227,22 @@ jobs:
         ${{ matrix.asset }}
       run: |
         ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+        JSONLD_FILE="${ASSET_NAME}${FRAME_PREFIX}.data.yaml"
+        if [ ! -f "${JSONLD_FILE}" ]; then
+          echo "No ${JSONLD_FILE} found, generating from TTL and frame..."
+          /usr/local/bin/schema_gov_it_tools.bin jsonld create \
+          --ttl "${ASSET_NAME}.ttl" \
+          --frame "${ASSET_NAME}${FRAME_PREFIX}.frame.yamlld" \
+          --vocabulary-uri "changeme" \
+          --output "${JSONLD_FILE}" \
+          --force
+        else
+          echo "Using existing ${JSONLD_FILE}"
+        fi
         /usr/local/bin/schema_gov_it_tools.bin openapi create \
         --ttl "${ASSET_NAME}.ttl" \
-        --frame "${ASSET_NAME}.frame.yamlld" \
+        --jsonld "${JSONLD_FILE}" \
+        --frame "${ASSET_NAME}${FRAME_PREFIX}.frame.yamlld" \
         --vocabulary-uri "changeme" \
         --output "${ASSET_NAME}.oas3.yaml" \
         --force
