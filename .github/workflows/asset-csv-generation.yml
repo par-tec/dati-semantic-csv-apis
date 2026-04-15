@@ -7,7 +7,9 @@
 #
 name: Asset CSV Generation
 permissions:
-  pull-requests: read
+  pull-requests: write
+  contents: write
+  actions: read
 on:
   workflow_dispatch:
     inputs:
