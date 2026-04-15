@@ -36,6 +36,16 @@ on:
         required: false
         type: string
         default: ''
+      base_sha:
+        description: 'Base commit SHA for change detection. Leave empty to process all assets.'
+        required: false
+        type: string
+        default: ''
+      head_sha:
+        description: 'Head commit SHA for change detection. Leave empty to process all assets.'
+        required: false
+        type: string
+        default: ''
   push:
     branches:
     - assets
@@ -93,7 +103,10 @@ jobs:
 
         CHANGED_FILES=""
         BASE_SHA=""
-        if [ "$EVENT" != "workflow_dispatch" ]; then
+        if [ "$EVENT" = "workflow_call" ]; then
+          BASE_SHA="${{ inputs.base_sha }}"
+          HEAD_SHA="${{ inputs.head_sha }}"
+        elif [ "$EVENT" != "workflow_dispatch" ]; then
           if [ "$EVENT" = "pull_request" ]; then
             BASE_SHA="${{ github.event.pull_request.base.sha }}"
             HEAD_SHA="${{ github.event.pull_request.head.sha }}"
@@ -104,15 +117,15 @@ jobs:
               BASE_SHA=""
             fi
           fi
-          if [ -n "${BASE_SHA}" ]; then
-            CHANGED_FILES=$(git diff --name-only "${BASE_SHA}..${HEAD_SHA}" -- "${VOCABULARY_DIR}/" 2>/dev/null || true)
-          fi
+        fi
+        if [ -n "${BASE_SHA}" ]; then
+          CHANGED_FILES=$(git diff --name-only "${BASE_SHA}..${HEAD_SHA}" -- "${VOCABULARY_DIR}/" 2>/dev/null || true)
         fi
 
         ASSETS_JSON="["
         FIRST=true
         for DIR in "${FILTERED_DIRS[@]}"; do
-          if [ "$EVENT" != "workflow_dispatch" ] && [ -n "${BASE_SHA}" ]; then
+          if [ -n "${BASE_SHA}" ]; then
             RELEVANT=$(echo "$CHANGED_FILES" | grep -cE "^${DIR}/.*(\.ttl|\.frame\.yamlld|datapackage\.yaml)$" || true)
             if [ "$RELEVANT" -eq 0 ]; then
               continue
