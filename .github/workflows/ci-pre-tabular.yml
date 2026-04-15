@@ -68,6 +68,7 @@ jobs:
       with:
         persist-credentials: false
         fetch-depth: 0
+        ref: ${{ env.CHECKOUT_REF }}
     - name: Detect changed assets
       id: detect
       shell: bash
