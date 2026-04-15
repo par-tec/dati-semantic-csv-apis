@@ -36,13 +36,13 @@ on:
         default: ''
   push:
     branches:
-    - assets
+    - EricaCandido-70
     paths:
     - 'assets/controlled-vocabularies/**'
     - '.github/workflows/asset-csv-generation.yml'
   pull_request:
     branches:
-    - assets
+    - EricaCandido-70
     paths:
     - 'assets/controlled-vocabularies/**'
     - '.github/workflows/asset-csv-generation.yml'
