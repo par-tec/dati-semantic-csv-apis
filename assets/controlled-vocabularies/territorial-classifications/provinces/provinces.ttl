@@ -1,4 +1,5 @@
 #lang rdf/turtle
+#time 12.00
 @prefix : <https://w3id.org/italia/controlled-vocabulary/territorial-classifications/provinces/> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
