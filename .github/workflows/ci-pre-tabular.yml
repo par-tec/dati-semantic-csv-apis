@@ -285,6 +285,6 @@ jobs:
           exit 0
         fi
         git commit -m "ci: generate datapackage for ${MATRIX_ASSET} [skip ci]"
-        git push origin HEAD:assets
+        git push origin HEAD:EricaCandido-70
       env:
         MATRIX_ASSET: ${{ matrix.asset }}
