@@ -36,13 +36,9 @@ on:
         required: false
         type: string
         default: ''
-      base_sha:
-        description: 'Base commit SHA for change detection. Leave empty to process all assets.'
-        required: false
-        type: string
-        default: ''
-      head_sha:
-        description: 'Head commit SHA for change detection. Leave empty to process all assets.'
+      assets:
+        description: 'JSON array of asset paths to process. If provided, skips change
+          detection and processes exactly these assets.'
         required: false
         type: string
         default: ''
@@ -84,6 +80,14 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
+
+        # If assets were provided by the caller, use them directly.
+        if [ -n "${{ inputs.assets }}" ] && [ "${{ inputs.assets }}" != "[]" ]; then
+          echo "assets=${{ inputs.assets }}" >> "$GITHUB_OUTPUT"
+          echo "Using provided assets: ${{ inputs.assets }}"
+          exit 0
+        fi
+
         EVENT="${{ github.event_name }}"
 
         mapfile -t ALL_DIRS < <(find "$VOCABULARY_DIR" -type f -name "*.ttl" -exec dirname {} \; | sort -u)
@@ -101,10 +105,7 @@ jobs:
 
         CHANGED_FILES=""
         BASE_SHA=""
-        if [ "$EVENT" = "workflow_call" ]; then
-          BASE_SHA="${{ inputs.base_sha }}"
-          HEAD_SHA="${{ inputs.head_sha }}"
-        elif [ "$EVENT" != "workflow_dispatch" ]; then
+        if [ "$EVENT" != "workflow_dispatch" ]; then
           if [ "$EVENT" = "pull_request" ]; then
             BASE_SHA="${{ github.event.pull_request.base.sha }}"
             HEAD_SHA="${{ github.event.pull_request.head.sha }}"
@@ -219,24 +220,31 @@ jobs:
         MATRIX_ASSET: ${{ matrix.asset }}
 
     - name: Create datapackage metadata
+      id: datapackage-create
       if: steps.check-frame.outputs.exists == 'true'
       working-directory: >-
         ${{ matrix.asset }}
+      shell: bash
       run: |
         ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
-        /usr/local/bin/schema_gov_it_tools.bin datapackage create \
+        if /usr/local/bin/schema_gov_it_tools.bin datapackage create \
         --ttl "${ASSET_NAME}.ttl" \
         --frame "${ASSET_NAME}${FRAME_PREFIX}.frame.yamlld" \
         --vocabulary-uri "changeme" \
         --output "datapackage.yaml" \
         --lang it \
-        --force
-        echo "Generated datapackage.yaml for ${MATRIX_ASSET}"
+        --force; then
+          echo "Generated datapackage.yaml for ${MATRIX_ASSET}"
+          echo "success=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "::warning title=Invalid frame::datapackage create failed for '${MATRIX_ASSET}'. The frame may be incompatible (e.g. uses 'url' instead of 'uri'). This asset will be skipped."
+          echo "success=false" >> "$GITHUB_OUTPUT"
+        fi
       env:
         MATRIX_ASSET: ${{ matrix.asset }}
 
     - name: Create OAS metadata
-      if: steps.check-frame.outputs.exists == 'true'
+      if: steps.check-frame.outputs.exists == 'true' && steps.datapackage-create.outputs.success == 'true'
       working-directory: >-
         ${{ matrix.asset }}
       run: |
