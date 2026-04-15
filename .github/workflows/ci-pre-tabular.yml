@@ -82,9 +82,10 @@ jobs:
         set -euo pipefail
 
         # If assets were provided by the caller, use them directly.
-        if [ -n "${{ inputs.assets }}" ] && [ "${{ inputs.assets }}" != "[]" ]; then
-          echo "assets=${{ inputs.assets }}" >> "$GITHUB_OUTPUT"
-          echo "Using provided assets: ${{ inputs.assets }}"
+        PROVIDED_ASSETS='${{ inputs.assets }}'
+        if [ -n "${PROVIDED_ASSETS}" ] && [ "${PROVIDED_ASSETS}" != "[]" ]; then
+          echo "assets=${PROVIDED_ASSETS}" >> "$GITHUB_OUTPUT"
+          echo "Using provided assets: ${PROVIDED_ASSETS}"
           exit 0
         fi
 
