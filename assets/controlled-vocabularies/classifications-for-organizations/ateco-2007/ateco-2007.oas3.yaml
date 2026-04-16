@@ -1,0 +1,151 @@
+components:
+  schemas:
+    Item:
+      example:
+        definition: 'Questa divisione include due attività  di base, la produzione
+          derivante da coltivazioni agricole e la produzione di prodotti animali;
+          includendo anche le forme di agricoltura biologica, coltivazione di prodotti
+          geneticamente modificati e l''allevamento di animali geneticamente modificati.
+          Questa divisione include la coltivazione di colture in piena aria ed in
+          serre. Questa divisione include le coltivazioni di colture fuori suolo,
+          inclusa idroponica e acquaponica; l’acquaponica rappresenta un sistema produttivo
+          che prevede la produzione combinata di prodotti agricoli e prodotti della
+          pesca: le attività che utilizzano tale tecnica sono classificate nella
+          divisione 01 solo se le coltivazioni agricole rappresentano il principale
+          output dell’attività, altrimenti sono classificate nella divisione 03.
+
+          Inoltre, sono incluse le attività  di servizio accessorie all''agricoltura,
+          alla caccia e alle attività  a queste relative.
+
+          Il gruppo 01.5 (Coltivazioni agricole associate all''allevamento di animali:
+          attività  mista) costituisce una eccezione ai principi generali adottati
+          per l''identificazione dell''attività  principale. Si ammette che un''azienda
+          agricola possa avere una ben bilanciata produzione sia agricola che animale.
+          In questo caso sarebbe arbitrario classificare l''azienda in una categoria
+          o nell''altra.
+
+          L''attività  agricola esclude qualsiasi lavorazione successiva dei prodotti
+          agricoli (classificata nelle divisioni 10 e 11 (Produzione di prodotti alimentari
+          e bevande) e nella divisione 12 (Produzione di prodotti del tabacco), ad
+          eccezione di quelle necessarie per preparare i prodotti per i mercati primari.
+          Comunque, come eccezione alla regola generale di classificazione delle attività 
+          svolte in maniera integrata, una unità  che trasforma in prevalenza i propri
+          prodotti agricoli all''interno dell''azienda viene classificata nella 01
+          (Agricoltura), anche se l''output normalmente à¨ un prodotto della sezione
+          C (Attività  manifatturiere). Ne sono esempi:
+
+          -  la produzione di vino da uve prevalentemente proprie;
+
+          -   la produzione di olio di pressione da olive prevalentemente proprie.
+
+          Dalla divisione sono esclusi i lavori di movimento terra per l''agricoltura
+          (ad esempio: il terrazzamento di terreni agricoli, il drenaggio, la preparazione
+          di risaie eccetera) classificati nella sezione F (Costruzioni) ed i gruppi
+          di acquisto e le associazioni cooperative che svolgono attività  di commercializzazione
+          di prodotti agricoli, classificate nella sezione G. àˆ anche esclusa l''attività 
+          di cura e manutenzione del paesaggio (81.30).'
+        id: '01'
+        label_it: COLTIVAZIONI AGRICOLE E PRODUZIONE DI PRODOTTI ANIMALI, CACCIA E
+          SERVIZI CONNESSI
+        parent:
+        - id: A
+          uri: https://w3id.org/italia/controlled-vocabulary/classifications-for-organizations/ateco-2007/A
+        uri: https://w3id.org/italia/controlled-vocabulary/classifications-for-organizations/ateco-2007/01
+        vocab:
+        - uri: https://w3id.org/italia/controlled-vocabulary/classifications-for-organizations/ateco-2007
+      properties:
+        definition:
+          type: string
+        id:
+          minLength: 1
+          pattern: ^[A-Za-z0-9._-]+$
+          type: string
+        label_it:
+          maxLength: 500
+          minLength: 1
+          type: string
+        parent:
+          items:
+            properties:
+              id:
+                type: string
+              uri:
+                format: uri-reference
+                type: string
+            required:
+            - id
+            - uri
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+        uri:
+          format: uri-reference
+          type: string
+        vocab:
+          items:
+            properties:
+              uri:
+                format: uri-reference
+                type: string
+            required:
+            - uri
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+      required:
+      - definition
+      - id
+      - parent
+      - uri
+      - vocab
+      type: object
+      x-jsonld-context:
+        clvapit: https://w3id.org/italia/onto/CLV/
+        covapit: https://w3id.org/italia/onto/COV/
+        dct: http://purl.org/dc/terms/
+        definition:
+          '@id': skos:definition
+        id:
+          '@id': skos:notation
+        label_it:
+          '@id': skos:prefLabel
+          '@language': it
+        level:
+          '@id': clvapit:hasRankOrder
+          '@type': xsd:int
+        parent:
+          '@container': '@set'
+          '@context':
+            uri: '@id'
+          '@id': skos:broader
+        skos: http://www.w3.org/2004/02/skos/core#
+        uri: '@id'
+        vocab:
+          '@container': '@set'
+          '@context':
+            uri: '@id'
+          '@id': skos:inScheme
+        xsd: http://www.w3.org/2001/XMLSchema#
+      x-jsonld-type: covapit:PrivateOrgActivityType
+      x-validation:
+        error_count: 0
+        errors: []
+        valid: true
+info:
+  contact:
+    email: info@dati.gov.it
+    name: banche dati e open data
+    url: https://w3id.org/italia/data/public-organization/ISTAT
+  description: Classificazione ISTAT Ateco 2007 - Aggiornamento 2021; la classificazione
+    è usata per catalogare le attività economiche. E' la classificazione di riferimento
+    per il Registro Imprese
+  title: Ateco 2007 - Classificazione delle attività economiche - Aggiornamento 2021
+  version: versione 2007 - aggiornamento 2021
+  x-agencyId: istat
+  x-keyConcept: ateco-2007
+  x-summary: ''
+openapi: 3.0.0
+paths: {}
+servers: []

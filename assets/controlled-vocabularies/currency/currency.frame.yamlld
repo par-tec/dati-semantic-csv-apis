@@ -9,7 +9,7 @@
   xkos: http://rdf-vocabulary.ddialliance.org/xkos#
   xsd: "http://www.w3.org/2001/XMLSchema#"
   euvoc: "http://publications.europa.eu/ontology/euvoc#"
-  url: "@id"
+  uri: "@id"
   id:
     "@id": "dc:identifier"
   label_it:
@@ -37,11 +37,11 @@
 "@omitDefault": true
 "@requireAll": true
 "@type": skos:Concept
-url: {}
+uri: {}
 deprecated: "false"
 # The vocabularies containing the Concept.
 vocab:
-- url: {}
+- uri: {}
   "@embed": "@never"
 id: {}
 label:

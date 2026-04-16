@@ -1,0 +1,291 @@
+---
+# Pre-Tabular Asset Generation Workflow
+#
+# This workflow manages the creation of Frictionless Data Package metadata from RDF vocabularies
+# stored in the assets/controlled-vocabularies directory.
+#
+name: Pre-Tabular Asset Generation
+permissions: {}
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      repo:
+        description: 'Repository to fetch the cli-binary artifact
+          from (owner/repo)'
+        required: true
+        type: string
+      python_version:
+        description: 'Python version to use'
+        required: false
+        type: string
+        default: '3.14'
+      checkout_ref:
+        description: 'Branch/ref to checkout'
+        required: false
+        type: string
+        default: 'assets'
+      max_parallel_jobs:
+        description: 'Maximum number of parallel jobs to run'
+        required: true
+        type: number
+        default: 1
+      frame_prefix:
+        description: 'Prefix appended to asset name when resolving the frame file
+          (e.g. -csv → <asset>-csv.frame.yamlld). Leave empty for the default <asset>.frame.yamlld.'
+        required: false
+        type: string
+        default: ''
+      assets:
+        description: 'JSON array of asset paths to process. If provided, skips change
+          detection and processes exactly these assets.'
+        required: false
+        type: string
+        default: ''
+  push:
+    branches:
+    - assets
+    paths:
+    - 'assets/controlled-vocabularies/**'
+    - '.github/workflows/ci-pre-tabular.yml'
+  pull_request:
+    branches:
+    - assets
+    paths:
+    - 'assets/controlled-vocabularies/**'
+    - '.github/workflows/ci-pre-tabular.yml'
+env:
+  CI: true
+  PYTHON_VERSION: ${{ inputs.python_version || '3.14' }}
+  SOURCE_REF: ${{ github.event.pull_request.head.sha || github.sha
+    }}
+  CHECKOUT_REF: ${{ inputs.checkout_ref || 'assets' }}
+  VOCABULARY_DIR: 'assets/controlled-vocabularies'
+  FRAME_PREFIX: ${{ inputs.frame_prefix || '' }}
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      assets: ${{ steps.detect.outputs.assets }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+        ref: ${{ env.CHECKOUT_REF }}
+    - name: Detect changed assets
+      id: detect
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        # If assets were provided by the caller, use them directly.
+        PROVIDED_ASSETS='${{ inputs.assets }}'
+        if [ -n "${PROVIDED_ASSETS}" ] && [ "${PROVIDED_ASSETS}" != "[]" ]; then
+          echo "assets=${PROVIDED_ASSETS}" >> "$GITHUB_OUTPUT"
+          echo "Using provided assets: ${PROVIDED_ASSETS}"
+          exit 0
+        fi
+
+        EVENT="${{ github.event_name }}"
+
+        mapfile -t ALL_DIRS < <(find "$VOCABULARY_DIR" -type f -name "*.ttl" -exec dirname {} \; | sort -u)
+
+        FILTERED_DIRS=()
+        for DIR in "${ALL_DIRS[@]}"; do
+          mapfile -t TTL_FILES < <(find "$DIR" -maxdepth 3 -type f -name "*.ttl")
+          COUNT=${#TTL_FILES[@]}
+          if [ "$COUNT" -gt 1 ]; then
+            echo "::warning::Directory $DIR contains $COUNT TTL files. Skipping."
+            continue
+          fi
+          FILTERED_DIRS+=("$DIR")
+        done
+
+        CHANGED_FILES=""
+        BASE_SHA=""
+        if [ "$EVENT" != "workflow_dispatch" ]; then
+          if [ "$EVENT" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_SHA="${{ github.event.before }}"
+            HEAD_SHA="${{ github.sha }}"
+            if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+              BASE_SHA=""
+            fi
+          fi
+        fi
+        if [ -n "${BASE_SHA}" ]; then
+          CHANGED_FILES=$(git diff --name-only "${BASE_SHA}..${HEAD_SHA}" -- "${VOCABULARY_DIR}/" 2>/dev/null || true)
+        fi
+
+        ASSETS_JSON="["
+        FIRST=true
+        for DIR in "${FILTERED_DIRS[@]}"; do
+          if [ -n "${BASE_SHA}" ]; then
+            RELEVANT=$(echo "$CHANGED_FILES" | grep -cE "^${DIR}/.*(\.ttl|\.frame\.yamlld)$" || true)
+            if [ "$RELEVANT" -eq 0 ]; then
+              continue
+            fi
+          fi
+          if [ "$FIRST" = "false" ]; then ASSETS_JSON+=","; fi
+          ASSETS_JSON+="\"${DIR}\""
+          FIRST=false
+        done
+        ASSETS_JSON+="]"
+        echo "assets=${ASSETS_JSON}" >> "$GITHUB_OUTPUT"
+        echo "Detected assets: ${ASSETS_JSON}"
+
+  ci-pre-tabular:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.assets != '[]' && needs.detect-changes.outputs.assets
+      != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ inputs.max_parallel_jobs || 1 }}
+      matrix:
+        asset: >-
+          ${{ fromJson(needs.detect-changes.outputs.assets) }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: true
+        ref: ${{ env.CHECKOUT_REF }}
+    - name: Set up Python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Download binary artifact
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        INPUTS_REPO: ${{ inputs.repo }}
+      run: |
+        set -e
+        REPO="${INPUTS_REPO}"
+        echo "Fetching latest workflow run..."
+        RUN_ID=$(gh run list \
+          --repo "$REPO" \
+          --workflow "Test" \
+          --limit 1 \
+          --json databaseId \
+          --jq '.[0].databaseId')
+        echo "Latest run ID: ${RUN_ID}"
+        if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+          echo "No run found for workflow Test"
+          exit 1
+        fi
+        echo "Downloading artifact..."
+        gh run download "$RUN_ID" \
+          --repo "$REPO" \
+          --name cli-binary \
+          --dir /tmp/cli-binary
+        cp /tmp/cli-binary/schema_gov_it_tools.bin /usr/local/bin/
+        chmod +x /usr/local/bin/schema_gov_it_tools.bin
+        /usr/local/bin/schema_gov_it_tools.bin --version
+
+    - name: Debug matrix asset
+      run: |
+        echo "Processing directory: '${MATRIX_ASSET}'"
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+
+    - name: Check frame file exists
+      id: check-frame
+      working-directory: ${{ matrix.asset }}
+      shell: bash
+      run: |
+        shopt -s nullglob
+        FRAME_FILES=( *.frame.yamlld )
+        if (( ${#FRAME_FILES[@]} == 0 )); then
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+          echo "No .frame.yamlld file found in $(pwd)"
+          exit 0
+        fi
+        FRAME_FILE="${FRAME_FILES[0]}"
+        echo "exists=true" >> "$GITHUB_OUTPUT"
+        echo "frame_file=$FRAME_FILE" >> "$GITHUB_OUTPUT"
+        echo "Found frame file: $FRAME_FILE"
+
+    - name: Warn missing frame
+      if: steps.check-frame.outputs.exists == 'false'
+      run: |
+        echo "::warning title=Missing frame file::No frame file found for asset '${MATRIX_ASSET}'. This asset will be skipped."
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+
+    - name: Create datapackage metadata
+      id: datapackage-create
+      if: steps.check-frame.outputs.exists == 'true'
+      working-directory: >-
+        ${{ matrix.asset }}
+      shell: bash
+      run: |
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+        if /usr/local/bin/schema_gov_it_tools.bin datapackage create \
+        --ttl "${ASSET_NAME}.ttl" \
+        --frame "${ASSET_NAME}${FRAME_PREFIX}.frame.yamlld" \
+        --vocabulary-uri "changeme" \
+        --output "datapackage.yaml" \
+        --lang it \
+        --force; then
+          echo "Generated datapackage.yaml for ${MATRIX_ASSET}"
+          echo "success=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "::warning title=Invalid frame::datapackage create failed for '${MATRIX_ASSET}'. The frame may be incompatible (e.g. uses 'url' instead of 'uri'). This asset will be skipped."
+          echo "success=false" >> "$GITHUB_OUTPUT"
+        fi
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+
+    - name: Create OAS metadata
+      if: steps.check-frame.outputs.exists == 'true' && steps.datapackage-create.outputs.success == 'true'
+      working-directory: >-
+        ${{ matrix.asset }}
+      run: |
+        ASSET_NAME=$(ls *.ttl 2>/dev/null | sed 's/\.ttl$//')
+        JSONLD_FILE="${ASSET_NAME}${FRAME_PREFIX}.data.yaml"
+        if [ ! -f "${JSONLD_FILE}" ]; then
+          echo "No ${JSONLD_FILE} found, generating from TTL and frame..."
+          /usr/local/bin/schema_gov_it_tools.bin jsonld create \
+          --ttl "${ASSET_NAME}.ttl" \
+          --frame "${ASSET_NAME}${FRAME_PREFIX}.frame.yamlld" \
+          --vocabulary-uri "changeme" \
+          --output "${JSONLD_FILE}" \
+          --force
+        else
+          echo "Using existing ${JSONLD_FILE}"
+        fi
+        /usr/local/bin/schema_gov_it_tools.bin openapi create \
+        --ttl "${ASSET_NAME}.ttl" \
+        --jsonld "${JSONLD_FILE}" \
+        --frame "${ASSET_NAME}${FRAME_PREFIX}.frame.yamlld" \
+        --vocabulary-uri "changeme" \
+        --output "${ASSET_NAME}.oas3.yaml" \
+        --force
+        echo "Generated ${ASSET_NAME}.oas3.yaml for ${MATRIX_ASSET}"
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
+
+    - name: Commit datapackage & OAS changes
+      if: steps.check-frame.outputs.exists == 'true'
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add "${MATRIX_ASSET}/datapackage.yaml"
+        git add "${MATRIX_ASSET}/*.oas3.yaml"
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+          exit 0
+        fi
+        git commit -m "ci: generate datapackage for ${MATRIX_ASSET} [skip ci]"
+        git push origin HEAD:EricaCandido-70
+      env:
+        MATRIX_ASSET: ${{ matrix.asset }}
