@@ -37,7 +37,7 @@ env:
   CI: true
   PYTHON_VERSION: ${{ inputs.python_version }}
   VOCABULARY_DIR: 'assets/controlled-vocabularies'
-  CLI_VERSION: '0.0.14'
+  CLI_VERSION: '0.0.15'
   # To avoid clashes between CSV and API frames and data,
   #  you can use the "-csv" suffix for CSV-specific files,
   #  otherwise the same data.yaml is used for both CSV and APIStore.
@@ -285,8 +285,7 @@ jobs:
         /usr/local/bin/schema_gov_it_tools.bin \
           csv validate \
           --ttl "${ASSET_NAME}.ttl" \
-          --datapackage "datapackage.yaml" \
-          --vocabulary-uri self
+          --datapackage "datapackage.yaml"
 
         echo "csv_exists=true" >> "$GITHUB_OUTPUT"
     - name: Create Pull Request
