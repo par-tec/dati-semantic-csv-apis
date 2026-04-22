@@ -162,8 +162,6 @@ jobs:
       run: |
         git fetch origin ${{ github.sha }}
         git checkout ${{ github.sha }} -- "${{ matrix.asset.path }}"
-      env:
-        MATRIX_ASSET: ${{ matrix.asset.path }}
     - name: Set up Python
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
@@ -229,7 +227,7 @@ jobs:
         !contains(matrix.asset.path, 'theme-subtheme-mapping')
       working-directory: ${{ matrix.asset.path }}
       run: |
-        set -e
+        set -eu
         ASSET_NAME="${STEPS_CHECK_FILES_OUTPUTS_ASSET_NAME}"
 
         # Use the only vocabulary URI available in the .ttl file.
@@ -253,7 +251,7 @@ jobs:
         !contains(matrix.asset.path, 'theme-subtheme-mapping')
       working-directory: ${{ matrix.asset.path }}
       run: |
-        set -e
+        set -eu
         ASSET_NAME="${STEPS_CHECK_FILES_OUTPUTS_ASSET_NAME}"
 
         # The CSV file to create is defined in the datapackage.yaml.
@@ -265,21 +263,23 @@ jobs:
 
         echo "Generated CSV for ${ASSET_NAME}"
       env:
-        MATRIX_ASSET: ${{ matrix.asset.path }}
         STEPS_CHECK_FILES_OUTPUTS_ASSET_NAME: ${{ steps.check-files.outputs.asset_name
           }}
     - name: Check CSV file
       id: check-csv
       if: >-
-        matrix.asset.needs_csv &&
+        matrix.asset.needs_csv
+        &&
         steps.check-files.outputs.datapackage_exists == 'true'
         &&
         !contains(matrix.asset.path, 'theme-subtheme-mapping')
       working-directory: ${{ matrix.asset.path }}
       env:
-        ASSET_NAME: ${{ steps.check-files.outputs.asset_name }}
+        STEPS_CHECK_FILES_OUTPUTS_ASSET_NAME: ${{ steps.check-files.outputs.asset_name
+          }}
       run: |
         set -euo pipefail
+        ASSET_NAME="${STEPS_CHECK_FILES_OUTPUTS_ASSET_NAME}"
 
         # The CSV file to create is defined in the datapackage.yaml.
         /usr/local/bin/schema_gov_it_tools.bin \
