@@ -1,0 +1,156 @@
+---
+# Asset CSV Generation Workflow
+#
+# This workflow manages the creation and validation of CSV files from RDF vocabularies
+# stored in the assets/controlled-vocabularies directory, by calling internal workflows
+# in sequence.
+#
+name: CI CSV Create
+permissions:
+  pull-requests: write
+  contents: write
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Repository to fetch the cli-binary artifact
+          from (owner/repo)'
+        required: false
+        default: 'teamdigitale/dati-semantic-csv-apis'
+      python_version:
+        description: 'Python version to use'
+        required: false
+        default: '3.14'
+      checkout_ref:
+        description: 'Branch/ref to checkout'
+        required: false
+        default: 'assets'
+      max_parallel_jobs:
+        description: 'Maximum number of parallel jobs to run'
+        required: true
+        type: number
+        default: 1
+      frame_prefix:
+        description: 'Prefix appended to asset name when resolving
+          the frame file (e.g. -csv → <asset>-csv.frame.yamlld).
+          Leave empty for the default <asset>.frame.yamlld.'
+        required: false
+        default: ''
+  push:
+    branches:
+    - assets
+    paths:
+    - 'assets/controlled-vocabularies/**'
+    - '.github/workflows/asset-csv-generation.yml'
+    - '.github/workflows/ci-tabular.yml'
+  pull_request:
+    branches:
+    - assets
+    paths:
+    - 'assets/controlled-vocabularies/**'
+    - '.github/workflows/asset-csv-generation.yml'
+    - '.github/workflows/ci-tabular.yml'
+env:
+  VOCABULARY_DIR: 'assets/controlled-vocabularies'
+  CHECKOUT_REF: ${{ inputs.checkout_ref || 'assets' }}
+  CLI_VERSION: '0.0.14'
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      pretabular_assets: ${{ steps.detect.outputs.pretabular_assets
+        }}
+      tabular_assets: ${{ steps.detect.outputs.tabular_assets
+        }}
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+    - name: Detect changed assets
+      id: detect
+      shell: bash
+      run: |
+        set -euo pipefail
+        EVENT="${{ github.event_name }}"
+
+        mapfile -t ALL_DIRS < <(find "$VOCABULARY_DIR" -type f -name "*.ttl" -exec dirname {} \; | sort -u)
+
+        FILTERED_DIRS=()
+        for DIR in "${ALL_DIRS[@]}"; do
+          mapfile -t TTL_FILES < <(find "$DIR" -maxdepth 3 -type f -name "*.ttl")
+          COUNT=${#TTL_FILES[@]}
+          if [ "$COUNT" -gt 1 ]; then
+            echo "::warning::Directory $DIR contains $COUNT TTL files. Skipping."
+            continue
+          fi
+          FILTERED_DIRS+=("$DIR")
+        done
+
+        CHANGED_FILES=""
+        BASE_SHA=""
+        if [ "$EVENT" = "pull_request" ]; then
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+        elif [ "$EVENT" = "push" ]; then
+          BASE_SHA="${{ github.event.before }}"
+          HEAD_SHA="${{ github.sha }}"
+          if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BASE_SHA=""
+          fi
+        fi
+
+        if [ -n "${BASE_SHA}" ]; then
+          CHANGED_FILES=$(git diff --name-only "${BASE_SHA}..${HEAD_SHA}" -- "${VOCABULARY_DIR}/" 2>/dev/null || true)
+        fi
+
+        PRETABULAR_JSON="["
+        TABULAR_JSON="["
+        FIRST_PRE=true
+        FIRST_TAB=true
+
+        for DIR in "${FILTERED_DIRS[@]}"; do
+          if [ -n "${BASE_SHA}" ]; then
+            TTL_FRAME=$(echo "$CHANGED_FILES" | grep -cE "^${DIR}/.*(\.ttl|\.frame\.yamlld)$" || true)
+            DP=$(echo "$CHANGED_FILES" | grep -cE "^${DIR}/datapackage\.yaml$" || true)
+            if [ "$TTL_FRAME" -eq 0 ] && [ "$DP" -eq 0 ]; then
+              continue
+            fi
+            if [ "$TTL_FRAME" -gt 0 ]; then
+              if [ "$FIRST_PRE" = "false" ]; then PRETABULAR_JSON+=","; fi
+              PRETABULAR_JSON+="\"${DIR}\""
+              FIRST_PRE=false
+            fi
+            if [ "$FIRST_TAB" = "false" ]; then TABULAR_JSON+=","; fi
+            TABULAR_JSON+="\"${DIR}\""
+            FIRST_TAB=false
+          else
+            if [ "$FIRST_PRE" = "false" ]; then PRETABULAR_JSON+=","; fi
+            PRETABULAR_JSON+="\"${DIR}\""
+            FIRST_PRE=false
+            if [ "$FIRST_TAB" = "false" ]; then TABULAR_JSON+=","; fi
+            TABULAR_JSON+="\"${DIR}\""
+            FIRST_TAB=false
+          fi
+        done
+
+        PRETABULAR_JSON+="]"
+        echo "Pre-tabular assets: ${PRETABULAR_JSON}"
+        echo "pretabular_assets=${PRETABULAR_JSON}" >> "$GITHUB_OUTPUT"
+
+        TABULAR_JSON+="]"
+        echo "Tabular assets: ${TABULAR_JSON}"
+        echo "tabular_assets=${TABULAR_JSON}" >> "$GITHUB_OUTPUT"
+
+  ci-tabular:
+    needs: [detect-changes]
+    uses: ./.github/workflows/ci-tabular.yml
+    with:
+      python_version: ${{ inputs.python_version || '3.14' }}
+      checkout_ref: ${{ inputs.checkout_ref || 'assets' }}
+      max_parallel_jobs: ${{ inputs.max_parallel_jobs || 1 }}
+      frame_prefix: ${{ inputs.frame_prefix || '' }}
+      assets: ${{ needs.detect-changes.outputs.tabular_assets
+        }}
+    # secrets: inherit
